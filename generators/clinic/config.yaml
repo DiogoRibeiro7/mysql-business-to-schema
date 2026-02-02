@@ -1,1 +1,19 @@
-# Clinic generator config
+{
+  "seed": 42,
+  "output_dir": "generators/clinic/output",
+  "counts": {
+    "patients": 30,
+    "doctors": 10,
+    "appointments": 200,
+    "invoices": 120,
+    "payments": 150
+  },
+  "date_ranges": {
+    "appointments_start": "2025-02-01",
+    "appointments_end": "2025-03-31",
+    "invoices_start": "2025-02-01",
+    "invoices_end": "2025-03-31",
+    "payments_start": "2025-02-02",
+    "payments_end": "2025-04-15"
+  }
+}
