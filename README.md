@@ -123,6 +123,7 @@ Work through these in order:
 - docs/07-transactions.md
 - docs/08-backups.md
 - docs/09-backup-and-restore.md
+- docs/assignments.md
 
 ## Assignments
 - Implement all constraints in `example_01_clinic/schema/02_constraints.sql`.
