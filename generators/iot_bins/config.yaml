@@ -1,0 +1,101 @@
+seed: 42
+output_dir: "generators/iot_bins/output"
+
+counts:
+  districts: 10
+  bins: 1000
+  sensors_per_bin: 4  # fill_level, temperature, odor, battery
+  trucks: 50
+  drivers: 75
+  days_of_data: 30
+  readings_per_sensor_per_day: 288  # every 5 minutes
+
+date_ranges:
+  historical_start: "2025-01-01"
+  historical_end: "2025-01-31"
+  installation_start: "2023-01-01"
+  installation_end: "2024-12-31"
+
+distributions:
+  bin_types:
+    general: 0.60
+    recycling: 0.25
+    organic: 0.10
+    paper: 0.03
+    glass: 0.01
+    hazardous: 0.01
+
+  location_types:
+    residential: 0.40
+    commercial: 0.25
+    public: 0.15
+    park: 0.08
+    school: 0.07
+    industrial: 0.03
+    hospital: 0.02
+
+  fill_rates:  # liters per day
+    residential:
+      mean: 150
+      std_dev: 50
+    commercial:
+      mean: 300
+      std_dev: 100
+    industrial:
+      mean: 500
+      std_dev: 150
+    park:
+      mean: 100
+      std_dev: 40
+    school:
+      mean: 200
+      std_dev: 80
+    hospital:
+      mean: 400
+      std_dev: 100
+    public:
+      mean: 180
+      std_dev: 60
+
+  sensor_types:
+    - fill_level
+    - temperature
+    - odor
+    - battery
+
+  truck_fuel_types:
+    diesel: 0.60
+    hybrid: 0.25
+    electric: 0.10
+    cng: 0.05
+
+sensor_parameters:
+  reading_frequency_seconds: 300  # 5 minutes
+  battery_degradation_per_day: 0.1
+  offline_probability: 0.02
+  error_reading_probability: 0.005
+
+  temperature:
+    summer_mean: 28
+    summer_std: 5
+    winter_mean: 15
+    winter_std: 4
+
+  odor:
+    base_level: 20
+    filled_multiplier: 3  # odor increases with fill level
+    temperature_factor: 1.5  # odor increases with temperature
+
+alert_parameters:
+  fill_level_warning: 80
+  fill_level_critical: 90
+  battery_low: 20
+  battery_critical: 10
+  temperature_high: 40
+  odor_high: 70
+  offline_hours: 2
+
+city_geography:
+  center_lat: 40.7128
+  center_lon: -74.0060
+  radius_km: 15

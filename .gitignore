@@ -1,1 +1,395 @@
-# Ignore files
+# =========================
+# Generated Data Files
+# =========================
+# Generator output directories
+generators/*/output/
+generators/*/*/output/
+*.csv
+*.xlsx
+*.xls
+*.dat
+
+# Generated SQL files (keep schema files, ignore data dumps)
+**/seed_generated.sql
+**/load_generated.sql
+**/data_dump.sql
+**/backup_*.sql
+
+# Large data files
+*.json
+!package.json
+!composer.json
+*.jsonl
+*.parquet
+*.arrow
+*.feather
+
+# =========================
+# Python
+# =========================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.env.local
+.env.*.local
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# =========================
+# Database
+# =========================
+# MySQL
+*.sql.gz
+*.sql.zip
+*.sql.bz2
+mysql-data/
+mysql_data/
+/data/
+/db_data/
+
+# Database dumps (but keep schema files)
+dumps/
+backups/
+*.dump
+*.bak
+
+# Database connection configs with credentials
+**/database.ini
+**/db.conf
+**/mysql.conf
+.my.cnf
+
+# =========================
+# IDEs and Editors
+# =========================
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# IntelliJ IDEA / PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+Session.vim
+Sessionx.vim
+.netrwhist
+*~
+tags
+[._]*.un~
+
+# Emacs
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+*_flymake.*
+
+# =========================
+# Operating System
+# =========================
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# =========================
+# Logs and Temporary Files
+# =========================
+*.log
+*.log.*
+logs/
+log/
+tmp/
+temp/
+*.tmp
+*.temp
+*.pid
+*.seed
+*.pid.lock
+
+# =========================
+# Security and Credentials
+# =========================
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.template
+
+# Local settings
+settings.local.json
+config.local.json
+*.local.json
+
+# Credentials
+**/credentials.json
+**/credentials.yml
+**/credentials.yaml
+**/secrets.json
+**/secrets.yml
+**/secrets.yaml
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+
+# SSH keys
+id_rsa
+id_rsa.pub
+id_dsa
+id_dsa.pub
+id_ecdsa
+id_ecdsa.pub
+id_ed25519
+id_ed25519.pub
+known_hosts
+
+# Cloud provider credentials
+.aws/
+aws_credentials
+.gcloud/
+application_default_credentials.json
+.azure/
+
+# =========================
+# Docker
+# =========================
+# Docker volumes (but keep docker-compose files)
+docker/mysql-data/
+docker/data/
+docker/volumes/
+
+# =========================
+# Node.js (if any front-end)
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.yarn-integrity
+
+# =========================
+# Documentation Build
+# =========================
+_build/
+_site/
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# =========================
+# Project Specific
+# =========================
+# Keep example seed data but ignore generated data
+!example_*/data/seed.sql
+example_*/data/*.csv
+example_*/data/generated/
+
+# Generator test runs
+generators/*/test_output/
+generators/*/temp/
+
+# Benchmarks and performance tests
+benchmarks/results/
+performance/*.csv
+performance/*.json
+
+# Local configuration overrides
+local.config.yaml
+local.config.yml
+*.local.yaml
+*.local.yml
+
+# Claude artifacts
+.claude/
+
+# =========================
+# Archives
+# =========================
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+*.bz2
+*.xz
+
+# =========================
+# Keep These Files
+# =========================
+# Keep schema files
+!**/schema/*.sql
+
+# Keep query examples
+!**/queries/*.sql
+
+# Keep stored procedures
+!**/procedures/*.sql
+
+# Keep documentation
+!**/README.md
+!**/README.txt
+!docs/**
+
+# Keep configuration templates
+!**/config.yaml.template
+!**/config.yaml.example
+!**/.env.example
+
+# Keep generator configs
+!generators/*/config.yaml
+
+# Keep docker compose files
+!docker-compose.yml
+!docker-compose.yaml
+!docker/docker-compose.yml
+!docker/docker-compose.yaml

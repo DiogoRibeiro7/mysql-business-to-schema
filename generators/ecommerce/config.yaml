@@ -1,0 +1,224 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  users: 5000
+  products: 2000
+  categories: 50
+  brands: 100
+  warehouses: 5
+  suppliers: 50
+  orders: 10000
+  reviews_percentage: 0.15  # 15% of orders get reviews
+  cart_abandonment_rate: 0.70  # 70% of carts are abandoned
+  days_of_data: 90  # 3 months of data
+
+date_ranges:
+  business_start: "2024-01-01"
+  data_start: "2024-11-01"
+  data_end: "2025-01-31"
+
+user_distribution:
+  # Customer segments
+  segments:
+    regular: 0.60      # Regular shoppers
+    premium: 0.20      # High-value customers
+    occasional: 0.15   # Infrequent buyers
+    new: 0.05         # New customers
+
+  # Geographic distribution
+  regions:
+    northeast: 0.25
+    southeast: 0.20
+    midwest: 0.20
+    southwest: 0.15
+    west: 0.20
+
+product_categories:
+  # Main categories and their distribution
+  electronics: 0.25
+  clothing: 0.20
+  home_garden: 0.15
+  books: 0.10
+  sports: 0.10
+  beauty: 0.10
+  toys: 0.05
+  food: 0.05
+
+price_ranges:
+  # Price distribution for products
+  electronics: [29.99, 2999.99]
+  clothing: [9.99, 299.99]
+  home_garden: [14.99, 999.99]
+  books: [4.99, 49.99]
+  sports: [9.99, 499.99]
+  beauty: [4.99, 149.99]
+  toys: [9.99, 199.99]
+  food: [2.99, 99.99]
+
+inventory:
+  # Initial stock levels
+  stock_min: 0
+  stock_max: 1000
+  reorder_point_percentage: 0.20  # 20% of max stock
+
+  # Warehouse distribution
+  distribution_strategies:
+    centralized: 0.30    # All stock in one warehouse
+    distributed: 0.50    # Evenly distributed
+    regional: 0.20       # Based on demand patterns
+
+order_patterns:
+  # Orders per day patterns
+  weekday:
+    monday: 0.9
+    tuesday: 1.0
+    wednesday: 1.1
+    thursday: 1.0
+    friday: 1.2
+    saturday: 1.5
+    sunday: 1.3
+
+  # Seasonal multipliers
+  seasonal:
+    january: 0.8      # Post-holiday slowdown
+    february: 0.9
+    march: 1.0
+    april: 1.0
+    may: 1.1
+    june: 1.0
+    july: 1.0
+    august: 1.0
+    september: 1.1
+    october: 1.2
+    november: 1.8     # Black Friday
+    december: 2.0     # Holiday shopping
+
+  # Time of day distribution (24-hour)
+  hourly:
+    0-6: 0.05
+    6-9: 0.10
+    9-12: 0.15
+    12-15: 0.20
+    15-18: 0.15
+    18-21: 0.25
+    21-24: 0.10
+
+  # Items per order
+  items_per_order:
+    min: 1
+    max: 10
+    avg: 2.5
+
+payment_methods:
+  credit_card: 0.60
+  debit_card: 0.20
+  paypal: 0.15
+  apple_pay: 0.03
+  google_pay: 0.02
+
+shipping_options:
+  standard: 0.60      # 5-7 days, $5.99
+  express: 0.30       # 2-3 days, $12.99
+  overnight: 0.05     # Next day, $29.99
+  free: 0.05         # 7-10 days, $0 (orders > $50)
+
+order_status_flow:
+  # Percentage that reach each status
+  pending: 1.00
+  processing: 0.98
+  shipped: 0.95
+  delivered: 0.93
+  completed: 0.92
+
+  # Problem orders
+  cancelled: 0.05
+  returned: 0.03
+  refunded: 0.02
+
+review_distribution:
+  # Star ratings
+  5_star: 0.40
+  4_star: 0.30
+  3_star: 0.15
+  2_star: 0.10
+  1_star: 0.05
+
+  # Review characteristics
+  with_text: 0.60    # Percentage with written review
+  with_images: 0.10  # Percentage with photos
+  verified: 0.85     # Verified purchase
+
+promotional_campaigns:
+  # Discount campaigns
+  campaigns:
+    - name: "New Year Sale"
+      discount: 0.20
+      start: "2024-01-01"
+      end: "2024-01-07"
+    - name: "Valentine's Day"
+      discount: 0.15
+      start: "2024-02-10"
+      end: "2024-02-14"
+    - name: "Spring Sale"
+      discount: 0.25
+      start: "2024-03-20"
+      end: "2024-03-27"
+    - name: "Black Friday"
+      discount: 0.40
+      start: "2024-11-29"
+      end: "2024-11-29"
+    - name: "Cyber Monday"
+      discount: 0.35
+      start: "2024-12-02"
+      end: "2024-12-02"
+    - name: "Holiday Sale"
+      discount: 0.30
+      start: "2024-12-15"
+      end: "2024-12-25"
+
+  # Coupon usage
+  coupon_usage_rate: 0.25  # 25% of orders use coupons
+
+customer_behavior:
+  # Return rates by category
+  return_rates:
+    electronics: 0.05
+    clothing: 0.20    # Higher due to sizing
+    home_garden: 0.03
+    books: 0.01
+    sports: 0.08
+    beauty: 0.05
+    toys: 0.03
+    food: 0.02
+
+  # Browse to purchase conversion
+  conversion_rates:
+    regular: 0.05
+    premium: 0.08
+    occasional: 0.03
+    new: 0.02
+
+  # Customer lifetime value multipliers
+  ltv_multipliers:
+    regular: 1.0
+    premium: 3.5
+    occasional: 0.5
+    new: 0.8
+
+fraud_patterns:
+  # Suspicious activity rates
+  fraud_rate: 0.002  # 0.2% of transactions
+
+  # Risk indicators
+  high_risk_signals:
+    new_account_large_order: 0.10
+    multiple_failed_payments: 0.05
+    unusual_shipping_address: 0.08
+    rapid_order_velocity: 0.15
+
+supplier_reliability:
+  # Supplier performance
+  on_time_delivery: 0.95
+  quality_issues: 0.02
+  out_of_stock: 0.05

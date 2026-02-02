@@ -1,0 +1,124 @@
+seed: 42
+output_dir: "generators/smart_energy/output"
+
+counts:
+  utilities: 3
+  transformers_per_utility: 20
+  customers_per_utility: 500
+  meters_to_generate: 100  # Limit for demo (full would be thousands)
+  demand_response_events: 10
+  outages: 5
+
+date_ranges:
+  days_of_data: 7  # One week of data for demo
+  historical_start: "2025-01-25"
+  historical_end: "2025-02-01"
+
+# Customer distribution
+customer_types:
+  residential: 0.70
+  commercial: 0.25
+  industrial: 0.05
+
+# Solar adoption rates
+solar_adoption:
+  residential: 0.15  # 15% have solar
+  commercial: 0.25   # 25% have solar
+  industrial: 0.35   # 35% have solar
+
+# EV adoption rates
+ev_adoption:
+  residential: 0.10  # 10% have EV
+  commercial: 0.05   # 5% have EV charging
+  industrial: 0.02   # 2% have fleet charging
+
+# Demand response enrollment
+demand_response_enrollment:
+  residential: 0.30  # 30% enrolled
+  commercial: 0.50   # 50% enrolled
+  industrial: 0.70   # 70% enrolled
+
+# Energy consumption patterns (kW)
+consumption_patterns:
+  residential:
+    base: 0.5
+    peak: 4.0
+    overnight: 1.0
+  commercial:
+    base: 10.0
+    peak: 50.0
+    overnight: 5.0
+  industrial:
+    base: 100.0
+    peak: 500.0
+    overnight: 80.0
+
+# Solar generation parameters
+solar_parameters:
+  residential_capacity_kw: [3.0, 10.0]
+  commercial_capacity_kw: [10.0, 100.0]
+  industrial_capacity_kw: [100.0, 1000.0]
+  efficiency_range: [0.15, 0.22]  # 15-22% panel efficiency
+
+# Transformer specifications
+transformer_sizes_kva: [25, 50, 75, 100, 150, 250]
+
+# Rate plans
+rate_plans:
+  residential: ["standard", "time_of_use", "tiered"]
+  commercial: ["commercial_standard", "commercial_tou", "demand_charge"]
+  industrial: ["industrial_demand", "industrial_interruptible", "custom_contract"]
+
+# Meter models
+meter_models: ["GE_I210+", "Landis_E650", "Itron_OpenWay", "Sensus_iCon"]
+
+# Communication types
+communication_types: ["cellular", "rf_mesh", "plc"]
+
+# Outage causes
+outage_causes: ["equipment_failure", "weather", "tree_contact", "animal", "unknown"]
+
+# Time-of-use pricing (cents per kWh)
+tou_pricing:
+  peak: 25.0
+  mid_peak: 18.0
+  off_peak: 12.0
+  super_off_peak: 8.0
+
+# Peak hours definition
+peak_hours:
+  summer:
+    peak: [14, 20]      # 2 PM - 8 PM
+    mid_peak: [10, 14]  # 10 AM - 2 PM
+  winter:
+    peak: [17, 21]      # 5 PM - 9 PM
+    mid_peak: [7, 10]   # 7 AM - 10 AM
+
+# Seasonal factors for consumption
+seasonal_factors:
+  summer: [1.2, 1.5]   # 20-50% increase
+  winter: [1.1, 1.3]   # 10-30% increase
+  spring: [0.8, 1.0]   # 20% decrease to normal
+  fall: [0.8, 1.0]     # 20% decrease to normal
+
+# Power quality parameters
+power_quality:
+  voltage_nominal: 240
+  voltage_tolerance: 5  # +/- 5V
+  frequency_nominal: 60
+  frequency_tolerance: 0.5  # +/- 0.5Hz
+  thd_voltage_max: 5.0  # % Total harmonic distortion
+  thd_current_max: 8.0  # %
+  power_factor_min: 0.85
+
+# Battery storage parameters (for future expansion)
+battery_parameters:
+  residential_capacity_kwh: [5, 15]
+  commercial_capacity_kwh: [50, 500]
+  efficiency: 0.92  # Round-trip efficiency
+
+# Weather impact on consumption
+weather_impact:
+  temp_above_30c: 1.3  # 30% increase for cooling
+  temp_below_0c: 1.25  # 25% increase for heating
+  cloudy_solar_reduction: 0.6  # 60% reduction in solar output
