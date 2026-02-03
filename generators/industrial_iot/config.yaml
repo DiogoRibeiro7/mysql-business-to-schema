@@ -1,0 +1,259 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  factories: 3
+  production_lines: 12  # 4 per factory
+  machines: 60  # 5 per line
+  sensors_per_machine: 8
+  operators: 100
+  products: 20
+  work_orders_per_day: 50
+  days_of_data: 7
+
+date_ranges:
+  factory_established: "2015-01-01"
+  data_start: "2025-01-25"
+  data_end: "2025-02-01"
+
+factory_distribution:
+  locations:
+    - name: "Detroit Plant"
+      type: "automotive"
+      shifts: 3
+    - name: "Phoenix Facility"
+      type: "electronics"
+      shifts: 2
+    - name: "Atlanta Factory"
+      type: "consumer_goods"
+      shifts: 3
+
+machine_types:
+  cnc_mill: 0.20
+  injection_mold: 0.15
+  assembly_robot: 0.20
+  conveyor: 0.10
+  packaging: 0.10
+  quality_inspection: 0.10
+  welding_robot: 0.10
+  3d_printer: 0.05
+
+sensor_types:
+  # Sensor configurations per machine
+  temperature:
+    unit: "celsius"
+    normal_range: [60, 80]
+    critical: 95
+    sampling_rate_seconds: 5
+
+  vibration:
+    unit: "mm/s"
+    normal_range: [0.5, 4.5]
+    critical: 7.0
+    sampling_rate_seconds: 1
+
+  pressure:
+    unit: "bar"
+    normal_range: [4, 6]
+    critical: 8
+    sampling_rate_seconds: 5
+
+  current:
+    unit: "amps"
+    normal_range: [10, 30]
+    critical: 40
+    sampling_rate_seconds: 1
+
+  speed:
+    unit: "rpm"
+    normal_range: [1000, 3000]
+    critical: 3500
+    sampling_rate_seconds: 1
+
+  humidity:
+    unit: "percent"
+    normal_range: [30, 60]
+    critical: 80
+    sampling_rate_seconds: 30
+
+  power:
+    unit: "kW"
+    normal_range: [5, 25]
+    critical: 30
+    sampling_rate_seconds: 5
+
+  cycle_count:
+    unit: "cycles"
+    normal_range: [0, 1000000]
+    critical: 1000000
+    sampling_rate_seconds: 60
+
+production_metrics:
+  # Target OEE components
+  availability_target: 0.90  # 90% uptime
+  performance_target: 0.95  # 95% of ideal speed
+  quality_target: 0.99      # 99% good parts
+
+  # Typical values by shift
+  shift_performance:
+    morning:
+      availability: [0.88, 0.94]
+      performance: [0.92, 0.98]
+      quality: [0.97, 0.995]
+
+    afternoon:
+      availability: [0.85, 0.92]
+      performance: [0.90, 0.96]
+      quality: [0.96, 0.99]
+
+    night:
+      availability: [0.82, 0.90]
+      performance: [0.88, 0.94]
+      quality: [0.95, 0.985]
+
+  # Production rates (units per hour)
+  production_rates:
+    cnc_mill: [10, 30]
+    injection_mold: [100, 500]
+    assembly_robot: [50, 200]
+    packaging: [200, 1000]
+    welding_robot: [20, 60]
+    3d_printer: [1, 5]
+
+downtime_reasons:
+  planned:
+    maintenance: 0.30
+    changeover: 0.25
+    breaks: 0.20
+    setup: 0.15
+    cleaning: 0.10
+
+  unplanned:
+    equipment_failure: 0.35
+    material_shortage: 0.20
+    quality_issue: 0.15
+    operator_absent: 0.10
+    power_outage: 0.05
+    other: 0.15
+
+quality_defects:
+  # Defect types and rates
+  dimensional: 0.30
+  surface_finish: 0.25
+  assembly_error: 0.20
+  material_defect: 0.15
+  contamination: 0.10
+
+  # Defect rates by product quality level
+  defect_rates:
+    high_quality: 0.005    # 0.5%
+    standard: 0.01         # 1%
+    economy: 0.02          # 2%
+
+maintenance_patterns:
+  # Predictive maintenance thresholds
+  vibration_warning: 5.5      # mm/s
+  temperature_warning: 85     # celsius
+  cycles_warning: 800000      # cycles
+
+  # Maintenance types
+  maintenance_types:
+    preventive: 0.60
+    predictive: 0.25
+    corrective: 0.15
+
+  # MTBF (Mean Time Between Failures) hours
+  mtbf_ranges:
+    cnc_mill: [500, 1000]
+    injection_mold: [800, 1500]
+    assembly_robot: [1000, 2000]
+    conveyor: [2000, 5000]
+    packaging: [1500, 3000]
+
+energy_consumption:
+  # kWh per hour of operation
+  machine_consumption:
+    cnc_mill: [15, 30]
+    injection_mold: [20, 40]
+    assembly_robot: [5, 15]
+    conveyor: [2, 5]
+    packaging: [3, 8]
+    quality_inspection: [1, 3]
+    welding_robot: [10, 25]
+    3d_printer: [1, 3]
+
+  # Power factor
+  power_factor: [0.85, 0.95]
+
+  # Peak demand charges
+  peak_hours: [14, 18]  # 2 PM - 6 PM
+
+alarm_patterns:
+  # Alarm severity levels
+  severity_distribution:
+    info: 0.60
+    warning: 0.30
+    critical: 0.08
+    emergency: 0.02
+
+  # Response times (minutes)
+  response_times:
+    info: [30, 120]
+    warning: [5, 30]
+    critical: [1, 5]
+    emergency: [0, 1]
+
+product_specifications:
+  # Product complexity levels
+  complexity:
+    simple: 0.40      # Single operation
+    moderate: 0.35    # Multiple operations
+    complex: 0.20     # Many operations
+    advanced: 0.05    # Precision/custom
+
+  # Tolerances (mm)
+  tolerances:
+    standard: 0.1
+    precision: 0.01
+    ultra_precision: 0.001
+
+  # Batch sizes
+  batch_sizes:
+    small: [10, 100]
+    medium: [100, 1000]
+    large: [1000, 10000]
+
+operator_skills:
+  # Skill levels
+  levels:
+    novice: 0.20
+    intermediate: 0.40
+    advanced: 0.30
+    expert: 0.10
+
+  # Error rates by skill level
+  error_rates:
+    novice: 0.05
+    intermediate: 0.02
+    advanced: 0.01
+    expert: 0.005
+
+  # Certifications
+  certifications:
+    safety: 0.95
+    quality: 0.80
+    maintenance: 0.30
+    programming: 0.20
+
+anomaly_patterns:
+  # Probability of anomalies
+  sensor_drift: 0.02          # Gradual sensor degradation
+  sudden_failure: 0.005       # Catastrophic failure
+  intermittent: 0.01          # Intermittent issues
+  cyber_anomaly: 0.001        # Unusual patterns suggesting cyber issue
+
+  # Anomaly indicators
+  indicators:
+    trend_change: 3.0           # Standard deviations
+    spike_threshold: 5.0        # Standard deviations
+    correlation_break: 0.3      # Correlation coefficient change

@@ -1,0 +1,233 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  users: 10000
+  content_items: 5000
+  categories: 20
+  creators: 500
+  days_of_data: 30
+  events_per_user_per_day: [10, 100]  # min, max
+
+date_ranges:
+  platform_launch: "2023-01-01"
+  data_start: "2025-01-01"
+  data_end: "2025-01-31"
+
+user_distribution:
+  # User segments for ML modeling
+  segments:
+    power_user: 0.05      # Very active, high engagement
+    regular: 0.25         # Daily active users
+    casual: 0.40          # Weekly active users
+    dormant: 0.20         # Rarely active
+    new: 0.10            # Recently joined
+
+  # Geographic regions
+  regions:
+    north_america: 0.35
+    europe: 0.25
+    asia: 0.25
+    south_america: 0.10
+    other: 0.05
+
+  # Device types
+  devices:
+    mobile: 0.65
+    desktop: 0.25
+    tablet: 0.08
+    smart_tv: 0.02
+
+content_distribution:
+  # Content categories
+  categories:
+    music: 0.25
+    video: 0.20
+    podcast: 0.15
+    gaming: 0.15
+    news: 0.10
+    education: 0.08
+    sports: 0.07
+
+  # Content duration (minutes)
+  duration_ranges:
+    short: [1, 5]        # Quick content
+    medium: [5, 30]      # Standard content
+    long: [30, 120]      # Long-form content
+    epic: [120, 480]     # Movies, events
+
+  # Content quality scores
+  quality_tiers:
+    premium: 0.10
+    high: 0.25
+    medium: 0.40
+    low: 0.25
+
+engagement_patterns:
+  # View completion rates by segment
+  completion_rates:
+    power_user: 0.85
+    regular: 0.70
+    casual: 0.50
+    dormant: 0.30
+    new: 0.60
+
+  # Interaction types
+  interaction_weights:
+    view: 1.0
+    like: 3.0
+    share: 5.0
+    comment: 4.0
+    subscribe: 10.0
+    purchase: 20.0
+
+  # Time of day patterns (24-hour)
+  hourly_activity:
+    0-6: 0.05
+    6-9: 0.15
+    9-12: 0.10
+    12-14: 0.15
+    14-18: 0.20
+    18-22: 0.30
+    22-24: 0.05
+
+session_patterns:
+  # Session duration by segment (minutes)
+  duration:
+    power_user: [30, 180]
+    regular: [15, 60]
+    casual: [5, 30]
+    dormant: [2, 10]
+    new: [10, 45]
+
+  # Pages/items per session
+  depth:
+    power_user: [10, 50]
+    regular: [5, 20]
+    casual: [2, 10]
+    dormant: [1, 3]
+    new: [3, 15]
+
+recommendation_system:
+  # Algorithm types for A/B testing
+  algorithms:
+    collaborative_filtering: 0.30
+    content_based: 0.25
+    hybrid: 0.20
+    popularity: 0.15
+    random: 0.10
+
+  # Click-through rates by algorithm
+  ctr_rates:
+    collaborative_filtering: 0.08
+    content_based: 0.06
+    hybrid: 0.09
+    popularity: 0.05
+    random: 0.02
+
+churn_indicators:
+  # Factors that indicate churn risk
+  risk_factors:
+    days_since_last_activity: 7
+    session_decrease_rate: 0.5
+    engagement_drop: 0.6
+    support_tickets: 2
+
+  # Churn probability by segment
+  churn_rates:
+    power_user: 0.02
+    regular: 0.05
+    casual: 0.15
+    dormant: 0.40
+    new: 0.30
+
+revenue_model:
+  # Subscription tiers
+  subscription_tiers:
+    free: 0.70
+    basic: 0.20
+    premium: 0.08
+    enterprise: 0.02
+
+  # Monthly prices
+  tier_prices:
+    free: 0
+    basic: 9.99
+    premium: 19.99
+    enterprise: 99.99
+
+  # Ad revenue per 1000 impressions
+  ad_cpm:
+    display: 2.50
+    video: 15.00
+    native: 5.00
+
+  # In-app purchases
+  purchase_types:
+    virtual_currency: 0.40
+    premium_content: 0.30
+    features: 0.20
+    gifts: 0.10
+
+ab_testing:
+  # Test configurations
+  active_tests:
+    - name: "new_recommendation_algo"
+      variants: ["control", "variant_a", "variant_b"]
+      split: [0.34, 0.33, 0.33]
+      metrics: ["ctr", "session_duration", "retention"]
+
+    - name: "ui_redesign"
+      variants: ["old", "new"]
+      split: [0.50, 0.50]
+      metrics: ["bounce_rate", "conversion", "engagement"]
+
+    - name: "pricing_test"
+      variants: ["current", "lower", "higher"]
+      split: [0.40, 0.30, 0.30]
+      metrics: ["conversion_rate", "revenue", "churn"]
+
+ml_features:
+  # User features for ML models
+  user_features:
+    - age_days
+    - total_sessions
+    - total_time_spent
+    - avg_session_duration
+    - days_active_last_30
+    - content_diversity_score
+    - peak_usage_hour
+    - weekend_vs_weekday_ratio
+
+  # Content features
+  content_features:
+    - content_age_days
+    - total_views
+    - avg_completion_rate
+    - like_rate
+    - share_rate
+    - creator_popularity
+    - category_popularity
+    - trending_score
+
+  # Interaction features
+  interaction_features:
+    - time_since_last_interaction
+    - user_content_affinity
+    - collaborative_score
+    - context_match_score
+    - seasonal_relevance
+
+anomaly_detection:
+  # Patterns to detect
+  anomaly_types:
+    bot_activity: 0.001
+    payment_fraud: 0.0005
+    content_spam: 0.002
+    account_takeover: 0.0001
+
+  # Detection thresholds
+  thresholds:
+    rapid_events: 100  # events per minute
+    unusual_pattern: 3  # std deviations
+    suspicious_ips: 5   # different IPs per session

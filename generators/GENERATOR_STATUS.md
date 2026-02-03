@@ -1,6 +1,6 @@
 # Data Generator Status
 
-## ✅ Complete Generators (4)
+## ✅ Complete Generators (6)
 
 ### 1. Clinic Generator (`generators/clinic/`)
 - **Status**: Complete
@@ -49,17 +49,41 @@
 - **Data Volume**: 8000+ orders, 44K+ order items, full transactional data
 - **Usage**: `python generators/ecommerce/generate.py --config generators/ecommerce/config.yaml`
 
-## ❌ Missing Generators (5)
+### 5. Fleet Management Generator (`generators/fleet_management/`)
+- **Status**: Complete
+- **Files**: generate.py, config.yaml
+- **Features**:
+  - 100 vehicles across 5 depots
+  - 150 drivers with license classes and safety scores
+  - High-frequency GPS tracking (every 5 seconds)
+  - Driver behavior events (harsh braking, speeding)
+  - Engine diagnostics (OBD-II parameters)
+  - Fuel consumption tracking
+  - Trip and stop management
+  - Maintenance records and schedules
+  - HOS and DVIR compliance
+  - Diagnostic trouble codes (DTC)
+- **Data Volume**: 1300+ trips, 77K+ driver events, GPS positions
+- **Usage**: `python generators/fleet_management/generate.py --config generators/fleet_management/config.yaml`
 
-### 5. Industrial IoT Generator (`generators/industrial_iot/`)
-- **Status**: Folder exists, no implementation
-- **Needed**: generate.py, config.yaml
-- **Should Generate**:
-  - Manufacturing equipment sensors
-  - Production line data
-  - Quality control metrics
-  - OEE calculations
-  - Maintenance records
+### 6. Industrial IoT Generator (`generators/industrial_iot/`)
+- **Status**: Complete
+- **Files**: generate.py, config.yaml
+- **Features**:
+  - 3 factories with 12 production lines
+  - 60 machines with 8 sensors each
+  - Production runs and work orders
+  - OEE metrics (Availability, Performance, Quality)
+  - Real-time sensor readings (temperature, vibration, pressure)
+  - Quality inspections and defect tracking
+  - Downtime events (planned/unplanned)
+  - Predictive maintenance records
+  - Energy consumption monitoring
+  - Alarm management system
+- **Data Volume**: 350 work orders, sensor readings, OEE metrics
+- **Usage**: `python generators/industrial_iot/generate.py --config generators/industrial_iot/config.yaml`
+
+## ❌ Missing Generators (3)
 
 ### 6. Smart Agriculture Generator
 - **Status**: No folder
@@ -163,10 +187,14 @@ head output/*.csv
 
 ---
 
-**Current Status**: 4 of 9 generators complete (44%)
+**Current Status**: 6 of 9 generators complete (67%)
 
-To complete the portfolio, 5 additional generators need implementation. The existing generators demonstrate:
+To complete the portfolio, 3 additional generators need implementation. The existing generators demonstrate:
 - Traditional transactional patterns (clinic, e-commerce)
-- Time series IoT data (IoT bins, smart energy)
+- Time series IoT data (IoT bins, smart energy, fleet, industrial)
 - Multi-tenant architecture (smart energy)
 - Complex relationships and workflows (e-commerce)
+- High-frequency GPS tracking (fleet management)
+- Vehicle telematics and diagnostics (fleet management)
+- Manufacturing OEE and quality control (industrial IoT)
+- Predictive maintenance patterns (industrial IoT)

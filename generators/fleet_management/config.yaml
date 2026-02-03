@@ -1,0 +1,219 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  vehicles: 100
+  drivers: 150
+  depots: 5
+  routes: 20
+  trips_per_vehicle_per_day: 3
+  days_of_data: 7  # One week of GPS data
+  gps_frequency_seconds: 5  # GPS reading every 5 seconds
+
+date_ranges:
+  fleet_start: "2020-01-01"
+  data_start: "2025-01-25"
+  data_end: "2025-02-01"
+
+vehicle_distribution:
+  types:
+    delivery_van: 0.40
+    box_truck: 0.30
+    semi_truck: 0.15
+    refrigerated: 0.10
+    flatbed: 0.05
+
+  fuel_types:
+    diesel: 0.60
+    gasoline: 0.25
+    electric: 0.10
+    hybrid: 0.05
+
+  age_years:  # Vehicle age distribution
+    0-2: 0.30
+    3-5: 0.40
+    6-8: 0.20
+    9-12: 0.10
+
+driver_profiles:
+  experience_years:
+    rookie: [0, 2]      # 0-2 years
+    regular: [2, 5]     # 2-5 years
+    experienced: [5, 10] # 5-10 years
+    veteran: [10, 30]   # 10+ years
+
+  license_classes:
+    CDL_A: 0.30  # Semi trucks
+    CDL_B: 0.40  # Large trucks
+    regular: 0.30 # Vans and small trucks
+
+driving_patterns:
+  # Speed patterns by road type (mph)
+  speed_profiles:
+    highway:
+      min: 55
+      max: 75
+      typical: 65
+    urban:
+      min: 15
+      max: 45
+      typical: 25
+    rural:
+      min: 35
+      max: 55
+      typical: 45
+
+  # Events per 100 miles
+  event_rates:
+    harsh_brake: 2.5
+    harsh_acceleration: 2.0
+    harsh_cornering: 1.5
+    speeding: 3.0
+    idle_excessive: 5.0
+
+  # Stop patterns
+  stops_per_trip:
+    delivery_van: [5, 20]
+    box_truck: [3, 10]
+    semi_truck: [1, 3]
+    refrigerated: [2, 8]
+    flatbed: [1, 4]
+
+  stop_duration_minutes:
+    delivery: [5, 15]
+    loading: [20, 45]
+    break: [15, 30]
+    fuel: [10, 20]
+
+engine_diagnostics:
+  # OBD-II parameters
+  parameters:
+    - engine_rpm
+    - vehicle_speed
+    - coolant_temp
+    - fuel_level
+    - oil_pressure
+    - battery_voltage
+    - engine_load
+    - throttle_position
+
+  # Diagnostic trouble codes (DTC) probability
+  dtc_probability: 0.02  # 2% chance per vehicle per day
+
+  common_dtc_codes:
+    - "P0300"  # Random misfire
+    - "P0171"  # System too lean
+    - "P0420"  # Catalyst efficiency
+    - "P0442"  # EVAP leak
+    - "P0128"  # Coolant temp
+
+fuel_consumption:
+  # Miles per gallon by vehicle type
+  mpg_ranges:
+    delivery_van: [12, 18]
+    box_truck: [8, 12]
+    semi_truck: [5, 7]
+    refrigerated: [6, 9]
+    flatbed: [6, 8]
+
+  # Factors affecting fuel consumption
+  modifiers:
+    city_driving: 0.85  # 15% worse
+    highway_driving: 1.15  # 15% better
+    idle_time: -0.5  # gallons per hour
+    loaded: 0.90  # 10% worse when loaded
+    weather_bad: 0.92  # 8% worse
+
+maintenance:
+  # Service intervals (miles)
+  service_intervals:
+    oil_change: 5000
+    tire_rotation: 7500
+    brake_inspection: 15000
+    transmission_service: 50000
+    major_service: 100000
+
+  # Part wear rates (% per 1000 miles)
+  wear_rates:
+    brake_pads: 2.0
+    tires: 1.5
+    battery: 0.5
+    air_filter: 3.0
+    oil_life: 20.0
+
+geographic_distribution:
+  # Operating regions
+  regions:
+    northeast: 0.25
+    southeast: 0.20
+    midwest: 0.20
+    southwest: 0.15
+    west: 0.20
+
+  # Route types
+  route_types:
+    local: 0.40      # < 50 miles
+    regional: 0.35   # 50-200 miles
+    long_haul: 0.25  # > 200 miles
+
+  # Common cities for routes
+  cities:
+    - "New York, NY"
+    - "Los Angeles, CA"
+    - "Chicago, IL"
+    - "Houston, TX"
+    - "Phoenix, AZ"
+    - "Philadelphia, PA"
+    - "San Antonio, TX"
+    - "San Diego, CA"
+    - "Dallas, TX"
+    - "Atlanta, GA"
+
+cargo_types:
+  general: 0.30
+  refrigerated: 0.15
+  hazmat: 0.05
+  fragile: 0.10
+  bulk: 0.20
+  equipment: 0.10
+  retail: 0.10
+
+compliance:
+  # Hours of Service (HOS) limits
+  hos_limits:
+    driving_hours_daily: 11
+    on_duty_hours_daily: 14
+    break_required_after_hours: 8
+    weekly_hours_limit: 60
+    consecutive_days_limit: 7
+
+  # Electronic Logging Device (ELD) compliance
+  eld_adoption: 0.95  # 95% have ELD
+
+  # Driver Vehicle Inspection Report (DVIR)
+  dvir_completion_rate: 0.90  # 90% complete pre/post trip
+
+weather_patterns:
+  # Weather impact on operations
+  conditions:
+    clear: 0.60
+    rain: 0.20
+    snow: 0.05
+    fog: 0.05
+    wind: 0.10
+
+  # Speed reduction factors
+  speed_impact:
+    clear: 1.0
+    rain: 0.85
+    snow: 0.60
+    fog: 0.70
+    wind: 0.90
+
+anomaly_patterns:
+  # Probability of various anomalies
+  gps_signal_loss: 0.02
+  sensor_malfunction: 0.01
+  unauthorized_use: 0.001
+  route_deviation: 0.05
+  geofence_violation: 0.02

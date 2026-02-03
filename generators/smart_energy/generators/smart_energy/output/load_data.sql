@@ -1,5 +1,5 @@
 -- Load generated Smart Energy data
--- Generated on 2026-02-02 16:38:11.434442
+-- Generated on 2026-02-03 09:20:35.761997
 
 -- Clear existing data
 SET FOREIGN_KEY_CHECKS = 0;
