@@ -1,0 +1,242 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  hospitals: 3
+  departments: 15  # 5 per hospital
+  patients: 100
+  devices: 150
+  medical_staff: 50
+  readings_per_patient_per_day: 96  # Every 15 minutes
+  alerts_per_day: 20
+  days_of_data: 7
+
+date_ranges:
+  admission_start: "2025-01-01"
+  admission_end: "2025-01-31"
+  data_start: "2025-01-25"
+  data_end: "2025-02-01"
+
+hospital_types:
+  general: 0.40
+  specialty: 0.30
+  teaching: 0.20
+  community: 0.10
+
+departments:
+  - "Emergency"
+  - "ICU"
+  - "Cardiology"
+  - "Neurology"
+  - "Surgery"
+  - "Pediatrics"
+  - "Oncology"
+  - "Orthopedics"
+  - "Maternity"
+  - "Psychiatry"
+
+device_types:
+  heart_rate_monitor:
+    parameters: ["heart_rate", "heart_rate_variability"]
+    frequency_seconds: 60
+    critical_thresholds:
+      heart_rate: [40, 150]
+
+  blood_pressure_monitor:
+    parameters: ["systolic", "diastolic", "mean_arterial_pressure"]
+    frequency_seconds: 900  # 15 minutes
+    critical_thresholds:
+      systolic: [90, 180]
+      diastolic: [60, 120]
+
+  pulse_oximeter:
+    parameters: ["spo2", "pulse_rate"]
+    frequency_seconds: 300  # 5 minutes
+    critical_thresholds:
+      spo2: [90, 100]
+
+  temperature_sensor:
+    parameters: ["temperature"]
+    frequency_seconds: 1800  # 30 minutes
+    critical_thresholds:
+      temperature: [35.5, 38.5]
+
+  glucose_monitor:
+    parameters: ["glucose"]
+    frequency_seconds: 3600  # 1 hour
+    critical_thresholds:
+      glucose: [70, 180]
+
+  ventilator:
+    parameters: ["respiratory_rate", "tidal_volume", "peep"]
+    frequency_seconds: 60
+    critical_thresholds:
+      respiratory_rate: [8, 30]
+
+  ecg_monitor:
+    parameters: ["heart_rhythm", "st_segment", "qt_interval"]
+    frequency_seconds: 1
+    critical_thresholds:
+      qt_interval: [350, 450]
+
+  infusion_pump:
+    parameters: ["flow_rate", "volume_infused", "occlusion_pressure"]
+    frequency_seconds: 60
+    critical_thresholds:
+      occlusion_pressure: [0, 500]
+
+vital_signs:
+  normal_ranges:
+    heart_rate: [60, 100]
+    respiratory_rate: [12, 20]
+    systolic_bp: [110, 130]
+    diastolic_bp: [70, 85]
+    temperature: [36.5, 37.5]
+    spo2: [95, 100]
+    glucose: [80, 120]
+
+  by_age_group:
+    pediatric:
+      heart_rate: [80, 140]
+      respiratory_rate: [20, 30]
+    adult:
+      heart_rate: [60, 100]
+      respiratory_rate: [12, 20]
+    elderly:
+      heart_rate: [50, 90]
+      respiratory_rate: [12, 25]
+
+patient_conditions:
+  stable: 0.60
+  monitoring: 0.25
+  critical: 0.10
+  recovering: 0.05
+
+clinical_scores:
+  mews:  # Modified Early Warning Score
+    temperature:
+      "<35": 3
+      "35-36": 1
+      "36-38": 0
+      "38-39": 1
+      ">39": 2
+
+    heart_rate:
+      "<40": 3
+      "40-50": 1
+      "51-100": 0
+      "101-110": 1
+      "111-130": 2
+      ">130": 3
+
+    respiratory_rate:
+      "<9": 3
+      "9-14": 0
+      "15-20": 1
+      "21-29": 2
+      ">29": 3
+
+    systolic_bp:
+      "<70": 3
+      "70-80": 2
+      "81-100": 1
+      "101-199": 0
+      ">199": 2
+
+  sofa:  # Sequential Organ Failure Assessment
+    levels: [0, 1, 2, 3, 4]
+
+alert_types:
+  vital_sign_critical: 0.30
+  device_malfunction: 0.10
+  medication_due: 0.20
+  fall_detected: 0.05
+  patient_distress: 0.10
+  connection_lost: 0.15
+  battery_low: 0.10
+
+alert_severity:
+  info: 0.40
+  warning: 0.35
+  critical: 0.20
+  emergency: 0.05
+
+medications:
+  - name: "Morphine"
+    unit: "mg"
+    typical_dose: [2, 10]
+    frequency: "q4h"
+    route: "IV"
+
+  - name: "Insulin"
+    unit: "units"
+    typical_dose: [5, 20]
+    frequency: "qid"
+    route: "SC"
+
+  - name: "Heparin"
+    unit: "units"
+    typical_dose: [5000, 10000]
+    frequency: "bid"
+    route: "SC"
+
+  - name: "Metoprolol"
+    unit: "mg"
+    typical_dose: [25, 50]
+    frequency: "bid"
+    route: "PO"
+
+  - name: "Vancomycin"
+    unit: "mg"
+    typical_dose: [1000, 1500]
+    frequency: "q12h"
+    route: "IV"
+
+staff_roles:
+  physician: 0.20
+  nurse: 0.50
+  technician: 0.20
+  therapist: 0.10
+
+shift_patterns:
+  day:
+    start: 7
+    end: 15
+    staff_multiplier: 1.0
+
+  evening:
+    start: 15
+    end: 23
+    staff_multiplier: 0.8
+
+  night:
+    start: 23
+    end: 7
+    staff_multiplier: 0.6
+
+device_maintenance:
+  calibration_interval_days: 30
+  battery_life_days: [7, 365]
+  sensor_replacement_days: 7
+  software_update_frequency_days: 90
+
+data_quality:
+  missing_data_rate: 0.02
+  noise_level: 0.05
+  drift_rate: 0.01
+  artifact_rate: 0.03
+
+compliance:
+  # HIPAA requirements
+  audit_log: true
+  encryption: true
+  access_control: true
+  data_retention_years: 7
+  anonymization: true
+
+fall_risk_factors:
+  age_over_65: 1.5
+  medication_count_over_5: 1.3
+  previous_fall: 2.0
+  mobility_impaired: 1.8
+  cognitive_impairment: 1.6

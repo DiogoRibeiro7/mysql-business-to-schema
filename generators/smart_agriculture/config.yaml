@@ -1,0 +1,256 @@
+seed: 42
+output_dir: "output"
+
+counts:
+  farms: 5
+  fields: 20  # 4 per farm
+  zones: 60   # 3 per field
+  sensors: 240  # 4 per zone
+  crops: 10
+  animals: 200
+  irrigation_events_per_day: 50
+  days_of_data: 7
+
+date_ranges:
+  planting_season_start: "2024-03-01"
+  harvest_season_end: "2024-11-30"
+  data_start: "2025-01-25"
+  data_end: "2025-02-01"
+
+farm_types:
+  crop_farm: 0.40
+  dairy_farm: 0.20
+  mixed_farm: 0.20
+  orchard: 0.10
+  greenhouse: 0.10
+
+sensor_types:
+  soil_moisture:
+    unit: "percent"
+    optimal_range: [40, 60]
+    critical_low: 30
+    critical_high: 80
+    sampling_minutes: 15
+
+  soil_temperature:
+    unit: "celsius"
+    optimal_range: [18, 24]
+    critical_low: 10
+    critical_high: 35
+    sampling_minutes: 30
+
+  soil_ph:
+    unit: "ph"
+    optimal_range: [6.0, 7.0]
+    critical_low: 5.5
+    critical_high: 8.0
+    sampling_minutes: 60
+
+  air_temperature:
+    unit: "celsius"
+    optimal_range: [20, 28]
+    critical_low: 5
+    critical_high: 40
+    sampling_minutes: 5
+
+  humidity:
+    unit: "percent"
+    optimal_range: [50, 70]
+    critical_low: 30
+    critical_high: 90
+    sampling_minutes: 5
+
+  light_intensity:
+    unit: "lux"
+    optimal_range: [30000, 50000]
+    critical_low: 10000
+    critical_high: 100000
+    sampling_minutes: 10
+
+  rainfall:
+    unit: "mm"
+    optimal_range: [0, 10]
+    critical_low: 0
+    critical_high: 50
+    sampling_minutes: 60
+
+  wind_speed:
+    unit: "kmh"
+    optimal_range: [0, 20]
+    critical_low: 0
+    critical_high: 60
+    sampling_minutes: 5
+
+crop_types:
+  wheat:
+    growth_days: 120
+    water_needs: "medium"
+    temp_range: [15, 25]
+    yield_per_hectare: [3000, 5000]
+
+  corn:
+    growth_days: 100
+    water_needs: "high"
+    temp_range: [20, 30]
+    yield_per_hectare: [8000, 12000]
+
+  soybeans:
+    growth_days: 90
+    water_needs: "medium"
+    temp_range: [20, 28]
+    yield_per_hectare: [2000, 3500]
+
+  tomatoes:
+    growth_days: 80
+    water_needs: "high"
+    temp_range: [18, 26]
+    yield_per_hectare: [40000, 80000]
+
+  lettuce:
+    growth_days: 45
+    water_needs: "medium"
+    temp_range: [15, 20]
+    yield_per_hectare: [20000, 30000]
+
+  potatoes:
+    growth_days: 100
+    water_needs: "medium"
+    temp_range: [15, 22]
+    yield_per_hectare: [30000, 45000]
+
+  rice:
+    growth_days: 130
+    water_needs: "very_high"
+    temp_range: [22, 32]
+    yield_per_hectare: [4000, 7000]
+
+  apples:
+    growth_days: 150
+    water_needs: "medium"
+    temp_range: [18, 24]
+    yield_per_hectare: [40000, 60000]
+
+  grapes:
+    growth_days: 140
+    water_needs: "low"
+    temp_range: [15, 25]
+    yield_per_hectare: [10000, 20000]
+
+  strawberries:
+    growth_days: 60
+    water_needs: "high"
+    temp_range: [15, 22]
+    yield_per_hectare: [25000, 40000]
+
+irrigation:
+  methods:
+    drip: 0.40
+    sprinkler: 0.30
+    flood: 0.20
+    pivot: 0.10
+
+  efficiency:
+    drip: 0.90
+    sprinkler: 0.75
+    flood: 0.50
+    pivot: 0.85
+
+  water_sources:
+    well: 0.40
+    river: 0.30
+    reservoir: 0.20
+    municipal: 0.10
+
+livestock:
+  cattle:
+    count: [20, 100]
+    temp_optimal: [10, 25]
+    water_per_day: 100  # liters
+    feed_per_day: 25    # kg
+
+  pigs:
+    count: [50, 200]
+    temp_optimal: [15, 25]
+    water_per_day: 20
+    feed_per_day: 3
+
+  chickens:
+    count: [500, 5000]
+    temp_optimal: [18, 24]
+    water_per_day: 0.5
+    feed_per_day: 0.12
+
+  sheep:
+    count: [30, 150]
+    temp_optimal: [5, 20]
+    water_per_day: 10
+    feed_per_day: 2
+
+ndvi_values:
+  bare_soil: [0.1, 0.2]
+  emerging: [0.2, 0.4]
+  growing: [0.4, 0.6]
+  mature: [0.6, 0.8]
+  harvest: [0.3, 0.5]
+
+pest_diseases:
+  aphids:
+    probability: 0.10
+    damage_rate: 0.15
+    treatment: "insecticide"
+
+  fungal_infection:
+    probability: 0.08
+    damage_rate: 0.20
+    treatment: "fungicide"
+
+  drought_stress:
+    probability: 0.05
+    damage_rate: 0.30
+    treatment: "irrigation"
+
+  nutrient_deficiency:
+    probability: 0.12
+    damage_rate: 0.10
+    treatment: "fertilizer"
+
+weather_patterns:
+  spring:
+    temp_range: [10, 20]
+    rainfall_mm: [50, 100]
+    humidity: [60, 80]
+
+  summer:
+    temp_range: [20, 35]
+    rainfall_mm: [20, 60]
+    humidity: [40, 70]
+
+  fall:
+    temp_range: [5, 20]
+    rainfall_mm: [40, 80]
+    humidity: [50, 75]
+
+  winter:
+    temp_range: [-5, 10]
+    rainfall_mm: [30, 70]
+    humidity: [70, 90]
+
+fertilizer:
+  types:
+    nitrogen: "N"
+    phosphorus: "P"
+    potassium: "K"
+    organic: "Organic"
+
+  application_rates:  # kg per hectare
+    nitrogen: [50, 150]
+    phosphorus: [30, 80]
+    potassium: [40, 100]
+    organic: [1000, 3000]
+
+yield_factors:
+  optimal_conditions: 1.0
+  suboptimal_water: 0.80
+  pest_damage: 0.85
+  nutrient_stress: 0.90
+  weather_extreme: 0.70
