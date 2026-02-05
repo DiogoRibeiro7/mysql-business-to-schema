@@ -44,6 +44,18 @@ docker-compose -f docker/docker-compose.yml up -d
 mysql -h 127.0.0.1 -P 3306 -u root -proot_password
 ```
 
+### Smoke Test (Optional)
+
+Run a minimal end-to-end check that generates data, loads MySQL, and runs sanity queries:
+
+```bash
+# Bash (macOS/Linux)
+./scripts/smoke_test.sh
+
+# PowerShell (Windows)
+.\scripts\smoke_test.ps1
+```
+
 ### 2. Choose Your Learning Path
 
 #### Path A: Traditional Databases
@@ -220,8 +232,8 @@ example_XX_name/
 
 ### For Data Generators
 ```bash
-# Python 3.8+
-pip install pyyaml faker
+# Python 3.10+
+pip install -e .
 
 # Check Python version
 python --version
@@ -310,6 +322,18 @@ Check each example's `queries/` folder for specific exercises.
 **Problem**: Docker container won't start
 - Solution: Check if port 3306 is already in use
 - Alternative: Change port in docker-compose.yml
+
+## ✅ Smoke Test
+
+Run a minimal end-to-end check that generates data, loads MySQL, and runs sanity queries.
+
+```bash
+# Bash (macOS/Linux)
+./scripts/smoke_test.sh
+
+# PowerShell (Windows)
+.\scripts\smoke_test.ps1
+```
 
 ## 📄 License
 

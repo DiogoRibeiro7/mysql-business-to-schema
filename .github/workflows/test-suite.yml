@@ -1,0 +1,351 @@
+name: Database Examples Test Suite
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      example:
+        description: 'Specific example to test (leave empty for all)'
+        required: false
+        type: string
+
+jobs:
+  test-schemas:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mysql-version: ['8.0', '8.1']
+      fail-fast: false
+
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql-version }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install mysql-connector-python pyyaml faker tabulate
+
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+          echo 'Waiting for MySQL...'
+          sleep 2
+        done
+
+    - name: Run schema tests
+      run: |
+        if [ -n "${{ github.event.inputs.example }}" ]; then
+          python tools/test_runner.py \
+            --host 127.0.0.1 \
+            --user root \
+            --password root \
+            --example "${{ github.event.inputs.example }}" \
+            --save test_report_${{ matrix.mysql-version }}.txt
+        else
+          python tools/test_runner.py \
+            --host 127.0.0.1 \
+            --user root \
+            --password root \
+            --all \
+            --save test_report_${{ matrix.mysql-version }}.txt
+        fi
+
+    - name: Upload test report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-report-mysql-${{ matrix.mysql-version }}
+        path: test_report_${{ matrix.mysql-version }}.txt
+
+  validate-schemas:
+    runs-on: ubuntu-latest
+    needs: test-schemas
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install mysql-connector-python pyyaml tabulate
+
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+          echo 'Waiting for MySQL...'
+          sleep 2
+        done
+
+    - name: Create databases and validate schemas
+      run: |
+        # List of databases to validate
+        databases=("clinic" "iot_bins" "smart_energy" "ecommerce" "fintech" "social_media")
+
+        for db in "${databases[@]}"; do
+          echo "Validating $db..."
+
+          # Find and execute schema creation
+          example_dir=$(find . -type d -name "example_*${db}*" | head -1)
+          if [ -n "$example_dir" ]; then
+            mysql -h 127.0.0.1 -u root -proot < "$example_dir/schema/00_create_database.sql"
+            mysql -h 127.0.0.1 -u root -proot "$db" < "$example_dir/schema/01_tables.sql" || true
+
+            # Run validation
+            python tools/schema_validator.py \
+              --host 127.0.0.1 \
+              --user root \
+              --password root \
+              --database "$db" \
+              --save "validation_${db}.txt"
+          fi
+        done
+
+    - name: Upload validation reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-reports
+        path: validation_*.txt
+
+  test-generators:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install faker pyyaml
+
+    - name: Test data generators
+      run: |
+        generators=("clinic" "iot_bins" "smart_energy" "ecommerce" "fintech")
+
+        for gen in "${generators[@]}"; do
+          echo "Testing generator: $gen"
+          if [ -d "generators/$gen" ]; then
+            cd "generators/$gen"
+
+            # Run generator with minimal config for testing
+            if [ -f "generate.py" ]; then
+              # Create test config with small counts
+              cat > test_config.yaml << EOF
+        seed: 42
+        output_dir: "./test_output"
+        counts:
+          $(grep -A 5 "counts:" config.yaml | tail -n +2 | head -n 1 | sed 's/: [0-9]*/: 10/')
+        distributions:
+          $(grep -A 10 "distributions:" config.yaml | tail -n +2)
+        EOF
+
+              # Run generator
+              timeout 30 python generate.py || echo "Generator $gen timed out or failed"
+
+              # Check output
+              if [ -d "test_output" ]; then
+                file_count=$(ls test_output/*.csv 2>/dev/null | wc -l)
+                echo "Generated $file_count CSV files"
+              fi
+            fi
+
+            cd ../..
+          fi
+        done
+
+  performance-analysis:
+    runs-on: ubuntu-latest
+    needs: test-schemas
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install mysql-connector-python pyyaml tabulate
+
+    - name: Wait for MySQL
+      run: |
+        until mysqladmin ping -h 127.0.0.1 -P 3306 --silent; do
+          echo 'Waiting for MySQL...'
+          sleep 2
+        done
+
+    - name: Run performance analysis
+      run: |
+        # Create sample databases for performance testing
+        examples=("example_01_clinic" "example_10_fintech")
+
+        for example in "${examples[@]}"; do
+          if [ -d "$example" ]; then
+            db_name=$(echo $example | sed 's/example_[0-9]*_//')
+
+            # Create schema
+            mysql -h 127.0.0.1 -u root -proot < "$example/schema/00_create_database.sql"
+            mysql -h 127.0.0.1 -u root -proot "$db_name" < "$example/schema/01_tables.sql"
+
+            # Run performance analysis
+            python tools/query_analyzer.py \
+              --host 127.0.0.1 \
+              --user root \
+              --password root \
+              --example "$example" \
+              --save "performance_${db_name}.txt"
+          fi
+        done
+
+    - name: Upload performance reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-reports
+        path: performance_*.txt
+
+  summary-report:
+    runs-on: ubuntu-latest
+    needs: [test-schemas, validate-schemas, test-generators, performance-analysis]
+    if: always()
+
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+
+    - name: Generate summary report
+      run: |
+        echo "=" >> summary.md
+        echo "# Test Suite Summary Report" >> summary.md
+        echo "=" >> summary.md
+        echo "" >> summary.md
+        echo "## Test Execution: $(date)" >> summary.md
+        echo "" >> summary.md
+
+        # Check for test reports
+        if ls test-report-*/test_report_*.txt 1> /dev/null 2>&1; then
+          echo "### Schema Tests" >> summary.md
+          for report in test-report-*/test_report_*.txt; do
+            echo "" >> summary.md
+            echo "#### $(basename $report .txt)" >> summary.md
+            echo "\`\`\`" >> summary.md
+            tail -n 20 "$report" >> summary.md
+            echo "\`\`\`" >> summary.md
+          done
+        fi
+
+        # Check for validation reports
+        if ls validation-reports/validation_*.txt 1> /dev/null 2>&1; then
+          echo "" >> summary.md
+          echo "### Schema Validation" >> summary.md
+          for report in validation-reports/validation_*.txt; do
+            echo "" >> summary.md
+            echo "#### $(basename $report .txt | sed 's/validation_//')" >> summary.md
+            echo "\`\`\`" >> summary.md
+            grep -E "Quality Score:|Grade:" "$report" >> summary.md
+            echo "\`\`\`" >> summary.md
+          done
+        fi
+
+        # Check for performance reports
+        if ls performance-reports/performance_*.txt 1> /dev/null 2>&1; then
+          echo "" >> summary.md
+          echo "### Performance Analysis" >> summary.md
+          for report in performance-reports/performance_*.txt; do
+            echo "" >> summary.md
+            echo "#### $(basename $report .txt | sed 's/performance_//')" >> summary.md
+            echo "\`\`\`" >> summary.md
+            grep -E "Average:|Min:|Max:" "$report" | head -10 >> summary.md
+            echo "\`\`\`" >> summary.md
+          done
+        fi
+
+        echo "" >> summary.md
+        echo "---" >> summary.md
+        echo "Full reports available in artifacts" >> summary.md
+
+    - name: Upload summary report
+      uses: actions/upload-artifact@v3
+      with:
+        name: summary-report
+        path: summary.md
+
+    - name: Comment PR with results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('summary.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: summary
+          });

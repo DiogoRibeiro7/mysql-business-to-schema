@@ -606,7 +606,7 @@ SELECT COUNT(*) as readings_count FROM consumption_readings;
 
 def main():
     parser = argparse.ArgumentParser(description='Generate Smart Energy Grid data')
-    parser.add_argument('--config', required=True, help='Path to config.yaml')
+    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
     args = parser.parse_args()
 
     generator = SmartEnergyGenerator(args.config)

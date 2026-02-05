@@ -1,0 +1,145 @@
+# FinTech Platform Data Generator Configuration
+
+seed: 42
+output_dir: "generators/fintech/output"
+
+# Entity counts
+counts:
+  individual_customers: 800
+  business_customers: 200
+  accounts_per_customer:
+    min: 1
+    max: 4
+  transactions_per_account_per_day:
+    min: 0
+    max: 10
+  days_of_history: 90
+  fraud_alert_rate: 0.02  # 2% of transactions flagged
+
+# Distributions
+distributions:
+  customer_risk:
+    low: 0.60
+    medium: 0.30
+    high: 0.08
+    prohibited: 0.02
+
+  account_types:
+    checking: 0.40
+    savings: 0.30
+    credit_card: 0.15
+    loan: 0.10
+    investment: 0.05
+
+  transaction_types:
+    payment: 0.35
+    transfer: 0.25
+    deposit: 0.15
+    withdrawal: 0.15
+    fee: 0.05
+    interest: 0.03
+    adjustment: 0.02
+
+  transaction_channels:
+    online: 0.40
+    mobile: 0.35
+    atm: 0.10
+    branch: 0.08
+    phone: 0.05
+    system: 0.02
+
+  currencies:
+    USD: 0.70
+    EUR: 0.15
+    GBP: 0.08
+    JPY: 0.04
+    CAD: 0.03
+
+  fraud_patterns:
+    velocity: 0.30  # Rapid transactions
+    amount: 0.25    # Unusual amounts
+    location: 0.20  # Geographic anomaly
+    device: 0.15    # New device
+    behavioral: 0.10 # Behavioral change
+
+# Financial parameters
+financial:
+  initial_balance:
+    checking:
+      min: 100
+      max: 50000
+      median: 2500
+    savings:
+      min: 500
+      max: 100000
+      median: 10000
+    investment:
+      min: 1000
+      max: 500000
+      median: 25000
+
+  transaction_amounts:
+    small:  # 60% of transactions
+      min: 5
+      max: 500
+    medium: # 30% of transactions
+      min: 500
+      max: 5000
+    large:  # 9% of transactions
+      min: 5000
+      max: 50000
+    very_large: # 1% of transactions
+      min: 50000
+      max: 500000
+
+  interest_rates:
+    savings:
+      min: 0.01
+      max: 2.5
+    checking:
+      min: 0.0
+      max: 0.5
+    loan:
+      min: 3.5
+      max: 24.99
+    credit_card:
+      min: 12.99
+      max: 29.99
+
+  fees:
+    wire_transfer: 25.00
+    international_wire: 45.00
+    overdraft: 35.00
+    monthly_maintenance: 12.00
+    atm_foreign: 3.00
+
+# Fraud simulation parameters
+fraud_simulation:
+  suspicious_patterns:
+    rapid_deposits_withdrawals: true
+    structuring_deposits: true  # Just below $10k threshold
+    dormant_account_reactivation: true
+    multiple_failed_logins: true
+    unusual_geographic_location: true
+
+  ml_anomaly_detection:
+    enabled: true
+    threshold: 0.85  # Anomaly score threshold
+
+# KYC/AML parameters
+compliance:
+  kyc_document_types:
+    - passport
+    - drivers_license
+    - national_id
+    - utility_bill
+    - bank_statement
+
+  aml_check_frequency_days: 30
+
+  suspicious_amount_threshold: 10000
+
+  countries_high_risk:
+    - XX  # Placeholder high-risk country codes
+    - YY
+    - ZZ

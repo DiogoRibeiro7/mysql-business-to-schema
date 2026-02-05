@@ -15,6 +15,7 @@ import csv
 import random
 import json
 import yaml
+import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Any, Tuple
@@ -30,7 +31,7 @@ class StreamingMLGenerator:
 
         self.seed = self.config['seed']
         random.seed(self.seed)
-        self.fake = Faker()
+        self.fake = Faker("en_US")
         self.fake.seed_instance(self.seed)
 
         # Create output directory
@@ -722,8 +723,11 @@ class StreamingMLGenerator:
         print(f"  Total Revenue: ${summary['revenue_summary']['total_subscription_revenue'] + summary['revenue_summary']['total_iap_revenue']:,.2f}")
 
 def main():
-    """Main execution"""
-    generator = StreamingMLGenerator()
+    parser = argparse.ArgumentParser(description='Generate Streaming ML platform data')
+    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
+    args = parser.parse_args()
+
+    generator = StreamingMLGenerator(config_path=args.config)
     generator.generate_all()
 
 if __name__ == "__main__":

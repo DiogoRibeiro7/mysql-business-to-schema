@@ -31,8 +31,8 @@ class FleetManagementGenerator:
 
         self.seed = self.config.get('seed', 42)
         random.seed(self.seed)
-        self.fake = Faker()
-        Faker.seed(self.seed)
+        self.fake = Faker("en_US")
+        self.fake.seed_instance(self.seed)
 
         self.output_dir = Path(self.config['output_dir'])
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -851,7 +851,7 @@ SELECT COUNT(*) as gps_count FROM gps_positions;
 
 def main():
     parser = argparse.ArgumentParser(description='Generate Fleet Management data')
-    parser.add_argument('--config', required=True, help='Path to config.yaml')
+    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
     args = parser.parse_args()
 
     generator = FleetManagementGenerator(args.config)

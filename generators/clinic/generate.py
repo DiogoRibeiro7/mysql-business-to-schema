@@ -405,7 +405,7 @@ def main() -> int:
     """CLI entrypoint."""
 
     parser = argparse.ArgumentParser(description="Generate clinic datasets.")
-    parser.add_argument("--config", required=True, help="Path to config YAML/JSON file.")
+    parser.add_argument("--config", default="config.yaml", help="Path to config YAML/JSON file.")
     args = parser.parse_args()
 
     config_path = Path(args.config)

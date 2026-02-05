@@ -860,7 +860,7 @@ SELECT COUNT(*) as sensor_reading_count FROM sensor_readings;
 
 def main():
     parser = argparse.ArgumentParser(description='Generate Industrial IoT data')
-    parser.add_argument('--config', required=True, help='Path to config.yaml')
+    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
     args = parser.parse_args()
 
     generator = IndustrialIoTGenerator(args.config)

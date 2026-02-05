@@ -31,8 +31,8 @@ class IoTBinsGenerator:
             self.config = yaml.safe_load(f)
 
         # Initialize Faker with seed
-        self.fake = Faker()
-        Faker.seed(self.config['seed'])
+        self.fake = Faker("en_US")
+        self.fake.seed_instance(self.config['seed'])
         random.seed(self.config['seed'])
 
         # Set up output directory

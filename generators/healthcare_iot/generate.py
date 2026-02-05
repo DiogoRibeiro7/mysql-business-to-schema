@@ -642,7 +642,7 @@ SELECT 'Data load complete!' as status;
 
 def main():
     parser = argparse.ArgumentParser(description='Generate Healthcare IoT data')
-    parser.add_argument('--config', required=True, help='Path to config.yaml')
+    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
     args = parser.parse_args()
 
     generator = HealthcareIoTGenerator(args.config)
