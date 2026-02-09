@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}500 - Internal Server Error{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body py-5">
+                    <h1 class="display-1 text-danger">500</h1>
+                    <h2 class="mb-4">Internal Server Error</h2>
+                    <p class="lead">Something went wrong on our end.</p>
+                    <p class="text-muted">We apologize for the inconvenience. Please try again later.</p>
+
+                    <div class="mt-4">
+                        <a href="/" class="btn btn-primary me-2">
+                            <i class="fas fa-home"></i> Go to Home
+                        </a>
+                        <button onclick="location.reload()" class="btn btn-outline-secondary">
+                            <i class="fas fa-sync"></i> Refresh Page
+                        </button>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="alert alert-warning">
+                        <h5>If the problem persists:</h5>
+                        <ul class="text-start mb-0">
+                            <li>Check if the MySQL service is running</li>
+                            <li>Verify database connections in the configuration</li>
+                            <li>Check the application logs for details</li>
+                            <li>Report the issue on <a href="https://github.com/yourusername/mysql-business-to-schema/issues">GitHub</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

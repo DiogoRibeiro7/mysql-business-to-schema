@@ -1,0 +1,223 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ develop ]
+
+jobs:
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Full history for better analysis
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install black isort flake8 mypy pylint
+          pip install coverage pytest pytest-cov
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Format check with Black
+        run: |
+          black --check --diff .
+
+      - name: Import sort check with isort
+        run: |
+          isort --check-only --diff .
+
+      - name: Lint with flake8
+        run: |
+          # Create flake8 config
+          cat > .flake8 <<EOF
+          [flake8]
+          max-line-length = 120
+          extend-ignore = E203, W503
+          exclude =
+              .git,
+              __pycache__,
+              .venv,
+              venv,
+              build,
+              dist,
+              *.egg-info,
+              .pytest_cache,
+              .mypy_cache
+          EOF
+
+          flake8 . --count --statistics
+
+      - name: Type checking with mypy
+        run: |
+          mypy --install-types --non-interactive --ignore-missing-imports .
+
+      - name: Lint with pylint
+        continue-on-error: true
+        run: |
+          pylint --disable=C,R --reports=y **/*.py || true
+
+      - name: Check for common security issues
+        run: |
+          pip install bandit
+          bandit -r . -ll -f json -o bandit_report.json
+
+      - name: Check for code complexity
+        run: |
+          pip install radon
+          radon cc . -a -nb
+          radon mi . -nb
+
+      - name: Generate code quality report
+        if: always()
+        run: |
+          mkdir -p reports
+
+          # Complexity report
+          radon cc . -j > reports/complexity.json
+
+          # Maintainability report
+          radon mi . -j > reports/maintainability.json
+
+          # Create summary
+          cat > reports/quality_summary.md <<EOF
+          # Code Quality Report
+
+          ## Metrics
+          - **Date**: $(date)
+          - **Branch**: ${{ github.ref_name }}
+          - **Commit**: ${{ github.sha }}
+
+          ## Tools Run
+          - Black (formatting)
+          - isort (import sorting)
+          - flake8 (linting)
+          - mypy (type checking)
+          - pylint (advanced linting)
+          - bandit (security)
+          - radon (complexity)
+          EOF
+
+      - name: Upload quality reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-quality-reports
+          path: reports/
+
+      - name: Comment PR with quality metrics
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const qualityReport = fs.readFileSync('reports/quality_summary.md', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: qualityReport
+            });
+
+  sql-quality:
+    name: SQL Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install SQL linters
+        run: |
+          pip install sqlfluff
+          npm install -g sql-lint
+
+      - name: SQL formatting check
+        run: |
+          # Check SQL formatting
+          sqlfluff format --check --dialect mysql .
+
+      - name: SQL best practices check
+        run: |
+          # Create custom rules
+          cat > .sqlfluff <<EOF
+          [sqlfluff]
+          dialect = mysql
+          templater = raw
+          max_line_length = 120
+
+          [sqlfluff:rules]
+          # Enforce consistent capitalization
+          L010 = { capitalisation_policy = "upper" }
+          L014 = { extended_capitalisation_policy = "upper" }
+
+          # Enforce consistent indentation
+          L003 = { indent_unit = "space", tab_space_size = 4 }
+
+          # Require aliases for tables in joins
+          L011 = { aliasing = "explicit" }
+
+          # Require consistent column references
+          L028 = { single_table_references = "qualified" }
+          EOF
+
+          sqlfluff lint . --dialect mysql
+
+      - name: Check for SQL anti-patterns
+        run: |
+          # Create script to check for anti-patterns
+          cat > check_sql_antipatterns.py <<EOF
+          import os
+          import re
+
+          antipatterns = [
+              (r'SELECT \*', 'Avoid SELECT *, specify columns explicitly'),
+              (r'NOT IN\s*\(.*SELECT', 'NOT IN with subquery can cause issues with NULLs'),
+              (r'ORDER BY [0-9]', 'Avoid positional ORDER BY'),
+              (r'HAVING\s+[^(]*\s+COUNT', 'Consider using WHERE instead of HAVING when possible'),
+              (r'VARCHAR\s*\(', 'Consider using specific length for VARCHAR'),
+          ]
+
+          issues = []
+
+          for root, dirs, files in os.walk('.'):
+              for file in files:
+                  if file.endswith('.sql'):
+                      filepath = os.path.join(root, file)
+                      with open(filepath, 'r') as f:
+                          content = f.read()
+                          for pattern, message in antipatterns:
+                              if re.search(pattern, content, re.IGNORECASE):
+                                  issues.append(f"{filepath}: {message}")
+
+          if issues:
+              print("SQL Anti-patterns found:")
+              for issue in issues:
+                  print(f"  - {issue}")
+          else:
+              print("No SQL anti-patterns found!")
+          EOF
+
+          python check_sql_antipatterns.py

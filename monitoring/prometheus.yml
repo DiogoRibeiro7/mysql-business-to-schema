@@ -1,0 +1,100 @@
+# Prometheus Configuration for MySQL Monitoring
+
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'mysql-monitoring'
+    environment: 'development'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "mysql_alerts.yml"
+  - "performance_alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus'
+
+  # MySQL Exporter metrics
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+        labels:
+          instance: 'mysql-primary'
+          database_type: 'mysql'
+          version: '8.0'
+    metric_relabel_configs:
+      # Add custom labels
+      - source_labels: [__name__]
+        target_label: database_system
+        replacement: 'mysql'
+
+  # Node Exporter metrics (system metrics)
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'database-server'
+          role: 'database'
+
+  # Grafana metrics
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          instance: 'grafana'
+
+  # Application metrics (if using custom exporters)
+  - job_name: 'application'
+    static_configs:
+      - targets: ['app-exporter:8000']
+        labels:
+          app: 'mysql-examples'
+          tier: 'database'
+    honor_timestamps: true
+    scrape_interval: 30s
+
+  # BlackBox Exporter for endpoint monitoring
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://localhost:5000  # Web interface
+          - http://localhost:8080  # phpMyAdmin
+        labels:
+          probe_type: 'http'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+# Remote write configuration (optional - for long-term storage)
+# remote_write:
+#   - url: "http://cortex:9009/api/prom/push"
+#     queue_config:
+#       capacity: 10000
+#       max_shards: 20
+#       max_samples_per_send: 5000
+
+# Remote read configuration (optional)
+# remote_read:
+#   - url: "http://cortex:9009/api/prom/read"
+#     read_recent: true

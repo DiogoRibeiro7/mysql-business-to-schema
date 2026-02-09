@@ -1,0 +1,515 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - MySQL Business-to-Schema{% endblock %}
+
+{% block extra_css %}
+<style>
+    .analytics-card {
+        height: 100%;
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+    .analytics-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .feature-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    .gradient-bg-1 {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .gradient-bg-2 {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .gradient-bg-3 {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+    .gradient-bg-4 {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">
+        <i class="fas fa-chart-line"></i> Analytics Dashboard
+    </h1>
+    <p class="lead">Advanced tools for analyzing, optimizing, and visualizing your MySQL databases.</p>
+
+    <!-- Analytics Features Grid -->
+    <div class="row g-4 mt-4">
+        <!-- Query Executor -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card analytics-card" onclick="window.location.href='/analytics/query-executor'">
+                <div class="card-body text-center">
+                    <div class="feature-icon text-primary">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h5 class="card-title">Query Executor</h5>
+                    <p class="card-text">Execute SQL queries interactively with safety checks</p>
+                    <div class="mt-3">
+                        <span class="badge bg-success">Live</span>
+                        <span class="badge bg-info">Safe Mode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ER Diagram Generator -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card analytics-card" onclick="showERDiagramModal()">
+                <div class="card-body text-center">
+                    <div class="feature-icon text-success">
+                        <i class="fas fa-project-diagram"></i>
+                    </div>
+                    <h5 class="card-title">ER Diagrams</h5>
+                    <p class="card-text">Generate visual entity-relationship diagrams</p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary">Auto-Generate</span>
+                        <span class="badge bg-warning">SVG/PNG</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Analyzer -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card analytics-card" onclick="showPerformanceModal()">
+                <div class="card-body text-center">
+                    <div class="feature-icon text-warning">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <h5 class="card-title">Performance</h5>
+                    <p class="card-text">Analyze table sizes, indexes, and query performance</p>
+                    <div class="mt-3">
+                        <span class="badge bg-danger">Metrics</span>
+                        <span class="badge bg-success">Charts</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Query Optimizer -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card analytics-card" onclick="showOptimizerModal()">
+                <div class="card-body text-center">
+                    <div class="feature-icon text-info">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h5 class="card-title">Query Optimizer</h5>
+                    <p class="card-text">Get AI-powered query optimization suggestions</p>
+                    <div class="mt-3">
+                        <span class="badge bg-primary">EXPLAIN</span>
+                        <span class="badge bg-secondary">Indexes</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Features -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header gradient-bg-1 text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database"></i> Schema Comparison
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>Compare schemas between different examples or versions.</p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-check text-success"></i> Structural differences</li>
+                        <li><i class="fas fa-check text-success"></i> Data type changes</li>
+                        <li><i class="fas fa-check text-success"></i> Index modifications</li>
+                        <li><i class="fas fa-check text-success"></i> Constraint changes</li>
+                    </ul>
+                    <button class="btn btn-primary" onclick="window.location.href='/compare'">
+                        <i class="fas fa-columns"></i> Compare Schemas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header gradient-bg-2 text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-download"></i> Export Options
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p>Export schemas and data in multiple formats.</p>
+                    <div class="btn-group" role="group">
+                        <button class="btn btn-outline-primary" onclick="showExportModal('sql')">
+                            <i class="fas fa-file-code"></i> SQL
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="showExportModal('json')">
+                            <i class="fas fa-file-alt"></i> JSON
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="showExportModal('markdown')">
+                            <i class="fab fa-markdown"></i> Markdown
+                        </button>
+                        <button class="btn btn-outline-primary" onclick="showExportModal('pdf')">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real-time Metrics -->
+    <div class="card mt-4">
+        <div class="card-header gradient-bg-3 text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-bar"></i> Live Metrics Dashboard
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <h3 class="text-primary">13</h3>
+                        <p>Total Examples</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <h3 class="text-success">500+</h3>
+                        <p>Total Tables</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <h3 class="text-warning">1,200+</h3>
+                        <p>Total Columns</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="metric-box">
+                        <h3 class="text-info">350+</h3>
+                        <p>Sample Queries</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <canvas id="metricsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Query History -->
+    <div class="card mt-4">
+        <div class="card-header gradient-bg-4 text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-history"></i> Recent Query History
+            </h5>
+        </div>
+        <div class="card-body">
+            <div id="query-history">
+                <p class="text-muted">No queries executed yet in this session.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- ER Diagram Modal -->
+<div class="modal fade" id="erDiagramModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate ER Diagram</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an example to generate its ER diagram:</p>
+                <select id="erExampleSelect" class="form-select">
+                    <option value="">Choose an example...</option>
+                    <option value="example_01_clinic">Clinic Management</option>
+                    <option value="example_10_fintech">FinTech Platform</option>
+                    <option value="example_11_social_media">Social Media</option>
+                    <option value="example_12_real_estate">Real Estate</option>
+                    <option value="example_13_event_ticketing">Event Ticketing</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="generateERDiagram()">
+                    <i class="fas fa-cog"></i> Generate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Modal -->
+<div class="modal fade" id="performanceModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Performance Analysis</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an example to analyze its performance metrics:</p>
+                <select id="perfExampleSelect" class="form-select">
+                    <option value="">Choose an example...</option>
+                    <option value="example_01_clinic">Clinic Management</option>
+                    <option value="example_04_ecommerce">E-commerce</option>
+                    <option value="example_10_fintech">FinTech Platform</option>
+                    <option value="example_11_social_media">Social Media</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="analyzePerformance()">
+                    <i class="fas fa-chart-line"></i> Analyze
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Optimizer Modal -->
+<div class="modal fade" id="optimizerModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Query Optimizer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="optimizerQuery" class="form-label">Enter SQL Query:</label>
+                    <textarea id="optimizerQuery" class="form-control font-monospace" rows="6"
+                              placeholder="SELECT * FROM users WHERE..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="optimizerDatabase" class="form-label">Database:</label>
+                    <select id="optimizerDatabase" class="form-select">
+                        <option value="">Select database...</option>
+                        <option value="clinic_db">clinic_db</option>
+                        <option value="fintech_db">fintech_db</option>
+                        <option value="social_media_db">social_media_db</option>
+                    </select>
+                </div>
+                <div id="optimizerResults" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="optimizeQuery()">
+                    <i class="fas fa-magic"></i> Optimize
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Schema</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Select an example and format to export:</p>
+                <div class="mb-3">
+                    <label for="exportExample" class="form-label">Example:</label>
+                    <select id="exportExample" class="form-select">
+                        <option value="">Choose an example...</option>
+                        <option value="example_01_clinic">Clinic Management</option>
+                        <option value="example_10_fintech">FinTech Platform</option>
+                        <option value="example_11_social_media">Social Media</option>
+                        <option value="example_12_real_estate">Real Estate</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Format:</label>
+                    <div id="exportFormat"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="performExport()">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Initialize metrics chart
+const ctx = document.getElementById('metricsChart').getContext('2d');
+const metricsChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Clinic', 'IoT', 'E-commerce', 'FinTech', 'Social Media', 'Real Estate'],
+        datasets: [{
+            label: 'Tables',
+            data: [15, 12, 25, 30, 22, 18],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }, {
+            label: 'Indexes',
+            data: [8, 10, 15, 20, 18, 12],
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// Modal functions
+function showERDiagramModal() {
+    new bootstrap.Modal(document.getElementById('erDiagramModal')).show();
+}
+
+function showPerformanceModal() {
+    new bootstrap.Modal(document.getElementById('performanceModal')).show();
+}
+
+function showOptimizerModal() {
+    new bootstrap.Modal(document.getElementById('optimizerModal')).show();
+}
+
+function showExportModal(format) {
+    document.getElementById('exportFormat').textContent = format.toUpperCase();
+    new bootstrap.Modal(document.getElementById('exportModal')).show();
+}
+
+// Analytics functions
+function generateERDiagram() {
+    const example = document.getElementById('erExampleSelect').value;
+    if (example) {
+        window.location.href = `/analytics/er-diagram/${example}`;
+    }
+}
+
+function analyzePerformance() {
+    const example = document.getElementById('perfExampleSelect').value;
+    if (example) {
+        window.location.href = `/analytics/performance/${example}`;
+    }
+}
+
+function optimizeQuery() {
+    const query = document.getElementById('optimizerQuery').value;
+    const database = document.getElementById('optimizerDatabase').value;
+
+    if (!query) {
+        alert('Please enter a query');
+        return;
+    }
+
+    fetch('/api/optimize-query', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({query: query, database: database})
+    })
+    .then(response => response.json())
+    .then(data => {
+        let html = '<h6>Optimization Results:</h6>';
+
+        if (data.error) {
+            html += `<div class="alert alert-danger">${data.error}</div>`;
+        } else {
+            if (data.execution_plan && data.execution_plan.length > 0) {
+                html += '<h6>Execution Plan:</h6>';
+                html += '<table class="table table-sm"><thead><tr><th>Table</th><th>Type</th><th>Key</th><th>Rows</th><th>Extra</th></tr></thead><tbody>';
+                data.execution_plan.forEach(step => {
+                    html += `<tr>
+                        <td>${step.table || '-'}</td>
+                        <td>${step.type || '-'}</td>
+                        <td>${step.key || '-'}</td>
+                        <td>${step.rows || '-'}</td>
+                        <td>${step.Extra || '-'}</td>
+                    </tr>`;
+                });
+                html += '</tbody></table>';
+            }
+
+            if (data.suggestions && data.suggestions.length > 0) {
+                html += '<h6>Optimization Suggestions:</h6>';
+                html += '<ul>';
+                data.suggestions.forEach(suggestion => {
+                    html += `<li class="text-warning">${suggestion}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            if (data.index_suggestions && data.index_suggestions.length > 0) {
+                html += '<h6>Index Recommendations:</h6>';
+                html += '<ul>';
+                data.index_suggestions.forEach(suggestion => {
+                    html += `<li class="text-info">${suggestion}</li>`;
+                });
+                html += '</ul>';
+            }
+
+            if (data.estimated_cost) {
+                html += `<p><strong>Estimated Cost:</strong> ${data.estimated_cost}</p>`;
+            }
+        }
+
+        document.getElementById('optimizerResults').innerHTML = html;
+    })
+    .catch(error => {
+        document.getElementById('optimizerResults').innerHTML =
+            `<div class="alert alert-danger">Error: ${error.message}</div>`;
+    });
+}
+
+function performExport() {
+    const example = document.getElementById('exportExample').value;
+    const format = document.getElementById('exportFormat').textContent.toLowerCase();
+
+    if (example) {
+        window.location.href = `/export/${example}/${format}`;
+    }
+}
+
+// Load query history
+function loadQueryHistory() {
+    fetch('/api/query-history')
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                let html = '<div class="list-group">';
+                data.slice(0, 5).forEach(query => {
+                    html += `<div class="list-group-item">
+                        <div class="d-flex w-100 justify-content-between">
+                            <code class="text-truncate">${query.query}</code>
+                            <small>${new Date(query.timestamp).toLocaleTimeString()}</small>
+                        </div>
+                        <small class="text-muted">Database: ${query.database || 'N/A'}</small>
+                    </div>`;
+                });
+                html += '</div>';
+                document.getElementById('query-history').innerHTML = html;
+            }
+        });
+}
+
+// Load history on page load
+document.addEventListener('DOMContentLoaded', loadQueryHistory);
+</script>
+{% endblock %}

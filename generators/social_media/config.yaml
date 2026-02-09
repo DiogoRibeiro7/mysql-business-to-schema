@@ -1,0 +1,103 @@
+# Social Media Platform Data Generator Configuration
+
+seed: 42
+output_dir: "generators/social_media/output"
+
+# Entity counts
+counts:
+  users: 10000
+  posts_per_user:
+    min: 5
+    max: 50
+  relationships_per_user:
+    min: 10
+    max: 500
+  days_of_activity: 365
+  engagement_rate: 0.15  # 15% of users engage with a post
+
+# User distributions
+distributions:
+  user_types:
+    personal: 0.85
+    business: 0.10
+    creator: 0.04
+    verified: 0.01
+
+  user_activity_levels:
+    very_active: 0.05    # Power users
+    active: 0.20         # Daily users
+    moderate: 0.35       # Weekly users
+    casual: 0.30         # Monthly users
+    lurker: 0.10         # Rarely post
+
+  relationship_types:
+    follow: 0.70
+    friend: 0.25
+    block: 0.03
+    mute: 0.02
+
+  post_types:
+    text: 0.40
+    image: 0.35
+    video: 0.15
+    link: 0.08
+    poll: 0.02
+
+  reaction_types:
+    like: 0.70
+    love: 0.15
+    haha: 0.05
+    wow: 0.04
+    sad: 0.03
+    angry: 0.03
+
+# Content patterns
+content:
+  hashtags:
+    trending:
+      - "#trending"
+      - "#viral"
+      - "#tech"
+      - "#news"
+      - "#sports"
+      - "#music"
+      - "#food"
+      - "#travel"
+      - "#fitness"
+      - "#gaming"
+
+  post_templates:
+    - "Just had an amazing day at {location}! {hashtag}"
+    - "Thoughts on {topic}? {hashtag}"
+    - "Can't believe it's already {time}! #TimeFlies"
+    - "Working on something exciting! {emoji} {hashtag}"
+    - "Great meeting with {mention} today! {hashtag}"
+    - "Check out this article: {link} {hashtag}"
+    - "Who else loves {thing}? {emoji} {hashtag}"
+    - "Monday motivation: {quote} {hashtag}"
+
+# Engagement patterns
+engagement:
+  power_law_alpha: 2.0  # For follower distribution
+  virality_threshold: 100  # Engagements to go viral
+
+  time_patterns:
+    peak_hours: [9, 12, 17, 20]  # 9am, noon, 5pm, 8pm
+    weekend_multiplier: 1.2
+
+  network_effects:
+    friend_engagement_boost: 2.0
+    verified_engagement_boost: 3.0
+    hashtag_reach_multiplier: 1.5
+
+# Privacy settings
+privacy:
+  profile_visibility:
+    public: 0.70
+    friends: 0.25
+    private: 0.05
+
+  message_settings:
+    everyone: 0.30
+    friends: 0.60
+    none: 0.10

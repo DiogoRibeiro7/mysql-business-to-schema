@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Tools - MySQL Business-to-Schema{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Analysis Tools</h1>
+    <p class="lead">Powerful utilities for analyzing, validating, and optimizing your MySQL databases.</p>
+
+    <!-- Tools Grid -->
+    <div class="row g-4">
+        {% for tool in tools %}
+        <div class="col-md-6">
+            <div class="card h-100 tool-card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-wrench"></i> {{ tool.name }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <p>{{ tool.description }}</p>
+
+                    {% if tool.features %}
+                    <h6>Key Features:</h6>
+                    <ul>
+                        {% for feature in tool.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    <div class="mt-3">
+                        <code class="d-block bg-dark text-white p-2 rounded">
+                            python {{ tool.file }}
+                        </code>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">
+                        <i class="fas fa-file-code"></i> {{ tool.file }}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Usage Examples -->
+    <div class="card mt-5">
+        <div class="card-header">
+            <h3>Usage Examples</h3>
+        </div>
+        <div class="card-body">
+            <!-- Test Runner -->
+            <h5>Test Runner</h5>
+            <p>Run comprehensive tests on all examples:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>cd tools
+python test_runner.py
+
+# Test specific example
+python test_runner.py --example example_10_fintech
+
+# Generate detailed report
+python test_runner.py --report html --output test_report.html</code></pre>
+
+            <!-- Schema Validator -->
+            <h5 class="mt-4">Schema Validator</h5>
+            <p>Validate database schemas against best practices:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>cd tools
+python schema_validator.py ../example_11_social_media/schema/
+
+# Check all schemas
+python schema_validator.py --all
+
+# Generate validation report
+python schema_validator.py --report --output validation.json</code></pre>
+
+            <!-- Query Performance Analyzer -->
+            <h5 class="mt-4">Query Performance Analyzer</h5>
+            <p>Analyze and optimize query performance:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>cd tools
+python query_analyzer.py ../example_12_real_estate/queries/
+
+# Connect to live database
+python query_analyzer.py --host localhost --user root --password
+
+# Compare performance across examples
+python query_analyzer.py --compare --examples 10,11,12</code></pre>
+        </div>
+    </div>
+
+    <!-- CI/CD Integration -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>CI/CD Integration</h3>
+        </div>
+        <div class="card-body">
+            <h5>GitHub Actions</h5>
+            <p>Automated testing with GitHub Actions workflow:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>name: Test Database Examples
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run tests
+      run: |
+        cd tools
+        python test_runner.py --ci-mode
+
+    - name: Validate schemas
+      run: |
+        cd tools
+        python schema_validator.py --all --fail-on-warning
+
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: tools/test_results/</code></pre>
+
+            <h5 class="mt-4">Docker Integration</h5>
+            <p>Run tools in Docker container:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY tools/ ./tools/
+COPY example*/ ./
+
+CMD ["python", "tools/test_runner.py", "--all"]</code></pre>
+        </div>
+    </div>
+
+    <!-- Download Section -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Download Tools</h3>
+        </div>
+        <div class="card-body">
+            <p>All tools are included in the repository. Clone it to get started:</p>
+            <pre class="bg-dark text-white p-3 rounded"><code>git clone https://github.com/yourusername/mysql-business-to-schema.git
+cd mysql-business-to-schema/tools</code></pre>
+
+            <div class="mt-3">
+                <a href="https://github.com/yourusername/mysql-business-to-schema/tree/main/tools"
+                   class="btn btn-primary" target="_blank">
+                    <i class="fab fa-github"></i> View on GitHub
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

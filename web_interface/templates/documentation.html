@@ -1,0 +1,279 @@
+{% extends "base.html" %}
+
+{% block title %}Documentation - MySQL Business-to-Schema{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            <div class="sticky-top" style="top: 80px;">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Documentation</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-pills flex-column">
+                            {% for key, doc in docs.items() %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if loop.first %}active{% endif %}"
+                                   href="#{{ key }}"
+                                   data-bs-toggle="pill">
+                                    {{ doc.title }}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li class="nav-item mt-3">
+                                <a class="nav-link" href="#api">API Reference</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#contributing">Contributing</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#faq">FAQ</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Documentation Content -->
+        <div class="col-md-9">
+            <h1 class="mb-4">Documentation</h1>
+
+            <!-- Dynamic Documentation Sections -->
+            <div class="tab-content">
+                {% for key, doc in docs.items() %}
+                <div class="tab-pane fade {% if loop.first %}show active{% endif %}"
+                     id="{{ key }}">
+                    <div class="card mb-4">
+                        <div class="card-body markdown-content">
+                            {{ doc.html | safe }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- API Reference -->
+            <div id="api" class="mt-5">
+                <h2>API Reference</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Web Interface API Endpoints</h4>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Endpoint</th>
+                                    <th>Method</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><code>/api/stats</code></td>
+                                    <td>GET</td>
+                                    <td>Get overall statistics</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/api/examples</code></td>
+                                    <td>GET</td>
+                                    <td>List all examples</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/api/example/&lt;path&gt;</code></td>
+                                    <td>GET</td>
+                                    <td>Get example details</td>
+                                </tr>
+                                <tr>
+                                    <td><code>/api/search?q=&lt;query&gt;</code></td>
+                                    <td>GET</td>
+                                    <td>Search examples</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h5 class="mt-4">Example API Usage</h5>
+                        <pre class="bg-dark text-white p-3 rounded"><code># Get statistics
+curl http://localhost:5000/api/stats
+
+# Search for indexes
+curl "http://localhost:5000/api/search?q=INDEX"
+
+# Get specific example details
+curl http://localhost:5000/api/example/example_10_fintech</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contributing -->
+            <div id="contributing" class="mt-5">
+                <h2>Contributing</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <h4>How to Contribute</h4>
+                        <p>We welcome contributions! Here's how you can help:</p>
+
+                        <h5>Adding a New Example</h5>
+                        <ol>
+                            <li>Create a new directory following the pattern: <code>example_XX_name</code></li>
+                            <li>Add required files:
+                                <ul>
+                                    <li><code>README.md</code> - Documentation</li>
+                                    <li><code>schema/01_tables.sql</code> - Table definitions</li>
+                                    <li><code>queries/</code> - Example queries (optional)</li>
+                                    <li><code>data/</code> - Sample data (optional)</li>
+                                </ul>
+                            </li>
+                            <li>Follow naming conventions and best practices</li>
+                            <li>Add tests in <code>tools/tests/</code></li>
+                            <li>Update the main README</li>
+                            <li>Submit a pull request</li>
+                        </ol>
+
+                        <h5>Example Structure</h5>
+                        <pre class="bg-dark text-white p-3 rounded"><code>example_14_your_domain/
+├── README.md              # Documentation
+├── schema/
+│   ├── 00_create_database.sql
+│   ├── 01_tables.sql
+│   ├── 02_indexes.sql
+│   └── 03_procedures.sql
+├── queries/
+│   ├── 01_basic.sql
+│   └── 02_advanced.sql
+├── data/
+│   └── sample_data.sql
+└── tests/
+    └── test_schema.py</code></pre>
+
+                        <h5>Code Standards</h5>
+                        <ul>
+                            <li>Use consistent SQL formatting</li>
+                            <li>Follow MySQL 8.0 syntax</li>
+                            <li>Include comments for complex logic</li>
+                            <li>Provide realistic example data</li>
+                            <li>Ensure all foreign keys are defined</li>
+                            <li>Test with the validation tools</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ -->
+            <div id="faq" class="mt-5">
+                <h2>Frequently Asked Questions</h2>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq1">
+                                What MySQL version is required?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                MySQL 8.0 or higher is recommended. Some examples use features like
+                                window functions, CTEs, and JSON functions that require MySQL 8.0+.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq2">
+                                How do I load an example into my database?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <pre><code>cd example_01_clinic
+mysql -u root -p < schema/00_create_database.sql
+mysql -u root -p clinic_db < schema/01_tables.sql
+mysql -u root -p clinic_db < data/sample_data.sql</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq3">
+                                Can I use these schemas in production?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes, these schemas follow best practices and can be used as a starting point
+                                for production systems. However, always review and adjust based on your
+                                specific requirements, security needs, and scale.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq4">
+                                How do I generate test data?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                <pre><code>cd generators/ecommerce
+python generate.py --rows 10000 --output ../../example_02_ecommerce/data/</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#faq5">
+                                Are there Docker images available?
+                            </button>
+                        </h2>
+                        <div id="faq5" class="accordion-collapse collapse"
+                             data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Yes! Use docker-compose to quickly spin up MySQL with all examples loaded:
+                                <pre><code>docker-compose up -d
+docker exec -it mysql-examples mysql -u root -p</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources -->
+            <div class="mt-5">
+                <h2>Additional Resources</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <h5>External Links</h5>
+                        <ul>
+                            <li><a href="https://dev.mysql.com/doc/" target="_blank">MySQL Official Documentation</a></li>
+                            <li><a href="https://www.mysql.com/products/workbench/" target="_blank">MySQL Workbench</a></li>
+                            <li><a href="https://github.com/datacharmer/dbdeployer" target="_blank">dbdeployer - MySQL sandbox</a></li>
+                            <li><a href="https://www.percona.com/software/database-tools/percona-toolkit" target="_blank">Percona Toolkit</a></li>
+                        </ul>
+
+                        <h5>Learning Resources</h5>
+                        <ul>
+                            <li><a href="https://use-the-index-luke.com/" target="_blank">Use The Index, Luke! - SQL Indexing</a></li>
+                            <li><a href="https://www.db-fiddle.com/" target="_blank">DB Fiddle - Online SQL Playground</a></li>
+                            <li><a href="https://sqlbolt.com/" target="_blank">SQLBolt - Interactive SQL Lessons</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

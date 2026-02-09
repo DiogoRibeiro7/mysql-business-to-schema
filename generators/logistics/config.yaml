@@ -1,0 +1,65 @@
+# Configuration for Logistics & Supply Chain Data Generator
+
+database:
+  host: localhost
+  user: root
+  password: ''
+  name: logistics_db
+
+# Data generation counts
+counts:
+  warehouses: 20
+  products: 1000
+  suppliers: 100
+  customers: 500
+  purchase_orders: 200
+  sales_orders: 500
+  shipments: 300
+  vehicles: 50
+  drivers: 75
+  routes: 30
+
+# Business rules
+business_rules:
+  inventory:
+    min_stock_percentage: 20
+    max_stock_percentage: 80
+    reorder_trigger: 30  # Percentage
+
+  shipping:
+    standard_delivery_days: 3-5
+    express_delivery_days: 1-2
+    urgent_delivery_hours: 4-8
+
+  warehouse:
+    operating_hours_start: 6
+    operating_hours_end: 22
+    max_capacity_utilization: 85  # Percentage
+
+# Performance settings
+performance:
+  batch_size: 100
+  commit_interval: 500
+  max_threads: 4
+
+# Data patterns
+patterns:
+  seasonal_multiplier:
+    Q1: 0.8
+    Q2: 1.0
+    Q3: 0.9
+    Q4: 1.3  # Holiday season
+
+  order_distribution:
+    morning: 0.3    # 30% of orders
+    afternoon: 0.4  # 40% of orders
+    evening: 0.2    # 20% of orders
+    night: 0.1      # 10% of orders
+
+# Simulation settings
+simulation:
+  start_date: '2024-01-01'
+  end_date: '2024-12-31'
+  enable_seasonal_patterns: true
+  enable_random_events: true
+  event_probability: 0.05  # 5% chance of random events

@@ -1,0 +1,184 @@
+groups:
+  - name: mysql_alerts
+    interval: 30s
+    rules:
+      # Connection alerts
+      - alert: MySQLDown
+        expr: up{job="mysql"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "MySQL instance {{ $labels.instance }} is down"
+          description: "MySQL has been down for more than 5 minutes."
+
+      - alert: MySQLTooManyConnections
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "MySQL too many connections on {{ $labels.instance }}"
+          description: "More than 80% of MySQL connections are in use (current: {{ $value | printf \"%.2f\" }}%)"
+
+      - alert: MySQLConnectionErrors
+        expr: rate(mysql_global_status_connection_errors_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "MySQL connection errors on {{ $labels.instance }}"
+          description: "MySQL is experiencing connection errors ({{ $value | printf \"%.2f\" }} errors/sec)"
+
+      # Performance alerts
+      - alert: MySQLSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          alert_type: performance
+        annotations:
+          summary: "MySQL slow queries detected on {{ $labels.instance }}"
+          description: "MySQL has {{ $value | printf \"%.2f\" }} slow queries per second"
+
+      - alert: MySQLHighQPS
+        expr: rate(mysql_global_status_queries[1m]) > 10000
+        for: 5m
+        labels:
+          severity: info
+          component: database
+          alert_type: performance
+        annotations:
+          summary: "High query rate on {{ $labels.instance }}"
+          description: "MySQL is processing {{ $value | printf \"%.0f\" }} queries per second"
+
+      - alert: MySQLInnoDBLogWaitsTooHigh
+        expr: rate(mysql_global_status_innodb_log_waits[5m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          alert_type: performance
+        annotations:
+          summary: "InnoDB log waits too high on {{ $labels.instance }}"
+          description: "InnoDB log buffer is too small, causing {{ $value | printf \"%.2f\" }} waits/sec"
+
+      # Replication alerts
+      - alert: MySQLReplicationLag
+        expr: mysql_slave_lag_seconds > 30
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+          alert_type: replication
+        annotations:
+          summary: "MySQL replication lag on {{ $labels.instance }}"
+          description: "MySQL replication lag is {{ $value }} seconds"
+
+      - alert: MySQLReplicationStopped
+        expr: mysql_slave_sql_running == 0 or mysql_slave_io_running == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+          alert_type: replication
+        annotations:
+          summary: "MySQL replication stopped on {{ $labels.instance }}"
+          description: "MySQL replication has stopped on slave {{ $labels.instance }}"
+
+      # Storage alerts
+      - alert: MySQLTablespaceFull
+        expr: (mysql_info_schema_table_size{component="data_length"} + mysql_info_schema_table_size{component="index_length"}) / 1024 / 1024 / 1024 > 100
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+          alert_type: storage
+        annotations:
+          summary: "Large table detected on {{ $labels.instance }}"
+          description: "Table {{ $labels.schema }}.{{ $labels.table }} is larger than 100GB"
+
+      - alert: MySQLInnoDBBufferPoolUtil
+        expr: (mysql_global_status_innodb_buffer_pool_pages_total - mysql_global_status_innodb_buffer_pool_pages_free) / mysql_global_status_innodb_buffer_pool_pages_total * 100 > 95
+        for: 15m
+        labels:
+          severity: warning
+          component: database
+          alert_type: memory
+        annotations:
+          summary: "InnoDB buffer pool almost full on {{ $labels.instance }}"
+          description: "InnoDB buffer pool utilization is {{ $value | printf \"%.2f\" }}%"
+
+      # Lock alerts
+      - alert: MySQLTableLockWaits
+        expr: rate(mysql_global_status_table_locks_waited[5m]) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          alert_type: locks
+        annotations:
+          summary: "Table lock waits detected on {{ $labels.instance }}"
+          description: "MySQL has {{ $value | printf \"%.2f\" }} table lock waits per second"
+
+      - alert: MySQLDeadlocks
+        expr: rate(mysql_global_status_innodb_deadlocks[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+          alert_type: locks
+        annotations:
+          summary: "Deadlocks detected on {{ $labels.instance }}"
+          description: "MySQL is experiencing {{ $value | printf \"%.2f\" }} deadlocks per second"
+
+      # Binary log alerts
+      - alert: MySQLBinaryLogSize
+        expr: mysql_binlog_size_bytes / 1024 / 1024 / 1024 > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+          alert_type: storage
+        annotations:
+          summary: "Binary logs consuming too much space on {{ $labels.instance }}"
+          description: "Binary logs are using {{ $value | printf \"%.2f\" }}GB of disk space"
+
+      # Thread alerts
+      - alert: MySQLThreadsRunningHigh
+        expr: mysql_global_status_threads_running > 100
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+          alert_type: performance
+        annotations:
+          summary: "Too many threads running on {{ $labels.instance }}"
+          description: "{{ $value }} threads are currently running"
+
+      # Cache alerts
+      - alert: MySQLQueryCacheLowHitRate
+        expr: mysql_global_status_qcache_hits / (mysql_global_status_qcache_hits + mysql_global_status_qcache_inserts) * 100 < 20
+        for: 15m
+        labels:
+          severity: info
+          component: database
+          alert_type: performance
+        annotations:
+          summary: "Query cache hit rate low on {{ $labels.instance }}"
+          description: "Query cache hit rate is {{ $value | printf \"%.2f\" }}%"
+
+      # Uptime alert
+      - alert: MySQLRecentRestart
+        expr: mysql_global_status_uptime < 3600
+        for: 1m
+        labels:
+          severity: info
+          component: database
+        annotations:
+          summary: "MySQL recently restarted on {{ $labels.instance }}"
+          description: "MySQL uptime is only {{ $value }} seconds"

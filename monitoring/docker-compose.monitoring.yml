@@ -1,0 +1,177 @@
+version: '3.8'
+
+services:
+  # Prometheus - Metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: mysql_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - monitoring
+
+  # Grafana - Visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: mysql_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    networks:
+      - monitoring
+
+  # MySQL Exporter - MySQL metrics for Prometheus
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql_exporter
+    ports:
+      - "9104:9104"
+    environment:
+      - DATA_SOURCE_NAME=exporter:exportpass@(mysql:3306)/
+    command:
+      - '--collect.info_schema.innodb_metrics'
+      - '--collect.info_schema.innodb_tablespaces'
+      - '--collect.info_schema.innodb_cmp'
+      - '--collect.info_schema.innodb_cmpmem'
+      - '--collect.info_schema.processlist'
+      - '--collect.info_schema.query_response_time'
+      - '--collect.info_schema.tables'
+      - '--collect.info_schema.tablestats'
+      - '--collect.info_schema.userstats'
+      - '--collect.engine_innodb_status'
+      - '--collect.binlog_size'
+      - '--collect.perf_schema.eventsstatements'
+      - '--collect.perf_schema.eventswaits'
+      - '--collect.perf_schema.file_events'
+      - '--collect.perf_schema.file_instances'
+      - '--collect.perf_schema.indexiowaits'
+      - '--collect.perf_schema.tableiowaits'
+      - '--collect.perf_schema.tablelocks'
+      - '--collect.perf_schema.replication_group_member_stats'
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+
+  # Node Exporter - System metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - monitoring
+
+  # Alertmanager - Alert handling
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: mysql_alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - monitoring
+
+  # Loki - Log aggregation
+  loki:
+    image: grafana/loki:latest
+    container_name: mysql_loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - monitoring
+
+  # Promtail - Log collection
+  promtail:
+    image: grafana/promtail:latest
+    container_name: mysql_promtail
+    volumes:
+      - /var/log:/var/log:ro
+      - ./promtail-config.yml:/etc/promtail/config.yml
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - monitoring
+
+  # MySQL instance (if not already running)
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_monitored
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_USER: exporter
+      MYSQL_PASSWORD: exportpass
+      MYSQL_DATABASE: test_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    command:
+      - --performance-schema=ON
+      - --performance-schema-instrument='%=ON'
+      - --slow-query-log=ON
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=2
+      - --general-log=ON
+      - --general-log-file=/var/log/mysql/general.log
+    networks:
+      - monitoring
+
+  # phpMyAdmin - Database management UI
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: mysql_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    networks:
+      - monitoring
+    depends_on:
+      - mysql
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  alertmanager_data:
+  loki_data:
+  mysql_data:
+
+networks:
+  monitoring:
+    driver: bridge

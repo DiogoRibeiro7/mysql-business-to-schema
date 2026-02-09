@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}{{ example.name }} - MySQL Example{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Examples</a></li>
+            <li class="breadcrumb-item active">{{ example.name }}</li>
+        </ol>
+    </nav>
+
+    <!-- Example Header -->
+    <div class="row mb-4">
+        <div class="col-lg-8">
+            <h1 class="display-5">{{ example.name }}</h1>
+            <p class="lead text-muted">{{ example.path }}</p>
+        </div>
+        <div class="col-lg-4 text-end">
+            <div class="btn-group" role="group">
+                <a href="/download/{{ example.path }}/schema" class="btn btn-outline-primary">
+                    <i class="fas fa-download"></i> Download Schema
+                </a>
+                <a href="/compare?examples[]={{ example.path }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-columns"></i> Compare
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-primary">{{ example.stats.tables }}</h3>
+                    <p class="text-muted mb-0">Tables</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-success">{{ example.stats.queries }}</h3>
+                    <p class="text-muted mb-0">Queries</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-info">{{ example.stats.indexes }}</h3>
+                    <p class="text-muted mb-0">Indexes</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h3 class="text-warning">{{ example.stats.procedures }}</h3>
+                    <p class="text-muted mb-0">Procedures</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" data-bs-toggle="tab" href="#readme">
+                <i class="fas fa-book"></i> README
+            </a>
+        </li>
+        {% if example.files.schema %}
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#schema">
+                <i class="fas fa-database"></i> Schema
+                <span class="badge bg-secondary ms-1">{{ example.files.schema | length }}</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if example.files.queries %}
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#queries">
+                <i class="fas fa-code"></i> Queries
+                <span class="badge bg-secondary ms-1">{{ example.files.queries | length }}</span>
+            </a>
+        </li>
+        {% endif %}
+        {% if example.generator %}
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#generator">
+                <i class="fas fa-cog"></i> Data Generator
+            </a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <a class="nav-link" data-bs-toggle="tab" href="#diagram">
+                <i class="fas fa-project-diagram"></i> ER Diagram
+            </a>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- README Tab -->
+        <div class="tab-pane fade show active" id="readme">
+            <div class="card">
+                <div class="card-body markdown-content">
+                    {{ example.readme_html | safe }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Schema Tab -->
+        {% if example.files.schema %}
+        <div class="tab-pane fade" id="schema">
+            <div class="row">
+                <div class="col-md-3">
+                    <!-- File List -->
+                    <div class="list-group" id="schema-files">
+                        {% for file in example.files.schema %}
+                        <a href="#" class="list-group-item list-group-item-action {% if loop.first %}active{% endif %}"
+                           data-file="{{ loop.index0 }}">
+                            <i class="fas fa-file-code"></i> {{ file.name }}
+                            <small class="text-muted d-block">{{ file.lines }} lines</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <!-- Code Display -->
+                    {% for file in example.files.schema %}
+                    <div class="code-container" id="schema-{{ loop.index0 }}"
+                         style="{% if not loop.first %}display: none;{% endif %}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5>{{ file.name }}</h5>
+                            <button class="btn btn-sm btn-outline-secondary copy-btn"
+                                    data-content="{{ file.content | e }}">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div class="code-wrapper">
+                            {{ file.highlighted | safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Queries Tab -->
+        {% if example.files.queries %}
+        <div class="tab-pane fade" id="queries">
+            <div class="row">
+                <div class="col-md-3">
+                    <!-- File List -->
+                    <div class="list-group" id="query-files">
+                        {% for file in example.files.queries %}
+                        <a href="#" class="list-group-item list-group-item-action {% if loop.first %}active{% endif %}"
+                           data-file="{{ loop.index0 }}">
+                            <i class="fas fa-file-code"></i> {{ file.name }}
+                            <small class="text-muted d-block">{{ file.lines }} lines</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-md-9">
+                    <!-- Code Display -->
+                    {% for file in example.files.queries %}
+                    <div class="code-container" id="query-{{ loop.index0 }}"
+                         style="{% if not loop.first %}display: none;{% endif %}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5>{{ file.name }}</h5>
+                            <button class="btn btn-sm btn-outline-secondary copy-btn"
+                                    data-content="{{ file.content | e }}">
+                                <i class="fas fa-copy"></i> Copy
+                            </button>
+                        </div>
+                        <div class="code-wrapper">
+                            {{ file.highlighted | safe }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Generator Tab -->
+        {% if example.generator %}
+        <div class="tab-pane fade" id="generator">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Configuration (config.yaml)</h5>
+                    {% if example.generator.config %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="code-wrapper">
+                                {{ example.generator.config.highlighted | safe }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Config Stats -->
+                    <div class="mt-3">
+                        <h6>Generator Settings:</h6>
+                        <ul class="list-unstyled">
+                            {% if example.generator.config.parsed.counts %}
+                            {% for key, value in example.generator.config.parsed.counts.items() %}
+                            <li><strong>{{ key }}:</strong> {{ value }}</li>
+                            {% endfor %}
+                            {% endif %}
+                        </ul>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h5>Generator Script (generate.py)</h5>
+                    {% if example.generator.script %}
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="code-wrapper">
+                                {{ example.generator.script.highlighted | safe }}
+                            </div>
+                            <p class="text-muted mt-2">
+                                <small>Total: {{ example.generator.script.total_lines }} lines</small>
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ER Diagram Tab -->
+        <div class="tab-pane fade" id="diagram">
+            <div class="card">
+                <div class="card-body text-center">
+                    <p class="text-muted">
+                        <i class="fas fa-info-circle"></i>
+                        Entity Relationship Diagram would be generated here using the schema information.
+                    </p>
+                    <p>
+                        <a href="#" class="btn btn-primary">
+                            <i class="fas fa-download"></i> Generate ER Diagram
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// File navigation for schema
+document.querySelectorAll('#schema-files .list-group-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Update active state
+        document.querySelectorAll('#schema-files .list-group-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Show corresponding code
+        const fileIndex = this.getAttribute('data-file');
+        document.querySelectorAll('[id^="schema-"]').forEach(container => {
+            container.style.display = container.id === `schema-${fileIndex}` ? 'block' : 'none';
+        });
+    });
+});
+
+// File navigation for queries
+document.querySelectorAll('#query-files .list-group-item').forEach(item => {
+    item.addEventListener('click', function(e) {
+        e.preventDefault();
+
+        // Update active state
+        document.querySelectorAll('#query-files .list-group-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        // Show corresponding code
+        const fileIndex = this.getAttribute('data-file');
+        document.querySelectorAll('[id^="query-"]').forEach(container => {
+            container.style.display = container.id === `query-${fileIndex}` ? 'block' : 'none';
+        });
+    });
+});
+
+// Copy to clipboard
+document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const content = this.getAttribute('data-content');
+        const decoded = document.createElement('textarea');
+        decoded.innerHTML = content;
+
+        navigator.clipboard.writeText(decoded.value).then(() => {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i> Copied!';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
+    });
+});
+</script>
+{% endblock %}
