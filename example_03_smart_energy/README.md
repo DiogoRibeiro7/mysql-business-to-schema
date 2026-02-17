@@ -7,6 +7,7 @@ This example demonstrates a comprehensive smart energy monitoring and optimizati
 ## Business Context
 
 Commercial buildings face significant energy management challenges:
+
 - **Rising Energy Costs**: Electricity costs continue to increase, especially during peak hours
 - **Sustainability Goals**: Pressure to reduce carbon footprint and meet environmental targets
 - **Grid Reliability**: Need to participate in demand response programs
@@ -14,6 +15,7 @@ Commercial buildings face significant energy management challenges:
 - **Tenant Billing**: Complex sub-metering and cost allocation requirements
 
 This smart energy solution addresses these challenges through:
+
 - Real-time monitoring of energy consumption at multiple levels
 - Integration of renewable energy sources (solar, battery storage)
 - Automated demand response participation
@@ -25,18 +27,21 @@ This smart energy solution addresses these challenges through:
 While both are IoT systems, this example focuses on different aspects:
 
 ### Data Characteristics
+
 - **High-Frequency Time Series**: Readings every 5 seconds vs 5 minutes
 - **Multi-Dimensional Data**: Power factor, voltage, current, frequency
 - **Complex Aggregations**: Peak/off-peak, time-of-use, demand charges
 - **Hierarchical Metering**: Building → Floor → Zone → Equipment
 
 ### Business Logic
+
 - **Cost Optimization**: Time-of-use rates, demand charge management
 - **Renewable Integration**: Solar generation, battery storage optimization
 - **Multi-Tenant Management**: Sub-metering, cost allocation, billing
 - **Demand Response**: Grid interaction, load shedding, incentives
 
 ### Technical Features
+
 - **Power Quality Monitoring**: Voltage sags, harmonics, power factor
 - **Equipment Efficiency Tracking**: COP, degradation, performance
 - **Weather Integration**: Temperature impact on load, solar generation
@@ -45,24 +50,28 @@ While both are IoT systems, this example focuses on different aspects:
 ## Learning Objectives
 
 ### Advanced Time Series
+
 - Sub-second data ingestion strategies
 - Multi-level aggregation patterns
 - Sliding window calculations
 - Gap filling and interpolation
 
 ### Energy Domain Concepts
+
 - Power vs energy calculations
 - Demand charge optimization
 - Load factor analysis
 - Power quality metrics
 
 ### Complex Business Rules
+
 - Time-of-use billing
 - Tenant cost allocation
 - Demand response strategies
 - Renewable energy optimization
 
 ### Predictive Analytics
+
 - Load forecasting models
 - Equipment failure prediction
 - Anomaly detection
@@ -73,30 +82,35 @@ While both are IoT systems, this example focuses on different aspects:
 ### Core Design Principles
 
 1. **Hierarchical Structure**
-   ```
-   Building → Floors → Zones → Equipment
-          ↓
-        Meters → Readings → Aggregations
-   ```
+
+  ```
+  Building → Floors → Zones → Equipment
+         ↓
+       Meters → Readings → Aggregations
+  ```
 
 2. **Time Series Optimization**
-   - Separate tables for different frequencies
-   - Pre-computed aggregations
-   - Efficient partitioning strategy
+
+  - Separate tables for different frequencies
+  - Pre-computed aggregations
+  - Efficient partitioning strategy
 
 3. **Multi-Tenancy Support**
-   - Tenant-zone assignments with time validity
-   - Shared space allocation
-   - Individual billing records
+
+  - Tenant-zone assignments with time validity
+  - Shared space allocation
+  - Individual billing records
 
 4. **Renewable Energy Integration**
-   - Solar production tracking
-   - Battery state management
-   - Net metering calculations
+
+  - Solar production tracking
+  - Battery state management
+  - Net metering calculations
 
 ## Setup Instructions
 
 ### Prerequisites
+
 - MySQL 8.0+ (for JSON support and window functions)
 - Python 3.8+ (for data generator)
 - 5GB+ free disk space (high-frequency data)
@@ -104,30 +118,35 @@ While both are IoT systems, this example focuses on different aspects:
 ### Quick Start
 
 1. **Create Database**
-```bash
-mysql -u root -p < schema/00_create_database.sql
-```
+
+  ```bash
+  mysql -u root -p < schema/00_create_database.sql
+  ```
 
 2. **Install Schema**
-```bash
-mysql -u root -p smart_energy < schema/01_tables.sql
-mysql -u root -p smart_energy < schema/02_constraints.sql
-```
+
+  ```bash
+  mysql -u root -p smart_energy < schema/01_tables.sql
+  mysql -u root -p smart_energy < schema/02_constraints.sql
+  ```
 
 3. **Generate Test Data**
-```bash
-cd ../generators/smart_energy
-python generate.py --config config.yaml
-```
+
+  ```bash
+  cd ../generators/smart_energy
+  python generate.py --config config.yaml
+  ```
 
 4. **Load Data**
-```bash
-mysql -u root -p smart_energy < ../../example_03_smart_energy/schema/10_load_generated.sql
-```
+
+  ```bash
+  mysql -u root -p smart_energy < ../../example_03_smart_energy/schema/10_load_generated.sql
+  ```
 
 ## Key Queries and Use Cases
 
-### 1. Real-Time Energy Monitoring
+### 1\. Real-Time Energy Monitoring
+
 ```sql
 -- Current power consumption by building
 SELECT
@@ -142,7 +161,8 @@ WHERE er.reading_timestamp >= NOW() - INTERVAL 1 MINUTE
 GROUP BY b.building_id;
 ```
 
-### 2. Demand Response Optimization
+### 2\. Demand Response Optimization
+
 ```sql
 -- Identify load shedding opportunities
 SELECT
@@ -164,7 +184,8 @@ HAVING reduction_potential_kw > 10
 ORDER BY reduction_potential_kw DESC;
 ```
 
-### 3. Solar Generation vs Consumption
+### 3\. Solar Generation vs Consumption
+
 ```sql
 -- Net energy position
 WITH consumption AS (
@@ -202,7 +223,8 @@ LEFT JOIN generation g ON c.date = g.date AND c.hour = g.hour
 ORDER BY c.hour;
 ```
 
-### 4. Tenant Billing Calculation
+### 4\. Tenant Billing Calculation
+
 ```sql
 -- Monthly tenant energy costs
 WITH tenant_consumption AS (
@@ -236,7 +258,8 @@ FROM tenant_consumption
 ORDER BY total_bill DESC;
 ```
 
-### 5. Equipment Efficiency Analysis
+### 5\. Equipment Efficiency Analysis
+
 ```sql
 -- HVAC efficiency trends
 SELECT
@@ -257,31 +280,38 @@ ORDER BY date DESC, avg_cop ASC;
 
 ## Advanced Features
 
-### 1. Demand Response Automation
+### 1\. Demand Response Automation
+
 The system automatically:
+
 - Monitors grid signals for DR events
 - Calculates optimal load reduction strategy
 - Controls HVAC and lighting systems
 - Tracks compliance and calculates incentives
 - Reports results to utility
 
-### 2. Predictive Maintenance
+### 2\. Predictive Maintenance
+
 Using machine learning patterns to:
+
 - Detect equipment degradation
 - Predict failure probability
 - Schedule maintenance optimally
 - Track repair history
 - Calculate maintenance ROI
 
-### 3. Energy Optimization
+### 3\. Energy Optimization
+
 Continuous optimization of:
+
 - Battery charge/discharge cycles
 - Solar self-consumption
 - Peak demand management
 - Time-of-use arbitrage
 - Load balancing
 
-### 4. Tenant Portal Features
+### 4\. Tenant Portal Features
+
 - Real-time consumption dashboard
 - Cost forecasting
 - Benchmark comparisons
@@ -291,16 +321,19 @@ Continuous optimization of:
 ## Performance Considerations
 
 ### High-Frequency Data Management
+
 - 12 readings/hour × 15 meters × 5 buildings = 900 readings/hour
 - 21,600 readings/day = ~650,000 readings/month
 
 ### Optimization Strategies
+
 1. **Partitioning**: Monthly partitions for readings
 2. **Aggregation**: Pre-computed hourly/daily summaries
 3. **Indexing**: Covering indexes for dashboard queries
 4. **Archival**: Move old data to cold storage
 
 ### Query Best Practices
+
 ```sql
 -- Good: Use aggregated data for reports
 SELECT * FROM energy_consumption_daily
@@ -316,6 +349,7 @@ GROUP BY DATE(reading_timestamp);
 ## Integration Points
 
 ### External Systems
+
 - **Building Management System (BMS)**: BACnet/Modbus protocols
 - **Utility APIs**: Real-time pricing, DR signals
 - **Weather Services**: Temperature, solar irradiance
@@ -323,6 +357,7 @@ GROUP BY DATE(reading_timestamp);
 - **Analytics Platforms**: Tableau, Power BI, Grafana
 
 ### IoT Protocols
+
 - **MQTT**: Real-time sensor data
 - **Modbus TCP**: Industrial meters
 - **BACnet**: HVAC systems
@@ -333,6 +368,7 @@ GROUP BY DATE(reading_timestamp);
 ### Common Issues
 
 **Missing Readings**
+
 ```sql
 -- Find gaps in time series
 SELECT
@@ -353,6 +389,7 @@ GROUP BY meter_id;
 ```
 
 **Abnormal Consumption**
+
 ```sql
 -- Detect anomalies using z-score
 WITH stats AS (
@@ -381,22 +418,26 @@ ORDER BY ABS(z_score) DESC;
 ## Learning Exercises
 
 ### Beginner
+
 1. Calculate daily energy consumption by building
 2. Find the peak demand hour for each floor
 3. List all active HVAC units with their efficiency
 
 ### Intermediate
+
 1. Implement time-of-use billing calculation
 2. Analyze correlation between temperature and consumption
 3. Calculate solar panel ROI
 
 ### Advanced
+
 1. Build a demand forecast model using historical data
 2. Optimize battery charge/discharge schedule
 3. Implement anomaly detection algorithm
 4. Design multi-tenant cost allocation system
 
 ### Expert
+
 1. Create real-time optimization engine for demand response
 2. Implement predictive maintenance scoring system
 3. Build machine learning pipeline for load forecasting
@@ -405,16 +446,19 @@ ORDER BY ABS(z_score) DESC;
 ## Additional Resources
 
 ### Documentation
+
 - [MySQL JSON Functions](https://dev.mysql.com/doc/refman/8.0/en/json.html)
 - [Window Functions](https://dev.mysql.com/doc/refman/8.0/en/window-functions.html)
 - [Partitioning](https://dev.mysql.com/doc/refman/8.0/en/partitioning.html)
 
 ### Industry Standards
+
 - [ASHRAE 90.1](https://www.ashrae.org/technical-resources/standards-and-guidelines) - Energy Standard
 - [ISO 50001](https://www.iso.org/iso-50001-energy-management.html) - Energy Management
 - [OpenADR](https://www.openadr.org/) - Demand Response Protocol
 
 ### Related Examples
+
 - `example_02_iot_bins`: IoT sensor patterns and time series
 - `example_01_clinic`: Scheduling and resource management
 - `example_04_manufacturing`: Industrial IoT (planned)
@@ -422,24 +466,28 @@ ORDER BY ABS(z_score) DESC;
 ## Future Enhancements
 
 1. **Machine Learning Integration**
-   - TensorFlow model serving
-   - Automated hyperparameter tuning
-   - Online learning capabilities
+
+  - TensorFlow model serving
+  - Automated hyperparameter tuning
+  - Online learning capabilities
 
 2. **Blockchain Integration**
-   - Renewable energy certificates
-   - Peer-to-peer energy trading
-   - Smart contracts for DR
+
+  - Renewable energy certificates
+  - Peer-to-peer energy trading
+  - Smart contracts for DR
 
 3. **Edge Computing**
-   - Local anomaly detection
-   - Reduced latency control
-   - Offline operation capability
+
+  - Local anomaly detection
+  - Reduced latency control
+  - Offline operation capability
 
 4. **Digital Twin**
-   - Building physics simulation
-   - What-if scenario analysis
-   - Virtual commissioning
+
+  - Building physics simulation
+  - What-if scenario analysis
+  - Virtual commissioning
 
 ## License
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Generates comprehensive synthetic data for an e-commerce platform including users, products, orders, inventory management, reviews, and shopping cart analytics.
+Generates comprehensive synthetic data for a full-featured e-commerce platform with 44 interconnected tables, covering all aspects of online retail including customers, products, orders, inventory, payments, shipping, reviews, support, and analytics.
 
 ## Features
 

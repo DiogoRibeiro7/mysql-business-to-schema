@@ -7,6 +7,7 @@ This example demonstrates a precision agriculture IoT platform for modern farmin
 ## Business Context
 
 Modern agriculture faces critical challenges:
+
 - **Water Scarcity**: Inefficient irrigation wastes precious resources
 - **Climate Change**: Unpredictable weather patterns affect yields
 - **Food Security**: Need to increase production sustainably
@@ -15,6 +16,7 @@ Modern agriculture faces critical challenges:
 - **Crop Diseases**: Late detection causes massive losses
 
 This Smart Agriculture solution provides:
+
 - Precision irrigation based on soil moisture and weather
 - Crop health monitoring using NDVI sensors
 - Pest and disease early warning systems
@@ -25,18 +27,21 @@ This Smart Agriculture solution provides:
 ## Unique Agricultural IoT Patterns
 
 ### Environmental Sensing
+
 - **Soil Sensors**: Moisture, pH, NPK, temperature, EC
 - **Weather Stations**: Temperature, humidity, rainfall, wind
 - **Crop Sensors**: NDVI, leaf wetness, canopy temperature
 - **Water Quality**: pH, dissolved oxygen, turbidity
 
 ### Precision Agriculture
+
 - **Variable Rate Application**: GPS-guided fertilizer/pesticide
 - **Irrigation Zones**: Micro-climate based watering
 - **Crop Scouting**: Drone imagery analysis
 - **Yield Mapping**: Harvest data by GPS location
 
 ### Livestock Management
+
 - **Animal Tracking**: GPS collars, RFID tags
 - **Health Monitoring**: Temperature, activity, rumination
 - **Feed Optimization**: Automated feeding systems
@@ -47,26 +52,30 @@ This Smart Agriculture solution provides:
 ### Core Entities
 
 1. **Farm Hierarchy**
-```
-Farms → Fields → Zones → Sensor Nodes
-      → Livestock → Herds
-      → Equipment → Implements
-```
+
+  ```
+  Farms → Fields → Zones → Sensor Nodes
+     → Livestock → Herds
+     → Equipment → Implements
+  ```
 
 2. **Crop Lifecycle**
-```
-Planting → Growing → Monitoring → Harvesting → Storage
-```
+
+  ```
+  Planting → Growing → Monitoring → Harvesting → Storage
+  ```
 
 3. **Data Types**
-- Time series sensor data (moisture, temperature)
-- Spatial data (field boundaries, GPS tracks)
-- Image data (drone/satellite imagery)
-- Predictive models (yield, disease probability)
+
+4. Time series sensor data (moisture, temperature)
+5. Spatial data (field boundaries, GPS tracks)
+6. Image data (drone/satellite imagery)
+7. Predictive models (yield, disease probability)
 
 ## Key Tables
 
 ### Farm Management
+
 - `farms` - Farm properties and metadata
 - `fields` - Individual field boundaries (GIS)
 - `zones` - Management zones within fields
@@ -74,37 +83,43 @@ Planting → Growing → Monitoring → Harvesting → Storage
 - `plantings` - Planting records and schedules
 
 ### Sensor Infrastructure
+
 - `sensor_nodes` - IoT devices in fields
 - `soil_sensors` - Soil monitoring points
 - `weather_stations` - On-farm weather data
 - `sensor_readings` - Time series data
 
 ### Irrigation System
+
 - `irrigation_zones` - Sprinkler/drip zones
 - `irrigation_schedules` - Watering plans
 - `water_usage` - Consumption tracking
 - `soil_moisture_thresholds` - Trigger levels
 
 ### Crop Health
+
 - `ndvi_readings` - Vegetation indices
 - `pest_detections` - Pest/disease alerts
 - `scouting_reports` - Field observations
 - `treatment_applications` - Pesticide records
 
 ### Livestock
+
 - `animals` - Individual animal records
 - `health_readings` - Vitals and behavior
 - `feeding_records` - Feed consumption
 - `milk_production` - Dairy metrics
 
 ### Harvest & Yield
+
 - `harvest_data` - Yield by location
 - `storage_facilities` - Grain bins, silos
 - `quality_tests` - Grain quality metrics
 
 ## Sample Queries
 
-### 1. Irrigation Optimization
+### 1\. Irrigation Optimization
+
 ```sql
 -- Determine which zones need irrigation based on soil moisture and forecast
 WITH moisture_status AS (
@@ -160,7 +175,8 @@ WHERE ms.current_moisture < ms.target_moisture_min * 1.2
 ORDER BY moisture_status, ms.current_moisture;
 ```
 
-### 2. Crop Health Assessment
+### 2\. Crop Health Assessment
+
 ```sql
 -- NDVI analysis for crop stress detection
 SELECT
@@ -198,7 +214,8 @@ GROUP BY f.field_id
 ORDER BY crop_health, avg_ndvi;
 ```
 
-### 3. Yield Prediction
+### 3\. Yield Prediction
+
 ```sql
 -- Predict yield based on current conditions
 WITH growth_metrics AS (
@@ -254,7 +271,8 @@ FROM growth_metrics gm
 ORDER BY days_to_harvest;
 ```
 
-### 4. Livestock Health Monitoring
+### 4\. Livestock Health Monitoring
+
 ```sql
 -- Detect anomalies in cattle health metrics
 WITH health_baseline AS (
@@ -309,25 +327,29 @@ ORDER BY health_status, hb.tag_number;
 
 ## Advanced Features
 
-### 1. Precision Application
+### 1\. Precision Application
+
 - Variable rate fertilizer maps
 - GPS-guided spraying
 - Section control for overlaps
 - As-applied documentation
 
-### 2. Remote Sensing
+### 2\. Remote Sensing
+
 - Satellite imagery analysis (Sentinel, Landsat)
 - Drone flight planning
 - Multispectral imaging
 - 3D crop modeling
 
-### 3. AI/ML Applications
+### 3\. AI/ML Applications
+
 - Yield prediction models
 - Disease identification (computer vision)
 - Pest population forecasting
 - Optimal planting date selection
 
-### 4. Farm Management
+### 4\. Farm Management
+
 - Cost tracking per field/crop
 - ROI analysis by zone
 - Labor management
@@ -336,17 +358,20 @@ ORDER BY health_status, hb.tag_number;
 ## Integration Points
 
 ### Farm Management Software
+
 - John Deere Operations Center
 - Climate FieldView
 - FarmLogs
 - Ag Leader
 
 ### IoT Platforms
+
 - AWS IoT for Agriculture
 - Azure FarmBeats
 - IBM Watson for Agriculture
 
 ### External Data Sources
+
 - NOAA weather data
 - USDA crop reports
 - Commodity prices
@@ -355,6 +380,7 @@ ORDER BY health_status, hb.tag_number;
 ## Benefits & ROI
 
 ### Typical Improvements
+
 - **Water Usage**: -30%
 - **Fertilizer Costs**: -20%
 - **Yield Increase**: +15%
@@ -362,6 +388,7 @@ ORDER BY health_status, hb.tag_number;
 - **Crop Loss**: -40%
 
 ### Sustainability Impact
+
 - Reduced chemical runoff
 - Lower carbon footprint
 - Improved soil health

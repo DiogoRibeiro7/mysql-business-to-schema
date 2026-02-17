@@ -7,6 +7,7 @@ This example demonstrates a comprehensive Industrial IoT (IIoT) system for smart
 ## Business Context
 
 Modern manufacturing faces Industry 4.0 challenges:
+
 - **Equipment Downtime**: Unexpected failures cost millions in lost production
 - **Quality Control**: Manual inspection misses defects, causing recalls
 - **Resource Efficiency**: Energy and material waste reduce margins
@@ -15,6 +16,7 @@ Modern manufacturing faces Industry 4.0 challenges:
 - **Worker Safety**: Hazardous conditions need continuous monitoring
 
 This IIoT solution provides:
+
 - Real-time machine health monitoring with predictive maintenance
 - Automated quality inspection using computer vision
 - OEE calculation and optimization
@@ -25,6 +27,7 @@ This IIoT solution provides:
 ## Unique IIoT Patterns (vs Other IoT Examples)
 
 ### Manufacturing-Specific Features
+
 - **Production Tracking**: Units produced, cycle times, batch genealogy
 - **OEE Metrics**: Availability × Performance × Quality
 - **Recipe Management**: Product specifications and parameters
@@ -32,12 +35,14 @@ This IIoT solution provides:
 - **Quality Control**: Defect classification, root cause analysis
 
 ### Industrial Protocols
+
 - **OPC UA**: Unified Architecture for industrial communication
 - **Modbus**: Legacy equipment integration
 - **MQTT Sparkplug**: Industrial MQTT specification
 - **EtherNet/IP**: Real-time industrial ethernet
 
 ### Advanced Analytics
+
 - **Predictive Maintenance**: Remaining Useful Life (RUL)
 - **Process Optimization**: Six Sigma, SPC charts
 - **Digital Twin**: Virtual representation of physical assets
@@ -46,6 +51,7 @@ This IIoT solution provides:
 ## Key Metrics & KPIs
 
 ### OEE Components
+
 ```
 OEE = Availability × Performance × Quality
 
@@ -56,6 +62,7 @@ Where:
 ```
 
 ### TEEP (Total Effective Equipment Performance)
+
 ```
 TEEP = OEE × Utilization
 Where: Utilization = Planned Time / Calendar Time
@@ -66,24 +73,28 @@ Where: Utilization = Planned Time / Calendar Time
 ### Core Manufacturing Entities
 
 1. **Production Hierarchy**
-```
-Factory → Production Lines → Work Cells → Machines → Components
-```
+
+  ```
+  Factory → Production Lines → Work Cells → Machines → Components
+  ```
 
 2. **Product Flow**
-```
-Raw Materials → Work in Progress → Finished Goods
-```
+
+  ```
+  Raw Materials → Work in Progress → Finished Goods
+  ```
 
 3. **Data Collection Points**
-- Machine sensors (vibration, temperature, pressure)
-- Process parameters (speed, feed rate, temperature)
-- Quality measurements (dimensions, weight, defects)
-- Environmental conditions (humidity, dust, temperature)
+
+4. Machine sensors (vibration, temperature, pressure)
+5. Process parameters (speed, feed rate, temperature)
+6. Quality measurements (dimensions, weight, defects)
+7. Environmental conditions (humidity, dust, temperature)
 
 ## Key Tables
 
 ### Production Management
+
 - `production_lines` - Assembly lines and cells
 - `machines` - Equipment and devices
 - `production_orders` - Manufacturing orders
@@ -91,24 +102,28 @@ Raw Materials → Work in Progress → Finished Goods
 - `product_recipes` - Manufacturing parameters
 
 ### Sensor & Telemetry
+
 - `machine_sensors` - IoT sensors on equipment
 - `sensor_readings` - High-frequency telemetry
 - `process_parameters` - Production settings
 - `alarm_events` - Equipment alarms and faults
 
 ### Quality Control
+
 - `quality_inspections` - QC checkpoints
 - `defect_records` - Defect tracking
 - `measurement_data` - Dimensional measurements
 - `statistical_control` - SPC data
 
 ### Maintenance
+
 - `maintenance_schedules` - Preventive maintenance
 - `maintenance_history` - Completed work
 - `spare_parts` - Inventory tracking
 - `failure_predictions` - ML predictions
 
 ### OEE Tracking
+
 - `oee_hourly` - Hourly OEE calculations
 - `downtime_events` - Downtime reasons
 - `performance_losses` - Speed/minor stops
@@ -116,7 +131,8 @@ Raw Materials → Work in Progress → Finished Goods
 
 ## Sample Queries
 
-### 1. Real-Time OEE Dashboard
+### 1\. Real-Time OEE Dashboard
+
 ```sql
 SELECT
     pl.line_name,
@@ -134,7 +150,8 @@ WHERE oee.hour_start >= NOW() - INTERVAL 24 HOUR
 GROUP BY pl.line_id, DATE_FORMAT(NOW(), '%Y-%m-%d %H:00:00');
 ```
 
-### 2. Predictive Maintenance Alert
+### 2\. Predictive Maintenance Alert
+
 ```sql
 WITH vibration_trend AS (
     SELECT
@@ -167,7 +184,8 @@ WHERE z_score > 3 OR peak_vibration > 4.5
 ORDER BY peak_vibration DESC;
 ```
 
-### 3. Production Efficiency by Shift
+### 3\. Production Efficiency by Shift
+
 ```sql
 SELECT
     s.shift_name,
@@ -186,7 +204,8 @@ GROUP BY s.shift_id, DATE(pr.start_time)
 ORDER BY production_date DESC, s.shift_name;
 ```
 
-### 4. Energy Consumption per Unit
+### 4\. Energy Consumption per Unit
+
 ```sql
 WITH energy_consumption AS (
     SELECT
@@ -224,25 +243,29 @@ ORDER BY total_units DESC;
 
 ## Advanced Features
 
-### 1. Digital Twin Integration
+### 1\. Digital Twin Integration
+
 - Real-time synchronization with physical equipment
 - What-if scenario simulation
 - Virtual commissioning of new lines
 - Predictive modeling
 
-### 2. Edge Computing
+### 2\. Edge Computing
+
 - Local anomaly detection
 - Real-time control loops
 - Data filtering and aggregation
 - Offline operation capability
 
-### 3. AI/ML Applications
+### 3\. AI/ML Applications
+
 - Predictive maintenance models
 - Quality prediction
 - Process optimization
 - Demand forecasting
 
-### 4. Supply Chain Integration
+### 4\. Supply Chain Integration
+
 - Raw material tracking
 - Just-in-time delivery
 - Supplier quality metrics
@@ -251,17 +274,20 @@ ORDER BY total_units DESC;
 ## Performance Characteristics
 
 ### Data Volume
+
 - **Sensor Readings**: 100+ sensors × 10Hz = 1000+ readings/second
 - **Daily Volume**: ~86 million readings/day
 - **Storage**: ~10GB/day raw data
 
 ### Latency Requirements
+
 - **Control Loop**: <10ms
 - **Alarm Detection**: <100ms
 - **Dashboard Update**: <1 second
 - **Analytics**: <5 seconds
 
 ### Reliability
+
 - **Uptime Target**: 99.95%
 - **Data Loss**: <0.01%
 - **Redundancy**: N+1 for critical sensors
@@ -269,16 +295,19 @@ ORDER BY total_units DESC;
 ## Industry Standards
 
 ### Protocols
+
 - **OPC UA**: IEC 62541
 - **ISA-95**: Enterprise-Control Integration
 - **ISO 22400**: KPIs for manufacturing
 
 ### Quality Standards
+
 - **ISO 9001**: Quality Management
 - **Six Sigma**: Process improvement
 - **ISO 14001**: Environmental Management
 
 ### Safety Standards
+
 - **ISO 45001**: Occupational Health & Safety
 - **IEC 61508**: Functional Safety
 - **OSHA**: Compliance requirements
@@ -286,18 +315,21 @@ ORDER BY total_units DESC;
 ## Integration Points
 
 ### MES/ERP Systems
+
 - SAP Manufacturing Execution
 - Siemens Opcenter
 - Rockwell FactoryTalk
 - Oracle Manufacturing Cloud
 
 ### Industrial Protocols
+
 - Modbus TCP/RTU
 - EtherNet/IP
 - PROFINET
 - BACnet
 
 ### Analytics Platforms
+
 - Azure IoT Hub
 - AWS IoT SiteWise
 - GE Predix
@@ -306,6 +338,7 @@ ORDER BY total_units DESC;
 ## Benefits & ROI
 
 ### Typical Improvements
+
 - **OEE Increase**: 10-20%
 - **Unplanned Downtime**: -50%
 - **Quality Defects**: -30%
@@ -313,6 +346,7 @@ ORDER BY total_units DESC;
 - **Maintenance Costs**: -25%
 
 ### ROI Calculation
+
 ```
 Annual Savings = (OEE Improvement × Production Value) +
                  (Downtime Reduction × Hourly Cost) +

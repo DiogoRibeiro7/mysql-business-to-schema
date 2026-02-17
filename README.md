@@ -1,14 +1,20 @@
 # 🗄️ MySQL Business-to-Schema
 
-[![CI/CD Pipeline](https://github.com/yourusername/mysql-business-to-schema/workflows/CI/badge.svg)](https://github.com/yourusername/mysql-business-to-schema/actions)
-[![MySQL 8.0+](https://img.shields.io/badge/MySQL-8.0+-blue.svg)](https://www.mysql.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Examples](https://img.shields.io/badge/Examples-15-green.svg)](#complete-database-examples)
-[![Web Interface](https://img.shields.io/badge/Web_Interface-Available-purple.svg)](#-web-interface)
+<!-- Status Badges -->
+<p align="center">
+  <img src="https://img.shields.io/badge/Examples-15-blue" alt="Examples: 15" />
+  <img src="https://img.shields.io/badge/Generators-15/15-green" alt="Generators: 15/15" />
+  <img src="https://img.shields.io/badge/Coverage-100%25-success" alt="Coverage: 100%" />
+  <img src="https://img.shields.io/badge/MySQL-8.0%2B-orange" alt="MySQL: 8.0+" />
+  <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python: 3.8+" />
+  <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
+  <img src="https://img.shields.io/badge/Total%20Tables-342-purple" alt="Total Tables: 342" />
+  <img src="https://img.shields.io/badge/Health-93%25-success" alt="Health: 93%" />
+</p>
 
 > **Production-ready MySQL database schemas for real-world business applications**
 
-Learn how to move from a business narrative to a production-ready MySQL schema. This comprehensive repository contains **15 complete database examples** with **11 working data generators**, advanced web interface with analytics, monitoring stack, and CI/CD pipeline - covering everything from traditional CRUD applications to modern IoT systems, FinTech platforms, and machine learning pipelines.
+Learn how to move from a business narrative to a production-ready MySQL schema. This comprehensive repository contains **15 complete database examples** with **15 working data generators (100% coverage!)**, advanced web interface with analytics, monitoring stack, and CI/CD pipeline - covering everything from traditional CRUD applications to modern IoT systems, FinTech platforms, and machine learning pipelines.
 
 ## ✨ Features
 
@@ -17,7 +23,8 @@ Learn how to move from a business narrative to a production-ready MySQL schema. 
 - **🔍 Analytics Dashboard** - SQL query executor, ER diagrams, performance analysis
 - **📊 Monitoring Stack** - Prometheus, Grafana, and MySQL metrics out of the box
 - **🔄 CI/CD Pipeline** - GitHub Actions with comprehensive testing across MySQL versions
-- **🎲 Data Generators** - Create realistic test data at scale with 11 generators
+- **🎲 Data Generators** - Create realistic test data at scale with **15 generators (100% coverage!)**
+- **🚀 Unified Runner** - Single command to run any or all generators with benchmarking
 - **📖 Comprehensive Documentation** - Best practices, patterns, and learning paths
 - **⚡ Performance Optimized** - Strategic indexes, partitioning, and query optimization
 
@@ -47,10 +54,10 @@ Learn how to move from a business narrative to a production-ready MySQL schema. 
 | 09 | [**Streaming ML**](example_09_streaming_ml/) | Analytics | 40 | Feature Store, Model Registry, A/B Testing | ✅ |
 | 10 | [**FinTech Platform**](example_10_fintech/) | Financial | 28 | Double-entry Accounting, Fraud Detection, KYC/AML | ✅ |
 | 11 | [**Social Media Network**](example_11_social_media/) | Social | 24 | Graph Queries, Feed Algorithm, Influencer Detection | ✅ |
-| 12 | [**Real Estate Marketplace**](example_12_real_estate/) | Real Estate | 21 | Spatial Search, MLS Integration, Investment Analysis | ❌ |
-| 13 | [**Event Ticketing**](example_13_event_ticketing/) | Entertainment | 23 | Seat Maps, Dynamic Pricing, Venue Management | ❌ |
+| 12 | [**Real Estate Marketplace**](example_12_real_estate/) | Real Estate | 21 | Spatial Search, MLS Integration, Investment Analysis | ✅ |
+| 13 | [**Event Ticketing**](example_13_event_ticketing/) | Entertainment | 23 | Seat Maps, Dynamic Pricing, Venue Management | ✅ |
 | 14 | [**Logistics & Supply Chain**](example_14_logistics/) | Logistics | 40 | Warehouse Management, Route Optimization, Inventory | ✅ |
-| 15 | [**Education & LMS**](example_15_education/) | Education | 45 | Student Analytics, Assessments, Learning Paths | ❌ |
+| 15 | [**Education & LMS**](example_15_education/) | Education | 45 | Student Analytics, Assessments, Learning Paths | ✅ |
 
 ## 🌐 Web Interface
 
@@ -211,28 +218,47 @@ ls -la output/*.csv
 
 ## 🔧 Data Generators
 
-### Available Generators (12 of 15 complete)
+### Available Generators (15 of 15 complete - 100% coverage!)
+
+All 15 database examples now have working data generators that can produce realistic, production-scale data.
+
+### Quick Start with Unified Runner
 
 ```bash
-# Check generator status
-for dir in generators/*/; do
-  name=$(basename $dir)
-  [ -f "${dir}generate.py" ] && echo "✅ $name" || echo "❌ $name"
-done
+# List all available generators
+python generators/run_generators.py --list
+
+# Run a single generator in test mode (fast, reduced data)
+python generators/run_generators.py clinic --test
+
+# Run multiple generators
+python generators/run_generators.py clinic ecommerce fintech
+
+# Run all generators in test mode
+python generators/run_generators.py --all --test
+
+# Benchmark generator performance
+python generators/benchmark_generators.py clinic fintech
 ```
 
 ### Generator Features
-- **Configurable** via YAML files
-- **Reproducible** with seed values
+- **100% Coverage** - All 15 examples have generators
+- **Unified Runner** - Single command interface for all generators
+- **Test Mode** - Reduced data volumes for quick testing
+- **Benchmarking** - Performance analysis and optimization
 - **Realistic** patterns (daily/weekly/seasonal)
-- **Scalable** from demo to production volumes
+- **Scalable** from demo to production volumes (millions of records)
 - **Includes** anomalies and edge cases
 
 ### Example: Generate E-commerce Data
 
 ```bash
+# Using the unified runner
+python generators/run_generators.py ecommerce --test
+
+# Or run directly
 cd generators/ecommerce
-python generate.py --config config.yaml
+python generator.py
 
 # This generates:
 # - 5,000 users across segments

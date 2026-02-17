@@ -7,6 +7,7 @@ This example demonstrates a comprehensive healthcare IoT platform for remote pat
 ## Business Context
 
 Healthcare systems face critical challenges:
+
 - **Aging Population**: Increasing demand for chronic care management
 - **Hospital Readmissions**: 30-day readmission rates affect reimbursements
 - **Staff Shortages**: Need for efficient remote monitoring
@@ -15,6 +16,7 @@ Healthcare systems face critical challenges:
 - **Pandemic Response**: Need for remote care capabilities
 
 This Healthcare IoT solution provides:
+
 - Continuous vital signs monitoring (HR, BP, SpO2, temperature)
 - Medication compliance tracking
 - Fall detection and emergency response
@@ -25,18 +27,21 @@ This Healthcare IoT solution provides:
 ## Unique Healthcare IoT Patterns
 
 ### Medical Device Integration
+
 - **Wearables**: Smartwatches, fitness trackers
 - **Medical Sensors**: ECG, blood glucose, blood pressure
 - **Environmental**: Air quality, temperature, humidity
 - **Activity Monitors**: Step count, sleep patterns, fall detection
 
 ### Clinical Data
+
 - **Vital Signs**: Continuous and spot measurements
 - **Symptoms**: Patient-reported outcomes
 - **Medications**: Adherence and effectiveness
 - **Lab Results**: Integration with EHR systems
 
 ### Compliance & Privacy
+
 - **HIPAA**: PHI protection requirements
 - **HL7/FHIR**: Healthcare data standards
 - **FDA**: Medical device regulations
@@ -47,63 +52,73 @@ This Healthcare IoT solution provides:
 ### Core Entities
 
 1. **Healthcare Hierarchy**
-```
-Healthcare Systems → Facilities → Departments → Care Teams
-                  → Patients → Devices → Sensors
-                           → Conditions → Care Plans
-```
+
+  ```
+  Healthcare Systems → Facilities → Departments → Care Teams
+                 → Patients → Devices → Sensors
+                          → Conditions → Care Plans
+  ```
 
 2. **Patient Journey**
-```
-Enrollment → Assessment → Monitoring → Intervention → Outcome
-```
+
+  ```
+  Enrollment → Assessment → Monitoring → Intervention → Outcome
+  ```
 
 3. **Data Types**
-- Continuous monitoring (1-60 second intervals)
-- Spot checks (multiple times daily)
-- Patient-reported data
-- Clinical observations
+
+4. Continuous monitoring (1-60 second intervals)
+5. Spot checks (multiple times daily)
+6. Patient-reported data
+7. Clinical observations
 
 ## Key Tables
 
 ### Patient Management
+
 - `patients` - Patient demographics and medical history
 - `medical_conditions` - Diagnosed conditions
 - `care_plans` - Treatment protocols
 - `care_teams` - Healthcare providers
 
 ### Device Management
+
 - `medical_devices` - Registered IoT devices
 - `device_assignments` - Patient-device pairings
 - `device_calibrations` - Calibration records
 - `device_batteries` - Battery status tracking
 
 ### Vital Signs & Measurements
+
 - `vital_signs` - HR, BP, SpO2, temperature (time-series)
 - `blood_glucose` - Glucose readings
 - `weight_measurements` - Daily weight tracking
 - `activity_data` - Steps, sleep, calories
 
 ### Medication Management
+
 - `medications` - Prescribed medications
 - `medication_schedules` - Dosing schedules
 - `medication_adherence` - Compliance tracking
 - `medication_reminders` - Alert configuration
 
 ### Alerts & Interventions
+
 - `alert_thresholds` - Personalized alert limits
 - `clinical_alerts` - Generated alerts
 - `interventions` - Clinical responses
 - `emergency_events` - Falls, cardiac events
 
 ### Clinical Scores
+
 - `early_warning_scores` - NEWS2, MEWS calculations
 - `risk_assessments` - Readmission risk, fall risk
 - `health_scores` - Overall health metrics
 
 ## Sample Queries
 
-### 1. Real-Time Patient Monitoring Dashboard
+### 1\. Real-Time Patient Monitoring Dashboard
+
 ```sql
 -- Current vital signs and alert status for all monitored patients
 WITH latest_vitals AS (
@@ -186,7 +201,8 @@ LEFT JOIN risk_scores rs ON lv.patient_id = rs.patient_id
 ORDER BY patient_status DESC, rs.ews_score DESC;
 ```
 
-### 2. Medication Adherence Analysis
+### 2\. Medication Adherence Analysis
+
 ```sql
 -- Track medication compliance rates
 WITH scheduled_doses AS (
@@ -253,7 +269,8 @@ WHERE total_doses > 0
 ORDER BY adherence_rate_pct, patient_name;
 ```
 
-### 3. Early Warning Score (NEWS2) Calculation
+### 3\. Early Warning Score (NEWS2) Calculation
+
 ```sql
 -- Calculate National Early Warning Score 2 for patient deterioration
 WITH vital_parameters AS (
@@ -359,7 +376,8 @@ WHERE resp_score + spo2_score + bp_score + hr_score + temp_score + consciousness
 ORDER BY total_news2_score DESC;
 ```
 
-### 4. Fall Detection and Response
+### 4\. Fall Detection and Response
+
 ```sql
 -- Monitor fall events and response times
 WITH fall_events AS (
@@ -413,7 +431,8 @@ CROSS JOIN response_metrics rm
 ORDER BY fe.detected_at DESC;
 ```
 
-### 5. Chronic Disease Management - Diabetes
+### 5\. Chronic Disease Management - Diabetes
+
 ```sql
 -- Monitor glucose control and intervention effectiveness
 WITH glucose_patterns AS (
@@ -478,25 +497,29 @@ ORDER BY estimated_hba1c DESC;
 
 ## Advanced Features
 
-### 1. Predictive Analytics
+### 1\. Predictive Analytics
+
 - Hospital readmission risk
 - Disease progression modeling
 - Medication effectiveness prediction
 - Fall risk assessment
 
-### 2. Clinical Decision Support
+### 2\. Clinical Decision Support
+
 - Automated alert escalation
 - Treatment recommendations
 - Drug interaction checking
 - Care plan optimization
 
-### 3. Telehealth Integration
+### 3\. Telehealth Integration
+
 - Video consultation triggers
 - Remote assessment tools
 - Virtual ward rounds
 - Family engagement portal
 
-### 4. AI/ML Applications
+### 4\. AI/ML Applications
+
 - Anomaly detection in vitals
 - Pattern recognition for deterioration
 - Natural language processing for symptoms
@@ -505,18 +528,21 @@ ORDER BY estimated_hba1c DESC;
 ## Compliance & Security
 
 ### HIPAA Requirements
+
 - Encryption at rest and in transit
 - Access controls and audit logs
 - Business Associate Agreements
 - Data retention policies
 
 ### Medical Device Standards
+
 - FDA Class II compliance
 - IEC 60601 safety standards
 - ISO 13485 quality management
 - CE marking for EU
 
 ### Clinical Standards
+
 - HL7 FHIR for interoperability
 - SNOMED CT terminology
 - LOINC for lab codes
@@ -525,18 +551,21 @@ ORDER BY estimated_hba1c DESC;
 ## Benefits & Outcomes
 
 ### Clinical Outcomes
+
 - **Readmission Reduction**: 25-30%
 - **Emergency Visits**: -40%
 - **Medication Adherence**: +35%
 - **Patient Satisfaction**: +45%
 
 ### Economic Benefits
+
 - **Cost per Patient**: -$8,000/year
 - **Hospital Days Saved**: 2.5 days/patient
 - **Staff Efficiency**: +30%
 - **ROI**: 3.2x in first year
 
 ### Quality of Life
+
 - Increased independence
 - Reduced caregiver burden
 - Better disease management

@@ -7,6 +7,7 @@ This example demonstrates a comprehensive fleet management system using IoT for 
 ## Business Context
 
 Fleet operations face significant challenges:
+
 - **Fuel Costs**: Largest operational expense, often 30-40% of total costs
 - **Vehicle Downtime**: Unexpected breakdowns disrupt operations
 - **Driver Safety**: Accidents cost lives and money
@@ -15,6 +16,7 @@ Fleet operations face significant challenges:
 - **Asset Utilization**: Idle vehicles drain resources
 
 This Fleet Management IoT solution provides:
+
 - Real-time GPS tracking and geofencing
 - Driver behavior scoring and coaching
 - Predictive maintenance using OBD-II data
@@ -25,18 +27,21 @@ This Fleet Management IoT solution provides:
 ## Unique Fleet IoT Patterns
 
 ### Vehicle Telematics
+
 - **CAN Bus Data**: Engine diagnostics via OBD-II
 - **GPS Tracking**: Location, speed, heading
 - **Accelerometer**: Harsh events (braking, acceleration, cornering)
 - **Fuel Sensors**: Level, consumption, efficiency
 
 ### Driver Monitoring
+
 - **Driving Events**: Speeding, harsh maneuvers, idle time
 - **Hours of Service**: DOT compliance tracking
 - **Driver Identification**: RFID/biometric authentication
 - **Dashcam Integration**: Event-triggered recording
 
 ### Operational Data
+
 - **Route Analytics**: Planned vs actual, delays
 - **Cargo Monitoring**: Temperature, humidity, door sensors
 - **Tire Pressure**: TPMS integration
@@ -47,49 +52,57 @@ This Fleet Management IoT solution provides:
 ### Core Entities
 
 1. **Fleet Hierarchy**
-```
-Company → Depots → Vehicles → Devices → Sensors
-        → Drivers → Trips → Events
-```
+
+  ```
+  Company → Depots → Vehicles → Devices → Sensors
+       → Drivers → Trips → Events
+  ```
 
 2. **Trip Lifecycle**
-```
-Pre-trip → Dispatch → In-transit → Delivery → Post-trip
-```
+
+  ```
+  Pre-trip → Dispatch → In-transit → Delivery → Post-trip
+  ```
 
 3. **Data Streams**
-- High-frequency GPS (1Hz)
-- Engine diagnostics (0.1Hz)
-- Driver events (event-driven)
-- Fuel consumption (continuous)
+
+4. High-frequency GPS (1Hz)
+5. Engine diagnostics (0.1Hz)
+6. Driver events (event-driven)
+7. Fuel consumption (continuous)
 
 ## Key Tables
 
 ### Fleet Management
+
 - `vehicles` - Vehicle inventory and specifications
 - `drivers` - Driver profiles and certifications
 - `depots` - Facility locations
 - `vehicle_assignments` - Driver-vehicle pairings
 
 ### Telematics Data
+
 - `gps_positions` - Location tracking (partitioned)
 - `engine_diagnostics` - OBD-II data
 - `fuel_readings` - Consumption tracking
 - `tire_pressure` - TPMS data
 
 ### Trip Management
+
 - `trips` - Journey records
 - `trip_stops` - Delivery/pickup points
 - `trip_events` - Incidents during trips
 - `driver_logs` - HOS compliance
 
 ### Maintenance
+
 - `maintenance_schedules` - Service intervals
 - `diagnostic_codes` - DTC alerts
 - `service_history` - Completed maintenance
 - `parts_inventory` - Spare parts tracking
 
 ### Compliance
+
 - `eld_records` - Electronic logging
 - `dvir_reports` - Pre/post-trip inspections
 - `violations` - Compliance issues
@@ -97,7 +110,8 @@ Pre-trip → Dispatch → In-transit → Delivery → Post-trip
 
 ## Sample Queries
 
-### 1. Real-Time Fleet Status Dashboard
+### 1\. Real-Time Fleet Status Dashboard
+
 ```sql
 -- Current location and status of all vehicles
 WITH latest_positions AS (
@@ -158,7 +172,8 @@ WHERE lp.rn = 1
 ORDER BY status, lp.vehicle_number;
 ```
 
-### 2. Driver Behavior Scoring
+### 2\. Driver Behavior Scoring
+
 ```sql
 -- Calculate driver safety scores based on events
 WITH driver_events AS (
@@ -228,7 +243,8 @@ WHERE total_distance_km > 0
 ORDER BY safety_score DESC;
 ```
 
-### 3. Predictive Maintenance Alert
+### 3\. Predictive Maintenance Alert
+
 ```sql
 -- Identify vehicles needing maintenance based on diagnostics and mileage
 WITH vehicle_health AS (
@@ -318,7 +334,8 @@ ORDER BY
           'UPCOMING - Service soon');
 ```
 
-### 4. Fuel Efficiency Analysis
+### 4\. Fuel Efficiency Analysis
+
 ```sql
 -- Analyze fuel consumption patterns
 WITH fuel_metrics AS (
@@ -377,7 +394,8 @@ FROM efficiency_summary
 ORDER BY fuel_consumption_l_100km;
 ```
 
-### 5. Route Optimization Analysis
+### 5\. Route Optimization Analysis
+
 ```sql
 -- Compare planned vs actual routes
 SELECT
@@ -412,25 +430,29 @@ ORDER BY t.start_time DESC;
 
 ## Advanced Features
 
-### 1. Route Optimization
+### 1\. Route Optimization
+
 - Multi-stop planning
 - Traffic integration
 - Dynamic re-routing
 - Load optimization
 
-### 2. Geofencing
+### 2\. Geofencing
+
 - Automated alerts
 - Unauthorized use detection
 - Customer site monitoring
 - Route compliance
 
-### 3. ELD Compliance
+### 3\. ELD Compliance
+
 - Automatic HOS tracking
 - DVIR electronic forms
 - DOT inspection readiness
 - Violation prevention
 
-### 4. Integration Capabilities
+### 4\. Integration Capabilities
+
 - Fuel card systems
 - Dispatch software
 - Warehouse management
@@ -439,11 +461,13 @@ ORDER BY t.start_time DESC;
 ## Performance Metrics
 
 ### Data Volume
+
 - **GPS Data**: 1Hz × vehicles = 86,400 points/vehicle/day
 - **Engine Data**: Every 10 seconds = 8,640 readings/vehicle/day
 - **Storage**: ~50MB/vehicle/day
 
 ### Real-time Requirements
+
 - **GPS Update**: <1 second latency
 - **Alert Generation**: <5 seconds
 - **Dashboard Refresh**: <2 seconds
@@ -451,12 +475,14 @@ ORDER BY t.start_time DESC;
 ## ROI & Benefits
 
 ### Cost Reductions
+
 - **Fuel Savings**: 10-15%
 - **Maintenance Costs**: -20%
 - **Insurance Premiums**: -15%
 - **Overtime Costs**: -25%
 
 ### Operational Improvements
+
 - **Vehicle Utilization**: +20%
 - **On-time Delivery**: +15%
 - **Route Efficiency**: +12%

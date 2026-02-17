@@ -7,6 +7,7 @@ This database is specifically designed for data science and machine learning wor
 ## Why This Database for ML/DS?
 
 This schema provides:
+
 - **Rich Feature Sets**: User demographics, behavior, content metadata, temporal patterns
 - **Multiple ML Problems**: Classification, regression, clustering, recommendation, time series
 - **A/B Testing Framework**: Built-in experiment tracking for causal inference
@@ -17,28 +18,32 @@ This schema provides:
 
 ## ML/DS Use Cases
 
-### 1. Recommendation Systems
+### 1\. Recommendation Systems
+
 - **Collaborative Filtering**: User-item interaction matrix
 - **Content-Based**: Content features and metadata
 - **Hybrid Models**: Combining CF + content + contextual features
 - **Session-Based**: Real-time next-item prediction
 - **Explainable Recommendations**: Feature importance tracking
 
-### 2. User Analytics
+### 2\. User Analytics
+
 - **Churn Prediction**: Binary classification with time-based features
 - **LTV Prediction**: Regression for customer lifetime value
 - **Segmentation**: Clustering users by behavior
 - **Anomaly Detection**: Unusual viewing patterns
 - **Cohort Analysis**: User retention by acquisition source
 
-### 3. Content Analytics
+### 3\. Content Analytics
+
 - **Popularity Prediction**: Forecast viral content
 - **Quality Scoring**: Predict ratings before release
 - **Optimal Release Time**: Time series analysis
 - **Genre Classification**: Multi-label classification
 - **Thumbnail Optimization**: A/B testing CTR
 
-### 4. Business Intelligence
+### 4\. Business Intelligence
+
 - **Demand Forecasting**: Predict server load
 - **Revenue Optimization**: Pricing strategies
 - **Content Investment**: ROI prediction
@@ -242,6 +247,7 @@ CREATE TABLE model_metrics (
 ## ML Feature Engineering
 
 ### User Features
+
 ```sql
 -- User engagement features for churn prediction
 CREATE VIEW ml_user_features AS
@@ -286,6 +292,7 @@ GROUP BY u.user_id;
 ```
 
 ### Content Features
+
 ```sql
 -- Content features for popularity prediction
 CREATE VIEW ml_content_features AS
@@ -328,7 +335,8 @@ GROUP BY c.content_id;
 
 ## Sample ML Queries
 
-### 1. Collaborative Filtering Matrix
+### 1\. Collaborative Filtering Matrix
+
 ```sql
 -- User-Item interaction matrix for matrix factorization
 SELECT
@@ -345,7 +353,8 @@ WHERE timestamp >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
 ORDER BY user_id, content_id;
 ```
 
-### 2. Time Series for Demand Forecasting
+### 2\. Time Series for Demand Forecasting
+
 ```sql
 -- Hourly viewing patterns for forecasting
 SELECT
@@ -363,7 +372,8 @@ GROUP BY DATE_FORMAT(session_start, '%Y-%m-%d %H:00:00')
 ORDER BY hour;
 ```
 
-### 3. A/B Test Analysis
+### 3\. A/B Test Analysis
+
 ```sql
 -- Statistical significance testing for experiments
 WITH experiment_results AS (
@@ -398,7 +408,8 @@ SELECT
 FROM experiment_results;
 ```
 
-### 4. User Clustering Features
+### 4\. User Clustering Features
+
 ```sql
 -- Features for user segmentation
 SELECT
@@ -434,7 +445,8 @@ SELECT
 FROM users u;
 ```
 
-### 5. Content Similarity Matrix
+### 5\. Content Similarity Matrix
+
 ```sql
 -- Content-content similarity for recommendation
 WITH content_features AS (
@@ -490,7 +502,8 @@ ORDER BY similarity_score DESC;
 
 ## ML Pipeline Integration
 
-### 1. Feature Engineering Pipeline
+### 1\. Feature Engineering Pipeline
+
 ```python
 # Example Python integration for feature engineering
 import pandas as pd
@@ -518,7 +531,8 @@ feature_df['user_id'] = df['user_id']
 feature_df.to_sql('ml_user_embeddings', connection, if_exists='replace')
 ```
 
-### 2. Model Training Query
+### 2\. Model Training Query
+
 ```sql
 -- Training dataset with balanced classes
 WITH balanced_dataset AS (
@@ -549,7 +563,8 @@ FROM balanced_dataset
 ORDER BY RAND()  -- Shuffle for training
 ```
 
-### 3. Real-time Scoring
+### 3\. Real-time Scoring
+
 ```sql
 -- Score users for churn risk in real-time
 CREATE PROCEDURE score_churn_risk(IN user_id_param BIGINT)
@@ -588,30 +603,35 @@ END;
 
 ## Data Science Use Cases
 
-### 1. Recommendation Systems
+### 1\. Recommendation Systems
+
 - **Collaborative Filtering**: User-item matrices
 - **Content-Based**: Content similarity
 - **Hybrid**: Combining multiple signals
 - **Deep Learning**: Neural collaborative filtering
 - **Reinforcement Learning**: Contextual bandits
 
-### 2. Predictive Analytics
+### 2\. Predictive Analytics
+
 - **Churn Prediction**: Classification
 - **LTV Forecasting**: Regression
 - **Demand Forecasting**: Time series
 - **Content Popularity**: Regression/ranking
 
-### 3. Experimentation
+### 3\. Experimentation
+
 - **A/B Testing**: Built-in framework
 - **Multi-armed Bandits**: Exploration/exploitation
 - **Causal Inference**: Observational studies
 
-### 4. Natural Language Processing
+### 4\. Natural Language Processing
+
 - **Sentiment Analysis**: Reviews and comments
 - **Topic Modeling**: Content descriptions
 - **Named Entity Recognition**: Metadata extraction
 
-### 5. Computer Vision
+### 5\. Computer Vision
+
 - **Thumbnail Optimization**: CTR prediction
 - **Content Classification**: Auto-tagging
 - **Quality Assessment**: Video quality scoring
@@ -619,6 +639,7 @@ END;
 ## Performance Optimization for ML
 
 ### Indexing Strategy
+
 ```sql
 -- Indexes optimized for ML workloads
 CREATE INDEX idx_interactions_user_time ON interactions(user_id, timestamp DESC);
@@ -628,6 +649,7 @@ CREATE INDEX idx_ml_features_lookup ON ml_features(entity_type, entity_id, featu
 ```
 
 ### Materialized Views for Features
+
 ```sql
 -- Pre-compute expensive features
 CREATE MATERIALIZED VIEW user_features_daily AS
@@ -640,6 +662,7 @@ REFRESH COMPLETE ON DEMAND;
 ```
 
 ### Partitioning for Time Series
+
 ```sql
 ALTER TABLE interactions
 PARTITION BY RANGE (YEAR(timestamp)) (
@@ -653,18 +676,21 @@ PARTITION BY RANGE (YEAR(timestamp)) (
 ## ML Model Deployment
 
 ### Online Inference
+
 - Real-time recommendations
 - Dynamic pricing
 - Fraud detection
 - Content moderation
 
 ### Batch Inference
+
 - Daily churn scoring
 - Weekly content popularity updates
 - Monthly user segmentation
 - Quarterly LTV recalculation
 
 ### Model Monitoring
+
 ```sql
 -- Track model performance over time
 SELECT
@@ -691,6 +717,7 @@ ORDER BY date DESC;
 8. **Model Tracking**: Performance monitoring
 
 This database provides a complete playground for data scientists to practice:
+
 - Classification (churn, content categorization)
 - Regression (ratings, watch time, revenue)
 - Clustering (user segmentation, content grouping)
