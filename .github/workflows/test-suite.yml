@@ -78,7 +78,7 @@ jobs:
 
     - name: Upload test report
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: test-report-mysql-${{ matrix.mysql-version }}
         path: test_report_${{ matrix.mysql-version }}.txt
@@ -146,7 +146,7 @@ jobs:
 
     - name: Upload validation reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: validation-reports
         path: validation_*.txt
@@ -264,7 +264,7 @@ jobs:
 
     - name: Upload performance reports
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: performance-reports
         path: performance_*.txt
@@ -330,7 +330,7 @@ jobs:
         echo "Full reports available in artifacts" >> summary.md
 
     - name: Upload summary report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v6
       with:
         name: summary-report
         path: summary.md

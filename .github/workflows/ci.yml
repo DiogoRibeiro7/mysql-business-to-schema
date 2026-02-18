@@ -78,7 +78,7 @@ jobs:
 
       - name: Upload SQL validation report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: sql-validation-report
           path: reports/sql_validation.json
@@ -176,7 +176,7 @@ jobs:
 
       - name: Upload schema report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: schema-report-${{ matrix.example }}-mysql${{ matrix.mysql-version }}
           path: reports/${{ matrix.example }}_schema_report.txt
@@ -326,7 +326,7 @@ jobs:
 
       - name: Upload security reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         with:
           name: security-reports
           path: reports/
