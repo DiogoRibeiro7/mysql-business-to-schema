@@ -13,7 +13,7 @@ from typing import List, Dict, Any, Tuple
 import sys
 import os
 
-# Add faker to requirements.txt
+# Add faker to pyproject.toml
 from faker import Faker
 from faker.providers import person, address, phone_number, company, date_time, python
 

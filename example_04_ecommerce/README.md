@@ -196,7 +196,7 @@ While the IoT examples focused on sensor data and time series, this e-commerce p
 ### Prerequisites
 
 - MySQL 8.0+ (for JSON support and CTEs)
-- Python 3.8+ (for data generator)
+- Python 3.10+ (for data generator)
 - Redis (optional, for caching)
 - Elasticsearch (optional, for search)
 

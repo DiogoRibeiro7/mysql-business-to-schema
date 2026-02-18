@@ -36,24 +36,19 @@ A modern web application for browsing and exploring the MySQL Business-to-Schema
 
 ### Prerequisites
 
-- Python 3.8 or higher
-- pip package manager
+- Python 3.10 or higher
+- Poetry
 
 ### Setup
 
-1. Navigate to the web interface directory:
+1. Install dependencies (from the repo root):
 ```bash
-cd web_interface
+poetry install --no-root --with web
 ```
 
-2. Install dependencies:
+2. Run the application:
 ```bash
-pip install -r requirements.txt
-```
-
-3. Run the application:
-```bash
-python app.py
+poetry run python web_interface/app.py
 ```
 
 4. Open your browser and navigate to:
@@ -68,7 +63,6 @@ http://localhost:5000
 ```
 web_interface/
 ├── app.py                 # Flask application
-├── requirements.txt       # Python dependencies
 ├── templates/            # HTML templates
 │   ├── base.html        # Base template
 │   ├── index.html       # Home page
@@ -92,7 +86,7 @@ web_interface/
 # With debug mode enabled
 export FLASK_ENV=development
 export FLASK_DEBUG=1
-python app.py
+poetry run python web_interface/app.py
 ```
 
 ### Running in Production
@@ -100,7 +94,7 @@ python app.py
 For production deployment, use Gunicorn:
 
 ```bash
-gunicorn -w 4 -b 0.0.0.0:8000 app:app
+poetry run gunicorn -w 4 -b 0.0.0.0:8000 app:app
 ```
 
 ## Docker Deployment
@@ -108,12 +102,14 @@ gunicorn -w 4 -b 0.0.0.0:8000 app:app
 ### Build the Docker image:
 
 ```dockerfile
-FROM python:3.9-slim
+FROM python:3.10-slim
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry \
+  && poetry config virtualenvs.create false \
+  && poetry install --no-root --only main --with web --no-interaction --no-ansi
 
 COPY . .
 

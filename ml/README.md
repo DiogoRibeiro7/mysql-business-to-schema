@@ -81,10 +81,7 @@ This module provides a complete ML ecosystem including:
 
 ```bash
 # Install required dependencies
-pip install -r requirements.txt
-
-# Core ML libraries
-pip install scikit-learn pandas numpy
+poetry install --no-root --with ml
 pip install tensorflow prophet statsmodels
 pip install implicit  # For recommendation systems
 ```

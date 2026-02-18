@@ -116,8 +116,7 @@ Look for issues labeled:
 
 1. **Install Python dependencies:**
    ```bash
-   pip install -r requirements.txt
-   pip install -r requirements-dev.txt
+   poetry install --no-root --with dev,web,ml
    ```
 
 2. **Setup MySQL:**
@@ -136,8 +135,7 @@ Look for issues labeled:
 
 4. **Start web interface:**
    ```bash
-   cd web_interface
-   python app.py
+   poetry run python web_interface/app.py
    ```
 
 ### Docker Development

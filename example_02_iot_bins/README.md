@@ -97,7 +97,7 @@ This IoT solution addresses these challenges by:
 ### Prerequisites
 
 - MySQL 8.0+ (for spatial functions and CTEs)
-- Python 3.8+ (for data generator)
+- Python 3.10+ (for data generator)
 - 2GB+ free disk space
 
 ### Installation

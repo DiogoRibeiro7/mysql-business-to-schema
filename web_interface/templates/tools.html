@@ -130,7 +130,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -r requirements.txt
+        poetry install --no-root --with web
 
     - name: Run tests
       run: |
@@ -154,8 +154,10 @@ jobs:
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry \
+    && poetry config virtualenvs.create false \
+    && poetry install --no-root --only main --with web --no-interaction --no-ansi
 
 COPY tools/ ./tools/
 COPY example*/ ./

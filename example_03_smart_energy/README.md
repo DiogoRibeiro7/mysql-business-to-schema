@@ -112,7 +112,7 @@ While both are IoT systems, this example focuses on different aspects:
 ### Prerequisites
 
 - MySQL 8.0+ (for JSON support and window functions)
-- Python 3.8+ (for data generator)
+- Python 3.10+ (for data generator)
 - 5GB+ free disk space (high-frequency data)
 
 ### Quick Start

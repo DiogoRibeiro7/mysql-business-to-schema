@@ -71,7 +71,7 @@ A comprehensive data generator for the Event Ticketing Platform (Example 13) tha
 
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt
+poetry install --no-root
 ```
 
 ## Usage

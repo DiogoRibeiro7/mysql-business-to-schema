@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/badge/Generators-15/19-green" alt="Generators: 15/19" />
   <img src="https://img.shields.io/badge/Coverage-79%25-success" alt="Coverage: 79%" />
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-orange" alt="MySQL: 8.0+" />
-  <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python: 3.8+" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python: 3.10+" />
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
   <img src="https://img.shields.io/badge/Total%20Tables-342-purple" alt="Total Tables: 342" />
   <img src="https://img.shields.io/badge/Health-93%25-success" alt="Health: 93%" />

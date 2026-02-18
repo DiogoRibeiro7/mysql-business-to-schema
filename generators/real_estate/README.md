@@ -74,7 +74,7 @@ A comprehensive data generator for the Real Estate Platform (Example 12) that cr
 
 ```bash
 # Install Python dependencies
-pip install -r requirements.txt
+poetry install --no-root
 ```
 
 ## Usage

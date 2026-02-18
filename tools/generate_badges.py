@@ -38,7 +38,7 @@ class BadgeGenerator:
         self.add_badge("Coverage", f"{generator_coverage:.0f}%",
                       "success" if generator_coverage >= 90 else "yellow")
         self.add_badge("MySQL", "8.0+", "orange")
-        self.add_badge("Python", "3.8+", "blue")
+        self.add_badge("Python", "3.10+", "blue")
         self.add_badge("License", "MIT", "green")
 
         # Count total tables

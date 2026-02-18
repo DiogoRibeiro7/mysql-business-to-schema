@@ -137,11 +137,18 @@ jobs:
           # Create database
           mysql -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ matrix.example }}_db;"
 
-          # Load schema files
+          # Load schema files (skip data-load scripts)
           for file in ${{ matrix.example }}/schema/*.sql; do
             if [ -f "$file" ]; then
-              echo "Loading: $file"
-              mysql -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }} ${{ matrix.example }}_db < "$file"
+              case "$file" in
+                *load_generated.sql)
+                  echo "Skipping data load script: $file"
+                  ;;
+                *)
+                  echo "Loading: $file"
+                  mysql -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }} ${{ matrix.example }}_db < "$file"
+                  ;;
+              esac
             fi
           done
 
@@ -187,7 +194,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.10', '3.11', '3.12']
 
     steps:
       - uses: actions/checkout@v6
@@ -200,10 +207,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov pytest-mock
-          pip install pyyaml faker mysql-connector-python
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-          if [ -f tools/requirements.txt ]; then pip install -r tools/requirements.txt; fi
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-root --with web,ml,dev
 
       - name: Run tool tests
         run: |
@@ -241,9 +247,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd web_interface
-          pip install -r requirements.txt
-          pip install pytest pytest-flask
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-root --with web,dev
 
       - name: Test Flask app
         run: |
@@ -291,12 +298,12 @@ jobs:
           EOF
 
           # Run tests
-          pytest test_app.py -v
+          poetry run pytest test_app.py -v
 
       - name: Check Flask app syntax
         run: |
           cd web_interface
-          python -m py_compile app.py
+          poetry run python -m py_compile app.py
 
   # Job 5: Security Scanning
   security-scan:

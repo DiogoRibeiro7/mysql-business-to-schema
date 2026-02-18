@@ -6,7 +6,7 @@
   <img src="https://img.shields.io/badge/Generators-15/19-green" alt="Generators: 15/19" />
   <img src="https://img.shields.io/badge/Coverage-79%25-success" alt="Coverage: 79%" />
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-orange" alt="MySQL: 8.0+" />
-  <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python: 3.8+" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python: 3.10+" />
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
   <img src="https://img.shields.io/badge/Total%20Tables-342-purple" alt="Total Tables: 342" />
   <img src="https://img.shields.io/badge/Health-93%25-success" alt="Health: 93%" />
@@ -82,9 +82,8 @@ Our modern web interface provides powerful tools for database exploration and an
 
 ```bash
 # Start the web interface
-cd web_interface
-pip install -r requirements.txt
-python app.py
+poetry install --no-root --with web
+poetry run python web_interface/app.py
 
 # Access at http://localhost:5000
 ```
@@ -123,9 +122,8 @@ cd mysql-business-to-schema
 docker-compose -f monitoring/docker-compose.monitoring.yml up -d
 
 # Launch the web interface
-cd web_interface
-pip install -r requirements.txt
-python app.py
+poetry install --no-root --with web
+poetry run python web_interface/app.py
 
 # Access:
 # - Web Interface: http://localhost:5000
@@ -367,7 +365,7 @@ example_XX_name/
 ### For Data Generators
 ```bash
 # Python 3.10+
-pip install -e .
+poetry install --no-root
 
 # Check Python version
 python --version
@@ -510,7 +508,7 @@ Run a minimal end-to-end check that generates data, loads MySQL, and runs sanity
 ## 📋 Requirements
 
 - **MySQL** 8.0 or higher
-- **Python** 3.8 or higher
+- **Python** 3.10 or higher
 - **Docker** (optional, for monitoring stack)
 - **Node.js** (optional, for advanced web features)
 
