@@ -6,6 +6,10 @@ updates:
       interval: "weekly"
     reviewers:
       - "diogoribeiro7"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "pip"
     directory: "/"
@@ -14,6 +18,10 @@ updates:
     versioning-strategy: "lockfile-only"
     reviewers:
       - "diogoribeiro7"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "docker"
     directory: "/generators"
@@ -21,3 +29,7 @@ updates:
       interval: "weekly"
     reviewers:
       - "diogoribeiro7"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

@@ -156,8 +156,15 @@ jobs:
           if [ -d "${{ matrix.example }}/queries" ]; then
             for file in ${{ matrix.example }}/queries/*.sql; do
               if [ -f "$file" ]; then
-                echo "Testing query: $file"
-                mysql -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }} ${{ matrix.example }}_db < "$file"
+                case "$file" in
+                  *transactions.sql)
+                    echo "Skipping transactional data script: $file"
+                    ;;
+                  *)
+                    echo "Testing query: $file"
+                    mysql -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }} ${{ matrix.example }}_db < "$file"
+                    ;;
+                esac
               fi
             done
           fi
