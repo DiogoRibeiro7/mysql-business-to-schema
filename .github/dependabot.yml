@@ -1,0 +1,50 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "pip"
+    directory: "/web_interface"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "pip"
+    directory: "/generators/education"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "pip"
+    directory: "/generators/event_ticketing"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "pip"
+    directory: "/generators/real_estate"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"
+
+  - package-ecosystem: "docker"
+    directory: "/generators"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "diogoribeiro7"

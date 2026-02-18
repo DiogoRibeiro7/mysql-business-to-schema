@@ -2,9 +2,9 @@
 
 <!-- Status Badges -->
 <p align="center">
-  <img src="https://img.shields.io/badge/Examples-15-blue" alt="Examples: 19" />
-  <img src="https://img.shields.io/badge/Generators-15/15-green" alt="Generators: 15/15" />
-  <img src="https://img.shields.io/badge/Coverage-100%25-success" alt="Coverage: 100%" />
+  <img src="https://img.shields.io/badge/Examples-19-blue" alt="Examples: 19" />
+  <img src="https://img.shields.io/badge/Generators-15/19-green" alt="Generators: 15/19" />
+  <img src="https://img.shields.io/badge/Coverage-79%25-success" alt="Coverage: 79%" />
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-orange" alt="MySQL: 8.0+" />
   <img src="https://img.shields.io/badge/Python-3.8%2B-blue" alt="Python: 3.8+" />
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
