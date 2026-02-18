@@ -1,0 +1,123 @@
+version: '3.8'
+
+# Fleet Management System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3313 (user: root, password: fleet_root)
+#   - phpMyAdmin: http://localhost:8088
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: fleet_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: fleet_root
+      MYSQL_DATABASE: fleet_management_db
+      MYSQL_USER: fleet_user
+      MYSQL_PASSWORD: fleet_pass
+    ports:
+      - "3313:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - fleet_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - fleet_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+      - --max_connections=500
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: fleet_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: fleet_root
+    ports:
+      - "8088:80"
+    networks:
+      - fleet_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: fleet_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: fleet_management_db
+      MYSQL_USER: fleet_user
+      MYSQL_PASSWORD: fleet_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Fleet specific settings
+      VEHICLE_COUNT: ${VEHICLE_COUNT:-100}
+      DRIVER_COUNT: ${DRIVER_COUNT:-50}
+      GENERATE_ROUTES: ${GENERATE_ROUTES:-true}
+      SIMULATE_MAINTENANCE: ${SIMULATE_MAINTENANCE:-true}
+    volumes:
+      - ../generators/fleet_management:/app
+      - fleet_generator_output:/app/output
+    networks:
+      - fleet_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating fleet management data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: GPS tracking simulator
+  gps_simulator:
+    build:
+      context: ./services/gps_simulator
+      dockerfile: Dockerfile
+    container_name: fleet_gps_simulator
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: fleet_management_db
+      MYSQL_USER: fleet_user
+      MYSQL_PASSWORD: fleet_pass
+      UPDATE_INTERVAL: 30
+    networks:
+      - fleet_network
+    profiles:
+      - tracking
+    restart: unless-stopped
+
+volumes:
+  fleet_mysql_data:
+    name: fleet_mysql_data
+  fleet_generator_output:
+    name: fleet_generator_output
+
+networks:
+  fleet_network:
+    name: fleet_network
+    driver: bridge

@@ -1,0 +1,1445 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.146637
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Customers {
+  customerType: String
+  email: String!
+  phoneNumber: String!
+  status: String
+  riskLevel: String
+  onboardingDate: String!
+  lastActivity: String
+  preferredCurrency: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type IndividualCustomers {
+  firstName: String!
+  lastName: String!
+  middleName: String
+  dateOfBirth: String!
+  ssnEncrypted: String
+  nationality: String!
+  occupation: String
+  annualIncome: Float
+  sourceOfWealth: String
+}
+
+type BusinessCustomers {
+  businessName: String!
+  businessType: String
+  registrationNumber: String
+  taxIdEncrypted: String
+  incorporationDate: String
+  incorporationCountry: String
+  annualRevenue: Float
+  numberOfEmployees: Int
+  industry: String
+  website: String
+}
+
+type KycDocuments {
+  customerId: ID!
+  customer: Customers
+  documentType: String
+  documentNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingCountry: String
+  verificationStatus: String
+  verifiedAt: String
+  verifiedBy: String
+  documentHash: String
+  storagePath: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CustomerAddresses {
+  customerId: ID!
+  customer: Customers
+  addressType: String
+  streetAddress1: String!
+  streetAddress2: String
+  city: String!
+  stateProvince: String
+  postalCode: String
+  country: String!
+  isPrimary: Boolean
+  verified: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Accounts {
+  accountNumber: String!
+  currency: String!
+  status: String
+  balance: Float
+  availableBalance: Float
+  pendingBalance: Float
+  interestRate: Float
+  overdraftLimit: Float
+  minimumBalance: Float
+  openedDate: String!
+  closedDate: String
+  lastTransactionDate: String
+  lastInterestDate: String
+  createdAt: String
+  updatedAt: String
+  version: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AccountHolders {
+  accountId: ID!
+  account: Accounts
+  customerId: ID!
+  customer: Customers
+  relationshipType: String
+  ownershipPercentage: Float
+  addedDate: String!
+  removedDate: String
+}
+
+type ChartOfAccounts {
+  accountName: String!
+  accountType: String
+  parentAccountCode: ID!
+  chartOfAccount: ChartOfAccounts
+  isControlAccount: Boolean
+  normalBalance: String
+  description: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type JournalEntries {
+  entryDate: String!
+  postingDate: String
+  description: String!
+  referenceType: String
+  referenceId: String
+  totalDebits: Float
+  totalCredits: Float
+  status: String
+  postedBy: String
+  reversedByJournalId: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type JournalLines {
+  journalId: ID!
+  journalEntrie: JournalEntries
+  accountCode: ID!
+  chartOfAccount: ChartOfAccounts
+  debitAmount: Float
+  creditAmount: Float
+  currency: String!
+  exchangeRate: Float
+  baseCurrencyAmount: Float
+  description: String
+}
+
+type Transactions {
+  transactionUuid: String!
+  accountId: ID!
+  account: Accounts
+  transactionType: String
+  amount: Float
+  currency: String!
+  balanceAfter: Float
+  description: String
+  referenceNumber: String
+  status: String
+  initiatedAt: String
+  completedAt: String
+  reversedAt: String
+  reversalReason: String
+  channel: String
+  ipAddress: String
+  deviceId: String
+  createdAt: String
+  initiatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Transfers {
+  fromTransactionId: ID!
+  transaction: Transactions
+  toTransactionId: ID!
+  transaction: Transactions
+  transferType: String
+  amount: Float
+  fromCurrency: String!
+  toCurrency: String!
+  exchangeRate: Float
+  feeAmount: Float
+  swiftCode: String
+  routingNumber: String
+  beneficiaryName: String
+  beneficiaryReference: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PaymentMethods {
+  customerId: ID!
+  customer: Customers
+  methodType: String
+  isDefault: Boolean
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Cards {
+  paymentMethodId: ID!
+  paymentMethod: PaymentMethods
+  cardNumberMasked: String!
+  cardNumberHash: String!
+  cardType: String
+  cardBrand: String
+  expiryMonth: Int!
+  expiryYear: Int!
+  cardholderName: String!
+  billingAddressId: ID!
+  customerAddresse: CustomerAddresses
+  token: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Currencies {
+  currencyName: String!
+  symbol: String
+  decimalPlaces: Int
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ExchangeRates {
+  fromCurrency: ID!
+  currencie: Currencies
+  toCurrency: ID!
+  currencie: Currencies
+  rateDate: String!
+  exchangeRate: Float
+  rateSource: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RiskRules {
+  ruleName: String!
+  ruleType: String
+  ruleCondition: JSON!
+  riskScore: Int!
+  action: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type FraudAlerts {
+  transactionId: ID!
+  transaction: Transactions
+  customerId: ID!
+  customer: Customers
+  ruleId: ID!
+  riskRule: RiskRules
+  alertType: String
+  riskScore: Int!
+  alertDetails: JSON
+  status: String
+  actionTaken: String
+  investigatedBy: String
+  investigatedAt: String
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DeviceFingerprints {
+  customerId: ID!
+  customer: Customers
+  deviceHash: String!
+  deviceType: String
+  operatingSystem: String
+  browser: String
+  ipAddress: String
+  locationCountry: String
+  locationCity: String
+  firstSeen: String
+  lastSeen: String
+  trustScore: Int
+  isBlocked: Boolean
+}
+
+type AmlChecks {
+  customerId: ID!
+  customer: Customers
+  result: String
+  matchDetails: JSON
+  reviewedBy: String
+  reviewedAt: String
+  decision: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SarReports {
+  customerId: ID!
+  customer: Customers
+  filingDate: String!
+  reportingPeriodStart: String!
+  reportingPeriodEnd: String!
+  suspiciousActivity: String!
+  totalAmount: Float
+  currency: String
+  filingStatus: String
+  filingReference: String
+  preparedBy: String
+  approvedBy: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AuditLogs {
+  userId: String!
+  actionType: String!
+  entityType: String!
+  entityId: String!
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LoanApplications {
+  customerId: ID!
+  customer: Customers
+  loanType: String
+  requestedAmount: Float
+  currency: String
+  loanPurpose: String
+  termMonths: Int!
+  requestedRate: Float
+  creditScore: Int
+  debtToIncome: Float
+  status: String
+  decisionDate: String
+  decisionReason: String
+  approvedAmount: Float
+  approvedRate: Float
+  approvedTermMonths: Int
+  applicationDate: String
+}
+
+type LoanAccounts {
+  accountId: ID!
+  account: Accounts
+  applicationId: ID!
+  loanApplication: LoanApplications
+  principalAmount: Float
+  outstandingPrincipal: Float
+  interestRate: Float
+  termMonths: Int!
+  monthlyPayment: Float
+  originationDate: String!
+  firstPaymentDate: String!
+  maturityDate: String!
+  lastPaymentDate: String
+  nextPaymentDate: String
+  paymentsMade: Int
+  paymentsRemaining: Int!
+  status: String
+}
+
+type FeeSchedule {
+  feeCode: String!
+  feeName: String!
+  feeType: String
+  amount: Float
+  percentage: Float
+  minimumAmount: Float
+  maximumAmount: Float
+  currency: String
+  isActive: Boolean
+  effectiveDate: String!
+  endDate: String
+}
+
+type NotificationPreferences {
+  customerId: ID!
+  customer: Customers
+  notificationType: String!
+  emailEnabled: Boolean
+  smsEnabled: Boolean
+  pushEnabled: Boolean
+  inAppEnabled: Boolean
+  thresholdAmount: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input CustomersInput {
+  customerType: String
+  email: String
+  phoneNumber: String
+  status: String
+  riskLevel: String
+  onboardingDate: String
+  lastActivity: String
+  preferredCurrency: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomersUpdateInput {
+  customerType: String
+  email: String
+  phoneNumber: String
+  status: String
+  riskLevel: String
+  onboardingDate: String
+  lastActivity: String
+  preferredCurrency: String
+  createdAt: String
+  updatedAt: String
+}
+
+input IndividualCustomersInput {
+  firstName: String
+  lastName: String
+  middleName: String
+  dateOfBirth: String
+  ssnEncrypted: String
+  nationality: String
+  occupation: String
+  annualIncome: Float
+  sourceOfWealth: String
+}
+
+input IndividualCustomersUpdateInput {
+  firstName: String
+  lastName: String
+  middleName: String
+  dateOfBirth: String
+  ssnEncrypted: String
+  nationality: String
+  occupation: String
+  annualIncome: Float
+  sourceOfWealth: String
+}
+
+input BusinessCustomersInput {
+  businessName: String
+  businessType: String
+  registrationNumber: String
+  taxIdEncrypted: String
+  incorporationDate: String
+  incorporationCountry: String
+  annualRevenue: Float
+  numberOfEmployees: Int
+  industry: String
+  website: String
+}
+
+input BusinessCustomersUpdateInput {
+  businessName: String
+  businessType: String
+  registrationNumber: String
+  taxIdEncrypted: String
+  incorporationDate: String
+  incorporationCountry: String
+  annualRevenue: Float
+  numberOfEmployees: Int
+  industry: String
+  website: String
+}
+
+input KycDocumentsInput {
+  customerId: ID
+  documentType: String
+  documentNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingCountry: String
+  verificationStatus: String
+  verifiedAt: String
+  verifiedBy: String
+  documentHash: String
+  storagePath: String
+  createdAt: String
+}
+
+input KycDocumentsUpdateInput {
+  customerId: ID
+  documentType: String
+  documentNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingCountry: String
+  verificationStatus: String
+  verifiedAt: String
+  verifiedBy: String
+  documentHash: String
+  storagePath: String
+  createdAt: String
+}
+
+input CustomerAddressesInput {
+  customerId: ID
+  addressType: String
+  streetAddress1: String
+  streetAddress2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  isPrimary: Boolean
+  verified: Boolean
+  createdAt: String
+}
+
+input CustomerAddressesUpdateInput {
+  customerId: ID
+  addressType: String
+  streetAddress1: String
+  streetAddress2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  isPrimary: Boolean
+  verified: Boolean
+  createdAt: String
+}
+
+input AccountsInput {
+  accountNumber: String
+  currency: String
+  status: String
+  balance: Float
+  availableBalance: Float
+  pendingBalance: Float
+  interestRate: Float
+  overdraftLimit: Float
+  minimumBalance: Float
+  openedDate: String
+  closedDate: String
+  lastTransactionDate: String
+  lastInterestDate: String
+  createdAt: String
+  updatedAt: String
+  version: Int
+}
+
+input AccountsUpdateInput {
+  accountNumber: String
+  currency: String
+  status: String
+  balance: Float
+  availableBalance: Float
+  pendingBalance: Float
+  interestRate: Float
+  overdraftLimit: Float
+  minimumBalance: Float
+  openedDate: String
+  closedDate: String
+  lastTransactionDate: String
+  lastInterestDate: String
+  createdAt: String
+  updatedAt: String
+  version: Int
+}
+
+input AccountHoldersInput {
+  accountId: ID
+  customerId: ID
+  relationshipType: String
+  ownershipPercentage: Float
+  addedDate: String
+  removedDate: String
+}
+
+input AccountHoldersUpdateInput {
+  accountId: ID
+  customerId: ID
+  relationshipType: String
+  ownershipPercentage: Float
+  addedDate: String
+  removedDate: String
+}
+
+input ChartOfAccountsInput {
+  accountName: String
+  accountType: String
+  parentAccountCode: ID
+  isControlAccount: Boolean
+  normalBalance: String
+  description: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input ChartOfAccountsUpdateInput {
+  accountName: String
+  accountType: String
+  parentAccountCode: ID
+  isControlAccount: Boolean
+  normalBalance: String
+  description: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input JournalEntriesInput {
+  entryDate: String
+  postingDate: String
+  description: String
+  referenceType: String
+  referenceId: String
+  totalDebits: Float
+  totalCredits: Float
+  status: String
+  postedBy: String
+  reversedByJournalId: String
+  createdAt: String
+}
+
+input JournalEntriesUpdateInput {
+  entryDate: String
+  postingDate: String
+  description: String
+  referenceType: String
+  referenceId: String
+  totalDebits: Float
+  totalCredits: Float
+  status: String
+  postedBy: String
+  reversedByJournalId: String
+  createdAt: String
+}
+
+input JournalLinesInput {
+  journalId: ID
+  accountCode: ID
+  debitAmount: Float
+  creditAmount: Float
+  currency: String
+  exchangeRate: Float
+  baseCurrencyAmount: Float
+  description: String
+}
+
+input JournalLinesUpdateInput {
+  journalId: ID
+  accountCode: ID
+  debitAmount: Float
+  creditAmount: Float
+  currency: String
+  exchangeRate: Float
+  baseCurrencyAmount: Float
+  description: String
+}
+
+input TransactionsInput {
+  transactionUuid: String
+  accountId: ID
+  transactionType: String
+  amount: Float
+  currency: String
+  balanceAfter: Float
+  description: String
+  referenceNumber: String
+  status: String
+  initiatedAt: String
+  completedAt: String
+  reversedAt: String
+  reversalReason: String
+  channel: String
+  ipAddress: String
+  deviceId: String
+  createdAt: String
+  initiatedAt: String
+}
+
+input TransactionsUpdateInput {
+  transactionUuid: String
+  accountId: ID
+  transactionType: String
+  amount: Float
+  currency: String
+  balanceAfter: Float
+  description: String
+  referenceNumber: String
+  status: String
+  initiatedAt: String
+  completedAt: String
+  reversedAt: String
+  reversalReason: String
+  channel: String
+  ipAddress: String
+  deviceId: String
+  createdAt: String
+  initiatedAt: String
+}
+
+input TransfersInput {
+  fromTransactionId: ID
+  toTransactionId: ID
+  transferType: String
+  amount: Float
+  fromCurrency: String
+  toCurrency: String
+  exchangeRate: Float
+  feeAmount: Float
+  swiftCode: String
+  routingNumber: String
+  beneficiaryName: String
+  beneficiaryReference: String
+  createdAt: String
+}
+
+input TransfersUpdateInput {
+  fromTransactionId: ID
+  toTransactionId: ID
+  transferType: String
+  amount: Float
+  fromCurrency: String
+  toCurrency: String
+  exchangeRate: Float
+  feeAmount: Float
+  swiftCode: String
+  routingNumber: String
+  beneficiaryName: String
+  beneficiaryReference: String
+  createdAt: String
+}
+
+input PaymentMethodsInput {
+  customerId: ID
+  methodType: String
+  isDefault: Boolean
+  isActive: Boolean
+  createdAt: String
+}
+
+input PaymentMethodsUpdateInput {
+  customerId: ID
+  methodType: String
+  isDefault: Boolean
+  isActive: Boolean
+  createdAt: String
+}
+
+input CardsInput {
+  paymentMethodId: ID
+  cardNumberMasked: String
+  cardNumberHash: String
+  cardType: String
+  cardBrand: String
+  expiryMonth: Int
+  expiryYear: Int
+  cardholderName: String
+  billingAddressId: ID
+  token: String
+  createdAt: String
+}
+
+input CardsUpdateInput {
+  paymentMethodId: ID
+  cardNumberMasked: String
+  cardNumberHash: String
+  cardType: String
+  cardBrand: String
+  expiryMonth: Int
+  expiryYear: Int
+  cardholderName: String
+  billingAddressId: ID
+  token: String
+  createdAt: String
+}
+
+input CurrenciesInput {
+  currencyName: String
+  symbol: String
+  decimalPlaces: Int
+  isActive: Boolean
+  createdAt: String
+}
+
+input CurrenciesUpdateInput {
+  currencyName: String
+  symbol: String
+  decimalPlaces: Int
+  isActive: Boolean
+  createdAt: String
+}
+
+input ExchangeRatesInput {
+  fromCurrency: ID
+  toCurrency: ID
+  rateDate: String
+  exchangeRate: Float
+  rateSource: String
+  createdAt: String
+}
+
+input ExchangeRatesUpdateInput {
+  fromCurrency: ID
+  toCurrency: ID
+  rateDate: String
+  exchangeRate: Float
+  rateSource: String
+  createdAt: String
+}
+
+input RiskRulesInput {
+  ruleName: String
+  ruleType: String
+  ruleCondition: JSON
+  riskScore: Int
+  action: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input RiskRulesUpdateInput {
+  ruleName: String
+  ruleType: String
+  ruleCondition: JSON
+  riskScore: Int
+  action: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input FraudAlertsInput {
+  transactionId: ID
+  customerId: ID
+  ruleId: ID
+  alertType: String
+  riskScore: Int
+  alertDetails: JSON
+  status: String
+  actionTaken: String
+  investigatedBy: String
+  investigatedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input FraudAlertsUpdateInput {
+  transactionId: ID
+  customerId: ID
+  ruleId: ID
+  alertType: String
+  riskScore: Int
+  alertDetails: JSON
+  status: String
+  actionTaken: String
+  investigatedBy: String
+  investigatedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input DeviceFingerprintsInput {
+  customerId: ID
+  deviceHash: String
+  deviceType: String
+  operatingSystem: String
+  browser: String
+  ipAddress: String
+  locationCountry: String
+  locationCity: String
+  firstSeen: String
+  lastSeen: String
+  trustScore: Int
+  isBlocked: Boolean
+}
+
+input DeviceFingerprintsUpdateInput {
+  customerId: ID
+  deviceHash: String
+  deviceType: String
+  operatingSystem: String
+  browser: String
+  ipAddress: String
+  locationCountry: String
+  locationCity: String
+  firstSeen: String
+  lastSeen: String
+  trustScore: Int
+  isBlocked: Boolean
+}
+
+input AmlChecksInput {
+  customerId: ID
+  result: String
+  matchDetails: JSON
+  reviewedBy: String
+  reviewedAt: String
+  decision: String
+  createdAt: String
+}
+
+input AmlChecksUpdateInput {
+  customerId: ID
+  result: String
+  matchDetails: JSON
+  reviewedBy: String
+  reviewedAt: String
+  decision: String
+  createdAt: String
+}
+
+input SarReportsInput {
+  customerId: ID
+  filingDate: String
+  reportingPeriodStart: String
+  reportingPeriodEnd: String
+  suspiciousActivity: String
+  totalAmount: Float
+  currency: String
+  filingStatus: String
+  filingReference: String
+  preparedBy: String
+  approvedBy: String
+  createdAt: String
+}
+
+input SarReportsUpdateInput {
+  customerId: ID
+  filingDate: String
+  reportingPeriodStart: String
+  reportingPeriodEnd: String
+  suspiciousActivity: String
+  totalAmount: Float
+  currency: String
+  filingStatus: String
+  filingReference: String
+  preparedBy: String
+  approvedBy: String
+  createdAt: String
+}
+
+input AuditLogsInput {
+  userId: String
+  actionType: String
+  entityType: String
+  entityId: String
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  createdAt: String
+}
+
+input AuditLogsUpdateInput {
+  userId: String
+  actionType: String
+  entityType: String
+  entityId: String
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  createdAt: String
+}
+
+input LoanApplicationsInput {
+  customerId: ID
+  loanType: String
+  requestedAmount: Float
+  currency: String
+  loanPurpose: String
+  termMonths: Int
+  requestedRate: Float
+  creditScore: Int
+  debtToIncome: Float
+  status: String
+  decisionDate: String
+  decisionReason: String
+  approvedAmount: Float
+  approvedRate: Float
+  approvedTermMonths: Int
+  applicationDate: String
+}
+
+input LoanApplicationsUpdateInput {
+  customerId: ID
+  loanType: String
+  requestedAmount: Float
+  currency: String
+  loanPurpose: String
+  termMonths: Int
+  requestedRate: Float
+  creditScore: Int
+  debtToIncome: Float
+  status: String
+  decisionDate: String
+  decisionReason: String
+  approvedAmount: Float
+  approvedRate: Float
+  approvedTermMonths: Int
+  applicationDate: String
+}
+
+input LoanAccountsInput {
+  accountId: ID
+  applicationId: ID
+  principalAmount: Float
+  outstandingPrincipal: Float
+  interestRate: Float
+  termMonths: Int
+  monthlyPayment: Float
+  originationDate: String
+  firstPaymentDate: String
+  maturityDate: String
+  lastPaymentDate: String
+  nextPaymentDate: String
+  paymentsMade: Int
+  paymentsRemaining: Int
+  status: String
+}
+
+input LoanAccountsUpdateInput {
+  accountId: ID
+  applicationId: ID
+  principalAmount: Float
+  outstandingPrincipal: Float
+  interestRate: Float
+  termMonths: Int
+  monthlyPayment: Float
+  originationDate: String
+  firstPaymentDate: String
+  maturityDate: String
+  lastPaymentDate: String
+  nextPaymentDate: String
+  paymentsMade: Int
+  paymentsRemaining: Int
+  status: String
+}
+
+input FeeScheduleInput {
+  feeCode: String
+  feeName: String
+  feeType: String
+  amount: Float
+  percentage: Float
+  minimumAmount: Float
+  maximumAmount: Float
+  currency: String
+  isActive: Boolean
+  effectiveDate: String
+  endDate: String
+}
+
+input FeeScheduleUpdateInput {
+  feeCode: String
+  feeName: String
+  feeType: String
+  amount: Float
+  percentage: Float
+  minimumAmount: Float
+  maximumAmount: Float
+  currency: String
+  isActive: Boolean
+  effectiveDate: String
+  endDate: String
+}
+
+input NotificationPreferencesInput {
+  customerId: ID
+  notificationType: String
+  emailEnabled: Boolean
+  smsEnabled: Boolean
+  pushEnabled: Boolean
+  inAppEnabled: Boolean
+  thresholdAmount: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input NotificationPreferencesUpdateInput {
+  customerId: ID
+  notificationType: String
+  emailEnabled: Boolean
+  smsEnabled: Boolean
+  pushEnabled: Boolean
+  inAppEnabled: Boolean
+  thresholdAmount: Float
+  createdAt: String
+  updatedAt: String
+}
+
+type Query {
+  customer(id: ID!): Customers
+  customers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Customers!]!
+  customersCount(filter: String): Int!
+  individualCustomer(id: ID!): IndividualCustomers
+  individualCustomers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [IndividualCustomers!]!
+  individualCustomersCount(filter: String): Int!
+  businessCustomer(id: ID!): BusinessCustomers
+  businessCustomers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [BusinessCustomers!]!
+  businessCustomersCount(filter: String): Int!
+  kycDocument(id: ID!): KycDocuments
+  kycDocuments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [KycDocuments!]!
+  kycDocumentsCount(filter: String): Int!
+  customerAddresse(id: ID!): CustomerAddresses
+  customerAddresses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CustomerAddresses!]!
+  customerAddressesCount(filter: String): Int!
+  account(id: ID!): Accounts
+  accounts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Accounts!]!
+  accountsCount(filter: String): Int!
+  accountHolder(id: ID!): AccountHolders
+  accountHolders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AccountHolders!]!
+  accountHoldersCount(filter: String): Int!
+  chartOfAccount(id: ID!): ChartOfAccounts
+  chartOfAccounts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ChartOfAccounts!]!
+  chartOfAccountsCount(filter: String): Int!
+  journalEntrie(id: ID!): JournalEntries
+  journalEntries(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [JournalEntries!]!
+  journalEntriesCount(filter: String): Int!
+  journalLine(id: ID!): JournalLines
+  journalLines(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [JournalLines!]!
+  journalLinesCount(filter: String): Int!
+  transaction(id: ID!): Transactions
+  transactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Transactions!]!
+  transactionsCount(filter: String): Int!
+  transfer(id: ID!): Transfers
+  transfers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Transfers!]!
+  transfersCount(filter: String): Int!
+  paymentMethod(id: ID!): PaymentMethods
+  paymentMethods(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PaymentMethods!]!
+  paymentMethodsCount(filter: String): Int!
+  card(id: ID!): Cards
+  cards(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Cards!]!
+  cardsCount(filter: String): Int!
+  currencie(id: ID!): Currencies
+  currencies(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Currencies!]!
+  currenciesCount(filter: String): Int!
+  exchangeRate(id: ID!): ExchangeRates
+  exchangeRates(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ExchangeRates!]!
+  exchangeRatesCount(filter: String): Int!
+  riskRule(id: ID!): RiskRules
+  riskRules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RiskRules!]!
+  riskRulesCount(filter: String): Int!
+  fraudAlert(id: ID!): FraudAlerts
+  fraudAlerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FraudAlerts!]!
+  fraudAlertsCount(filter: String): Int!
+  deviceFingerprint(id: ID!): DeviceFingerprints
+  deviceFingerprints(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DeviceFingerprints!]!
+  deviceFingerprintsCount(filter: String): Int!
+  amlCheck(id: ID!): AmlChecks
+  amlChecks(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AmlChecks!]!
+  amlChecksCount(filter: String): Int!
+  sarReport(id: ID!): SarReports
+  sarReports(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SarReports!]!
+  sarReportsCount(filter: String): Int!
+  auditLog(id: ID!): AuditLogs
+  auditLogs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AuditLogs!]!
+  auditLogsCount(filter: String): Int!
+  loanApplication(id: ID!): LoanApplications
+  loanApplications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LoanApplications!]!
+  loanApplicationsCount(filter: String): Int!
+  loanAccount(id: ID!): LoanAccounts
+  loanAccounts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LoanAccounts!]!
+  loanAccountsCount(filter: String): Int!
+  feeSchedule(id: ID!): FeeSchedule
+  feeSchedule(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FeeSchedule!]!
+  feeScheduleCount(filter: String): Int!
+  notificationPreference(id: ID!): NotificationPreferences
+  notificationPreferences(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [NotificationPreferences!]!
+  notificationPreferencesCount(filter: String): Int!
+}
+
+type Mutation {
+  createCustomers(input: CustomersInput!): Customers!
+  updateCustomers(id: ID!, input: CustomersUpdateInput!): Customers!
+  deleteCustomers(id: ID!): Boolean!
+  createCustomersBatch(input: [CustomersInput!]!): [Customers!]!
+  createIndividualCustomers(input: IndividualCustomersInput!): IndividualCustomers!
+  updateIndividualCustomers(id: ID!, input: IndividualCustomersUpdateInput!): IndividualCustomers!
+  deleteIndividualCustomers(id: ID!): Boolean!
+  createIndividualCustomersBatch(input: [IndividualCustomersInput!]!): [IndividualCustomers!]!
+  createBusinessCustomers(input: BusinessCustomersInput!): BusinessCustomers!
+  updateBusinessCustomers(id: ID!, input: BusinessCustomersUpdateInput!): BusinessCustomers!
+  deleteBusinessCustomers(id: ID!): Boolean!
+  createBusinessCustomersBatch(input: [BusinessCustomersInput!]!): [BusinessCustomers!]!
+  createKycDocuments(input: KycDocumentsInput!): KycDocuments!
+  updateKycDocuments(id: ID!, input: KycDocumentsUpdateInput!): KycDocuments!
+  deleteKycDocuments(id: ID!): Boolean!
+  createKycDocumentsBatch(input: [KycDocumentsInput!]!): [KycDocuments!]!
+  createCustomerAddresses(input: CustomerAddressesInput!): CustomerAddresses!
+  updateCustomerAddresses(id: ID!, input: CustomerAddressesUpdateInput!): CustomerAddresses!
+  deleteCustomerAddresses(id: ID!): Boolean!
+  createCustomerAddressesBatch(input: [CustomerAddressesInput!]!): [CustomerAddresses!]!
+  createAccounts(input: AccountsInput!): Accounts!
+  updateAccounts(id: ID!, input: AccountsUpdateInput!): Accounts!
+  deleteAccounts(id: ID!): Boolean!
+  createAccountsBatch(input: [AccountsInput!]!): [Accounts!]!
+  createAccountHolders(input: AccountHoldersInput!): AccountHolders!
+  updateAccountHolders(id: ID!, input: AccountHoldersUpdateInput!): AccountHolders!
+  deleteAccountHolders(id: ID!): Boolean!
+  createAccountHoldersBatch(input: [AccountHoldersInput!]!): [AccountHolders!]!
+  createChartOfAccounts(input: ChartOfAccountsInput!): ChartOfAccounts!
+  updateChartOfAccounts(id: ID!, input: ChartOfAccountsUpdateInput!): ChartOfAccounts!
+  deleteChartOfAccounts(id: ID!): Boolean!
+  createChartOfAccountsBatch(input: [ChartOfAccountsInput!]!): [ChartOfAccounts!]!
+  createJournalEntries(input: JournalEntriesInput!): JournalEntries!
+  updateJournalEntries(id: ID!, input: JournalEntriesUpdateInput!): JournalEntries!
+  deleteJournalEntries(id: ID!): Boolean!
+  createJournalEntriesBatch(input: [JournalEntriesInput!]!): [JournalEntries!]!
+  createJournalLines(input: JournalLinesInput!): JournalLines!
+  updateJournalLines(id: ID!, input: JournalLinesUpdateInput!): JournalLines!
+  deleteJournalLines(id: ID!): Boolean!
+  createJournalLinesBatch(input: [JournalLinesInput!]!): [JournalLines!]!
+  createTransactions(input: TransactionsInput!): Transactions!
+  updateTransactions(id: ID!, input: TransactionsUpdateInput!): Transactions!
+  deleteTransactions(id: ID!): Boolean!
+  createTransactionsBatch(input: [TransactionsInput!]!): [Transactions!]!
+  createTransfers(input: TransfersInput!): Transfers!
+  updateTransfers(id: ID!, input: TransfersUpdateInput!): Transfers!
+  deleteTransfers(id: ID!): Boolean!
+  createTransfersBatch(input: [TransfersInput!]!): [Transfers!]!
+  createPaymentMethods(input: PaymentMethodsInput!): PaymentMethods!
+  updatePaymentMethods(id: ID!, input: PaymentMethodsUpdateInput!): PaymentMethods!
+  deletePaymentMethods(id: ID!): Boolean!
+  createPaymentMethodsBatch(input: [PaymentMethodsInput!]!): [PaymentMethods!]!
+  createCards(input: CardsInput!): Cards!
+  updateCards(id: ID!, input: CardsUpdateInput!): Cards!
+  deleteCards(id: ID!): Boolean!
+  createCardsBatch(input: [CardsInput!]!): [Cards!]!
+  createCurrencies(input: CurrenciesInput!): Currencies!
+  updateCurrencies(id: ID!, input: CurrenciesUpdateInput!): Currencies!
+  deleteCurrencies(id: ID!): Boolean!
+  createCurrenciesBatch(input: [CurrenciesInput!]!): [Currencies!]!
+  createExchangeRates(input: ExchangeRatesInput!): ExchangeRates!
+  updateExchangeRates(id: ID!, input: ExchangeRatesUpdateInput!): ExchangeRates!
+  deleteExchangeRates(id: ID!): Boolean!
+  createExchangeRatesBatch(input: [ExchangeRatesInput!]!): [ExchangeRates!]!
+  createRiskRules(input: RiskRulesInput!): RiskRules!
+  updateRiskRules(id: ID!, input: RiskRulesUpdateInput!): RiskRules!
+  deleteRiskRules(id: ID!): Boolean!
+  createRiskRulesBatch(input: [RiskRulesInput!]!): [RiskRules!]!
+  createFraudAlerts(input: FraudAlertsInput!): FraudAlerts!
+  updateFraudAlerts(id: ID!, input: FraudAlertsUpdateInput!): FraudAlerts!
+  deleteFraudAlerts(id: ID!): Boolean!
+  createFraudAlertsBatch(input: [FraudAlertsInput!]!): [FraudAlerts!]!
+  createDeviceFingerprints(input: DeviceFingerprintsInput!): DeviceFingerprints!
+  updateDeviceFingerprints(id: ID!, input: DeviceFingerprintsUpdateInput!): DeviceFingerprints!
+  deleteDeviceFingerprints(id: ID!): Boolean!
+  createDeviceFingerprintsBatch(input: [DeviceFingerprintsInput!]!): [DeviceFingerprints!]!
+  createAmlChecks(input: AmlChecksInput!): AmlChecks!
+  updateAmlChecks(id: ID!, input: AmlChecksUpdateInput!): AmlChecks!
+  deleteAmlChecks(id: ID!): Boolean!
+  createAmlChecksBatch(input: [AmlChecksInput!]!): [AmlChecks!]!
+  createSarReports(input: SarReportsInput!): SarReports!
+  updateSarReports(id: ID!, input: SarReportsUpdateInput!): SarReports!
+  deleteSarReports(id: ID!): Boolean!
+  createSarReportsBatch(input: [SarReportsInput!]!): [SarReports!]!
+  createAuditLogs(input: AuditLogsInput!): AuditLogs!
+  updateAuditLogs(id: ID!, input: AuditLogsUpdateInput!): AuditLogs!
+  deleteAuditLogs(id: ID!): Boolean!
+  createAuditLogsBatch(input: [AuditLogsInput!]!): [AuditLogs!]!
+  createLoanApplications(input: LoanApplicationsInput!): LoanApplications!
+  updateLoanApplications(id: ID!, input: LoanApplicationsUpdateInput!): LoanApplications!
+  deleteLoanApplications(id: ID!): Boolean!
+  createLoanApplicationsBatch(input: [LoanApplicationsInput!]!): [LoanApplications!]!
+  createLoanAccounts(input: LoanAccountsInput!): LoanAccounts!
+  updateLoanAccounts(id: ID!, input: LoanAccountsUpdateInput!): LoanAccounts!
+  deleteLoanAccounts(id: ID!): Boolean!
+  createLoanAccountsBatch(input: [LoanAccountsInput!]!): [LoanAccounts!]!
+  createFeeSchedule(input: FeeScheduleInput!): FeeSchedule!
+  updateFeeSchedule(id: ID!, input: FeeScheduleUpdateInput!): FeeSchedule!
+  deleteFeeSchedule(id: ID!): Boolean!
+  createFeeScheduleBatch(input: [FeeScheduleInput!]!): [FeeSchedule!]!
+  createNotificationPreferences(input: NotificationPreferencesInput!): NotificationPreferences!
+  updateNotificationPreferences(id: ID!, input: NotificationPreferencesUpdateInput!): NotificationPreferences!
+  deleteNotificationPreferences(id: ID!): Boolean!
+  createNotificationPreferencesBatch(input: [NotificationPreferencesInput!]!): [NotificationPreferences!]!
+}

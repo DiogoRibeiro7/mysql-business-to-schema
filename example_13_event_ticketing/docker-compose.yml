@@ -1,0 +1,134 @@
+version: '3.8'
+
+# Event Ticketing Platform Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3318 (user: root, password: ticketing_root)
+#   - phpMyAdmin: http://localhost:8094
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: event_ticketing_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ticketing_root
+      MYSQL_DATABASE: event_ticketing_db
+      MYSQL_USER: ticketing_user
+      MYSQL_PASSWORD: ticketing_pass
+    ports:
+      - "3318:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - event_ticketing_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - event_ticketing_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+      - --max_connections=1000
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: event_ticketing_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ticketing_root
+    ports:
+      - "8094:80"
+    networks:
+      - event_ticketing_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: event_ticketing_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: event_ticketing_db
+      MYSQL_USER: ticketing_user
+      MYSQL_PASSWORD: ticketing_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Event ticketing specific settings
+      EVENT_COUNT: ${EVENT_COUNT:-1000}
+      VENUE_COUNT: ${VENUE_COUNT:-50}
+      CUSTOMER_COUNT: ${CUSTOMER_COUNT:-10000}
+      BOOKING_RATE: ${BOOKING_RATE:-high}
+    volumes:
+      - ../generators/event_ticketing:/app
+      - event_ticketing_generator_output:/app/output
+    networks:
+      - event_ticketing_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating event ticketing data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Redis for session and cart management
+  redis:
+    image: redis:7-alpine
+    container_name: event_ticketing_redis
+    restart: unless-stopped
+    ports:
+      - "6384:6379"
+    networks:
+      - event_ticketing_network
+    command: redis-server --maxmemory 1gb --maxmemory-policy allkeys-lru
+
+  # Optional: Queue system for ticket processing
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: event_ticketing_rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"  # Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: ticketing_admin
+    volumes:
+      - event_ticketing_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - event_ticketing_network
+    profiles:
+      - queue
+
+volumes:
+  event_ticketing_mysql_data:
+    name: event_ticketing_mysql_data
+  event_ticketing_generator_output:
+    name: event_ticketing_generator_output
+  event_ticketing_rabbitmq_data:
+    name: event_ticketing_rabbitmq_data
+
+networks:
+  event_ticketing_network:
+    name: event_ticketing_network
+    driver: bridge

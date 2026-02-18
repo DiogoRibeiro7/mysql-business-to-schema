@@ -1,0 +1,373 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.717171
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Patients {
+  patientId: String!
+  nif: String!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: String!
+  phone: String!
+  email: String!
+  createdAt: String!
+  status: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Doctors {
+  doctorId: String!
+  licenseNumber: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String!
+  activeFrom: String!
+  activeTo: String
+}
+
+type Specialties {
+  specialtyId: String!
+  code: String!
+  name: String!
+  description: String
+}
+
+type DoctorSpecialties {
+  doctorId: String!
+  specialtyId: String!
+  assignedAt: String!
+}
+
+type Appointments {
+  appointmentId: String!
+  patientId: String!
+  doctorId: String!
+  startTime: String!
+  endTime: String!
+  status: String
+  cancelReason: String
+  noShowReason: String
+  createdAt: String!
+  updatedAt: String!
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Invoices {
+  invoiceId: String!
+  patientId: String!
+  invoiceNumber: String!
+  issuedAt: String!
+  status: String
+  totalAmount: Float
+}
+
+type InvoiceItems {
+  invoiceItemId: String!
+  invoiceId: String!
+  appointmentId: String
+  description: String!
+  quantity: Int!
+  unitPrice: Float
+  lineTotal: Float
+}
+
+type Payments {
+  paymentId: String!
+  patientId: String!
+  paymentDate: String!
+  method: String
+  reference: String
+  amount: Float
+}
+
+type PaymentAllocations {
+  paymentAllocationId: String!
+  paymentId: String!
+  invoiceId: String!
+  amountApplied: Float
+}
+
+# Input Types
+
+input PatientsInput {
+  nif: String
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  phone: String
+  email: String
+  createdAt: String
+  status: String
+}
+
+input PatientsUpdateInput {
+  nif: String
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  phone: String
+  email: String
+  createdAt: String
+  status: String
+}
+
+input DoctorsInput {
+  licenseNumber: String
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  activeFrom: String
+  activeTo: String
+}
+
+input DoctorsUpdateInput {
+  licenseNumber: String
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  activeFrom: String
+  activeTo: String
+}
+
+input SpecialtiesInput {
+  code: String
+  name: String
+  description: String
+}
+
+input SpecialtiesUpdateInput {
+  code: String
+  name: String
+  description: String
+}
+
+input DoctorSpecialtiesInput {
+  doctorId: String
+  specialtyId: String
+  assignedAt: String
+}
+
+input DoctorSpecialtiesUpdateInput {
+  doctorId: String
+  specialtyId: String
+  assignedAt: String
+}
+
+input AppointmentsInput {
+  patientId: String
+  doctorId: String
+  startTime: String
+  endTime: String
+  status: String
+  cancelReason: String
+  noShowReason: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AppointmentsUpdateInput {
+  patientId: String
+  doctorId: String
+  startTime: String
+  endTime: String
+  status: String
+  cancelReason: String
+  noShowReason: String
+  createdAt: String
+  updatedAt: String
+}
+
+input InvoicesInput {
+  patientId: String
+  invoiceNumber: String
+  issuedAt: String
+  status: String
+  totalAmount: Float
+}
+
+input InvoicesUpdateInput {
+  patientId: String
+  invoiceNumber: String
+  issuedAt: String
+  status: String
+  totalAmount: Float
+}
+
+input InvoiceItemsInput {
+  invoiceId: String
+  appointmentId: String
+  description: String
+  quantity: Int
+  unitPrice: Float
+  lineTotal: Float
+}
+
+input InvoiceItemsUpdateInput {
+  invoiceId: String
+  appointmentId: String
+  description: String
+  quantity: Int
+  unitPrice: Float
+  lineTotal: Float
+}
+
+input PaymentsInput {
+  patientId: String
+  paymentDate: String
+  method: String
+  reference: String
+  amount: Float
+}
+
+input PaymentsUpdateInput {
+  patientId: String
+  paymentDate: String
+  method: String
+  reference: String
+  amount: Float
+}
+
+input PaymentAllocationsInput {
+  paymentId: String
+  invoiceId: String
+  amountApplied: Float
+}
+
+input PaymentAllocationsUpdateInput {
+  paymentId: String
+  invoiceId: String
+  amountApplied: Float
+}
+
+type Query {
+  patient(id: ID!): Patients
+  patients(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Patients!]!
+  patientsCount(filter: String): Int!
+  doctor(id: ID!): Doctors
+  doctors(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Doctors!]!
+  doctorsCount(filter: String): Int!
+  specialtie(id: ID!): Specialties
+  specialties(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Specialties!]!
+  specialtiesCount(filter: String): Int!
+  doctorSpecialtie(id: ID!): DoctorSpecialties
+  doctorSpecialties(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DoctorSpecialties!]!
+  doctorSpecialtiesCount(filter: String): Int!
+  appointment(id: ID!): Appointments
+  appointments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Appointments!]!
+  appointmentsCount(filter: String): Int!
+  invoice(id: ID!): Invoices
+  invoices(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Invoices!]!
+  invoicesCount(filter: String): Int!
+  invoiceItem(id: ID!): InvoiceItems
+  invoiceItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [InvoiceItems!]!
+  invoiceItemsCount(filter: String): Int!
+  payment(id: ID!): Payments
+  payments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Payments!]!
+  paymentsCount(filter: String): Int!
+  paymentAllocation(id: ID!): PaymentAllocations
+  paymentAllocations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PaymentAllocations!]!
+  paymentAllocationsCount(filter: String): Int!
+}
+
+type Mutation {
+  createPatients(input: PatientsInput!): Patients!
+  updatePatients(id: ID!, input: PatientsUpdateInput!): Patients!
+  deletePatients(id: ID!): Boolean!
+  createPatientsBatch(input: [PatientsInput!]!): [Patients!]!
+  createDoctors(input: DoctorsInput!): Doctors!
+  updateDoctors(id: ID!, input: DoctorsUpdateInput!): Doctors!
+  deleteDoctors(id: ID!): Boolean!
+  createDoctorsBatch(input: [DoctorsInput!]!): [Doctors!]!
+  createSpecialties(input: SpecialtiesInput!): Specialties!
+  updateSpecialties(id: ID!, input: SpecialtiesUpdateInput!): Specialties!
+  deleteSpecialties(id: ID!): Boolean!
+  createSpecialtiesBatch(input: [SpecialtiesInput!]!): [Specialties!]!
+  createDoctorSpecialties(input: DoctorSpecialtiesInput!): DoctorSpecialties!
+  updateDoctorSpecialties(id: ID!, input: DoctorSpecialtiesUpdateInput!): DoctorSpecialties!
+  deleteDoctorSpecialties(id: ID!): Boolean!
+  createDoctorSpecialtiesBatch(input: [DoctorSpecialtiesInput!]!): [DoctorSpecialties!]!
+  createAppointments(input: AppointmentsInput!): Appointments!
+  updateAppointments(id: ID!, input: AppointmentsUpdateInput!): Appointments!
+  deleteAppointments(id: ID!): Boolean!
+  createAppointmentsBatch(input: [AppointmentsInput!]!): [Appointments!]!
+  createInvoices(input: InvoicesInput!): Invoices!
+  updateInvoices(id: ID!, input: InvoicesUpdateInput!): Invoices!
+  deleteInvoices(id: ID!): Boolean!
+  createInvoicesBatch(input: [InvoicesInput!]!): [Invoices!]!
+  createInvoiceItems(input: InvoiceItemsInput!): InvoiceItems!
+  updateInvoiceItems(id: ID!, input: InvoiceItemsUpdateInput!): InvoiceItems!
+  deleteInvoiceItems(id: ID!): Boolean!
+  createInvoiceItemsBatch(input: [InvoiceItemsInput!]!): [InvoiceItems!]!
+  createPayments(input: PaymentsInput!): Payments!
+  updatePayments(id: ID!, input: PaymentsUpdateInput!): Payments!
+  deletePayments(id: ID!): Boolean!
+  createPaymentsBatch(input: [PaymentsInput!]!): [Payments!]!
+  createPaymentAllocations(input: PaymentAllocationsInput!): PaymentAllocations!
+  updatePaymentAllocations(id: ID!, input: PaymentAllocationsUpdateInput!): PaymentAllocations!
+  deletePaymentAllocations(id: ID!): Boolean!
+  createPaymentAllocationsBatch(input: [PaymentAllocationsInput!]!): [PaymentAllocations!]!
+}

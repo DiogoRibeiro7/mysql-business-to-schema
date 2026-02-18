@@ -1,0 +1,101 @@
+# Base Docker Compose configuration for MySQL Business-to-Schema
+# This file provides the common configuration that all examples extend
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-dbuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dbpassword}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./schema:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - db_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=1G
+      - --max_connections=1000
+      - --slow_query_log=ON
+      - --slow_query_log_file=/var/log/mysql/slow.log
+      - --long_query_time=2
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      UPLOAD_LIMIT: 300M
+    ports:
+      - "${PMA_PORT:-8080}:80"
+    networks:
+      - db_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-dbuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dbpassword}
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      OUTPUT_DIR: /app/output
+    volumes:
+      - ./generators/${EXAMPLE_NAME}:/app
+      - generator_output:/app/output
+    networks:
+      - db_network
+    command: python generator.py --${GENERATOR_MODE:-test}
+
+  data_loader:
+    image: mysql:8.0
+    depends_on:
+      data_generator:
+        condition: service_completed_successfully
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+    volumes:
+      - generator_output:/data:ro
+      - ./scripts/load_data.sh:/load_data.sh:ro
+    networks:
+      - db_network
+    command: /load_data.sh
+
+volumes:
+  mysql_data:
+    name: ${COMPOSE_PROJECT_NAME}_mysql_data
+  generator_output:
+    name: ${COMPOSE_PROJECT_NAME}_generator_output
+
+networks:
+  db_network:
+    name: ${COMPOSE_PROJECT_NAME}_network
+    driver: bridge

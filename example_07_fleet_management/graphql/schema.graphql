@@ -1,0 +1,1351 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.023788
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Companies {
+  companyName: String!
+  mcNumber: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Depots {
+  companyId: Int!
+  depotName: String!
+  address: String
+  city: String
+  state: String
+  latitude: Float
+  longitude: Float
+  timezone: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Vehicles {
+  companyId: Int!
+  depotId: Int
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  color: String
+  fuelType: String
+  fuelCapacityGallons: Float
+  odometerMiles: Float
+  engineHours: Float
+  purchaseDate: String
+  registrationExpiry: String
+  insuranceExpiry: String
+  lastServiceDate: String
+  lastServiceMiles: Float
+  nextServiceMiles: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VehicleSpecs {
+  grossVehicleWeightLbs: Int
+  cargoCapacityLbs: Int
+  cargoVolumeCubicFt: Float
+  mpgCity: Float
+  mpgHighway: Float
+  hasGps: Boolean
+  hasEld: Boolean
+  hasCamera: Boolean
+  hasTemperatureControl: Boolean
+  hasLiftgate: Boolean
+}
+
+type Drivers {
+  companyId: Int!
+  firstName: String!
+  lastName: String!
+  phone: String
+  licenseState: String
+  licenseClass: String
+  licenseExpiry: String!
+  medicalCertExpiry: String
+  hireDate: String
+  birthDate: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContact: String
+  emergencyPhone: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DriverCertifications {
+  driverId: Int!
+  certificationType: String!
+  certificationNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingAuthority: String
+}
+
+type GpsPositions {
+  positionId: String
+  vehicleId: Int!
+  driverId: Int
+  timestamp: String!
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  heading: Int
+  altitudeFeet: Int
+  satellites: Int
+  hdop: Float
+  ignitionOn: Boolean
+  odometerMiles: Float
+  engineHours: Float
+  fuelLevelPercent: Float
+}
+
+type Trips {
+  vehicleId: Int!
+  driverId: Int!
+  startTime: String!
+  endTime: String
+  startLocation: String
+  startLatitude: Float
+  startLongitude: Float
+  endLocation: String
+  endLatitude: Float
+  endLongitude: Float
+  distanceMiles: Float
+  durationMinutes: Int
+  maxSpeedMph: Float
+  avgSpeedMph: Float
+  fuelConsumedGallons: Float
+  idleTimeMinutes: Int
+  stopsCount: Int
+  harshEventsCount: Int
+  status: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Stops {
+  tripId: Int!
+  stopSequence: Int!
+  arrivalTime: String!
+  departureTime: String
+  latitude: Float
+  longitude: Float
+  address: String
+  stopType: String
+  durationMinutes: Int
+  notes: String
+}
+
+type DriverEvents {
+  vehicleId: Int!
+  driverId: Int!
+  tripId: Int
+  eventType: String
+  timestamp: String!
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  gForce: Float
+  speedLimitMph: Int
+  durationSeconds: Int
+  severity: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DriverScores {
+  driverId: Int!
+  scoreDate: String!
+  safetyScore: Float
+  fuelEfficiencyScore: Float
+  complianceScore: Float
+  overallScore: Float
+  milesDriven: Float
+  tripsCount: Int
+  harshEventsCount: Int
+  speedingMinutes: Int
+  idleMinutes: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Routes {
+  routeName: String!
+  depotId: Int
+  totalDistanceMiles: Float
+  estimatedDurationMinutes: Int
+  waypoints: JSON
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Geofences {
+  companyId: Int!
+  geofenceName: String!
+  geofenceType: String
+  centerLatitude: Float
+  centerLongitude: Float
+  radiusMeters: Int
+  polygon: JSON
+  alertOnEntry: Boolean
+  alertOnExit: Boolean
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type GeofenceEvents {
+  geofenceId: Int!
+  vehicleId: Int!
+  driverId: Int
+  eventType: String
+  timestamp: String!
+  durationMinutes: Int
+  time: String
+}
+
+type FuelTransactions {
+  vehicleId: Int!
+  driverId: Int
+  transactionDate: String!
+  stationName: String
+  stationAddress: String
+  latitude: Float
+  longitude: Float
+  gallons: Float
+  pricePerGallon: Float
+  totalCost: Float
+  odometerMiles: Float
+  paymentMethod: String
+  receiptNumber: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MaintenanceRecords {
+  vehicleId: Int!
+  maintenanceType: String
+  serviceDate: String!
+  odometerMiles: Float
+  engineHours: Float
+  serviceProvider: String
+  description: String
+  partsCost: Float
+  laborCost: Float
+  totalCost: Float
+  nextServiceMiles: Float
+  nextServiceDate: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VehicleDiagnostics {
+  vehicleId: Int!
+  timestamp: String!
+  engineRpm: Int
+  engineLoadPercent: Float
+  coolantTempF: Int
+  oilPressurePsi: Float
+  batteryVoltage: Float
+  dtcCodes: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DriverLogs {
+  driverId: Int!
+  logDate: String!
+  dutyStatus: String
+  startTime: String!
+  endTime: String
+  durationMinutes: Int
+  location: String
+  latitude: Float
+  longitude: Float
+  vehicleId: Int
+  odometerStart: Float
+  odometerEnd: Float
+  notes: String
+  certified: Boolean
+  certifiedAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type HosViolations {
+  driverId: Int!
+  violationDate: String!
+  violationType: String
+  durationMinutes: Int
+  description: String
+  severity: String
+  resolved: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DvirReports {
+  vehicleId: Int!
+  driverId: Int!
+  inspectionDate: String!
+  inspectionType: String
+  odometerMiles: Float
+  defectsFound: Boolean
+  defectDetails: JSON
+  signatureDriver: String
+  signatureMechanic: String
+  repaired: Boolean
+  repairDate: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Messages {
+  senderType: String
+  senderId: Int
+  recipientType: String
+  recipientId: Int
+  messageText: String!
+  priority: String
+  readStatus: Boolean
+  sentAt: String
+  readAt: String
+}
+
+type VehicleDailySummary {
+  vehicleId: Int!
+  summaryDate: String!
+  totalMiles: Float
+  totalHours: Float
+  totalTrips: Int
+  totalStops: Int
+  totalFuelGallons: Float
+  avgMpg: Float
+  totalIdleMinutes: Int
+  harshEventsCount: Int
+  maxSpeedMph: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type GpsPositionsHourly {
+  vehicleId: Int!
+  hourTimestamp: String!
+  avgSpeedMph: Float
+  maxSpeedMph: Float
+  distanceMiles: Float
+  positionCount: Int
+  idleMinutes: Int
+}
+
+# Input Types
+
+input CompaniesInput {
+  companyName: String
+  mcNumber: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CompaniesUpdateInput {
+  companyName: String
+  mcNumber: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DepotsInput {
+  companyId: Int
+  depotName: String
+  address: String
+  city: String
+  state: String
+  latitude: Float
+  longitude: Float
+  timezone: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input DepotsUpdateInput {
+  companyId: Int
+  depotName: String
+  address: String
+  city: String
+  state: String
+  latitude: Float
+  longitude: Float
+  timezone: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input VehiclesInput {
+  companyId: Int
+  depotId: Int
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  color: String
+  fuelType: String
+  fuelCapacityGallons: Float
+  odometerMiles: Float
+  engineHours: Float
+  purchaseDate: String
+  registrationExpiry: String
+  insuranceExpiry: String
+  lastServiceDate: String
+  lastServiceMiles: Float
+  nextServiceMiles: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input VehiclesUpdateInput {
+  companyId: Int
+  depotId: Int
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  color: String
+  fuelType: String
+  fuelCapacityGallons: Float
+  odometerMiles: Float
+  engineHours: Float
+  purchaseDate: String
+  registrationExpiry: String
+  insuranceExpiry: String
+  lastServiceDate: String
+  lastServiceMiles: Float
+  nextServiceMiles: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input VehicleSpecsInput {
+  grossVehicleWeightLbs: Int
+  cargoCapacityLbs: Int
+  cargoVolumeCubicFt: Float
+  mpgCity: Float
+  mpgHighway: Float
+  hasGps: Boolean
+  hasEld: Boolean
+  hasCamera: Boolean
+  hasTemperatureControl: Boolean
+  hasLiftgate: Boolean
+}
+
+input VehicleSpecsUpdateInput {
+  grossVehicleWeightLbs: Int
+  cargoCapacityLbs: Int
+  cargoVolumeCubicFt: Float
+  mpgCity: Float
+  mpgHighway: Float
+  hasGps: Boolean
+  hasEld: Boolean
+  hasCamera: Boolean
+  hasTemperatureControl: Boolean
+  hasLiftgate: Boolean
+}
+
+input DriversInput {
+  companyId: Int
+  firstName: String
+  lastName: String
+  phone: String
+  licenseState: String
+  licenseClass: String
+  licenseExpiry: String
+  medicalCertExpiry: String
+  hireDate: String
+  birthDate: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContact: String
+  emergencyPhone: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DriversUpdateInput {
+  companyId: Int
+  firstName: String
+  lastName: String
+  phone: String
+  licenseState: String
+  licenseClass: String
+  licenseExpiry: String
+  medicalCertExpiry: String
+  hireDate: String
+  birthDate: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  emergencyContact: String
+  emergencyPhone: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DriverCertificationsInput {
+  driverId: Int
+  certificationType: String
+  certificationNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingAuthority: String
+}
+
+input DriverCertificationsUpdateInput {
+  driverId: Int
+  certificationType: String
+  certificationNumber: String
+  issueDate: String
+  expiryDate: String
+  issuingAuthority: String
+}
+
+input GpsPositionsInput {
+  vehicleId: Int
+  driverId: Int
+  timestamp: String
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  heading: Int
+  altitudeFeet: Int
+  satellites: Int
+  hdop: Float
+  ignitionOn: Boolean
+  odometerMiles: Float
+  engineHours: Float
+  fuelLevelPercent: Float
+}
+
+input GpsPositionsUpdateInput {
+  vehicleId: Int
+  driverId: Int
+  timestamp: String
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  heading: Int
+  altitudeFeet: Int
+  satellites: Int
+  hdop: Float
+  ignitionOn: Boolean
+  odometerMiles: Float
+  engineHours: Float
+  fuelLevelPercent: Float
+}
+
+input TripsInput {
+  vehicleId: Int
+  driverId: Int
+  startTime: String
+  endTime: String
+  startLocation: String
+  startLatitude: Float
+  startLongitude: Float
+  endLocation: String
+  endLatitude: Float
+  endLongitude: Float
+  distanceMiles: Float
+  durationMinutes: Int
+  maxSpeedMph: Float
+  avgSpeedMph: Float
+  fuelConsumedGallons: Float
+  idleTimeMinutes: Int
+  stopsCount: Int
+  harshEventsCount: Int
+  status: String
+  createdAt: String
+}
+
+input TripsUpdateInput {
+  vehicleId: Int
+  driverId: Int
+  startTime: String
+  endTime: String
+  startLocation: String
+  startLatitude: Float
+  startLongitude: Float
+  endLocation: String
+  endLatitude: Float
+  endLongitude: Float
+  distanceMiles: Float
+  durationMinutes: Int
+  maxSpeedMph: Float
+  avgSpeedMph: Float
+  fuelConsumedGallons: Float
+  idleTimeMinutes: Int
+  stopsCount: Int
+  harshEventsCount: Int
+  status: String
+  createdAt: String
+}
+
+input StopsInput {
+  tripId: Int
+  stopSequence: Int
+  arrivalTime: String
+  departureTime: String
+  latitude: Float
+  longitude: Float
+  address: String
+  stopType: String
+  durationMinutes: Int
+  notes: String
+}
+
+input StopsUpdateInput {
+  tripId: Int
+  stopSequence: Int
+  arrivalTime: String
+  departureTime: String
+  latitude: Float
+  longitude: Float
+  address: String
+  stopType: String
+  durationMinutes: Int
+  notes: String
+}
+
+input DriverEventsInput {
+  vehicleId: Int
+  driverId: Int
+  tripId: Int
+  eventType: String
+  timestamp: String
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  gForce: Float
+  speedLimitMph: Int
+  durationSeconds: Int
+  severity: String
+  createdAt: String
+}
+
+input DriverEventsUpdateInput {
+  vehicleId: Int
+  driverId: Int
+  tripId: Int
+  eventType: String
+  timestamp: String
+  latitude: Float
+  longitude: Float
+  speedMph: Float
+  gForce: Float
+  speedLimitMph: Int
+  durationSeconds: Int
+  severity: String
+  createdAt: String
+}
+
+input DriverScoresInput {
+  driverId: Int
+  scoreDate: String
+  safetyScore: Float
+  fuelEfficiencyScore: Float
+  complianceScore: Float
+  overallScore: Float
+  milesDriven: Float
+  tripsCount: Int
+  harshEventsCount: Int
+  speedingMinutes: Int
+  idleMinutes: Int
+  createdAt: String
+}
+
+input DriverScoresUpdateInput {
+  driverId: Int
+  scoreDate: String
+  safetyScore: Float
+  fuelEfficiencyScore: Float
+  complianceScore: Float
+  overallScore: Float
+  milesDriven: Float
+  tripsCount: Int
+  harshEventsCount: Int
+  speedingMinutes: Int
+  idleMinutes: Int
+  createdAt: String
+}
+
+input RoutesInput {
+  routeName: String
+  depotId: Int
+  totalDistanceMiles: Float
+  estimatedDurationMinutes: Int
+  waypoints: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input RoutesUpdateInput {
+  routeName: String
+  depotId: Int
+  totalDistanceMiles: Float
+  estimatedDurationMinutes: Int
+  waypoints: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input GeofencesInput {
+  companyId: Int
+  geofenceName: String
+  geofenceType: String
+  centerLatitude: Float
+  centerLongitude: Float
+  radiusMeters: Int
+  polygon: JSON
+  alertOnEntry: Boolean
+  alertOnExit: Boolean
+  isActive: Boolean
+  createdAt: String
+}
+
+input GeofencesUpdateInput {
+  companyId: Int
+  geofenceName: String
+  geofenceType: String
+  centerLatitude: Float
+  centerLongitude: Float
+  radiusMeters: Int
+  polygon: JSON
+  alertOnEntry: Boolean
+  alertOnExit: Boolean
+  isActive: Boolean
+  createdAt: String
+}
+
+input GeofenceEventsInput {
+  geofenceId: Int
+  vehicleId: Int
+  driverId: Int
+  eventType: String
+  timestamp: String
+  durationMinutes: Int
+  time: String
+}
+
+input GeofenceEventsUpdateInput {
+  geofenceId: Int
+  vehicleId: Int
+  driverId: Int
+  eventType: String
+  timestamp: String
+  durationMinutes: Int
+  time: String
+}
+
+input FuelTransactionsInput {
+  vehicleId: Int
+  driverId: Int
+  transactionDate: String
+  stationName: String
+  stationAddress: String
+  latitude: Float
+  longitude: Float
+  gallons: Float
+  pricePerGallon: Float
+  totalCost: Float
+  odometerMiles: Float
+  paymentMethod: String
+  receiptNumber: String
+  createdAt: String
+}
+
+input FuelTransactionsUpdateInput {
+  vehicleId: Int
+  driverId: Int
+  transactionDate: String
+  stationName: String
+  stationAddress: String
+  latitude: Float
+  longitude: Float
+  gallons: Float
+  pricePerGallon: Float
+  totalCost: Float
+  odometerMiles: Float
+  paymentMethod: String
+  receiptNumber: String
+  createdAt: String
+}
+
+input MaintenanceRecordsInput {
+  vehicleId: Int
+  maintenanceType: String
+  serviceDate: String
+  odometerMiles: Float
+  engineHours: Float
+  serviceProvider: String
+  description: String
+  partsCost: Float
+  laborCost: Float
+  totalCost: Float
+  nextServiceMiles: Float
+  nextServiceDate: String
+  createdAt: String
+}
+
+input MaintenanceRecordsUpdateInput {
+  vehicleId: Int
+  maintenanceType: String
+  serviceDate: String
+  odometerMiles: Float
+  engineHours: Float
+  serviceProvider: String
+  description: String
+  partsCost: Float
+  laborCost: Float
+  totalCost: Float
+  nextServiceMiles: Float
+  nextServiceDate: String
+  createdAt: String
+}
+
+input VehicleDiagnosticsInput {
+  vehicleId: Int
+  timestamp: String
+  engineRpm: Int
+  engineLoadPercent: Float
+  coolantTempF: Int
+  oilPressurePsi: Float
+  batteryVoltage: Float
+  dtcCodes: JSON
+  createdAt: String
+}
+
+input VehicleDiagnosticsUpdateInput {
+  vehicleId: Int
+  timestamp: String
+  engineRpm: Int
+  engineLoadPercent: Float
+  coolantTempF: Int
+  oilPressurePsi: Float
+  batteryVoltage: Float
+  dtcCodes: JSON
+  createdAt: String
+}
+
+input DriverLogsInput {
+  driverId: Int
+  logDate: String
+  dutyStatus: String
+  startTime: String
+  endTime: String
+  durationMinutes: Int
+  location: String
+  latitude: Float
+  longitude: Float
+  vehicleId: Int
+  odometerStart: Float
+  odometerEnd: Float
+  notes: String
+  certified: Boolean
+  certifiedAt: String
+  createdAt: String
+}
+
+input DriverLogsUpdateInput {
+  driverId: Int
+  logDate: String
+  dutyStatus: String
+  startTime: String
+  endTime: String
+  durationMinutes: Int
+  location: String
+  latitude: Float
+  longitude: Float
+  vehicleId: Int
+  odometerStart: Float
+  odometerEnd: Float
+  notes: String
+  certified: Boolean
+  certifiedAt: String
+  createdAt: String
+}
+
+input HosViolationsInput {
+  driverId: Int
+  violationDate: String
+  violationType: String
+  durationMinutes: Int
+  description: String
+  severity: String
+  resolved: Boolean
+  createdAt: String
+}
+
+input HosViolationsUpdateInput {
+  driverId: Int
+  violationDate: String
+  violationType: String
+  durationMinutes: Int
+  description: String
+  severity: String
+  resolved: Boolean
+  createdAt: String
+}
+
+input DvirReportsInput {
+  vehicleId: Int
+  driverId: Int
+  inspectionDate: String
+  inspectionType: String
+  odometerMiles: Float
+  defectsFound: Boolean
+  defectDetails: JSON
+  signatureDriver: String
+  signatureMechanic: String
+  repaired: Boolean
+  repairDate: String
+  createdAt: String
+}
+
+input DvirReportsUpdateInput {
+  vehicleId: Int
+  driverId: Int
+  inspectionDate: String
+  inspectionType: String
+  odometerMiles: Float
+  defectsFound: Boolean
+  defectDetails: JSON
+  signatureDriver: String
+  signatureMechanic: String
+  repaired: Boolean
+  repairDate: String
+  createdAt: String
+}
+
+input MessagesInput {
+  senderType: String
+  senderId: Int
+  recipientType: String
+  recipientId: Int
+  messageText: String
+  priority: String
+  readStatus: Boolean
+  sentAt: String
+  readAt: String
+}
+
+input MessagesUpdateInput {
+  senderType: String
+  senderId: Int
+  recipientType: String
+  recipientId: Int
+  messageText: String
+  priority: String
+  readStatus: Boolean
+  sentAt: String
+  readAt: String
+}
+
+input VehicleDailySummaryInput {
+  vehicleId: Int
+  summaryDate: String
+  totalMiles: Float
+  totalHours: Float
+  totalTrips: Int
+  totalStops: Int
+  totalFuelGallons: Float
+  avgMpg: Float
+  totalIdleMinutes: Int
+  harshEventsCount: Int
+  maxSpeedMph: Float
+  createdAt: String
+}
+
+input VehicleDailySummaryUpdateInput {
+  vehicleId: Int
+  summaryDate: String
+  totalMiles: Float
+  totalHours: Float
+  totalTrips: Int
+  totalStops: Int
+  totalFuelGallons: Float
+  avgMpg: Float
+  totalIdleMinutes: Int
+  harshEventsCount: Int
+  maxSpeedMph: Float
+  createdAt: String
+}
+
+input GpsPositionsHourlyInput {
+  vehicleId: Int
+  hourTimestamp: String
+  avgSpeedMph: Float
+  maxSpeedMph: Float
+  distanceMiles: Float
+  positionCount: Int
+  idleMinutes: Int
+}
+
+input GpsPositionsHourlyUpdateInput {
+  vehicleId: Int
+  hourTimestamp: String
+  avgSpeedMph: Float
+  maxSpeedMph: Float
+  distanceMiles: Float
+  positionCount: Int
+  idleMinutes: Int
+}
+
+type Query {
+  companie(id: ID!): Companies
+  companies(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Companies!]!
+  companiesCount(filter: String): Int!
+  depot(id: ID!): Depots
+  depots(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Depots!]!
+  depotsCount(filter: String): Int!
+  vehicle(id: ID!): Vehicles
+  vehicles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Vehicles!]!
+  vehiclesCount(filter: String): Int!
+  vehicleSpec(id: ID!): VehicleSpecs
+  vehicleSpecs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VehicleSpecs!]!
+  vehicleSpecsCount(filter: String): Int!
+  driver(id: ID!): Drivers
+  drivers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Drivers!]!
+  driversCount(filter: String): Int!
+  driverCertification(id: ID!): DriverCertifications
+  driverCertifications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DriverCertifications!]!
+  driverCertificationsCount(filter: String): Int!
+  gpsPosition(id: ID!): GpsPositions
+  gpsPositions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GpsPositions!]!
+  gpsPositionsCount(filter: String): Int!
+  trip(id: ID!): Trips
+  trips(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Trips!]!
+  tripsCount(filter: String): Int!
+  stop(id: ID!): Stops
+  stops(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Stops!]!
+  stopsCount(filter: String): Int!
+  driverEvent(id: ID!): DriverEvents
+  driverEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DriverEvents!]!
+  driverEventsCount(filter: String): Int!
+  driverScore(id: ID!): DriverScores
+  driverScores(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DriverScores!]!
+  driverScoresCount(filter: String): Int!
+  route(id: ID!): Routes
+  routes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Routes!]!
+  routesCount(filter: String): Int!
+  geofence(id: ID!): Geofences
+  geofences(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Geofences!]!
+  geofencesCount(filter: String): Int!
+  geofenceEvent(id: ID!): GeofenceEvents
+  geofenceEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GeofenceEvents!]!
+  geofenceEventsCount(filter: String): Int!
+  fuelTransaction(id: ID!): FuelTransactions
+  fuelTransactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FuelTransactions!]!
+  fuelTransactionsCount(filter: String): Int!
+  maintenanceRecord(id: ID!): MaintenanceRecords
+  maintenanceRecords(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MaintenanceRecords!]!
+  maintenanceRecordsCount(filter: String): Int!
+  vehicleDiagnostic(id: ID!): VehicleDiagnostics
+  vehicleDiagnostics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VehicleDiagnostics!]!
+  vehicleDiagnosticsCount(filter: String): Int!
+  driverLog(id: ID!): DriverLogs
+  driverLogs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DriverLogs!]!
+  driverLogsCount(filter: String): Int!
+  hosViolation(id: ID!): HosViolations
+  hosViolations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [HosViolations!]!
+  hosViolationsCount(filter: String): Int!
+  dvirReport(id: ID!): DvirReports
+  dvirReports(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DvirReports!]!
+  dvirReportsCount(filter: String): Int!
+  message(id: ID!): Messages
+  messages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Messages!]!
+  messagesCount(filter: String): Int!
+  vehicleDailySummary(id: ID!): VehicleDailySummary
+  vehicleDailySummary(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VehicleDailySummary!]!
+  vehicleDailySummaryCount(filter: String): Int!
+  gpsPositionsHourly(id: ID!): GpsPositionsHourly
+  gpsPositionsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GpsPositionsHourly!]!
+  gpsPositionsHourlyCount(filter: String): Int!
+}
+
+type Mutation {
+  createCompanies(input: CompaniesInput!): Companies!
+  updateCompanies(id: ID!, input: CompaniesUpdateInput!): Companies!
+  deleteCompanies(id: ID!): Boolean!
+  createCompaniesBatch(input: [CompaniesInput!]!): [Companies!]!
+  createDepots(input: DepotsInput!): Depots!
+  updateDepots(id: ID!, input: DepotsUpdateInput!): Depots!
+  deleteDepots(id: ID!): Boolean!
+  createDepotsBatch(input: [DepotsInput!]!): [Depots!]!
+  createVehicles(input: VehiclesInput!): Vehicles!
+  updateVehicles(id: ID!, input: VehiclesUpdateInput!): Vehicles!
+  deleteVehicles(id: ID!): Boolean!
+  createVehiclesBatch(input: [VehiclesInput!]!): [Vehicles!]!
+  createVehicleSpecs(input: VehicleSpecsInput!): VehicleSpecs!
+  updateVehicleSpecs(id: ID!, input: VehicleSpecsUpdateInput!): VehicleSpecs!
+  deleteVehicleSpecs(id: ID!): Boolean!
+  createVehicleSpecsBatch(input: [VehicleSpecsInput!]!): [VehicleSpecs!]!
+  createDrivers(input: DriversInput!): Drivers!
+  updateDrivers(id: ID!, input: DriversUpdateInput!): Drivers!
+  deleteDrivers(id: ID!): Boolean!
+  createDriversBatch(input: [DriversInput!]!): [Drivers!]!
+  createDriverCertifications(input: DriverCertificationsInput!): DriverCertifications!
+  updateDriverCertifications(id: ID!, input: DriverCertificationsUpdateInput!): DriverCertifications!
+  deleteDriverCertifications(id: ID!): Boolean!
+  createDriverCertificationsBatch(input: [DriverCertificationsInput!]!): [DriverCertifications!]!
+  createGpsPositions(input: GpsPositionsInput!): GpsPositions!
+  updateGpsPositions(id: ID!, input: GpsPositionsUpdateInput!): GpsPositions!
+  deleteGpsPositions(id: ID!): Boolean!
+  createGpsPositionsBatch(input: [GpsPositionsInput!]!): [GpsPositions!]!
+  createTrips(input: TripsInput!): Trips!
+  updateTrips(id: ID!, input: TripsUpdateInput!): Trips!
+  deleteTrips(id: ID!): Boolean!
+  createTripsBatch(input: [TripsInput!]!): [Trips!]!
+  createStops(input: StopsInput!): Stops!
+  updateStops(id: ID!, input: StopsUpdateInput!): Stops!
+  deleteStops(id: ID!): Boolean!
+  createStopsBatch(input: [StopsInput!]!): [Stops!]!
+  createDriverEvents(input: DriverEventsInput!): DriverEvents!
+  updateDriverEvents(id: ID!, input: DriverEventsUpdateInput!): DriverEvents!
+  deleteDriverEvents(id: ID!): Boolean!
+  createDriverEventsBatch(input: [DriverEventsInput!]!): [DriverEvents!]!
+  createDriverScores(input: DriverScoresInput!): DriverScores!
+  updateDriverScores(id: ID!, input: DriverScoresUpdateInput!): DriverScores!
+  deleteDriverScores(id: ID!): Boolean!
+  createDriverScoresBatch(input: [DriverScoresInput!]!): [DriverScores!]!
+  createRoutes(input: RoutesInput!): Routes!
+  updateRoutes(id: ID!, input: RoutesUpdateInput!): Routes!
+  deleteRoutes(id: ID!): Boolean!
+  createRoutesBatch(input: [RoutesInput!]!): [Routes!]!
+  createGeofences(input: GeofencesInput!): Geofences!
+  updateGeofences(id: ID!, input: GeofencesUpdateInput!): Geofences!
+  deleteGeofences(id: ID!): Boolean!
+  createGeofencesBatch(input: [GeofencesInput!]!): [Geofences!]!
+  createGeofenceEvents(input: GeofenceEventsInput!): GeofenceEvents!
+  updateGeofenceEvents(id: ID!, input: GeofenceEventsUpdateInput!): GeofenceEvents!
+  deleteGeofenceEvents(id: ID!): Boolean!
+  createGeofenceEventsBatch(input: [GeofenceEventsInput!]!): [GeofenceEvents!]!
+  createFuelTransactions(input: FuelTransactionsInput!): FuelTransactions!
+  updateFuelTransactions(id: ID!, input: FuelTransactionsUpdateInput!): FuelTransactions!
+  deleteFuelTransactions(id: ID!): Boolean!
+  createFuelTransactionsBatch(input: [FuelTransactionsInput!]!): [FuelTransactions!]!
+  createMaintenanceRecords(input: MaintenanceRecordsInput!): MaintenanceRecords!
+  updateMaintenanceRecords(id: ID!, input: MaintenanceRecordsUpdateInput!): MaintenanceRecords!
+  deleteMaintenanceRecords(id: ID!): Boolean!
+  createMaintenanceRecordsBatch(input: [MaintenanceRecordsInput!]!): [MaintenanceRecords!]!
+  createVehicleDiagnostics(input: VehicleDiagnosticsInput!): VehicleDiagnostics!
+  updateVehicleDiagnostics(id: ID!, input: VehicleDiagnosticsUpdateInput!): VehicleDiagnostics!
+  deleteVehicleDiagnostics(id: ID!): Boolean!
+  createVehicleDiagnosticsBatch(input: [VehicleDiagnosticsInput!]!): [VehicleDiagnostics!]!
+  createDriverLogs(input: DriverLogsInput!): DriverLogs!
+  updateDriverLogs(id: ID!, input: DriverLogsUpdateInput!): DriverLogs!
+  deleteDriverLogs(id: ID!): Boolean!
+  createDriverLogsBatch(input: [DriverLogsInput!]!): [DriverLogs!]!
+  createHosViolations(input: HosViolationsInput!): HosViolations!
+  updateHosViolations(id: ID!, input: HosViolationsUpdateInput!): HosViolations!
+  deleteHosViolations(id: ID!): Boolean!
+  createHosViolationsBatch(input: [HosViolationsInput!]!): [HosViolations!]!
+  createDvirReports(input: DvirReportsInput!): DvirReports!
+  updateDvirReports(id: ID!, input: DvirReportsUpdateInput!): DvirReports!
+  deleteDvirReports(id: ID!): Boolean!
+  createDvirReportsBatch(input: [DvirReportsInput!]!): [DvirReports!]!
+  createMessages(input: MessagesInput!): Messages!
+  updateMessages(id: ID!, input: MessagesUpdateInput!): Messages!
+  deleteMessages(id: ID!): Boolean!
+  createMessagesBatch(input: [MessagesInput!]!): [Messages!]!
+  createVehicleDailySummary(input: VehicleDailySummaryInput!): VehicleDailySummary!
+  updateVehicleDailySummary(id: ID!, input: VehicleDailySummaryUpdateInput!): VehicleDailySummary!
+  deleteVehicleDailySummary(id: ID!): Boolean!
+  createVehicleDailySummaryBatch(input: [VehicleDailySummaryInput!]!): [VehicleDailySummary!]!
+  createGpsPositionsHourly(input: GpsPositionsHourlyInput!): GpsPositionsHourly!
+  updateGpsPositionsHourly(id: ID!, input: GpsPositionsHourlyUpdateInput!): GpsPositionsHourly!
+  deleteGpsPositionsHourly(id: ID!): Boolean!
+  createGpsPositionsHourlyBatch(input: [GpsPositionsHourlyInput!]!): [GpsPositionsHourly!]!
+}

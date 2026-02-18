@@ -1,0 +1,144 @@
+version: '3.8'
+
+# Educational Platform Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3320 (user: root, password: education_root)
+#   - phpMyAdmin: http://localhost:8096
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: education_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: education_root
+      MYSQL_DATABASE: education_db
+      MYSQL_USER: education_user
+      MYSQL_PASSWORD: education_pass
+    ports:
+      - "3320:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - education_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - education_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+      - --max_connections=1000
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: education_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: education_root
+    ports:
+      - "8096:80"
+    networks:
+      - education_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: education_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: education_db
+      MYSQL_USER: education_user
+      MYSQL_PASSWORD: education_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Education specific settings
+      STUDENT_COUNT: ${STUDENT_COUNT:-5000}
+      TEACHER_COUNT: ${TEACHER_COUNT:-200}
+      COURSE_COUNT: ${COURSE_COUNT:-500}
+      SEMESTER: ${SEMESTER:-fall2024}
+      GENERATE_GRADES: ${GENERATE_GRADES:-true}
+    volumes:
+      - ../generators/education:/app
+      - education_generator_output:/app/output
+    networks:
+      - education_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating education platform data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Redis for session management
+  redis:
+    image: redis:7-alpine
+    container_name: education_redis
+    restart: unless-stopped
+    ports:
+      - "6386:6379"
+    networks:
+      - education_network
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # Optional: MinIO for file storage (assignments, materials)
+  minio:
+    image: minio/minio:latest
+    container_name: education_minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"  # Console
+    environment:
+      MINIO_ROOT_USER: education_admin
+      MINIO_ROOT_PASSWORD: education_admin_pass
+    volumes:
+      - education_minio_data:/data
+    networks:
+      - education_network
+    profiles:
+      - storage
+    command: server /data --console-address ":9001"
+
+  # Optional: BigBlueButton for video conferencing (placeholder)
+  # Note: BBB requires complex setup, this is just a placeholder
+  # video_conferencing:
+  #   image: bigbluebutton/bigbluebutton:latest
+  #   container_name: education_bbb
+  #   profiles:
+  #     - video
+
+volumes:
+  education_mysql_data:
+    name: education_mysql_data
+  education_generator_output:
+    name: education_generator_output
+  education_minio_data:
+    name: education_minio_data
+
+networks:
+  education_network:
+    name: education_network
+    driver: bridge

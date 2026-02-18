@@ -1,0 +1,138 @@
+version: '3.8'
+
+# Healthcare IoT Patient Monitoring System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3314 (user: root, password: healthcare_root)
+#   - phpMyAdmin: http://localhost:8089
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: healthcare_iot_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: healthcare_root
+      MYSQL_DATABASE: healthcare_iot_db
+      MYSQL_USER: healthcare_user
+      MYSQL_PASSWORD: healthcare_pass
+    ports:
+      - "3314:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - healthcare_iot_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - healthcare_iot_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=3G
+      - --max_connections=1000
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: healthcare_iot_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: healthcare_root
+    ports:
+      - "8089:80"
+    networks:
+      - healthcare_iot_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: healthcare_iot_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: healthcare_iot_db
+      MYSQL_USER: healthcare_user
+      MYSQL_PASSWORD: healthcare_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Healthcare IoT specific settings
+      PATIENT_COUNT: ${PATIENT_COUNT:-100}
+      DEVICE_TYPES: ${DEVICE_TYPES:-all}
+      ALERT_SIMULATION: ${ALERT_SIMULATION:-true}
+      COMPLIANCE_MODE: ${COMPLIANCE_MODE:-hipaa}
+    volumes:
+      - ../generators/healthcare_iot:/app
+      - healthcare_iot_generator_output:/app/output
+    networks:
+      - healthcare_iot_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating healthcare IoT data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: Alert processing service
+  alert_processor:
+    build:
+      context: ./services/alert_processor
+      dockerfile: Dockerfile
+    container_name: healthcare_alert_processor
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: healthcare_iot_db
+      MYSQL_USER: healthcare_user
+      MYSQL_PASSWORD: healthcare_pass
+      REDIS_HOST: redis
+      ALERT_THRESHOLD: ${ALERT_THRESHOLD:-0.8}
+    networks:
+      - healthcare_iot_network
+    profiles:
+      - services
+    restart: unless-stopped
+
+  # Redis for alert caching
+  redis:
+    image: redis:7-alpine
+    container_name: healthcare_redis
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    networks:
+      - healthcare_iot_network
+    profiles:
+      - services
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+volumes:
+  healthcare_iot_mysql_data:
+    name: healthcare_iot_mysql_data
+  healthcare_iot_generator_output:
+    name: healthcare_iot_generator_output
+
+networks:
+  healthcare_iot_network:
+    name: healthcare_iot_network
+    driver: bridge

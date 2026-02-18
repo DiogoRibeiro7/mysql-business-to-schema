@@ -1,0 +1,115 @@
+version: '3.8'
+
+# Smart Energy Grid Management System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3310 (user: root, password: energy_root)
+#   - phpMyAdmin: http://localhost:8084
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smart_energy_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: energy_root
+      MYSQL_DATABASE: smart_energy_db
+      MYSQL_USER: energy_user
+      MYSQL_PASSWORD: energy_pass
+    ports:
+      - "3310:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - smart_energy_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - smart_energy_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+      - --max_connections=500
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: smart_energy_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: energy_root
+    ports:
+      - "8084:80"
+    networks:
+      - smart_energy_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: smart_energy_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: smart_energy_db
+      MYSQL_USER: energy_user
+      MYSQL_PASSWORD: energy_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Energy grid specific settings
+      GRID_SIZE: ${GRID_SIZE:-medium}
+      PEAK_SIMULATION: ${PEAK_SIMULATION:-true}
+      RENEWABLE_PERCENTAGE: ${RENEWABLE_PERCENTAGE:-30}
+    volumes:
+      - ../generators/smart_energy:/app
+      - smart_energy_generator_output:/app/output
+    networks:
+      - smart_energy_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating smart energy grid data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: Redis for real-time data caching
+  redis:
+    image: redis:7-alpine
+    container_name: smart_energy_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    networks:
+      - smart_energy_network
+    profiles:
+      - cache
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+volumes:
+  smart_energy_mysql_data:
+    name: smart_energy_mysql_data
+  smart_energy_generator_output:
+    name: smart_energy_generator_output
+
+networks:
+  smart_energy_network:
+    name: smart_energy_network
+    driver: bridge

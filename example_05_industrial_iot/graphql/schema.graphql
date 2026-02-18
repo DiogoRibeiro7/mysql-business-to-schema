@@ -1,0 +1,1025 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.870672
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Factories {
+  factoryName: String!
+  factoryType: String
+  location: String!
+  country: String!
+  timezone: String
+  establishedDate: String
+  totalAreaSqm: Float
+  employeeCount: Int
+  shiftsPerDay: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductionLines {
+  factoryId: Int!
+  lineName: String!
+  lineType: String
+  capacityPerHour: Int
+  productTypes: JSON
+  installationDate: String
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Machines {
+  lineId: Int!
+  machineName: String!
+  machineType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  installationDate: String
+  warrantyExpiry: String
+  idealCycleTimeSeconds: Float
+  maxCapacityPerHour: Int
+  powerConsumptionKw: Float
+  status: String
+  totalOperatingHours: Float
+  totalCycleCount: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Sensors {
+  machineId: Int!
+  sensorType: String
+  unitOfMeasure: String!
+  minValue: Float
+  maxValue: Float
+  normalMin: Float
+  normalMax: Float
+  criticalMin: Float
+  criticalMax: Float
+  samplingRateSeconds: Int
+  calibrationDate: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadings {
+  readingId: String
+  sensorId: Int!
+  timestamp: String!
+  value: Float
+  quality: String
+}
+
+type Products {
+  productName: String!
+  productCategory: String
+  unitOfMeasure: String
+  standardCycleTimeSeconds: Float
+  weightKg: Float
+  qualitySpecs: JSON
+  bom: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type WorkOrders {
+  productId: Int!
+  lineId: Int!
+  plannedQuantity: Int!
+  plannedStartTime: String!
+  plannedEndTime: String!
+  actualStartTime: String
+  actualEndTime: String
+  producedQuantity: Int
+  goodQuantity: Int
+  rejectedQuantity: Int
+  status: String
+  priority: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductionRuns {
+  orderId: Int!
+  machineId: Int!
+  operatorId: Int
+  startTime: String!
+  endTime: String
+  quantityProduced: Int
+  quantityGood: Int
+  quantityRejected: Int
+  cycleTimeActual: Float
+  downtimeMinutes: Float
+  speedPercentage: Float
+  notes: String
+}
+
+type QualityInspections {
+  runId: String!
+  productId: Int!
+  inspectionTime: String!
+  inspectorId: Int
+  sampleSize: Int
+  defectsFound: Int
+  defectTypes: JSON
+  measurements: JSON
+  passFail: String
+  notes: String
+}
+
+type Defects {
+  inspectionId: Int!
+  defectType: String!
+  severity: String
+  quantity: Int
+  rootCause: String
+  correctiveAction: String
+  imageUrl: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OeeMetrics {
+  machineId: Int!
+  lineId: Int!
+  metricTimestamp: String!
+  hourStart: String!
+  hourEnd: String!
+  plannedProductionTimeMin: Float
+  operatingTimeMin: Float
+  downtimeMin: Float
+  availabilityPercentage: Float
+  idealCycleTimeSec: Float
+  totalPiecesProduced: Int
+  performancePercentage: Float
+  goodPieces: Int
+  totalPieces: Int
+  qualityPercentage: Float
+  oeePercentage: Float
+}
+
+type MaintenanceSchedules {
+  machineId: Int!
+  maintenanceType: String
+  frequencyDays: Int
+  lastPerformed: String
+  nextDue: String
+  estimatedDurationHours: Float
+  partsRequired: JSON
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MaintenanceRecords {
+  machineId: Int!
+  scheduleId: Int
+  maintenanceType: String
+  startTime: String!
+  endTime: String
+  technicianId: Int
+  downtimeMinutes: Float
+  partsReplaced: JSON
+  cost: Float
+  findings: String
+  actionsTaken: String
+  nextAction: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Alerts {
+  sourceType: String
+  sourceId: Int!
+  alertType: String!
+  severity: String
+  message: String!
+  thresholdValue: Float
+  actualValue: Float
+  triggeredAt: String!
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  resolutionNotes: String
+}
+
+type DowntimeEvents {
+  machineId: Int!
+  lineId: Int!
+  startTime: String!
+  endTime: String
+  durationMinutes: Float
+  reasonCategory: String
+  reasonDetail: String
+  impactLevel: String
+  lostProductionUnits: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Operators {
+  firstName: String!
+  lastName: String!
+  phone: String
+  shift: String
+  skillLevel: String
+  certifications: JSON
+  factoryId: Int!
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ShiftLogs {
+  shiftDate: String!
+  shiftType: String
+  lineId: Int!
+  supervisorId: Int
+  operatorsCount: Int
+  productionTarget: Int
+  productionActual: Int
+  oeeTarget: Float
+  oeeActual: Float
+  safetyIncidents: Int
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadingsHourly {
+  sensorId: Int!
+  hourTimestamp: String!
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+# Input Types
+
+input FactoriesInput {
+  factoryName: String
+  factoryType: String
+  location: String
+  country: String
+  timezone: String
+  establishedDate: String
+  totalAreaSqm: Float
+  employeeCount: Int
+  shiftsPerDay: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input FactoriesUpdateInput {
+  factoryName: String
+  factoryType: String
+  location: String
+  country: String
+  timezone: String
+  establishedDate: String
+  totalAreaSqm: Float
+  employeeCount: Int
+  shiftsPerDay: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductionLinesInput {
+  factoryId: Int
+  lineName: String
+  lineType: String
+  capacityPerHour: Int
+  productTypes: JSON
+  installationDate: String
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductionLinesUpdateInput {
+  factoryId: Int
+  lineName: String
+  lineType: String
+  capacityPerHour: Int
+  productTypes: JSON
+  installationDate: String
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input MachinesInput {
+  lineId: Int
+  machineName: String
+  machineType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  installationDate: String
+  warrantyExpiry: String
+  idealCycleTimeSeconds: Float
+  maxCapacityPerHour: Int
+  powerConsumptionKw: Float
+  status: String
+  totalOperatingHours: Float
+  totalCycleCount: String
+  createdAt: String
+  updatedAt: String
+}
+
+input MachinesUpdateInput {
+  lineId: Int
+  machineName: String
+  machineType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  installationDate: String
+  warrantyExpiry: String
+  idealCycleTimeSeconds: Float
+  maxCapacityPerHour: Int
+  powerConsumptionKw: Float
+  status: String
+  totalOperatingHours: Float
+  totalCycleCount: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SensorsInput {
+  machineId: Int
+  sensorType: String
+  unitOfMeasure: String
+  minValue: Float
+  maxValue: Float
+  normalMin: Float
+  normalMax: Float
+  criticalMin: Float
+  criticalMax: Float
+  samplingRateSeconds: Int
+  calibrationDate: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input SensorsUpdateInput {
+  machineId: Int
+  sensorType: String
+  unitOfMeasure: String
+  minValue: Float
+  maxValue: Float
+  normalMin: Float
+  normalMax: Float
+  criticalMin: Float
+  criticalMax: Float
+  samplingRateSeconds: Int
+  calibrationDate: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input SensorReadingsInput {
+  sensorId: Int
+  timestamp: String
+  value: Float
+  quality: String
+}
+
+input SensorReadingsUpdateInput {
+  sensorId: Int
+  timestamp: String
+  value: Float
+  quality: String
+}
+
+input ProductsInput {
+  productName: String
+  productCategory: String
+  unitOfMeasure: String
+  standardCycleTimeSeconds: Float
+  weightKg: Float
+  qualitySpecs: JSON
+  bom: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductsUpdateInput {
+  productName: String
+  productCategory: String
+  unitOfMeasure: String
+  standardCycleTimeSeconds: Float
+  weightKg: Float
+  qualitySpecs: JSON
+  bom: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input WorkOrdersInput {
+  productId: Int
+  lineId: Int
+  plannedQuantity: Int
+  plannedStartTime: String
+  plannedEndTime: String
+  actualStartTime: String
+  actualEndTime: String
+  producedQuantity: Int
+  goodQuantity: Int
+  rejectedQuantity: Int
+  status: String
+  priority: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input WorkOrdersUpdateInput {
+  productId: Int
+  lineId: Int
+  plannedQuantity: Int
+  plannedStartTime: String
+  plannedEndTime: String
+  actualStartTime: String
+  actualEndTime: String
+  producedQuantity: Int
+  goodQuantity: Int
+  rejectedQuantity: Int
+  status: String
+  priority: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductionRunsInput {
+  orderId: Int
+  machineId: Int
+  operatorId: Int
+  startTime: String
+  endTime: String
+  quantityProduced: Int
+  quantityGood: Int
+  quantityRejected: Int
+  cycleTimeActual: Float
+  downtimeMinutes: Float
+  speedPercentage: Float
+  notes: String
+}
+
+input ProductionRunsUpdateInput {
+  orderId: Int
+  machineId: Int
+  operatorId: Int
+  startTime: String
+  endTime: String
+  quantityProduced: Int
+  quantityGood: Int
+  quantityRejected: Int
+  cycleTimeActual: Float
+  downtimeMinutes: Float
+  speedPercentage: Float
+  notes: String
+}
+
+input QualityInspectionsInput {
+  runId: String
+  productId: Int
+  inspectionTime: String
+  inspectorId: Int
+  sampleSize: Int
+  defectsFound: Int
+  defectTypes: JSON
+  measurements: JSON
+  passFail: String
+  notes: String
+}
+
+input QualityInspectionsUpdateInput {
+  runId: String
+  productId: Int
+  inspectionTime: String
+  inspectorId: Int
+  sampleSize: Int
+  defectsFound: Int
+  defectTypes: JSON
+  measurements: JSON
+  passFail: String
+  notes: String
+}
+
+input DefectsInput {
+  inspectionId: Int
+  defectType: String
+  severity: String
+  quantity: Int
+  rootCause: String
+  correctiveAction: String
+  imageUrl: String
+  createdAt: String
+}
+
+input DefectsUpdateInput {
+  inspectionId: Int
+  defectType: String
+  severity: String
+  quantity: Int
+  rootCause: String
+  correctiveAction: String
+  imageUrl: String
+  createdAt: String
+}
+
+input OeeMetricsInput {
+  machineId: Int
+  lineId: Int
+  metricTimestamp: String
+  hourStart: String
+  hourEnd: String
+  plannedProductionTimeMin: Float
+  operatingTimeMin: Float
+  downtimeMin: Float
+  availabilityPercentage: Float
+  idealCycleTimeSec: Float
+  totalPiecesProduced: Int
+  performancePercentage: Float
+  goodPieces: Int
+  totalPieces: Int
+  qualityPercentage: Float
+  oeePercentage: Float
+}
+
+input OeeMetricsUpdateInput {
+  machineId: Int
+  lineId: Int
+  metricTimestamp: String
+  hourStart: String
+  hourEnd: String
+  plannedProductionTimeMin: Float
+  operatingTimeMin: Float
+  downtimeMin: Float
+  availabilityPercentage: Float
+  idealCycleTimeSec: Float
+  totalPiecesProduced: Int
+  performancePercentage: Float
+  goodPieces: Int
+  totalPieces: Int
+  qualityPercentage: Float
+  oeePercentage: Float
+}
+
+input MaintenanceSchedulesInput {
+  machineId: Int
+  maintenanceType: String
+  frequencyDays: Int
+  lastPerformed: String
+  nextDue: String
+  estimatedDurationHours: Float
+  partsRequired: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input MaintenanceSchedulesUpdateInput {
+  machineId: Int
+  maintenanceType: String
+  frequencyDays: Int
+  lastPerformed: String
+  nextDue: String
+  estimatedDurationHours: Float
+  partsRequired: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input MaintenanceRecordsInput {
+  machineId: Int
+  scheduleId: Int
+  maintenanceType: String
+  startTime: String
+  endTime: String
+  technicianId: Int
+  downtimeMinutes: Float
+  partsReplaced: JSON
+  cost: Float
+  findings: String
+  actionsTaken: String
+  nextAction: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input MaintenanceRecordsUpdateInput {
+  machineId: Int
+  scheduleId: Int
+  maintenanceType: String
+  startTime: String
+  endTime: String
+  technicianId: Int
+  downtimeMinutes: Float
+  partsReplaced: JSON
+  cost: Float
+  findings: String
+  actionsTaken: String
+  nextAction: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertsInput {
+  sourceType: String
+  sourceId: Int
+  alertType: String
+  severity: String
+  message: String
+  thresholdValue: Float
+  actualValue: Float
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  resolutionNotes: String
+}
+
+input AlertsUpdateInput {
+  sourceType: String
+  sourceId: Int
+  alertType: String
+  severity: String
+  message: String
+  thresholdValue: Float
+  actualValue: Float
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  resolutionNotes: String
+}
+
+input DowntimeEventsInput {
+  machineId: Int
+  lineId: Int
+  startTime: String
+  endTime: String
+  durationMinutes: Float
+  reasonCategory: String
+  reasonDetail: String
+  impactLevel: String
+  lostProductionUnits: Int
+  createdAt: String
+}
+
+input DowntimeEventsUpdateInput {
+  machineId: Int
+  lineId: Int
+  startTime: String
+  endTime: String
+  durationMinutes: Float
+  reasonCategory: String
+  reasonDetail: String
+  impactLevel: String
+  lostProductionUnits: Int
+  createdAt: String
+}
+
+input OperatorsInput {
+  firstName: String
+  lastName: String
+  phone: String
+  shift: String
+  skillLevel: String
+  certifications: JSON
+  factoryId: Int
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input OperatorsUpdateInput {
+  firstName: String
+  lastName: String
+  phone: String
+  shift: String
+  skillLevel: String
+  certifications: JSON
+  factoryId: Int
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input ShiftLogsInput {
+  shiftDate: String
+  shiftType: String
+  lineId: Int
+  supervisorId: Int
+  operatorsCount: Int
+  productionTarget: Int
+  productionActual: Int
+  oeeTarget: Float
+  oeeActual: Float
+  safetyIncidents: Int
+  notes: String
+  createdAt: String
+}
+
+input ShiftLogsUpdateInput {
+  shiftDate: String
+  shiftType: String
+  lineId: Int
+  supervisorId: Int
+  operatorsCount: Int
+  productionTarget: Int
+  productionActual: Int
+  oeeTarget: Float
+  oeeActual: Float
+  safetyIncidents: Int
+  notes: String
+  createdAt: String
+}
+
+input SensorReadingsHourlyInput {
+  sensorId: Int
+  hourTimestamp: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+input SensorReadingsHourlyUpdateInput {
+  sensorId: Int
+  hourTimestamp: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+type Query {
+  factorie(id: ID!): Factories
+  factories(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Factories!]!
+  factoriesCount(filter: String): Int!
+  productionLine(id: ID!): ProductionLines
+  productionLines(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductionLines!]!
+  productionLinesCount(filter: String): Int!
+  machine(id: ID!): Machines
+  machines(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Machines!]!
+  machinesCount(filter: String): Int!
+  sensor(id: ID!): Sensors
+  sensors(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Sensors!]!
+  sensorsCount(filter: String): Int!
+  sensorReading(id: ID!): SensorReadings
+  sensorReadings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadings!]!
+  sensorReadingsCount(filter: String): Int!
+  product(id: ID!): Products
+  products(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Products!]!
+  productsCount(filter: String): Int!
+  workOrder(id: ID!): WorkOrders
+  workOrders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WorkOrders!]!
+  workOrdersCount(filter: String): Int!
+  productionRun(id: ID!): ProductionRuns
+  productionRuns(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductionRuns!]!
+  productionRunsCount(filter: String): Int!
+  qualityInspection(id: ID!): QualityInspections
+  qualityInspections(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [QualityInspections!]!
+  qualityInspectionsCount(filter: String): Int!
+  defect(id: ID!): Defects
+  defects(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Defects!]!
+  defectsCount(filter: String): Int!
+  oeeMetric(id: ID!): OeeMetrics
+  oeeMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [OeeMetrics!]!
+  oeeMetricsCount(filter: String): Int!
+  maintenanceSchedule(id: ID!): MaintenanceSchedules
+  maintenanceSchedules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MaintenanceSchedules!]!
+  maintenanceSchedulesCount(filter: String): Int!
+  maintenanceRecord(id: ID!): MaintenanceRecords
+  maintenanceRecords(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MaintenanceRecords!]!
+  maintenanceRecordsCount(filter: String): Int!
+  alert(id: ID!): Alerts
+  alerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Alerts!]!
+  alertsCount(filter: String): Int!
+  downtimeEvent(id: ID!): DowntimeEvents
+  downtimeEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DowntimeEvents!]!
+  downtimeEventsCount(filter: String): Int!
+  operator(id: ID!): Operators
+  operators(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Operators!]!
+  operatorsCount(filter: String): Int!
+  shiftLog(id: ID!): ShiftLogs
+  shiftLogs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ShiftLogs!]!
+  shiftLogsCount(filter: String): Int!
+  sensorReadingsHourly(id: ID!): SensorReadingsHourly
+  sensorReadingsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadingsHourly!]!
+  sensorReadingsHourlyCount(filter: String): Int!
+}
+
+type Mutation {
+  createFactories(input: FactoriesInput!): Factories!
+  updateFactories(id: ID!, input: FactoriesUpdateInput!): Factories!
+  deleteFactories(id: ID!): Boolean!
+  createFactoriesBatch(input: [FactoriesInput!]!): [Factories!]!
+  createProductionLines(input: ProductionLinesInput!): ProductionLines!
+  updateProductionLines(id: ID!, input: ProductionLinesUpdateInput!): ProductionLines!
+  deleteProductionLines(id: ID!): Boolean!
+  createProductionLinesBatch(input: [ProductionLinesInput!]!): [ProductionLines!]!
+  createMachines(input: MachinesInput!): Machines!
+  updateMachines(id: ID!, input: MachinesUpdateInput!): Machines!
+  deleteMachines(id: ID!): Boolean!
+  createMachinesBatch(input: [MachinesInput!]!): [Machines!]!
+  createSensors(input: SensorsInput!): Sensors!
+  updateSensors(id: ID!, input: SensorsUpdateInput!): Sensors!
+  deleteSensors(id: ID!): Boolean!
+  createSensorsBatch(input: [SensorsInput!]!): [Sensors!]!
+  createSensorReadings(input: SensorReadingsInput!): SensorReadings!
+  updateSensorReadings(id: ID!, input: SensorReadingsUpdateInput!): SensorReadings!
+  deleteSensorReadings(id: ID!): Boolean!
+  createSensorReadingsBatch(input: [SensorReadingsInput!]!): [SensorReadings!]!
+  createProducts(input: ProductsInput!): Products!
+  updateProducts(id: ID!, input: ProductsUpdateInput!): Products!
+  deleteProducts(id: ID!): Boolean!
+  createProductsBatch(input: [ProductsInput!]!): [Products!]!
+  createWorkOrders(input: WorkOrdersInput!): WorkOrders!
+  updateWorkOrders(id: ID!, input: WorkOrdersUpdateInput!): WorkOrders!
+  deleteWorkOrders(id: ID!): Boolean!
+  createWorkOrdersBatch(input: [WorkOrdersInput!]!): [WorkOrders!]!
+  createProductionRuns(input: ProductionRunsInput!): ProductionRuns!
+  updateProductionRuns(id: ID!, input: ProductionRunsUpdateInput!): ProductionRuns!
+  deleteProductionRuns(id: ID!): Boolean!
+  createProductionRunsBatch(input: [ProductionRunsInput!]!): [ProductionRuns!]!
+  createQualityInspections(input: QualityInspectionsInput!): QualityInspections!
+  updateQualityInspections(id: ID!, input: QualityInspectionsUpdateInput!): QualityInspections!
+  deleteQualityInspections(id: ID!): Boolean!
+  createQualityInspectionsBatch(input: [QualityInspectionsInput!]!): [QualityInspections!]!
+  createDefects(input: DefectsInput!): Defects!
+  updateDefects(id: ID!, input: DefectsUpdateInput!): Defects!
+  deleteDefects(id: ID!): Boolean!
+  createDefectsBatch(input: [DefectsInput!]!): [Defects!]!
+  createOeeMetrics(input: OeeMetricsInput!): OeeMetrics!
+  updateOeeMetrics(id: ID!, input: OeeMetricsUpdateInput!): OeeMetrics!
+  deleteOeeMetrics(id: ID!): Boolean!
+  createOeeMetricsBatch(input: [OeeMetricsInput!]!): [OeeMetrics!]!
+  createMaintenanceSchedules(input: MaintenanceSchedulesInput!): MaintenanceSchedules!
+  updateMaintenanceSchedules(id: ID!, input: MaintenanceSchedulesUpdateInput!): MaintenanceSchedules!
+  deleteMaintenanceSchedules(id: ID!): Boolean!
+  createMaintenanceSchedulesBatch(input: [MaintenanceSchedulesInput!]!): [MaintenanceSchedules!]!
+  createMaintenanceRecords(input: MaintenanceRecordsInput!): MaintenanceRecords!
+  updateMaintenanceRecords(id: ID!, input: MaintenanceRecordsUpdateInput!): MaintenanceRecords!
+  deleteMaintenanceRecords(id: ID!): Boolean!
+  createMaintenanceRecordsBatch(input: [MaintenanceRecordsInput!]!): [MaintenanceRecords!]!
+  createAlerts(input: AlertsInput!): Alerts!
+  updateAlerts(id: ID!, input: AlertsUpdateInput!): Alerts!
+  deleteAlerts(id: ID!): Boolean!
+  createAlertsBatch(input: [AlertsInput!]!): [Alerts!]!
+  createDowntimeEvents(input: DowntimeEventsInput!): DowntimeEvents!
+  updateDowntimeEvents(id: ID!, input: DowntimeEventsUpdateInput!): DowntimeEvents!
+  deleteDowntimeEvents(id: ID!): Boolean!
+  createDowntimeEventsBatch(input: [DowntimeEventsInput!]!): [DowntimeEvents!]!
+  createOperators(input: OperatorsInput!): Operators!
+  updateOperators(id: ID!, input: OperatorsUpdateInput!): Operators!
+  deleteOperators(id: ID!): Boolean!
+  createOperatorsBatch(input: [OperatorsInput!]!): [Operators!]!
+  createShiftLogs(input: ShiftLogsInput!): ShiftLogs!
+  updateShiftLogs(id: ID!, input: ShiftLogsUpdateInput!): ShiftLogs!
+  deleteShiftLogs(id: ID!): Boolean!
+  createShiftLogsBatch(input: [ShiftLogsInput!]!): [ShiftLogs!]!
+  createSensorReadingsHourly(input: SensorReadingsHourlyInput!): SensorReadingsHourly!
+  updateSensorReadingsHourly(id: ID!, input: SensorReadingsHourlyUpdateInput!): SensorReadingsHourly!
+  deleteSensorReadingsHourly(id: ID!): Boolean!
+  createSensorReadingsHourlyBatch(input: [SensorReadingsHourlyInput!]!): [SensorReadingsHourly!]!
+}

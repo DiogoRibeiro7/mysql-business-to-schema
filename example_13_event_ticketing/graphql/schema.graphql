@@ -1,0 +1,1402 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.189159
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Venues {
+  venueName: String!
+  venueType: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String
+  postalCode: String
+  country: String!
+  latitude: Float
+  longitude: Float
+  capacity: Int!
+  phone: String
+  email: String
+  website: String
+  parkingInfo: String
+  publicTransportInfo: String
+  accessibilityInfo: String
+  venueRules: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VenueSections {
+  venueId: ID!
+  venue: Venues
+  sectionName: String!
+  sectionType: String
+  capacity: Int!
+  rowsCount: Int
+  defaultPriceTier: String
+  entryGate: String
+  isAccessible: Boolean
+  viewQuality: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VenueRows {
+  sectionId: ID!
+  venueSection: VenueSections
+  rowNumber: String!
+  seatsCount: Int!
+  isAccessible: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VenueSeats {
+  rowId: ID!
+  venueRow: VenueRows
+  seatNumber: String!
+  seatType: String
+  xCoordinate: Int
+  yCoordinate: Int
+  isAisle: Boolean
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EventCategories {
+  categoryName: String!
+  parentCategoryId: ID!
+  eventCategorie: EventCategories
+  description: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Performers {
+  performerName: String!
+  performerType: String
+  genre: String
+  bio: String
+  imageUrl: String
+  website: String
+  socialMedia: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Events {
+  eventName: String!
+  eventType: String
+  categoryId: ID!
+  eventCategorie: EventCategories
+  description: String
+  imageUrl: String
+  bannerUrl: String
+  ageRestriction: String
+  durationMinutes: Int
+  organizerName: String
+  organizerContact: String
+  isFeatured: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Performances {
+  eventId: ID!
+  event: Events
+  venueId: ID!
+  venue: Venues
+  performanceDatetime: String!
+  doorsOpenDatetime: String
+  performanceStatus: String
+  totalCapacity: Int
+  availableCapacity: Int
+  minTicketPrice: Float
+  maxTicketPrice: Float
+  salesStartDatetime: String
+  salesEndDatetime: String
+  isGeneralAdmission: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EventPerformers {
+  eventId: ID!
+  event: Events
+  performerId: ID!
+  performer: Performers
+  billingOrder: Int
+  isHeadliner: Boolean
+  performanceFee: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Customers {
+  email: String!
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  preferredLanguage: String
+  preferredCurrency: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  isActive: Boolean
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CustomerPreferences {
+  customerId: ID!
+  customer: Customers
+  favoriteVenues: JSON
+  favoritePerformers: JSON
+  preferredCategories: JSON
+  notificationEvents: Boolean
+  notificationOffers: Boolean
+  notificationReminders: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LoyaltyMembers {
+  customerId: ID!
+  customer: Customers
+  membershipTier: String
+  pointsBalance: Int
+  lifetimePoints: Int
+  joinDate: String!
+  expiryDate: String
+  perks: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PriceTiers {
+  performanceId: ID!
+  performance: Performances
+  tierName: String!
+  basePrice: Float
+  serviceFee: Float
+  facilityFee: Float
+  taxRate: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SectionPricing {
+  performanceId: ID!
+  performance: Performances
+  sectionId: ID!
+  venueSection: VenueSections
+  priceTierId: ID!
+  priceTier: PriceTiers
+  currentPrice: Float
+  originalPrice: Float
+  minPrice: Float
+  maxPrice: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PromotionalCodes {
+  promoCode: String!
+  description: String
+  discountType: String
+  discountValue: Float
+  minPurchaseAmount: Float
+  maxDiscountAmount: Float
+  validFrom: String!
+  validUntil: String!
+  usageLimit: Int
+  usageCount: Int
+  applicablePerformances: JSON
+  applicableSections: JSON
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Bookings {
+  bookingReference: String!
+  customerId: ID!
+  customer: Customers
+  performanceId: ID!
+  performance: Performances
+  bookingStatus: String
+  totalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  serviceFeeAmount: Float
+  paymentMethod: String
+  paymentStatus: String
+  promoCodeUsed: String
+  bookingDatetime: String
+  confirmationSent: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Tickets {
+  bookingId: ID!
+  booking: Bookings
+  seatId: ID!
+  venueSeat: VenueSeats
+  ticketNumber: String!
+  ticketStatus: String
+  pricePaid: Float
+  barcode: String
+  qrCode: String
+  issueDatetime: String
+  usedDatetime: String
+  entryGate: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type TicketHolds {
+  sessionId: String!
+  customerId: ID!
+  customer: Customers
+  performanceId: ID!
+  performance: Performances
+  seatId: ID!
+  venueSeat: VenueSeats
+  holdExpiry: String!
+  isReleased: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ShoppingCarts {
+  sessionId: String!
+  customerId: ID!
+  customer: Customers
+  performanceId: ID!
+  performance: Performances
+  cartStatus: String
+  expiryDatetime: String!
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CartItems {
+  cartId: ID!
+  shoppingCart: ShoppingCarts
+  seatId: ID!
+  venueSeat: VenueSeats
+  priceTierId: ID!
+  priceTier: PriceTiers
+  quantity: Int
+  unitPrice: Float
+  serviceFee: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EntryScans {
+  ticketId: ID!
+  ticket: Tickets
+  scanDatetime: String
+  entryGate: String
+  scannerDeviceId: String
+  scanResult: String
+  notes: String
+}
+
+type FraudAttempts {
+  attemptType: String
+  customerId: ID!
+  customer: Customers
+  ipAddress: String
+  userAgent: String
+  details: JSON
+  actionTaken: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ResaleListings {
+  ticketId: ID!
+  ticket: Tickets
+  sellerCustomerId: ID!
+  customer: Customers
+  listingPrice: Float
+  minPrice: Float
+  listingStatus: String
+  listedDatetime: String
+  soldDatetime: String
+  expiryDatetime: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ResaleTransactions {
+  listingId: ID!
+  resaleListing: ResaleListings
+  buyerCustomerId: ID!
+  customer: Customers
+  salePrice: Float
+  platformFee: Float
+  sellerPayout: Float
+  transactionStatus: String
+  transactionDatetime: String
+}
+
+type SalesMetrics {
+  performanceId: ID!
+  performance: Performances
+  metricDate: String!
+  ticketsSold: Int
+  grossRevenue: Float
+  serviceFees: Float
+  averageTicketPrice: Float
+  conversionRate: Float
+  cartAbandonmentRate: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VenueUtilization {
+  venueId: ID!
+  venue: Venues
+  performanceId: ID!
+  performance: Performances
+  totalCapacity: Int!
+  ticketsSold: Int
+  utilizationPercentage: Float
+  revenuePerSeat: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input VenuesInput {
+  venueName: String
+  venueType: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  latitude: Float
+  longitude: Float
+  capacity: Int
+  phone: String
+  email: String
+  website: String
+  parkingInfo: String
+  publicTransportInfo: String
+  accessibilityInfo: String
+  venueRules: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input VenuesUpdateInput {
+  venueName: String
+  venueType: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  latitude: Float
+  longitude: Float
+  capacity: Int
+  phone: String
+  email: String
+  website: String
+  parkingInfo: String
+  publicTransportInfo: String
+  accessibilityInfo: String
+  venueRules: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input VenueSectionsInput {
+  venueId: ID
+  sectionName: String
+  sectionType: String
+  capacity: Int
+  rowsCount: Int
+  defaultPriceTier: String
+  entryGate: String
+  isAccessible: Boolean
+  viewQuality: String
+  createdAt: String
+}
+
+input VenueSectionsUpdateInput {
+  venueId: ID
+  sectionName: String
+  sectionType: String
+  capacity: Int
+  rowsCount: Int
+  defaultPriceTier: String
+  entryGate: String
+  isAccessible: Boolean
+  viewQuality: String
+  createdAt: String
+}
+
+input VenueRowsInput {
+  sectionId: ID
+  rowNumber: String
+  seatsCount: Int
+  isAccessible: Boolean
+  createdAt: String
+}
+
+input VenueRowsUpdateInput {
+  sectionId: ID
+  rowNumber: String
+  seatsCount: Int
+  isAccessible: Boolean
+  createdAt: String
+}
+
+input VenueSeatsInput {
+  rowId: ID
+  seatNumber: String
+  seatType: String
+  xCoordinate: Int
+  yCoordinate: Int
+  isAisle: Boolean
+  notes: String
+  createdAt: String
+}
+
+input VenueSeatsUpdateInput {
+  rowId: ID
+  seatNumber: String
+  seatType: String
+  xCoordinate: Int
+  yCoordinate: Int
+  isAisle: Boolean
+  notes: String
+  createdAt: String
+}
+
+input EventCategoriesInput {
+  categoryName: String
+  parentCategoryId: ID
+  description: String
+  createdAt: String
+}
+
+input EventCategoriesUpdateInput {
+  categoryName: String
+  parentCategoryId: ID
+  description: String
+  createdAt: String
+}
+
+input PerformersInput {
+  performerName: String
+  performerType: String
+  genre: String
+  bio: String
+  imageUrl: String
+  website: String
+  socialMedia: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PerformersUpdateInput {
+  performerName: String
+  performerType: String
+  genre: String
+  bio: String
+  imageUrl: String
+  website: String
+  socialMedia: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input EventsInput {
+  eventName: String
+  eventType: String
+  categoryId: ID
+  description: String
+  imageUrl: String
+  bannerUrl: String
+  ageRestriction: String
+  durationMinutes: Int
+  organizerName: String
+  organizerContact: String
+  isFeatured: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input EventsUpdateInput {
+  eventName: String
+  eventType: String
+  categoryId: ID
+  description: String
+  imageUrl: String
+  bannerUrl: String
+  ageRestriction: String
+  durationMinutes: Int
+  organizerName: String
+  organizerContact: String
+  isFeatured: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input PerformancesInput {
+  eventId: ID
+  venueId: ID
+  performanceDatetime: String
+  doorsOpenDatetime: String
+  performanceStatus: String
+  totalCapacity: Int
+  availableCapacity: Int
+  minTicketPrice: Float
+  maxTicketPrice: Float
+  salesStartDatetime: String
+  salesEndDatetime: String
+  isGeneralAdmission: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PerformancesUpdateInput {
+  eventId: ID
+  venueId: ID
+  performanceDatetime: String
+  doorsOpenDatetime: String
+  performanceStatus: String
+  totalCapacity: Int
+  availableCapacity: Int
+  minTicketPrice: Float
+  maxTicketPrice: Float
+  salesStartDatetime: String
+  salesEndDatetime: String
+  isGeneralAdmission: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input EventPerformersInput {
+  eventId: ID
+  performerId: ID
+  billingOrder: Int
+  isHeadliner: Boolean
+  performanceFee: Float
+  createdAt: String
+}
+
+input EventPerformersUpdateInput {
+  eventId: ID
+  performerId: ID
+  billingOrder: Int
+  isHeadliner: Boolean
+  performanceFee: Float
+  createdAt: String
+}
+
+input CustomersInput {
+  email: String
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  preferredLanguage: String
+  preferredCurrency: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  isActive: Boolean
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomersUpdateInput {
+  email: String
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  preferredLanguage: String
+  preferredCurrency: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  isActive: Boolean
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomerPreferencesInput {
+  customerId: ID
+  favoriteVenues: JSON
+  favoritePerformers: JSON
+  preferredCategories: JSON
+  notificationEvents: Boolean
+  notificationOffers: Boolean
+  notificationReminders: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomerPreferencesUpdateInput {
+  customerId: ID
+  favoriteVenues: JSON
+  favoritePerformers: JSON
+  preferredCategories: JSON
+  notificationEvents: Boolean
+  notificationOffers: Boolean
+  notificationReminders: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input LoyaltyMembersInput {
+  customerId: ID
+  membershipTier: String
+  pointsBalance: Int
+  lifetimePoints: Int
+  joinDate: String
+  expiryDate: String
+  perks: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input LoyaltyMembersUpdateInput {
+  customerId: ID
+  membershipTier: String
+  pointsBalance: Int
+  lifetimePoints: Int
+  joinDate: String
+  expiryDate: String
+  perks: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PriceTiersInput {
+  performanceId: ID
+  tierName: String
+  basePrice: Float
+  serviceFee: Float
+  facilityFee: Float
+  taxRate: Float
+  createdAt: String
+}
+
+input PriceTiersUpdateInput {
+  performanceId: ID
+  tierName: String
+  basePrice: Float
+  serviceFee: Float
+  facilityFee: Float
+  taxRate: Float
+  createdAt: String
+}
+
+input SectionPricingInput {
+  performanceId: ID
+  sectionId: ID
+  priceTierId: ID
+  currentPrice: Float
+  originalPrice: Float
+  minPrice: Float
+  maxPrice: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input SectionPricingUpdateInput {
+  performanceId: ID
+  sectionId: ID
+  priceTierId: ID
+  currentPrice: Float
+  originalPrice: Float
+  minPrice: Float
+  maxPrice: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input PromotionalCodesInput {
+  promoCode: String
+  description: String
+  discountType: String
+  discountValue: Float
+  minPurchaseAmount: Float
+  maxDiscountAmount: Float
+  validFrom: String
+  validUntil: String
+  usageLimit: Int
+  usageCount: Int
+  applicablePerformances: JSON
+  applicableSections: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input PromotionalCodesUpdateInput {
+  promoCode: String
+  description: String
+  discountType: String
+  discountValue: Float
+  minPurchaseAmount: Float
+  maxDiscountAmount: Float
+  validFrom: String
+  validUntil: String
+  usageLimit: Int
+  usageCount: Int
+  applicablePerformances: JSON
+  applicableSections: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input BookingsInput {
+  bookingReference: String
+  customerId: ID
+  performanceId: ID
+  bookingStatus: String
+  totalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  serviceFeeAmount: Float
+  paymentMethod: String
+  paymentStatus: String
+  promoCodeUsed: String
+  bookingDatetime: String
+  confirmationSent: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input BookingsUpdateInput {
+  bookingReference: String
+  customerId: ID
+  performanceId: ID
+  bookingStatus: String
+  totalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  serviceFeeAmount: Float
+  paymentMethod: String
+  paymentStatus: String
+  promoCodeUsed: String
+  bookingDatetime: String
+  confirmationSent: Boolean
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TicketsInput {
+  bookingId: ID
+  seatId: ID
+  ticketNumber: String
+  ticketStatus: String
+  pricePaid: Float
+  barcode: String
+  qrCode: String
+  issueDatetime: String
+  usedDatetime: String
+  entryGate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TicketsUpdateInput {
+  bookingId: ID
+  seatId: ID
+  ticketNumber: String
+  ticketStatus: String
+  pricePaid: Float
+  barcode: String
+  qrCode: String
+  issueDatetime: String
+  usedDatetime: String
+  entryGate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TicketHoldsInput {
+  sessionId: String
+  customerId: ID
+  performanceId: ID
+  seatId: ID
+  holdExpiry: String
+  isReleased: Boolean
+  createdAt: String
+}
+
+input TicketHoldsUpdateInput {
+  sessionId: String
+  customerId: ID
+  performanceId: ID
+  seatId: ID
+  holdExpiry: String
+  isReleased: Boolean
+  createdAt: String
+}
+
+input ShoppingCartsInput {
+  sessionId: String
+  customerId: ID
+  performanceId: ID
+  cartStatus: String
+  expiryDatetime: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ShoppingCartsUpdateInput {
+  sessionId: String
+  customerId: ID
+  performanceId: ID
+  cartStatus: String
+  expiryDatetime: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CartItemsInput {
+  cartId: ID
+  seatId: ID
+  priceTierId: ID
+  quantity: Int
+  unitPrice: Float
+  serviceFee: Float
+  createdAt: String
+}
+
+input CartItemsUpdateInput {
+  cartId: ID
+  seatId: ID
+  priceTierId: ID
+  quantity: Int
+  unitPrice: Float
+  serviceFee: Float
+  createdAt: String
+}
+
+input EntryScansInput {
+  ticketId: ID
+  scanDatetime: String
+  entryGate: String
+  scannerDeviceId: String
+  scanResult: String
+  notes: String
+}
+
+input EntryScansUpdateInput {
+  ticketId: ID
+  scanDatetime: String
+  entryGate: String
+  scannerDeviceId: String
+  scanResult: String
+  notes: String
+}
+
+input FraudAttemptsInput {
+  attemptType: String
+  customerId: ID
+  ipAddress: String
+  userAgent: String
+  details: JSON
+  actionTaken: String
+  createdAt: String
+}
+
+input FraudAttemptsUpdateInput {
+  attemptType: String
+  customerId: ID
+  ipAddress: String
+  userAgent: String
+  details: JSON
+  actionTaken: String
+  createdAt: String
+}
+
+input ResaleListingsInput {
+  ticketId: ID
+  sellerCustomerId: ID
+  listingPrice: Float
+  minPrice: Float
+  listingStatus: String
+  listedDatetime: String
+  soldDatetime: String
+  expiryDatetime: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ResaleListingsUpdateInput {
+  ticketId: ID
+  sellerCustomerId: ID
+  listingPrice: Float
+  minPrice: Float
+  listingStatus: String
+  listedDatetime: String
+  soldDatetime: String
+  expiryDatetime: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ResaleTransactionsInput {
+  listingId: ID
+  buyerCustomerId: ID
+  salePrice: Float
+  platformFee: Float
+  sellerPayout: Float
+  transactionStatus: String
+  transactionDatetime: String
+}
+
+input ResaleTransactionsUpdateInput {
+  listingId: ID
+  buyerCustomerId: ID
+  salePrice: Float
+  platformFee: Float
+  sellerPayout: Float
+  transactionStatus: String
+  transactionDatetime: String
+}
+
+input SalesMetricsInput {
+  performanceId: ID
+  metricDate: String
+  ticketsSold: Int
+  grossRevenue: Float
+  serviceFees: Float
+  averageTicketPrice: Float
+  conversionRate: Float
+  cartAbandonmentRate: Float
+  createdAt: String
+}
+
+input SalesMetricsUpdateInput {
+  performanceId: ID
+  metricDate: String
+  ticketsSold: Int
+  grossRevenue: Float
+  serviceFees: Float
+  averageTicketPrice: Float
+  conversionRate: Float
+  cartAbandonmentRate: Float
+  createdAt: String
+}
+
+input VenueUtilizationInput {
+  venueId: ID
+  performanceId: ID
+  totalCapacity: Int
+  ticketsSold: Int
+  utilizationPercentage: Float
+  revenuePerSeat: Float
+  createdAt: String
+}
+
+input VenueUtilizationUpdateInput {
+  venueId: ID
+  performanceId: ID
+  totalCapacity: Int
+  ticketsSold: Int
+  utilizationPercentage: Float
+  revenuePerSeat: Float
+  createdAt: String
+}
+
+type Query {
+  venue(id: ID!): Venues
+  venues(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Venues!]!
+  venuesCount(filter: String): Int!
+  venueSection(id: ID!): VenueSections
+  venueSections(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VenueSections!]!
+  venueSectionsCount(filter: String): Int!
+  venueRow(id: ID!): VenueRows
+  venueRows(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VenueRows!]!
+  venueRowsCount(filter: String): Int!
+  venueSeat(id: ID!): VenueSeats
+  venueSeats(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VenueSeats!]!
+  venueSeatsCount(filter: String): Int!
+  eventCategorie(id: ID!): EventCategories
+  eventCategories(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EventCategories!]!
+  eventCategoriesCount(filter: String): Int!
+  performer(id: ID!): Performers
+  performers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Performers!]!
+  performersCount(filter: String): Int!
+  event(id: ID!): Events
+  events(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Events!]!
+  eventsCount(filter: String): Int!
+  performance(id: ID!): Performances
+  performances(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Performances!]!
+  performancesCount(filter: String): Int!
+  eventPerformer(id: ID!): EventPerformers
+  eventPerformers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EventPerformers!]!
+  eventPerformersCount(filter: String): Int!
+  customer(id: ID!): Customers
+  customers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Customers!]!
+  customersCount(filter: String): Int!
+  customerPreference(id: ID!): CustomerPreferences
+  customerPreferences(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CustomerPreferences!]!
+  customerPreferencesCount(filter: String): Int!
+  loyaltyMember(id: ID!): LoyaltyMembers
+  loyaltyMembers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LoyaltyMembers!]!
+  loyaltyMembersCount(filter: String): Int!
+  priceTier(id: ID!): PriceTiers
+  priceTiers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PriceTiers!]!
+  priceTiersCount(filter: String): Int!
+  sectionPricing(id: ID!): SectionPricing
+  sectionPricing(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SectionPricing!]!
+  sectionPricingCount(filter: String): Int!
+  promotionalCode(id: ID!): PromotionalCodes
+  promotionalCodes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PromotionalCodes!]!
+  promotionalCodesCount(filter: String): Int!
+  booking(id: ID!): Bookings
+  bookings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Bookings!]!
+  bookingsCount(filter: String): Int!
+  ticket(id: ID!): Tickets
+  tickets(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Tickets!]!
+  ticketsCount(filter: String): Int!
+  ticketHold(id: ID!): TicketHolds
+  ticketHolds(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [TicketHolds!]!
+  ticketHoldsCount(filter: String): Int!
+  shoppingCart(id: ID!): ShoppingCarts
+  shoppingCarts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ShoppingCarts!]!
+  shoppingCartsCount(filter: String): Int!
+  cartItem(id: ID!): CartItems
+  cartItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CartItems!]!
+  cartItemsCount(filter: String): Int!
+  entryScan(id: ID!): EntryScans
+  entryScans(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EntryScans!]!
+  entryScansCount(filter: String): Int!
+  fraudAttempt(id: ID!): FraudAttempts
+  fraudAttempts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FraudAttempts!]!
+  fraudAttemptsCount(filter: String): Int!
+  resaleListing(id: ID!): ResaleListings
+  resaleListings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ResaleListings!]!
+  resaleListingsCount(filter: String): Int!
+  resaleTransaction(id: ID!): ResaleTransactions
+  resaleTransactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ResaleTransactions!]!
+  resaleTransactionsCount(filter: String): Int!
+  salesMetric(id: ID!): SalesMetrics
+  salesMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SalesMetrics!]!
+  salesMetricsCount(filter: String): Int!
+  venueUtilization(id: ID!): VenueUtilization
+  venueUtilization(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VenueUtilization!]!
+  venueUtilizationCount(filter: String): Int!
+}
+
+type Mutation {
+  createVenues(input: VenuesInput!): Venues!
+  updateVenues(id: ID!, input: VenuesUpdateInput!): Venues!
+  deleteVenues(id: ID!): Boolean!
+  createVenuesBatch(input: [VenuesInput!]!): [Venues!]!
+  createVenueSections(input: VenueSectionsInput!): VenueSections!
+  updateVenueSections(id: ID!, input: VenueSectionsUpdateInput!): VenueSections!
+  deleteVenueSections(id: ID!): Boolean!
+  createVenueSectionsBatch(input: [VenueSectionsInput!]!): [VenueSections!]!
+  createVenueRows(input: VenueRowsInput!): VenueRows!
+  updateVenueRows(id: ID!, input: VenueRowsUpdateInput!): VenueRows!
+  deleteVenueRows(id: ID!): Boolean!
+  createVenueRowsBatch(input: [VenueRowsInput!]!): [VenueRows!]!
+  createVenueSeats(input: VenueSeatsInput!): VenueSeats!
+  updateVenueSeats(id: ID!, input: VenueSeatsUpdateInput!): VenueSeats!
+  deleteVenueSeats(id: ID!): Boolean!
+  createVenueSeatsBatch(input: [VenueSeatsInput!]!): [VenueSeats!]!
+  createEventCategories(input: EventCategoriesInput!): EventCategories!
+  updateEventCategories(id: ID!, input: EventCategoriesUpdateInput!): EventCategories!
+  deleteEventCategories(id: ID!): Boolean!
+  createEventCategoriesBatch(input: [EventCategoriesInput!]!): [EventCategories!]!
+  createPerformers(input: PerformersInput!): Performers!
+  updatePerformers(id: ID!, input: PerformersUpdateInput!): Performers!
+  deletePerformers(id: ID!): Boolean!
+  createPerformersBatch(input: [PerformersInput!]!): [Performers!]!
+  createEvents(input: EventsInput!): Events!
+  updateEvents(id: ID!, input: EventsUpdateInput!): Events!
+  deleteEvents(id: ID!): Boolean!
+  createEventsBatch(input: [EventsInput!]!): [Events!]!
+  createPerformances(input: PerformancesInput!): Performances!
+  updatePerformances(id: ID!, input: PerformancesUpdateInput!): Performances!
+  deletePerformances(id: ID!): Boolean!
+  createPerformancesBatch(input: [PerformancesInput!]!): [Performances!]!
+  createEventPerformers(input: EventPerformersInput!): EventPerformers!
+  updateEventPerformers(id: ID!, input: EventPerformersUpdateInput!): EventPerformers!
+  deleteEventPerformers(id: ID!): Boolean!
+  createEventPerformersBatch(input: [EventPerformersInput!]!): [EventPerformers!]!
+  createCustomers(input: CustomersInput!): Customers!
+  updateCustomers(id: ID!, input: CustomersUpdateInput!): Customers!
+  deleteCustomers(id: ID!): Boolean!
+  createCustomersBatch(input: [CustomersInput!]!): [Customers!]!
+  createCustomerPreferences(input: CustomerPreferencesInput!): CustomerPreferences!
+  updateCustomerPreferences(id: ID!, input: CustomerPreferencesUpdateInput!): CustomerPreferences!
+  deleteCustomerPreferences(id: ID!): Boolean!
+  createCustomerPreferencesBatch(input: [CustomerPreferencesInput!]!): [CustomerPreferences!]!
+  createLoyaltyMembers(input: LoyaltyMembersInput!): LoyaltyMembers!
+  updateLoyaltyMembers(id: ID!, input: LoyaltyMembersUpdateInput!): LoyaltyMembers!
+  deleteLoyaltyMembers(id: ID!): Boolean!
+  createLoyaltyMembersBatch(input: [LoyaltyMembersInput!]!): [LoyaltyMembers!]!
+  createPriceTiers(input: PriceTiersInput!): PriceTiers!
+  updatePriceTiers(id: ID!, input: PriceTiersUpdateInput!): PriceTiers!
+  deletePriceTiers(id: ID!): Boolean!
+  createPriceTiersBatch(input: [PriceTiersInput!]!): [PriceTiers!]!
+  createSectionPricing(input: SectionPricingInput!): SectionPricing!
+  updateSectionPricing(id: ID!, input: SectionPricingUpdateInput!): SectionPricing!
+  deleteSectionPricing(id: ID!): Boolean!
+  createSectionPricingBatch(input: [SectionPricingInput!]!): [SectionPricing!]!
+  createPromotionalCodes(input: PromotionalCodesInput!): PromotionalCodes!
+  updatePromotionalCodes(id: ID!, input: PromotionalCodesUpdateInput!): PromotionalCodes!
+  deletePromotionalCodes(id: ID!): Boolean!
+  createPromotionalCodesBatch(input: [PromotionalCodesInput!]!): [PromotionalCodes!]!
+  createBookings(input: BookingsInput!): Bookings!
+  updateBookings(id: ID!, input: BookingsUpdateInput!): Bookings!
+  deleteBookings(id: ID!): Boolean!
+  createBookingsBatch(input: [BookingsInput!]!): [Bookings!]!
+  createTickets(input: TicketsInput!): Tickets!
+  updateTickets(id: ID!, input: TicketsUpdateInput!): Tickets!
+  deleteTickets(id: ID!): Boolean!
+  createTicketsBatch(input: [TicketsInput!]!): [Tickets!]!
+  createTicketHolds(input: TicketHoldsInput!): TicketHolds!
+  updateTicketHolds(id: ID!, input: TicketHoldsUpdateInput!): TicketHolds!
+  deleteTicketHolds(id: ID!): Boolean!
+  createTicketHoldsBatch(input: [TicketHoldsInput!]!): [TicketHolds!]!
+  createShoppingCarts(input: ShoppingCartsInput!): ShoppingCarts!
+  updateShoppingCarts(id: ID!, input: ShoppingCartsUpdateInput!): ShoppingCarts!
+  deleteShoppingCarts(id: ID!): Boolean!
+  createShoppingCartsBatch(input: [ShoppingCartsInput!]!): [ShoppingCarts!]!
+  createCartItems(input: CartItemsInput!): CartItems!
+  updateCartItems(id: ID!, input: CartItemsUpdateInput!): CartItems!
+  deleteCartItems(id: ID!): Boolean!
+  createCartItemsBatch(input: [CartItemsInput!]!): [CartItems!]!
+  createEntryScans(input: EntryScansInput!): EntryScans!
+  updateEntryScans(id: ID!, input: EntryScansUpdateInput!): EntryScans!
+  deleteEntryScans(id: ID!): Boolean!
+  createEntryScansBatch(input: [EntryScansInput!]!): [EntryScans!]!
+  createFraudAttempts(input: FraudAttemptsInput!): FraudAttempts!
+  updateFraudAttempts(id: ID!, input: FraudAttemptsUpdateInput!): FraudAttempts!
+  deleteFraudAttempts(id: ID!): Boolean!
+  createFraudAttemptsBatch(input: [FraudAttemptsInput!]!): [FraudAttempts!]!
+  createResaleListings(input: ResaleListingsInput!): ResaleListings!
+  updateResaleListings(id: ID!, input: ResaleListingsUpdateInput!): ResaleListings!
+  deleteResaleListings(id: ID!): Boolean!
+  createResaleListingsBatch(input: [ResaleListingsInput!]!): [ResaleListings!]!
+  createResaleTransactions(input: ResaleTransactionsInput!): ResaleTransactions!
+  updateResaleTransactions(id: ID!, input: ResaleTransactionsUpdateInput!): ResaleTransactions!
+  deleteResaleTransactions(id: ID!): Boolean!
+  createResaleTransactionsBatch(input: [ResaleTransactionsInput!]!): [ResaleTransactions!]!
+  createSalesMetrics(input: SalesMetricsInput!): SalesMetrics!
+  updateSalesMetrics(id: ID!, input: SalesMetricsUpdateInput!): SalesMetrics!
+  deleteSalesMetrics(id: ID!): Boolean!
+  createSalesMetricsBatch(input: [SalesMetricsInput!]!): [SalesMetrics!]!
+  createVenueUtilization(input: VenueUtilizationInput!): VenueUtilization!
+  updateVenueUtilization(id: ID!, input: VenueUtilizationUpdateInput!): VenueUtilization!
+  deleteVenueUtilization(id: ID!): Boolean!
+  createVenueUtilizationBatch(input: [VenueUtilizationInput!]!): [VenueUtilization!]!
+}

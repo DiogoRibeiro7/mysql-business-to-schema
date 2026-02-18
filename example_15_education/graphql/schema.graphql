@@ -1,0 +1,2305 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.217361
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Institutions {
+  institutionName: String!
+  institutionType: String
+  websiteUrl: String
+  logoUrl: String
+  primaryColor: String
+  secondaryColor: String
+  timezone: String
+  academicYearStart: Int
+  gradingScale: JSON
+  contactEmail: String
+  contactPhone: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  studentCount: Int
+  instructorCount: Int
+  courseCount: Int
+  subscriptionTier: String
+  subscriptionExpires: String
+  storageUsedGb: Float
+  storageLimitGb: Float
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Users {
+  institutionId: ID!
+  institution: Institutions
+  passwordHash: String!
+  firstName: String!
+  lastName: String!
+  middleName: String
+  displayName: String
+  userType: String
+  studentId: String
+  employeeId: String
+  dateOfBirth: String
+  gender: String
+  phoneNumber: String
+  phoneVerified: Boolean
+  emailVerified: Boolean
+  profilePictureUrl: String
+  bio: String
+  preferredLanguage: String
+  timezone: String
+  notificationPreferences: JSON
+  lastLoginAt: String
+  lastActivityAt: String
+  loginCount: Int
+  failedLoginAttempts: Int
+  accountLockedUntil: String
+  twoFactorEnabled: Boolean
+  twoFactorSecret: String
+  status: String
+  graduationYear: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserProfiles {
+  major: String
+  minor: String
+  gpa: Float
+  creditsEarned: Int
+  creditsRequired: Int
+  expectedGraduation: String
+  academicStanding: String
+  occupation: String
+  employer: String
+  yearsExperience: Int
+  linkedinUrl: String
+  portfolioUrl: String
+  resumeUrl: String
+  learningStyle: String
+  preferredPace: String
+  interests: JSON
+  skills: JSON
+  certifications: JSON
+  accessibilityNeeds: JSON
+  accommodationsRequired: Boolean
+  accommodationsDetails: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Roles {
+  roleDescription: String
+  permissions: JSON
+  isSystemRole: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserRoles {
+  userId: ID!
+  user: Users
+  roleId: ID!
+  role: Roles
+  assignedBy: ID!
+  user: Users
+  validFrom: String
+  validUntil: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Departments {
+  institutionId: ID!
+  institution: Institutions
+  departmentCode: String!
+  departmentName: String!
+  departmentHeadId: ID!
+  user: Users
+  description: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AcademicTerms {
+  institutionId: ID!
+  institution: Institutions
+  termCode: String!
+  termName: String!
+  termType: String
+  startDate: String!
+  endDate: String!
+  registrationStart: String
+  registrationEnd: String
+  addDropDeadline: String
+  withdrawalDeadline: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Courses {
+  institutionId: ID!
+  institution: Institutions
+  departmentId: ID!
+  department: Departments
+  courseCode: String!
+  courseName: String!
+  courseDescription: String
+  syllabusUrl: String
+  credits: Int
+  courseLevel: String
+  format: String
+  durationWeeks: Int
+  hoursPerWeek: Float
+  maxStudents: Int
+  minStudents: Int
+  prerequisites: JSON
+  corequisites: JSON
+  learningOutcomes: JSON
+  requiredMaterials: JSON
+  tags: JSON
+  isActive: Boolean
+  version: Int
+  createdBy: ID!
+  user: Users
+  approvedBy: ID!
+  user: Users
+  approvedDate: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CourseSections {
+  courseId: ID!
+  course: Courses
+  termId: ID!
+  academicTerm: AcademicTerms
+  sectionCode: String!
+  instructorId: ID!
+  user: Users
+  coInstructorId: ID!
+  user: Users
+  teachingAssistants: JSON
+  meetingPattern: String
+  meetingDays: [String]
+  startTime: String
+  endTime: String
+  location: String
+  roomNumber: String
+  isOnline: Boolean
+  meetingUrl: String
+  enrollmentCapacity: Int
+  enrollmentCount: Int
+  waitlistCapacity: Int
+  waitlistCount: Int
+  allowAuditing: Boolean
+  allowLateEnrollment: Boolean
+  requireAttendance: Boolean
+  recordLectures: Boolean
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CourseModules {
+  courseId: ID!
+  course: Courses
+  moduleNumber: Int!
+  moduleName: String!
+  moduleDescription: String
+  learningObjectives: JSON
+  estimatedHours: Float
+  isPublished: Boolean
+  unlockDate: String
+  dueDate: String
+  sortOrder: Int!
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Lessons {
+  moduleId: ID!
+  courseModule: CourseModules
+  lessonNumber: Int!
+  lessonName: String!
+  lessonType: String
+  contentUrl: String
+  contentHtml: String
+  durationMinutes: Int
+  isRequired: Boolean
+  isPublished: Boolean
+  allowComments: Boolean
+  completionCriteria: JSON
+  pointsPossible: Int
+  sortOrder: Int!
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LearningResources {
+  resourceType: String
+  resourceName: String!
+  description: String
+  url: String
+  filePath: String
+  fileSizeMb: Float
+  mimeType: String
+  durationSeconds: Int
+  thumbnailUrl: String
+  tags: JSON
+  usageCount: Int
+  createdBy: ID!
+  user: Users
+  isPublic: Boolean
+  licenseType: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LessonResources {
+  lessonId: ID!
+  lesson: Lessons
+  resourceId: ID!
+  learningResource: LearningResources
+  isRequired: Boolean
+  sortOrder: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Enrollments {
+  sectionId: ID!
+  courseSection: CourseSections
+  userId: ID!
+  user: Users
+  enrollmentType: String
+  enrollmentStatus: String
+  enrollmentDate: String
+  dropDate: String
+  completionDate: String
+  finalGrade: String
+  gradePoints: Float
+  creditsEarned: Float
+  attendancePercentage: Float
+  lastAccessed: String
+  accessCount: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PrerequisiteOverrides {
+  userId: ID!
+  user: Users
+  courseId: ID!
+  course: Courses
+  overriddenBy: ID!
+  user: Users
+  reason: String
+  validUntil: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LessonProgress {
+  userId: ID!
+  user: Users
+  lessonId: ID!
+  lesson: Lessons
+  sectionId: ID!
+  courseSection: CourseSections
+  status: String
+  progressPercentage: Int
+  timeSpentSeconds: Int
+  lastPosition: Int
+  completionDate: String
+  attempts: Int
+  score: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LearningPaths {
+  pathName: String!
+  pathDescription: String
+  targetRole: String
+  skillLevel: String
+  estimatedHours: Int
+  courses: JSON
+  isPublic: Boolean
+  createdBy: ID!
+  user: Users
+  enrollmentCount: Int
+  completionCount: Int
+  rating: Float
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserLearningPaths {
+  userId: ID!
+  user: Users
+  pathId: ID!
+  learningPath: LearningPaths
+  enrollmentDate: String
+  targetCompletionDate: String
+  actualCompletionDate: String
+  progressPercentage: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Assignments {
+  sectionId: ID!
+  courseSection: CourseSections
+  assignmentType: String
+  title: String!
+  instructions: String
+  attachments: JSON
+  pointsPossible: Float
+  weightPercentage: Float
+  dueDate: String
+  availableFrom: String
+  availableUntil: String
+  timeLimitMinutes: Int
+  attemptLimit: Int
+  showCorrectAnswers: Boolean
+  showCorrectAnswersAt: String
+  shuffleQuestions: Boolean
+  shuffleAnswers: Boolean
+  requireLockdownBrowser: Boolean
+  requireProctoring: Boolean
+  lateSubmissionAllowed: Boolean
+  latePenaltyPercentage: Float
+  gracePeriodHours: Int
+  groupAssignment: Boolean
+  peerReviewRequired: Boolean
+  rubricId: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Questions {
+  assignmentId: ID!
+  assignment: Assignments
+  questionType: String
+  questionText: String!
+  questionHtml: String
+  mediaUrl: String
+  correctAnswer: JSON
+  answerOptions: JSON
+  answerExplanation: String
+  points: Float
+  difficulty: String
+  timeEstimateSeconds: Int
+  tags: JSON
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type QuestionBank {
+  createdBy: ID!
+  user: Users
+  subject: String
+  topic: String
+  questionType: String
+  questionText: String!
+  correctAnswer: JSON
+  answerOptions: JSON
+  difficulty: String
+  usageCount: Int
+  successRate: Float
+  isPublic: Boolean
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Rubrics {
+  rubricName: String!
+  description: String
+  createdBy: ID!
+  user: Users
+  isPublic: Boolean
+  criteria: JSON
+  totalPoints: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Submissions {
+  assignmentId: ID!
+  assignment: Assignments
+  userId: ID!
+  user: Users
+  groupId: Int
+  attemptNumber: Int
+  submissionType: String
+  submissionText: String
+  submissionFiles: JSON
+  submissionUrl: String
+  quizAnswers: JSON
+  submittedAt: String
+  lateSubmission: Boolean
+  timeSpentSeconds: Int
+  ipAddress: String
+  browserInfo: String
+  score: Float
+  grade: String
+  gradedBy: ID!
+  user: Users
+  gradedAt: String
+  feedback: String
+  rubricScores: JSON
+  similarityScore: Float
+  similarityReportUrl: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Gradebook {
+  sectionId: ID!
+  courseSection: CourseSections
+  userId: ID!
+  user: Users
+  homeworkScore: Float
+  quizScore: Float
+  examScore: Float
+  projectScore: Float
+  participationScore: Float
+  totalPointsEarned: Float
+  totalPointsPossible: Float
+  percentageScore: Float
+  letterGrade: String
+  gradePoints: Float
+  assignmentsCompleted: Int
+  assignmentsTotal: Int
+  attendanceScore: Float
+  extraCredit: Float
+  gradeStatus: String
+  lastCalculated: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type GradeHistory {
+  submissionId: ID!
+  submission: Submissions
+  changedBy: ID!
+  user: Users
+  oldScore: Float
+  newScore: Float
+  oldGrade: String
+  newGrade: String
+  changeReason: String
+  changedAt: String
+}
+
+type Discussions {
+  sectionId: ID!
+  courseSection: CourseSections
+  title: String!
+  description: String
+  discussionType: String
+  isPinned: Boolean
+  isLocked: Boolean
+  allowAnonymous: Boolean
+  requirePostBeforeView: Boolean
+  createdBy: ID!
+  user: Users
+  postCount: Int
+  lastPostAt: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DiscussionPosts {
+  discussionId: ID!
+  discussion: Discussions
+  parentPostId: ID!
+  discussionPost: DiscussionPosts
+  userId: ID!
+  user: Users
+  postContent: String!
+  isAnonymous: Boolean
+  isAnswer: Boolean
+  upvotes: Int
+  downvotes: Int
+  isEdited: Boolean
+  editedAt: String
+  isDeleted: Boolean
+  deletedAt: String
+  deletedBy: ID!
+  user: Users
+  createdAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Messages {
+  senderId: ID!
+  user: Users
+  recipientId: ID!
+  user: Users
+  subject: String
+  messageBody: String!
+  attachments: JSON
+  isRead: Boolean
+  readAt: String
+  isDeletedSender: Boolean
+  isDeletedRecipient: Boolean
+  priority: String
+  createdAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Announcements {
+  sectionId: ID!
+  courseSection: CourseSections
+  institutionId: ID!
+  institution: Institutions
+  title: String!
+  content: String!
+  announcementType: String
+  targetAudience: String
+  targetUsers: JSON
+  publishDate: String
+  expireDate: String
+  createdBy: ID!
+  user: Users
+  viewCount: Int
+  acknowledgmentRequired: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Attendance {
+  sectionId: ID!
+  courseSection: CourseSections
+  userId: ID!
+  user: Users
+  attendanceDate: String!
+  status: String
+  durationMinutes: Int
+  locationVerified: Boolean
+  ipAddress: String
+  notes: String
+  recordedBy: ID!
+  user: Users
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ActivityLogs {
+  userId: ID!
+  user: Users
+  activityType: String
+  resourceType: String
+  resourceId: Int
+  details: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  durationSeconds: Int
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LearningAnalytics {
+  userId: ID!
+  user: Users
+  sectionId: ID!
+  courseSection: CourseSections
+  weekNumber: Int!
+  loginCount: Int
+  totalTimeMinutes: Int
+  contentViews: Int
+  videoWatchMinutes: Int
+  discussionPosts: Int
+  assignmentSubmissions: Int
+  averageScore: Float
+  completionRate: Float
+  onTimeSubmissionRate: Float
+  riskLevel: String
+  predictedGrade: String
+  engagementScore: Float
+  calculatedAt: String
+}
+
+type Certificates {
+  userId: ID!
+  user: Users
+  courseId: ID!
+  course: Courses
+  certificateType: String
+  certificateName: String!
+  certificateUrl: String
+  issuedDate: String!
+  expiryDate: String
+  issuerName: String
+  issuerSignatureUrl: String
+  metadata: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input InstitutionsInput {
+  institutionName: String
+  institutionType: String
+  websiteUrl: String
+  logoUrl: String
+  primaryColor: String
+  secondaryColor: String
+  timezone: String
+  academicYearStart: Int
+  gradingScale: JSON
+  contactEmail: String
+  contactPhone: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  studentCount: Int
+  instructorCount: Int
+  courseCount: Int
+  subscriptionTier: String
+  subscriptionExpires: String
+  storageUsedGb: Float
+  storageLimitGb: Float
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input InstitutionsUpdateInput {
+  institutionName: String
+  institutionType: String
+  websiteUrl: String
+  logoUrl: String
+  primaryColor: String
+  secondaryColor: String
+  timezone: String
+  academicYearStart: Int
+  gradingScale: JSON
+  contactEmail: String
+  contactPhone: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  studentCount: Int
+  instructorCount: Int
+  courseCount: Int
+  subscriptionTier: String
+  subscriptionExpires: String
+  storageUsedGb: Float
+  storageLimitGb: Float
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input UsersInput {
+  institutionId: ID
+  passwordHash: String
+  firstName: String
+  lastName: String
+  middleName: String
+  displayName: String
+  userType: String
+  studentId: String
+  employeeId: String
+  dateOfBirth: String
+  gender: String
+  phoneNumber: String
+  phoneVerified: Boolean
+  emailVerified: Boolean
+  profilePictureUrl: String
+  bio: String
+  preferredLanguage: String
+  timezone: String
+  notificationPreferences: JSON
+  lastLoginAt: String
+  lastActivityAt: String
+  loginCount: Int
+  failedLoginAttempts: Int
+  accountLockedUntil: String
+  twoFactorEnabled: Boolean
+  twoFactorSecret: String
+  status: String
+  graduationYear: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input UsersUpdateInput {
+  institutionId: ID
+  passwordHash: String
+  firstName: String
+  lastName: String
+  middleName: String
+  displayName: String
+  userType: String
+  studentId: String
+  employeeId: String
+  dateOfBirth: String
+  gender: String
+  phoneNumber: String
+  phoneVerified: Boolean
+  emailVerified: Boolean
+  profilePictureUrl: String
+  bio: String
+  preferredLanguage: String
+  timezone: String
+  notificationPreferences: JSON
+  lastLoginAt: String
+  lastActivityAt: String
+  loginCount: Int
+  failedLoginAttempts: Int
+  accountLockedUntil: String
+  twoFactorEnabled: Boolean
+  twoFactorSecret: String
+  status: String
+  graduationYear: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input UserProfilesInput {
+  major: String
+  minor: String
+  gpa: Float
+  creditsEarned: Int
+  creditsRequired: Int
+  expectedGraduation: String
+  academicStanding: String
+  occupation: String
+  employer: String
+  yearsExperience: Int
+  linkedinUrl: String
+  portfolioUrl: String
+  resumeUrl: String
+  learningStyle: String
+  preferredPace: String
+  interests: JSON
+  skills: JSON
+  certifications: JSON
+  accessibilityNeeds: JSON
+  accommodationsRequired: Boolean
+  accommodationsDetails: String
+  createdAt: String
+  updatedAt: String
+}
+
+input UserProfilesUpdateInput {
+  major: String
+  minor: String
+  gpa: Float
+  creditsEarned: Int
+  creditsRequired: Int
+  expectedGraduation: String
+  academicStanding: String
+  occupation: String
+  employer: String
+  yearsExperience: Int
+  linkedinUrl: String
+  portfolioUrl: String
+  resumeUrl: String
+  learningStyle: String
+  preferredPace: String
+  interests: JSON
+  skills: JSON
+  certifications: JSON
+  accessibilityNeeds: JSON
+  accommodationsRequired: Boolean
+  accommodationsDetails: String
+  createdAt: String
+  updatedAt: String
+}
+
+input RolesInput {
+  roleDescription: String
+  permissions: JSON
+  isSystemRole: Boolean
+  createdAt: String
+}
+
+input RolesUpdateInput {
+  roleDescription: String
+  permissions: JSON
+  isSystemRole: Boolean
+  createdAt: String
+}
+
+input UserRolesInput {
+  userId: ID
+  roleId: ID
+  assignedBy: ID
+  validFrom: String
+  validUntil: String
+  createdAt: String
+}
+
+input UserRolesUpdateInput {
+  userId: ID
+  roleId: ID
+  assignedBy: ID
+  validFrom: String
+  validUntil: String
+  createdAt: String
+}
+
+input DepartmentsInput {
+  institutionId: ID
+  departmentCode: String
+  departmentName: String
+  departmentHeadId: ID
+  description: String
+  createdAt: String
+}
+
+input DepartmentsUpdateInput {
+  institutionId: ID
+  departmentCode: String
+  departmentName: String
+  departmentHeadId: ID
+  description: String
+  createdAt: String
+}
+
+input AcademicTermsInput {
+  institutionId: ID
+  termCode: String
+  termName: String
+  termType: String
+  startDate: String
+  endDate: String
+  registrationStart: String
+  registrationEnd: String
+  addDropDeadline: String
+  withdrawalDeadline: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input AcademicTermsUpdateInput {
+  institutionId: ID
+  termCode: String
+  termName: String
+  termType: String
+  startDate: String
+  endDate: String
+  registrationStart: String
+  registrationEnd: String
+  addDropDeadline: String
+  withdrawalDeadline: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input CoursesInput {
+  institutionId: ID
+  departmentId: ID
+  courseCode: String
+  courseName: String
+  courseDescription: String
+  syllabusUrl: String
+  credits: Int
+  courseLevel: String
+  format: String
+  durationWeeks: Int
+  hoursPerWeek: Float
+  maxStudents: Int
+  minStudents: Int
+  prerequisites: JSON
+  corequisites: JSON
+  learningOutcomes: JSON
+  requiredMaterials: JSON
+  tags: JSON
+  isActive: Boolean
+  version: Int
+  createdBy: ID
+  approvedBy: ID
+  approvedDate: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input CoursesUpdateInput {
+  institutionId: ID
+  departmentId: ID
+  courseCode: String
+  courseName: String
+  courseDescription: String
+  syllabusUrl: String
+  credits: Int
+  courseLevel: String
+  format: String
+  durationWeeks: Int
+  hoursPerWeek: Float
+  maxStudents: Int
+  minStudents: Int
+  prerequisites: JSON
+  corequisites: JSON
+  learningOutcomes: JSON
+  requiredMaterials: JSON
+  tags: JSON
+  isActive: Boolean
+  version: Int
+  createdBy: ID
+  approvedBy: ID
+  approvedDate: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input CourseSectionsInput {
+  courseId: ID
+  termId: ID
+  sectionCode: String
+  instructorId: ID
+  coInstructorId: ID
+  teachingAssistants: JSON
+  meetingPattern: String
+  meetingDays: [String]
+  startTime: String
+  endTime: String
+  location: String
+  roomNumber: String
+  isOnline: Boolean
+  meetingUrl: String
+  enrollmentCapacity: Int
+  enrollmentCount: Int
+  waitlistCapacity: Int
+  waitlistCount: Int
+  allowAuditing: Boolean
+  allowLateEnrollment: Boolean
+  requireAttendance: Boolean
+  recordLectures: Boolean
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CourseSectionsUpdateInput {
+  courseId: ID
+  termId: ID
+  sectionCode: String
+  instructorId: ID
+  coInstructorId: ID
+  teachingAssistants: JSON
+  meetingPattern: String
+  meetingDays: [String]
+  startTime: String
+  endTime: String
+  location: String
+  roomNumber: String
+  isOnline: Boolean
+  meetingUrl: String
+  enrollmentCapacity: Int
+  enrollmentCount: Int
+  waitlistCapacity: Int
+  waitlistCount: Int
+  allowAuditing: Boolean
+  allowLateEnrollment: Boolean
+  requireAttendance: Boolean
+  recordLectures: Boolean
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CourseModulesInput {
+  courseId: ID
+  moduleNumber: Int
+  moduleName: String
+  moduleDescription: String
+  learningObjectives: JSON
+  estimatedHours: Float
+  isPublished: Boolean
+  unlockDate: String
+  dueDate: String
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input CourseModulesUpdateInput {
+  courseId: ID
+  moduleNumber: Int
+  moduleName: String
+  moduleDescription: String
+  learningObjectives: JSON
+  estimatedHours: Float
+  isPublished: Boolean
+  unlockDate: String
+  dueDate: String
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input LessonsInput {
+  moduleId: ID
+  lessonNumber: Int
+  lessonName: String
+  lessonType: String
+  contentUrl: String
+  contentHtml: String
+  durationMinutes: Int
+  isRequired: Boolean
+  isPublished: Boolean
+  allowComments: Boolean
+  completionCriteria: JSON
+  pointsPossible: Int
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input LessonsUpdateInput {
+  moduleId: ID
+  lessonNumber: Int
+  lessonName: String
+  lessonType: String
+  contentUrl: String
+  contentHtml: String
+  durationMinutes: Int
+  isRequired: Boolean
+  isPublished: Boolean
+  allowComments: Boolean
+  completionCriteria: JSON
+  pointsPossible: Int
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input LearningResourcesInput {
+  resourceType: String
+  resourceName: String
+  description: String
+  url: String
+  filePath: String
+  fileSizeMb: Float
+  mimeType: String
+  durationSeconds: Int
+  thumbnailUrl: String
+  tags: JSON
+  usageCount: Int
+  createdBy: ID
+  isPublic: Boolean
+  licenseType: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input LearningResourcesUpdateInput {
+  resourceType: String
+  resourceName: String
+  description: String
+  url: String
+  filePath: String
+  fileSizeMb: Float
+  mimeType: String
+  durationSeconds: Int
+  thumbnailUrl: String
+  tags: JSON
+  usageCount: Int
+  createdBy: ID
+  isPublic: Boolean
+  licenseType: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input LessonResourcesInput {
+  lessonId: ID
+  resourceId: ID
+  isRequired: Boolean
+  sortOrder: Int
+  createdAt: String
+}
+
+input LessonResourcesUpdateInput {
+  lessonId: ID
+  resourceId: ID
+  isRequired: Boolean
+  sortOrder: Int
+  createdAt: String
+}
+
+input EnrollmentsInput {
+  sectionId: ID
+  userId: ID
+  enrollmentType: String
+  enrollmentStatus: String
+  enrollmentDate: String
+  dropDate: String
+  completionDate: String
+  finalGrade: String
+  gradePoints: Float
+  creditsEarned: Float
+  attendancePercentage: Float
+  lastAccessed: String
+  accessCount: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input EnrollmentsUpdateInput {
+  sectionId: ID
+  userId: ID
+  enrollmentType: String
+  enrollmentStatus: String
+  enrollmentDate: String
+  dropDate: String
+  completionDate: String
+  finalGrade: String
+  gradePoints: Float
+  creditsEarned: Float
+  attendancePercentage: Float
+  lastAccessed: String
+  accessCount: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input PrerequisiteOverridesInput {
+  userId: ID
+  courseId: ID
+  overriddenBy: ID
+  reason: String
+  validUntil: String
+  createdAt: String
+}
+
+input PrerequisiteOverridesUpdateInput {
+  userId: ID
+  courseId: ID
+  overriddenBy: ID
+  reason: String
+  validUntil: String
+  createdAt: String
+}
+
+input LessonProgressInput {
+  userId: ID
+  lessonId: ID
+  sectionId: ID
+  status: String
+  progressPercentage: Int
+  timeSpentSeconds: Int
+  lastPosition: Int
+  completionDate: String
+  attempts: Int
+  score: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input LessonProgressUpdateInput {
+  userId: ID
+  lessonId: ID
+  sectionId: ID
+  status: String
+  progressPercentage: Int
+  timeSpentSeconds: Int
+  lastPosition: Int
+  completionDate: String
+  attempts: Int
+  score: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input LearningPathsInput {
+  pathName: String
+  pathDescription: String
+  targetRole: String
+  skillLevel: String
+  estimatedHours: Int
+  courses: JSON
+  isPublic: Boolean
+  createdBy: ID
+  enrollmentCount: Int
+  completionCount: Int
+  rating: Float
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input LearningPathsUpdateInput {
+  pathName: String
+  pathDescription: String
+  targetRole: String
+  skillLevel: String
+  estimatedHours: Int
+  courses: JSON
+  isPublic: Boolean
+  createdBy: ID
+  enrollmentCount: Int
+  completionCount: Int
+  rating: Float
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input UserLearningPathsInput {
+  userId: ID
+  pathId: ID
+  enrollmentDate: String
+  targetCompletionDate: String
+  actualCompletionDate: String
+  progressPercentage: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input UserLearningPathsUpdateInput {
+  userId: ID
+  pathId: ID
+  enrollmentDate: String
+  targetCompletionDate: String
+  actualCompletionDate: String
+  progressPercentage: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AssignmentsInput {
+  sectionId: ID
+  assignmentType: String
+  title: String
+  instructions: String
+  attachments: JSON
+  pointsPossible: Float
+  weightPercentage: Float
+  dueDate: String
+  availableFrom: String
+  availableUntil: String
+  timeLimitMinutes: Int
+  attemptLimit: Int
+  showCorrectAnswers: Boolean
+  showCorrectAnswersAt: String
+  shuffleQuestions: Boolean
+  shuffleAnswers: Boolean
+  requireLockdownBrowser: Boolean
+  requireProctoring: Boolean
+  lateSubmissionAllowed: Boolean
+  latePenaltyPercentage: Float
+  gracePeriodHours: Int
+  groupAssignment: Boolean
+  peerReviewRequired: Boolean
+  rubricId: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AssignmentsUpdateInput {
+  sectionId: ID
+  assignmentType: String
+  title: String
+  instructions: String
+  attachments: JSON
+  pointsPossible: Float
+  weightPercentage: Float
+  dueDate: String
+  availableFrom: String
+  availableUntil: String
+  timeLimitMinutes: Int
+  attemptLimit: Int
+  showCorrectAnswers: Boolean
+  showCorrectAnswersAt: String
+  shuffleQuestions: Boolean
+  shuffleAnswers: Boolean
+  requireLockdownBrowser: Boolean
+  requireProctoring: Boolean
+  lateSubmissionAllowed: Boolean
+  latePenaltyPercentage: Float
+  gracePeriodHours: Int
+  groupAssignment: Boolean
+  peerReviewRequired: Boolean
+  rubricId: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input QuestionsInput {
+  assignmentId: ID
+  questionType: String
+  questionText: String
+  questionHtml: String
+  mediaUrl: String
+  correctAnswer: JSON
+  answerOptions: JSON
+  answerExplanation: String
+  points: Float
+  difficulty: String
+  timeEstimateSeconds: Int
+  tags: JSON
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input QuestionsUpdateInput {
+  assignmentId: ID
+  questionType: String
+  questionText: String
+  questionHtml: String
+  mediaUrl: String
+  correctAnswer: JSON
+  answerOptions: JSON
+  answerExplanation: String
+  points: Float
+  difficulty: String
+  timeEstimateSeconds: Int
+  tags: JSON
+  sortOrder: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input QuestionBankInput {
+  createdBy: ID
+  subject: String
+  topic: String
+  questionType: String
+  questionText: String
+  correctAnswer: JSON
+  answerOptions: JSON
+  difficulty: String
+  usageCount: Int
+  successRate: Float
+  isPublic: Boolean
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input QuestionBankUpdateInput {
+  createdBy: ID
+  subject: String
+  topic: String
+  questionType: String
+  questionText: String
+  correctAnswer: JSON
+  answerOptions: JSON
+  difficulty: String
+  usageCount: Int
+  successRate: Float
+  isPublic: Boolean
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input RubricsInput {
+  rubricName: String
+  description: String
+  createdBy: ID
+  isPublic: Boolean
+  criteria: JSON
+  totalPoints: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input RubricsUpdateInput {
+  rubricName: String
+  description: String
+  createdBy: ID
+  isPublic: Boolean
+  criteria: JSON
+  totalPoints: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input SubmissionsInput {
+  assignmentId: ID
+  userId: ID
+  groupId: Int
+  attemptNumber: Int
+  submissionType: String
+  submissionText: String
+  submissionFiles: JSON
+  submissionUrl: String
+  quizAnswers: JSON
+  submittedAt: String
+  lateSubmission: Boolean
+  timeSpentSeconds: Int
+  ipAddress: String
+  browserInfo: String
+  score: Float
+  grade: String
+  gradedBy: ID
+  gradedAt: String
+  feedback: String
+  rubricScores: JSON
+  similarityScore: Float
+  similarityReportUrl: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SubmissionsUpdateInput {
+  assignmentId: ID
+  userId: ID
+  groupId: Int
+  attemptNumber: Int
+  submissionType: String
+  submissionText: String
+  submissionFiles: JSON
+  submissionUrl: String
+  quizAnswers: JSON
+  submittedAt: String
+  lateSubmission: Boolean
+  timeSpentSeconds: Int
+  ipAddress: String
+  browserInfo: String
+  score: Float
+  grade: String
+  gradedBy: ID
+  gradedAt: String
+  feedback: String
+  rubricScores: JSON
+  similarityScore: Float
+  similarityReportUrl: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input GradebookInput {
+  sectionId: ID
+  userId: ID
+  homeworkScore: Float
+  quizScore: Float
+  examScore: Float
+  projectScore: Float
+  participationScore: Float
+  totalPointsEarned: Float
+  totalPointsPossible: Float
+  percentageScore: Float
+  letterGrade: String
+  gradePoints: Float
+  assignmentsCompleted: Int
+  assignmentsTotal: Int
+  attendanceScore: Float
+  extraCredit: Float
+  gradeStatus: String
+  lastCalculated: String
+  createdAt: String
+  updatedAt: String
+}
+
+input GradebookUpdateInput {
+  sectionId: ID
+  userId: ID
+  homeworkScore: Float
+  quizScore: Float
+  examScore: Float
+  projectScore: Float
+  participationScore: Float
+  totalPointsEarned: Float
+  totalPointsPossible: Float
+  percentageScore: Float
+  letterGrade: String
+  gradePoints: Float
+  assignmentsCompleted: Int
+  assignmentsTotal: Int
+  attendanceScore: Float
+  extraCredit: Float
+  gradeStatus: String
+  lastCalculated: String
+  createdAt: String
+  updatedAt: String
+}
+
+input GradeHistoryInput {
+  submissionId: ID
+  changedBy: ID
+  oldScore: Float
+  newScore: Float
+  oldGrade: String
+  newGrade: String
+  changeReason: String
+  changedAt: String
+}
+
+input GradeHistoryUpdateInput {
+  submissionId: ID
+  changedBy: ID
+  oldScore: Float
+  newScore: Float
+  oldGrade: String
+  newGrade: String
+  changeReason: String
+  changedAt: String
+}
+
+input DiscussionsInput {
+  sectionId: ID
+  title: String
+  description: String
+  discussionType: String
+  isPinned: Boolean
+  isLocked: Boolean
+  allowAnonymous: Boolean
+  requirePostBeforeView: Boolean
+  createdBy: ID
+  postCount: Int
+  lastPostAt: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input DiscussionsUpdateInput {
+  sectionId: ID
+  title: String
+  description: String
+  discussionType: String
+  isPinned: Boolean
+  isLocked: Boolean
+  allowAnonymous: Boolean
+  requirePostBeforeView: Boolean
+  createdBy: ID
+  postCount: Int
+  lastPostAt: String
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input DiscussionPostsInput {
+  discussionId: ID
+  parentPostId: ID
+  userId: ID
+  postContent: String
+  isAnonymous: Boolean
+  isAnswer: Boolean
+  upvotes: Int
+  downvotes: Int
+  isEdited: Boolean
+  editedAt: String
+  isDeleted: Boolean
+  deletedAt: String
+  deletedBy: ID
+  createdAt: String
+  FULLTEXT: String
+}
+
+input DiscussionPostsUpdateInput {
+  discussionId: ID
+  parentPostId: ID
+  userId: ID
+  postContent: String
+  isAnonymous: Boolean
+  isAnswer: Boolean
+  upvotes: Int
+  downvotes: Int
+  isEdited: Boolean
+  editedAt: String
+  isDeleted: Boolean
+  deletedAt: String
+  deletedBy: ID
+  createdAt: String
+  FULLTEXT: String
+}
+
+input MessagesInput {
+  senderId: ID
+  recipientId: ID
+  subject: String
+  messageBody: String
+  attachments: JSON
+  isRead: Boolean
+  readAt: String
+  isDeletedSender: Boolean
+  isDeletedRecipient: Boolean
+  priority: String
+  createdAt: String
+  FULLTEXT: String
+}
+
+input MessagesUpdateInput {
+  senderId: ID
+  recipientId: ID
+  subject: String
+  messageBody: String
+  attachments: JSON
+  isRead: Boolean
+  readAt: String
+  isDeletedSender: Boolean
+  isDeletedRecipient: Boolean
+  priority: String
+  createdAt: String
+  FULLTEXT: String
+}
+
+input AnnouncementsInput {
+  sectionId: ID
+  institutionId: ID
+  title: String
+  content: String
+  announcementType: String
+  targetAudience: String
+  targetUsers: JSON
+  publishDate: String
+  expireDate: String
+  createdBy: ID
+  viewCount: Int
+  acknowledgmentRequired: Boolean
+  createdAt: String
+}
+
+input AnnouncementsUpdateInput {
+  sectionId: ID
+  institutionId: ID
+  title: String
+  content: String
+  announcementType: String
+  targetAudience: String
+  targetUsers: JSON
+  publishDate: String
+  expireDate: String
+  createdBy: ID
+  viewCount: Int
+  acknowledgmentRequired: Boolean
+  createdAt: String
+}
+
+input AttendanceInput {
+  sectionId: ID
+  userId: ID
+  attendanceDate: String
+  status: String
+  durationMinutes: Int
+  locationVerified: Boolean
+  ipAddress: String
+  notes: String
+  recordedBy: ID
+  createdAt: String
+}
+
+input AttendanceUpdateInput {
+  sectionId: ID
+  userId: ID
+  attendanceDate: String
+  status: String
+  durationMinutes: Int
+  locationVerified: Boolean
+  ipAddress: String
+  notes: String
+  recordedBy: ID
+  createdAt: String
+}
+
+input ActivityLogsInput {
+  userId: ID
+  activityType: String
+  resourceType: String
+  resourceId: Int
+  details: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  durationSeconds: Int
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input ActivityLogsUpdateInput {
+  userId: ID
+  activityType: String
+  resourceType: String
+  resourceId: Int
+  details: JSON
+  ipAddress: String
+  userAgent: String
+  sessionId: String
+  durationSeconds: Int
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input LearningAnalyticsInput {
+  userId: ID
+  sectionId: ID
+  weekNumber: Int
+  loginCount: Int
+  totalTimeMinutes: Int
+  contentViews: Int
+  videoWatchMinutes: Int
+  discussionPosts: Int
+  assignmentSubmissions: Int
+  averageScore: Float
+  completionRate: Float
+  onTimeSubmissionRate: Float
+  riskLevel: String
+  predictedGrade: String
+  engagementScore: Float
+  calculatedAt: String
+}
+
+input LearningAnalyticsUpdateInput {
+  userId: ID
+  sectionId: ID
+  weekNumber: Int
+  loginCount: Int
+  totalTimeMinutes: Int
+  contentViews: Int
+  videoWatchMinutes: Int
+  discussionPosts: Int
+  assignmentSubmissions: Int
+  averageScore: Float
+  completionRate: Float
+  onTimeSubmissionRate: Float
+  riskLevel: String
+  predictedGrade: String
+  engagementScore: Float
+  calculatedAt: String
+}
+
+input CertificatesInput {
+  userId: ID
+  courseId: ID
+  certificateType: String
+  certificateName: String
+  certificateUrl: String
+  issuedDate: String
+  expiryDate: String
+  issuerName: String
+  issuerSignatureUrl: String
+  metadata: JSON
+  createdAt: String
+}
+
+input CertificatesUpdateInput {
+  userId: ID
+  courseId: ID
+  certificateType: String
+  certificateName: String
+  certificateUrl: String
+  issuedDate: String
+  expiryDate: String
+  issuerName: String
+  issuerSignatureUrl: String
+  metadata: JSON
+  createdAt: String
+}
+
+type Query {
+  institution(id: ID!): Institutions
+  institutions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Institutions!]!
+  institutionsCount(filter: String): Int!
+  user(id: ID!): Users
+  users(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Users!]!
+  usersCount(filter: String): Int!
+  userProfile(id: ID!): UserProfiles
+  userProfiles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserProfiles!]!
+  userProfilesCount(filter: String): Int!
+  role(id: ID!): Roles
+  roles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Roles!]!
+  rolesCount(filter: String): Int!
+  userRole(id: ID!): UserRoles
+  userRoles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserRoles!]!
+  userRolesCount(filter: String): Int!
+  department(id: ID!): Departments
+  departments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Departments!]!
+  departmentsCount(filter: String): Int!
+  academicTerm(id: ID!): AcademicTerms
+  academicTerms(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AcademicTerms!]!
+  academicTermsCount(filter: String): Int!
+  course(id: ID!): Courses
+  courses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Courses!]!
+  coursesCount(filter: String): Int!
+  courseSection(id: ID!): CourseSections
+  courseSections(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CourseSections!]!
+  courseSectionsCount(filter: String): Int!
+  courseModule(id: ID!): CourseModules
+  courseModules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CourseModules!]!
+  courseModulesCount(filter: String): Int!
+  lesson(id: ID!): Lessons
+  lessons(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Lessons!]!
+  lessonsCount(filter: String): Int!
+  learningResource(id: ID!): LearningResources
+  learningResources(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LearningResources!]!
+  learningResourcesCount(filter: String): Int!
+  lessonResource(id: ID!): LessonResources
+  lessonResources(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LessonResources!]!
+  lessonResourcesCount(filter: String): Int!
+  enrollment(id: ID!): Enrollments
+  enrollments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Enrollments!]!
+  enrollmentsCount(filter: String): Int!
+  prerequisiteOverride(id: ID!): PrerequisiteOverrides
+  prerequisiteOverrides(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PrerequisiteOverrides!]!
+  prerequisiteOverridesCount(filter: String): Int!
+  lessonProgre(id: ID!): LessonProgress
+  lessonProgress(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LessonProgress!]!
+  lessonProgressCount(filter: String): Int!
+  learningPath(id: ID!): LearningPaths
+  learningPaths(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LearningPaths!]!
+  learningPathsCount(filter: String): Int!
+  userLearningPath(id: ID!): UserLearningPaths
+  userLearningPaths(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserLearningPaths!]!
+  userLearningPathsCount(filter: String): Int!
+  assignment(id: ID!): Assignments
+  assignments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Assignments!]!
+  assignmentsCount(filter: String): Int!
+  question(id: ID!): Questions
+  questions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Questions!]!
+  questionsCount(filter: String): Int!
+  questionBank(id: ID!): QuestionBank
+  questionBank(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [QuestionBank!]!
+  questionBankCount(filter: String): Int!
+  rubric(id: ID!): Rubrics
+  rubrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Rubrics!]!
+  rubricsCount(filter: String): Int!
+  submission(id: ID!): Submissions
+  submissions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Submissions!]!
+  submissionsCount(filter: String): Int!
+  gradebook(id: ID!): Gradebook
+  gradebook(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Gradebook!]!
+  gradebookCount(filter: String): Int!
+  gradeHistory(id: ID!): GradeHistory
+  gradeHistory(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GradeHistory!]!
+  gradeHistoryCount(filter: String): Int!
+  discussion(id: ID!): Discussions
+  discussions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Discussions!]!
+  discussionsCount(filter: String): Int!
+  discussionPost(id: ID!): DiscussionPosts
+  discussionPosts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DiscussionPosts!]!
+  discussionPostsCount(filter: String): Int!
+  message(id: ID!): Messages
+  messages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Messages!]!
+  messagesCount(filter: String): Int!
+  announcement(id: ID!): Announcements
+  announcements(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Announcements!]!
+  announcementsCount(filter: String): Int!
+  attendance(id: ID!): Attendance
+  attendance(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Attendance!]!
+  attendanceCount(filter: String): Int!
+  activityLog(id: ID!): ActivityLogs
+  activityLogs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ActivityLogs!]!
+  activityLogsCount(filter: String): Int!
+  learningAnalytic(id: ID!): LearningAnalytics
+  learningAnalytics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LearningAnalytics!]!
+  learningAnalyticsCount(filter: String): Int!
+  certificate(id: ID!): Certificates
+  certificates(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Certificates!]!
+  certificatesCount(filter: String): Int!
+}
+
+type Mutation {
+  createInstitutions(input: InstitutionsInput!): Institutions!
+  updateInstitutions(id: ID!, input: InstitutionsUpdateInput!): Institutions!
+  deleteInstitutions(id: ID!): Boolean!
+  createInstitutionsBatch(input: [InstitutionsInput!]!): [Institutions!]!
+  createUsers(input: UsersInput!): Users!
+  updateUsers(id: ID!, input: UsersUpdateInput!): Users!
+  deleteUsers(id: ID!): Boolean!
+  createUsersBatch(input: [UsersInput!]!): [Users!]!
+  createUserProfiles(input: UserProfilesInput!): UserProfiles!
+  updateUserProfiles(id: ID!, input: UserProfilesUpdateInput!): UserProfiles!
+  deleteUserProfiles(id: ID!): Boolean!
+  createUserProfilesBatch(input: [UserProfilesInput!]!): [UserProfiles!]!
+  createRoles(input: RolesInput!): Roles!
+  updateRoles(id: ID!, input: RolesUpdateInput!): Roles!
+  deleteRoles(id: ID!): Boolean!
+  createRolesBatch(input: [RolesInput!]!): [Roles!]!
+  createUserRoles(input: UserRolesInput!): UserRoles!
+  updateUserRoles(id: ID!, input: UserRolesUpdateInput!): UserRoles!
+  deleteUserRoles(id: ID!): Boolean!
+  createUserRolesBatch(input: [UserRolesInput!]!): [UserRoles!]!
+  createDepartments(input: DepartmentsInput!): Departments!
+  updateDepartments(id: ID!, input: DepartmentsUpdateInput!): Departments!
+  deleteDepartments(id: ID!): Boolean!
+  createDepartmentsBatch(input: [DepartmentsInput!]!): [Departments!]!
+  createAcademicTerms(input: AcademicTermsInput!): AcademicTerms!
+  updateAcademicTerms(id: ID!, input: AcademicTermsUpdateInput!): AcademicTerms!
+  deleteAcademicTerms(id: ID!): Boolean!
+  createAcademicTermsBatch(input: [AcademicTermsInput!]!): [AcademicTerms!]!
+  createCourses(input: CoursesInput!): Courses!
+  updateCourses(id: ID!, input: CoursesUpdateInput!): Courses!
+  deleteCourses(id: ID!): Boolean!
+  createCoursesBatch(input: [CoursesInput!]!): [Courses!]!
+  createCourseSections(input: CourseSectionsInput!): CourseSections!
+  updateCourseSections(id: ID!, input: CourseSectionsUpdateInput!): CourseSections!
+  deleteCourseSections(id: ID!): Boolean!
+  createCourseSectionsBatch(input: [CourseSectionsInput!]!): [CourseSections!]!
+  createCourseModules(input: CourseModulesInput!): CourseModules!
+  updateCourseModules(id: ID!, input: CourseModulesUpdateInput!): CourseModules!
+  deleteCourseModules(id: ID!): Boolean!
+  createCourseModulesBatch(input: [CourseModulesInput!]!): [CourseModules!]!
+  createLessons(input: LessonsInput!): Lessons!
+  updateLessons(id: ID!, input: LessonsUpdateInput!): Lessons!
+  deleteLessons(id: ID!): Boolean!
+  createLessonsBatch(input: [LessonsInput!]!): [Lessons!]!
+  createLearningResources(input: LearningResourcesInput!): LearningResources!
+  updateLearningResources(id: ID!, input: LearningResourcesUpdateInput!): LearningResources!
+  deleteLearningResources(id: ID!): Boolean!
+  createLearningResourcesBatch(input: [LearningResourcesInput!]!): [LearningResources!]!
+  createLessonResources(input: LessonResourcesInput!): LessonResources!
+  updateLessonResources(id: ID!, input: LessonResourcesUpdateInput!): LessonResources!
+  deleteLessonResources(id: ID!): Boolean!
+  createLessonResourcesBatch(input: [LessonResourcesInput!]!): [LessonResources!]!
+  createEnrollments(input: EnrollmentsInput!): Enrollments!
+  updateEnrollments(id: ID!, input: EnrollmentsUpdateInput!): Enrollments!
+  deleteEnrollments(id: ID!): Boolean!
+  createEnrollmentsBatch(input: [EnrollmentsInput!]!): [Enrollments!]!
+  createPrerequisiteOverrides(input: PrerequisiteOverridesInput!): PrerequisiteOverrides!
+  updatePrerequisiteOverrides(id: ID!, input: PrerequisiteOverridesUpdateInput!): PrerequisiteOverrides!
+  deletePrerequisiteOverrides(id: ID!): Boolean!
+  createPrerequisiteOverridesBatch(input: [PrerequisiteOverridesInput!]!): [PrerequisiteOverrides!]!
+  createLessonProgress(input: LessonProgressInput!): LessonProgress!
+  updateLessonProgress(id: ID!, input: LessonProgressUpdateInput!): LessonProgress!
+  deleteLessonProgress(id: ID!): Boolean!
+  createLessonProgressBatch(input: [LessonProgressInput!]!): [LessonProgress!]!
+  createLearningPaths(input: LearningPathsInput!): LearningPaths!
+  updateLearningPaths(id: ID!, input: LearningPathsUpdateInput!): LearningPaths!
+  deleteLearningPaths(id: ID!): Boolean!
+  createLearningPathsBatch(input: [LearningPathsInput!]!): [LearningPaths!]!
+  createUserLearningPaths(input: UserLearningPathsInput!): UserLearningPaths!
+  updateUserLearningPaths(id: ID!, input: UserLearningPathsUpdateInput!): UserLearningPaths!
+  deleteUserLearningPaths(id: ID!): Boolean!
+  createUserLearningPathsBatch(input: [UserLearningPathsInput!]!): [UserLearningPaths!]!
+  createAssignments(input: AssignmentsInput!): Assignments!
+  updateAssignments(id: ID!, input: AssignmentsUpdateInput!): Assignments!
+  deleteAssignments(id: ID!): Boolean!
+  createAssignmentsBatch(input: [AssignmentsInput!]!): [Assignments!]!
+  createQuestions(input: QuestionsInput!): Questions!
+  updateQuestions(id: ID!, input: QuestionsUpdateInput!): Questions!
+  deleteQuestions(id: ID!): Boolean!
+  createQuestionsBatch(input: [QuestionsInput!]!): [Questions!]!
+  createQuestionBank(input: QuestionBankInput!): QuestionBank!
+  updateQuestionBank(id: ID!, input: QuestionBankUpdateInput!): QuestionBank!
+  deleteQuestionBank(id: ID!): Boolean!
+  createQuestionBankBatch(input: [QuestionBankInput!]!): [QuestionBank!]!
+  createRubrics(input: RubricsInput!): Rubrics!
+  updateRubrics(id: ID!, input: RubricsUpdateInput!): Rubrics!
+  deleteRubrics(id: ID!): Boolean!
+  createRubricsBatch(input: [RubricsInput!]!): [Rubrics!]!
+  createSubmissions(input: SubmissionsInput!): Submissions!
+  updateSubmissions(id: ID!, input: SubmissionsUpdateInput!): Submissions!
+  deleteSubmissions(id: ID!): Boolean!
+  createSubmissionsBatch(input: [SubmissionsInput!]!): [Submissions!]!
+  createGradebook(input: GradebookInput!): Gradebook!
+  updateGradebook(id: ID!, input: GradebookUpdateInput!): Gradebook!
+  deleteGradebook(id: ID!): Boolean!
+  createGradebookBatch(input: [GradebookInput!]!): [Gradebook!]!
+  createGradeHistory(input: GradeHistoryInput!): GradeHistory!
+  updateGradeHistory(id: ID!, input: GradeHistoryUpdateInput!): GradeHistory!
+  deleteGradeHistory(id: ID!): Boolean!
+  createGradeHistoryBatch(input: [GradeHistoryInput!]!): [GradeHistory!]!
+  createDiscussions(input: DiscussionsInput!): Discussions!
+  updateDiscussions(id: ID!, input: DiscussionsUpdateInput!): Discussions!
+  deleteDiscussions(id: ID!): Boolean!
+  createDiscussionsBatch(input: [DiscussionsInput!]!): [Discussions!]!
+  createDiscussionPosts(input: DiscussionPostsInput!): DiscussionPosts!
+  updateDiscussionPosts(id: ID!, input: DiscussionPostsUpdateInput!): DiscussionPosts!
+  deleteDiscussionPosts(id: ID!): Boolean!
+  createDiscussionPostsBatch(input: [DiscussionPostsInput!]!): [DiscussionPosts!]!
+  createMessages(input: MessagesInput!): Messages!
+  updateMessages(id: ID!, input: MessagesUpdateInput!): Messages!
+  deleteMessages(id: ID!): Boolean!
+  createMessagesBatch(input: [MessagesInput!]!): [Messages!]!
+  createAnnouncements(input: AnnouncementsInput!): Announcements!
+  updateAnnouncements(id: ID!, input: AnnouncementsUpdateInput!): Announcements!
+  deleteAnnouncements(id: ID!): Boolean!
+  createAnnouncementsBatch(input: [AnnouncementsInput!]!): [Announcements!]!
+  createAttendance(input: AttendanceInput!): Attendance!
+  updateAttendance(id: ID!, input: AttendanceUpdateInput!): Attendance!
+  deleteAttendance(id: ID!): Boolean!
+  createAttendanceBatch(input: [AttendanceInput!]!): [Attendance!]!
+  createActivityLogs(input: ActivityLogsInput!): ActivityLogs!
+  updateActivityLogs(id: ID!, input: ActivityLogsUpdateInput!): ActivityLogs!
+  deleteActivityLogs(id: ID!): Boolean!
+  createActivityLogsBatch(input: [ActivityLogsInput!]!): [ActivityLogs!]!
+  createLearningAnalytics(input: LearningAnalyticsInput!): LearningAnalytics!
+  updateLearningAnalytics(id: ID!, input: LearningAnalyticsUpdateInput!): LearningAnalytics!
+  deleteLearningAnalytics(id: ID!): Boolean!
+  createLearningAnalyticsBatch(input: [LearningAnalyticsInput!]!): [LearningAnalytics!]!
+  createCertificates(input: CertificatesInput!): Certificates!
+  updateCertificates(id: ID!, input: CertificatesUpdateInput!): Certificates!
+  deleteCertificates(id: ID!): Boolean!
+  createCertificatesBatch(input: [CertificatesInput!]!): [Certificates!]!
+}

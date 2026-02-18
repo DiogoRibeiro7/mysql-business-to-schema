@@ -1,0 +1,12 @@
+MySQL Business-to-Schema - Generator Benchmark Results
+Date: 2026-02-17T22:42:14.098395
+Duration: 10.70s
+============================================================
+
+Results:
+  ecommerce: SUCCESS - 4.6s, 100 rows
+  fintech: SUCCESS - 1.3s, 50 rows
+  industrial_iot: SUCCESS - 0.52s, 136 rows
+  iot_bins: SUCCESS - 3.28s, 30 rows
+  smart_energy: SUCCESS - 0.38s, 18 rows
+  social_media: SUCCESS - 0.62s, 100 rows

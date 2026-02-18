@@ -1,0 +1,134 @@
+version: '3.8'
+
+# Logistics & Supply Chain Management Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3319 (user: root, password: logistics_root)
+#   - phpMyAdmin: http://localhost:8095
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: logistics_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: logistics_root
+      MYSQL_DATABASE: logistics_db
+      MYSQL_USER: logistics_user
+      MYSQL_PASSWORD: logistics_pass
+    ports:
+      - "3319:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - logistics_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - logistics_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=3G
+      - --max_connections=1000
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: logistics_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: logistics_root
+    ports:
+      - "8095:80"
+    networks:
+      - logistics_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: logistics_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: logistics_db
+      MYSQL_USER: logistics_user
+      MYSQL_PASSWORD: logistics_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Logistics specific settings
+      WAREHOUSE_COUNT: ${WAREHOUSE_COUNT:-20}
+      ROUTE_COUNT: ${ROUTE_COUNT:-100}
+      SHIPMENT_VOLUME: ${SHIPMENT_VOLUME:-high}
+      TRACKING_ENABLED: ${TRACKING_ENABLED:-true}
+    volumes:
+      - ../generators/logistics:/app
+      - logistics_generator_output:/app/output
+    networks:
+      - logistics_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating logistics data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Redis for caching and real-time tracking
+  redis:
+    image: redis:7-alpine
+    container_name: logistics_redis
+    restart: unless-stopped
+    ports:
+      - "6385:6379"
+    networks:
+      - logistics_network
+    command: redis-server --maxmemory 1gb --maxmemory-policy allkeys-lru
+
+  # Optional: PostGIS for geospatial operations
+  postgis:
+    image: postgis/postgis:16-3.4-alpine
+    container_name: logistics_postgis
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: logistics_geo
+      POSTGRES_PASSWORD: logistics_geo_pass
+      POSTGRES_DB: logistics_geo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - logistics_postgis_data:/var/lib/postgresql/data
+    networks:
+      - logistics_network
+    profiles:
+      - geo
+
+volumes:
+  logistics_mysql_data:
+    name: logistics_mysql_data
+  logistics_generator_output:
+    name: logistics_generator_output
+  logistics_postgis_data:
+    name: logistics_postgis_data
+
+networks:
+  logistics_network:
+    name: logistics_network
+    driver: bridge

@@ -1,0 +1,1343 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.164074
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Users {
+  username: String!
+  email: String!
+  emailVerified: Boolean
+  passwordHash: String!
+  phoneNumber: String
+  phoneVerified: Boolean
+  status: String
+  accountType: String
+  createdAt: String
+  lastActive: String
+  deletedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserProfiles {
+  userId: ID!
+  user: Users
+  displayName: String
+  bio: String
+  profilePictureUrl: String
+  coverPictureUrl: String
+  website: String
+  location: String
+  birthDate: String
+  gender: String
+  language: String
+  timezone: String
+  isPrivate: Boolean
+  verifiedBadge: Boolean
+  followerCount: Int
+  followingCount: Int
+  postCount: Int
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserSettings {
+  userId: ID!
+  user: Users
+  notificationEmail: Boolean
+  notificationPush: Boolean
+  notificationSms: Boolean
+  privacyProfileVisibility: String
+  privacyMessageRequests: String
+  privacyShowActivityStatus: Boolean
+  privacyShowReadReceipts: Boolean
+  contentFilterSensitive: Boolean
+  contentFilterViolence: Boolean
+  contentLanguagePreferences: JSON
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Relationships {
+  fromUserId: ID!
+  user: Users
+  toUserId: ID!
+  user: Users
+  relationshipType: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RelationshipRequests {
+  fromUserId: ID!
+  user: Users
+  toUserId: ID!
+  user: Users
+  requestType: String
+  status: String
+  message: String
+  createdAt: String
+  respondedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Posts {
+  userId: ID!
+  user: Users
+  parentPostId: ID!
+  post: Posts
+  content: String
+  postType: String
+  visibility: String
+  isEdited: Boolean
+  editHistory: JSON
+  location: String
+  latitude: Float
+  longitude: Float
+  viewCount: Int
+  shareCount: Int
+  commentCount: Int
+  likeCount: Int
+  engagementScore: Float
+  isPromoted: Boolean
+  isArchived: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PostMedia {
+  postId: ID!
+  post: Posts
+  mediaType: String
+  mediaUrl: String!
+  thumbnailUrl: String
+  mediaMetadata: JSON
+  displayOrder: Int
+  altText: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Comments {
+  postId: ID!
+  post: Posts
+  userId: ID!
+  user: Users
+  parentCommentId: ID!
+  comment: Comments
+  content: String!
+  likeCount: Int
+  isEdited: Boolean
+  isHidden: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Reactions {
+  userId: ID!
+  user: Users
+  targetType: String
+  targetId: String!
+  reactionType: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Shares {
+  postId: ID!
+  post: Posts
+  userId: ID!
+  user: Users
+  shareType: String
+  shareText: String
+  platform: String
+  createdAt: String
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Bookmarks {
+  userId: ID!
+  user: Users
+  postId: ID!
+  post: Posts
+  collectionName: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Hashtags {
+  tag: String!
+  tagNormalized: String!
+  postCount: Int
+  weeklyCount: Int
+  dailyCount: Int
+  createdAt: String
+  lastUsed: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PostHashtags {
+  postId: ID!
+  post: Posts
+  hashtagId: ID!
+  hashtag: Hashtags
+  position: Int
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type TrendingTopics {
+  trendType: String
+  trendValue: String!
+  region: String
+  score: Float
+  velocity: Float
+  postCount: Int
+  userCount: Int
+  startTime: String
+  peakTime: String
+  endTime: String
+  score: String
+  score: String
+}
+
+type Conversations {
+  conversationType: String
+  title: String
+  description: String
+  creatorUserId: ID!
+  user: Users
+  isArchived: Boolean
+  createdAt: String
+  lastMessageAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ConversationParticipants {
+  conversationId: ID!
+  conversation: Conversations
+  userId: ID!
+  user: Users
+  role: String
+  joinedAt: String
+  lastReadAt: String
+  isMuted: Boolean
+  leftAt: String
+}
+
+type Messages {
+  conversationId: ID!
+  conversation: Conversations
+  senderUserId: ID!
+  user: Users
+  messageType: String
+  content: String
+  mediaUrl: String
+  isEdited: Boolean
+  isDeleted: Boolean
+  createdAt: String
+  editedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Notifications {
+  userId: ID!
+  user: Users
+  type: String
+  actorUserId: ID!
+  user: Users
+  targetType: String
+  targetId: String
+  title: String
+  body: String
+  data: JSON
+  isRead: Boolean
+  isPushed: Boolean
+  createdAt: String
+  readAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Reports {
+  reporterUserId: ID!
+  user: Users
+  reportedType: String
+  reportedId: String!
+  reason: String
+  description: String
+  status: String
+  priority: String
+  moderatorId: String
+  actionTaken: String
+  createdAt: String
+  reviewedAt: String
+  priority: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type BannedContent {
+  contentValue: String!
+  severity: String
+  reason: String
+  addedBy: String
+  isActive: Boolean
+  createdAt: String
+  expiresAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserActivityLogs {
+  userId: String!
+  actionType: String
+  targetType: String
+  targetId: String
+  sessionId: String
+  ipAddress: String
+  userAgent: String
+  referrer: String
+  durationMs: Int
+  metadata: JSON
+  createdAt: String
+  createdAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EngagementMetrics {
+  metricDate: String!
+  metricHour: Int
+  metricType: String
+  entityId: String!
+  impressions: Int
+  engagements: Int
+  clicks: Int
+  shares: Int
+  comments: Int
+  likes: Int
+  reach: Int
+  engagementRate: Float
+  createdAt: String
+  metricDate: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ViralContentTracking {
+  postId: ID!
+  post: Posts
+  viewVelocity: Float
+  shareVelocity: Float
+  engagementVelocity: Float
+  totalReach: Int
+  cascadeDepth: Int
+  isTrending: Boolean
+  trendScore: Float
+  trendScore: String
+}
+
+type UserLists {
+  userId: ID!
+  user: Users
+  name: String!
+  description: String
+  isPublic: Boolean
+  memberCount: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ListMembers {
+  listId: ID!
+  userList: UserLists
+  userId: ID!
+  user: Users
+  addedAt: String
+}
+
+# Input Types
+
+input UsersInput {
+  username: String
+  email: String
+  emailVerified: Boolean
+  passwordHash: String
+  phoneNumber: String
+  phoneVerified: Boolean
+  status: String
+  accountType: String
+  createdAt: String
+  lastActive: String
+  deletedAt: String
+}
+
+input UsersUpdateInput {
+  username: String
+  email: String
+  emailVerified: Boolean
+  passwordHash: String
+  phoneNumber: String
+  phoneVerified: Boolean
+  status: String
+  accountType: String
+  createdAt: String
+  lastActive: String
+  deletedAt: String
+}
+
+input UserProfilesInput {
+  userId: ID
+  displayName: String
+  bio: String
+  profilePictureUrl: String
+  coverPictureUrl: String
+  website: String
+  location: String
+  birthDate: String
+  gender: String
+  language: String
+  timezone: String
+  isPrivate: Boolean
+  verifiedBadge: Boolean
+  followerCount: Int
+  followingCount: Int
+  postCount: Int
+  updatedAt: String
+}
+
+input UserProfilesUpdateInput {
+  userId: ID
+  displayName: String
+  bio: String
+  profilePictureUrl: String
+  coverPictureUrl: String
+  website: String
+  location: String
+  birthDate: String
+  gender: String
+  language: String
+  timezone: String
+  isPrivate: Boolean
+  verifiedBadge: Boolean
+  followerCount: Int
+  followingCount: Int
+  postCount: Int
+  updatedAt: String
+}
+
+input UserSettingsInput {
+  userId: ID
+  notificationEmail: Boolean
+  notificationPush: Boolean
+  notificationSms: Boolean
+  privacyProfileVisibility: String
+  privacyMessageRequests: String
+  privacyShowActivityStatus: Boolean
+  privacyShowReadReceipts: Boolean
+  contentFilterSensitive: Boolean
+  contentFilterViolence: Boolean
+  contentLanguagePreferences: JSON
+  updatedAt: String
+}
+
+input UserSettingsUpdateInput {
+  userId: ID
+  notificationEmail: Boolean
+  notificationPush: Boolean
+  notificationSms: Boolean
+  privacyProfileVisibility: String
+  privacyMessageRequests: String
+  privacyShowActivityStatus: Boolean
+  privacyShowReadReceipts: Boolean
+  contentFilterSensitive: Boolean
+  contentFilterViolence: Boolean
+  contentLanguagePreferences: JSON
+  updatedAt: String
+}
+
+input RelationshipsInput {
+  fromUserId: ID
+  toUserId: ID
+  relationshipType: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input RelationshipsUpdateInput {
+  fromUserId: ID
+  toUserId: ID
+  relationshipType: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input RelationshipRequestsInput {
+  fromUserId: ID
+  toUserId: ID
+  requestType: String
+  status: String
+  message: String
+  createdAt: String
+  respondedAt: String
+}
+
+input RelationshipRequestsUpdateInput {
+  fromUserId: ID
+  toUserId: ID
+  requestType: String
+  status: String
+  message: String
+  createdAt: String
+  respondedAt: String
+}
+
+input PostsInput {
+  userId: ID
+  parentPostId: ID
+  content: String
+  postType: String
+  visibility: String
+  isEdited: Boolean
+  editHistory: JSON
+  location: String
+  latitude: Float
+  longitude: Float
+  viewCount: Int
+  shareCount: Int
+  commentCount: Int
+  likeCount: Int
+  engagementScore: Float
+  isPromoted: Boolean
+  isArchived: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input PostsUpdateInput {
+  userId: ID
+  parentPostId: ID
+  content: String
+  postType: String
+  visibility: String
+  isEdited: Boolean
+  editHistory: JSON
+  location: String
+  latitude: Float
+  longitude: Float
+  viewCount: Int
+  shareCount: Int
+  commentCount: Int
+  likeCount: Int
+  engagementScore: Float
+  isPromoted: Boolean
+  isArchived: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input PostMediaInput {
+  postId: ID
+  mediaType: String
+  mediaUrl: String
+  thumbnailUrl: String
+  mediaMetadata: JSON
+  displayOrder: Int
+  altText: String
+  createdAt: String
+}
+
+input PostMediaUpdateInput {
+  postId: ID
+  mediaType: String
+  mediaUrl: String
+  thumbnailUrl: String
+  mediaMetadata: JSON
+  displayOrder: Int
+  altText: String
+  createdAt: String
+}
+
+input CommentsInput {
+  postId: ID
+  userId: ID
+  parentCommentId: ID
+  content: String
+  likeCount: Int
+  isEdited: Boolean
+  isHidden: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+}
+
+input CommentsUpdateInput {
+  postId: ID
+  userId: ID
+  parentCommentId: ID
+  content: String
+  likeCount: Int
+  isEdited: Boolean
+  isHidden: Boolean
+  createdAt: String
+  updatedAt: String
+  deletedAt: String
+  createdAt: String
+}
+
+input ReactionsInput {
+  userId: ID
+  targetType: String
+  targetId: String
+  reactionType: String
+  createdAt: String
+}
+
+input ReactionsUpdateInput {
+  userId: ID
+  targetType: String
+  targetId: String
+  reactionType: String
+  createdAt: String
+}
+
+input SharesInput {
+  postId: ID
+  userId: ID
+  shareType: String
+  shareText: String
+  platform: String
+  createdAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input SharesUpdateInput {
+  postId: ID
+  userId: ID
+  shareType: String
+  shareText: String
+  platform: String
+  createdAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input BookmarksInput {
+  userId: ID
+  postId: ID
+  collectionName: String
+  createdAt: String
+}
+
+input BookmarksUpdateInput {
+  userId: ID
+  postId: ID
+  collectionName: String
+  createdAt: String
+}
+
+input HashtagsInput {
+  tag: String
+  tagNormalized: String
+  postCount: Int
+  weeklyCount: Int
+  dailyCount: Int
+  createdAt: String
+  lastUsed: String
+}
+
+input HashtagsUpdateInput {
+  tag: String
+  tagNormalized: String
+  postCount: Int
+  weeklyCount: Int
+  dailyCount: Int
+  createdAt: String
+  lastUsed: String
+}
+
+input PostHashtagsInput {
+  postId: ID
+  hashtagId: ID
+  position: Int
+  createdAt: String
+  createdAt: String
+}
+
+input PostHashtagsUpdateInput {
+  postId: ID
+  hashtagId: ID
+  position: Int
+  createdAt: String
+  createdAt: String
+}
+
+input TrendingTopicsInput {
+  trendType: String
+  trendValue: String
+  region: String
+  score: Float
+  velocity: Float
+  postCount: Int
+  userCount: Int
+  startTime: String
+  peakTime: String
+  endTime: String
+  score: String
+  score: String
+}
+
+input TrendingTopicsUpdateInput {
+  trendType: String
+  trendValue: String
+  region: String
+  score: Float
+  velocity: Float
+  postCount: Int
+  userCount: Int
+  startTime: String
+  peakTime: String
+  endTime: String
+  score: String
+  score: String
+}
+
+input ConversationsInput {
+  conversationType: String
+  title: String
+  description: String
+  creatorUserId: ID
+  isArchived: Boolean
+  createdAt: String
+  lastMessageAt: String
+}
+
+input ConversationsUpdateInput {
+  conversationType: String
+  title: String
+  description: String
+  creatorUserId: ID
+  isArchived: Boolean
+  createdAt: String
+  lastMessageAt: String
+}
+
+input ConversationParticipantsInput {
+  conversationId: ID
+  userId: ID
+  role: String
+  joinedAt: String
+  lastReadAt: String
+  isMuted: Boolean
+  leftAt: String
+}
+
+input ConversationParticipantsUpdateInput {
+  conversationId: ID
+  userId: ID
+  role: String
+  joinedAt: String
+  lastReadAt: String
+  isMuted: Boolean
+  leftAt: String
+}
+
+input MessagesInput {
+  conversationId: ID
+  senderUserId: ID
+  messageType: String
+  content: String
+  mediaUrl: String
+  isEdited: Boolean
+  isDeleted: Boolean
+  createdAt: String
+  editedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input MessagesUpdateInput {
+  conversationId: ID
+  senderUserId: ID
+  messageType: String
+  content: String
+  mediaUrl: String
+  isEdited: Boolean
+  isDeleted: Boolean
+  createdAt: String
+  editedAt: String
+  deletedAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input NotificationsInput {
+  userId: ID
+  type: String
+  actorUserId: ID
+  targetType: String
+  targetId: String
+  title: String
+  body: String
+  data: JSON
+  isRead: Boolean
+  isPushed: Boolean
+  createdAt: String
+  readAt: String
+  createdAt: String
+}
+
+input NotificationsUpdateInput {
+  userId: ID
+  type: String
+  actorUserId: ID
+  targetType: String
+  targetId: String
+  title: String
+  body: String
+  data: JSON
+  isRead: Boolean
+  isPushed: Boolean
+  createdAt: String
+  readAt: String
+  createdAt: String
+}
+
+input ReportsInput {
+  reporterUserId: ID
+  reportedType: String
+  reportedId: String
+  reason: String
+  description: String
+  status: String
+  priority: String
+  moderatorId: String
+  actionTaken: String
+  createdAt: String
+  reviewedAt: String
+  priority: String
+}
+
+input ReportsUpdateInput {
+  reporterUserId: ID
+  reportedType: String
+  reportedId: String
+  reason: String
+  description: String
+  status: String
+  priority: String
+  moderatorId: String
+  actionTaken: String
+  createdAt: String
+  reviewedAt: String
+  priority: String
+}
+
+input BannedContentInput {
+  contentValue: String
+  severity: String
+  reason: String
+  addedBy: String
+  isActive: Boolean
+  createdAt: String
+  expiresAt: String
+}
+
+input BannedContentUpdateInput {
+  contentValue: String
+  severity: String
+  reason: String
+  addedBy: String
+  isActive: Boolean
+  createdAt: String
+  expiresAt: String
+}
+
+input UserActivityLogsInput {
+  userId: String
+  actionType: String
+  targetType: String
+  targetId: String
+  sessionId: String
+  ipAddress: String
+  userAgent: String
+  referrer: String
+  durationMs: Int
+  metadata: JSON
+  createdAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input UserActivityLogsUpdateInput {
+  userId: String
+  actionType: String
+  targetType: String
+  targetId: String
+  sessionId: String
+  ipAddress: String
+  userAgent: String
+  referrer: String
+  durationMs: Int
+  metadata: JSON
+  createdAt: String
+  createdAt: String
+  createdAt: String
+}
+
+input EngagementMetricsInput {
+  metricDate: String
+  metricHour: Int
+  metricType: String
+  entityId: String
+  impressions: Int
+  engagements: Int
+  clicks: Int
+  shares: Int
+  comments: Int
+  likes: Int
+  reach: Int
+  engagementRate: Float
+  createdAt: String
+  metricDate: String
+}
+
+input EngagementMetricsUpdateInput {
+  metricDate: String
+  metricHour: Int
+  metricType: String
+  entityId: String
+  impressions: Int
+  engagements: Int
+  clicks: Int
+  shares: Int
+  comments: Int
+  likes: Int
+  reach: Int
+  engagementRate: Float
+  createdAt: String
+  metricDate: String
+}
+
+input ViralContentTrackingInput {
+  postId: ID
+  viewVelocity: Float
+  shareVelocity: Float
+  engagementVelocity: Float
+  totalReach: Int
+  cascadeDepth: Int
+  isTrending: Boolean
+  trendScore: Float
+  trendScore: String
+}
+
+input ViralContentTrackingUpdateInput {
+  postId: ID
+  viewVelocity: Float
+  shareVelocity: Float
+  engagementVelocity: Float
+  totalReach: Int
+  cascadeDepth: Int
+  isTrending: Boolean
+  trendScore: Float
+  trendScore: String
+}
+
+input UserListsInput {
+  userId: ID
+  name: String
+  description: String
+  isPublic: Boolean
+  memberCount: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: String
+}
+
+input UserListsUpdateInput {
+  userId: ID
+  name: String
+  description: String
+  isPublic: Boolean
+  memberCount: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: String
+}
+
+input ListMembersInput {
+  listId: ID
+  userId: ID
+  addedAt: String
+}
+
+input ListMembersUpdateInput {
+  listId: ID
+  userId: ID
+  addedAt: String
+}
+
+type Query {
+  user(id: ID!): Users
+  users(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Users!]!
+  usersCount(filter: String): Int!
+  userProfile(id: ID!): UserProfiles
+  userProfiles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserProfiles!]!
+  userProfilesCount(filter: String): Int!
+  userSetting(id: ID!): UserSettings
+  userSettings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserSettings!]!
+  userSettingsCount(filter: String): Int!
+  relationship(id: ID!): Relationships
+  relationships(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Relationships!]!
+  relationshipsCount(filter: String): Int!
+  relationshipRequest(id: ID!): RelationshipRequests
+  relationshipRequests(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RelationshipRequests!]!
+  relationshipRequestsCount(filter: String): Int!
+  post(id: ID!): Posts
+  posts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Posts!]!
+  postsCount(filter: String): Int!
+  postMedia(id: ID!): PostMedia
+  postMedia(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PostMedia!]!
+  postMediaCount(filter: String): Int!
+  comment(id: ID!): Comments
+  comments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Comments!]!
+  commentsCount(filter: String): Int!
+  reaction(id: ID!): Reactions
+  reactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Reactions!]!
+  reactionsCount(filter: String): Int!
+  share(id: ID!): Shares
+  shares(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Shares!]!
+  sharesCount(filter: String): Int!
+  bookmark(id: ID!): Bookmarks
+  bookmarks(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Bookmarks!]!
+  bookmarksCount(filter: String): Int!
+  hashtag(id: ID!): Hashtags
+  hashtags(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Hashtags!]!
+  hashtagsCount(filter: String): Int!
+  postHashtag(id: ID!): PostHashtags
+  postHashtags(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PostHashtags!]!
+  postHashtagsCount(filter: String): Int!
+  trendingTopic(id: ID!): TrendingTopics
+  trendingTopics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [TrendingTopics!]!
+  trendingTopicsCount(filter: String): Int!
+  conversation(id: ID!): Conversations
+  conversations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Conversations!]!
+  conversationsCount(filter: String): Int!
+  conversationParticipant(id: ID!): ConversationParticipants
+  conversationParticipants(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ConversationParticipants!]!
+  conversationParticipantsCount(filter: String): Int!
+  message(id: ID!): Messages
+  messages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Messages!]!
+  messagesCount(filter: String): Int!
+  notification(id: ID!): Notifications
+  notifications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Notifications!]!
+  notificationsCount(filter: String): Int!
+  report(id: ID!): Reports
+  reports(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Reports!]!
+  reportsCount(filter: String): Int!
+  bannedContent(id: ID!): BannedContent
+  bannedContent(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [BannedContent!]!
+  bannedContentCount(filter: String): Int!
+  userActivityLog(id: ID!): UserActivityLogs
+  userActivityLogs(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserActivityLogs!]!
+  userActivityLogsCount(filter: String): Int!
+  engagementMetric(id: ID!): EngagementMetrics
+  engagementMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EngagementMetrics!]!
+  engagementMetricsCount(filter: String): Int!
+  viralContentTracking(id: ID!): ViralContentTracking
+  viralContentTracking(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ViralContentTracking!]!
+  viralContentTrackingCount(filter: String): Int!
+  userList(id: ID!): UserLists
+  userLists(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserLists!]!
+  userListsCount(filter: String): Int!
+  listMember(id: ID!): ListMembers
+  listMembers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ListMembers!]!
+  listMembersCount(filter: String): Int!
+}
+
+type Mutation {
+  createUsers(input: UsersInput!): Users!
+  updateUsers(id: ID!, input: UsersUpdateInput!): Users!
+  deleteUsers(id: ID!): Boolean!
+  createUsersBatch(input: [UsersInput!]!): [Users!]!
+  createUserProfiles(input: UserProfilesInput!): UserProfiles!
+  updateUserProfiles(id: ID!, input: UserProfilesUpdateInput!): UserProfiles!
+  deleteUserProfiles(id: ID!): Boolean!
+  createUserProfilesBatch(input: [UserProfilesInput!]!): [UserProfiles!]!
+  createUserSettings(input: UserSettingsInput!): UserSettings!
+  updateUserSettings(id: ID!, input: UserSettingsUpdateInput!): UserSettings!
+  deleteUserSettings(id: ID!): Boolean!
+  createUserSettingsBatch(input: [UserSettingsInput!]!): [UserSettings!]!
+  createRelationships(input: RelationshipsInput!): Relationships!
+  updateRelationships(id: ID!, input: RelationshipsUpdateInput!): Relationships!
+  deleteRelationships(id: ID!): Boolean!
+  createRelationshipsBatch(input: [RelationshipsInput!]!): [Relationships!]!
+  createRelationshipRequests(input: RelationshipRequestsInput!): RelationshipRequests!
+  updateRelationshipRequests(id: ID!, input: RelationshipRequestsUpdateInput!): RelationshipRequests!
+  deleteRelationshipRequests(id: ID!): Boolean!
+  createRelationshipRequestsBatch(input: [RelationshipRequestsInput!]!): [RelationshipRequests!]!
+  createPosts(input: PostsInput!): Posts!
+  updatePosts(id: ID!, input: PostsUpdateInput!): Posts!
+  deletePosts(id: ID!): Boolean!
+  createPostsBatch(input: [PostsInput!]!): [Posts!]!
+  createPostMedia(input: PostMediaInput!): PostMedia!
+  updatePostMedia(id: ID!, input: PostMediaUpdateInput!): PostMedia!
+  deletePostMedia(id: ID!): Boolean!
+  createPostMediaBatch(input: [PostMediaInput!]!): [PostMedia!]!
+  createComments(input: CommentsInput!): Comments!
+  updateComments(id: ID!, input: CommentsUpdateInput!): Comments!
+  deleteComments(id: ID!): Boolean!
+  createCommentsBatch(input: [CommentsInput!]!): [Comments!]!
+  createReactions(input: ReactionsInput!): Reactions!
+  updateReactions(id: ID!, input: ReactionsUpdateInput!): Reactions!
+  deleteReactions(id: ID!): Boolean!
+  createReactionsBatch(input: [ReactionsInput!]!): [Reactions!]!
+  createShares(input: SharesInput!): Shares!
+  updateShares(id: ID!, input: SharesUpdateInput!): Shares!
+  deleteShares(id: ID!): Boolean!
+  createSharesBatch(input: [SharesInput!]!): [Shares!]!
+  createBookmarks(input: BookmarksInput!): Bookmarks!
+  updateBookmarks(id: ID!, input: BookmarksUpdateInput!): Bookmarks!
+  deleteBookmarks(id: ID!): Boolean!
+  createBookmarksBatch(input: [BookmarksInput!]!): [Bookmarks!]!
+  createHashtags(input: HashtagsInput!): Hashtags!
+  updateHashtags(id: ID!, input: HashtagsUpdateInput!): Hashtags!
+  deleteHashtags(id: ID!): Boolean!
+  createHashtagsBatch(input: [HashtagsInput!]!): [Hashtags!]!
+  createPostHashtags(input: PostHashtagsInput!): PostHashtags!
+  updatePostHashtags(id: ID!, input: PostHashtagsUpdateInput!): PostHashtags!
+  deletePostHashtags(id: ID!): Boolean!
+  createPostHashtagsBatch(input: [PostHashtagsInput!]!): [PostHashtags!]!
+  createTrendingTopics(input: TrendingTopicsInput!): TrendingTopics!
+  updateTrendingTopics(id: ID!, input: TrendingTopicsUpdateInput!): TrendingTopics!
+  deleteTrendingTopics(id: ID!): Boolean!
+  createTrendingTopicsBatch(input: [TrendingTopicsInput!]!): [TrendingTopics!]!
+  createConversations(input: ConversationsInput!): Conversations!
+  updateConversations(id: ID!, input: ConversationsUpdateInput!): Conversations!
+  deleteConversations(id: ID!): Boolean!
+  createConversationsBatch(input: [ConversationsInput!]!): [Conversations!]!
+  createConversationParticipants(input: ConversationParticipantsInput!): ConversationParticipants!
+  updateConversationParticipants(id: ID!, input: ConversationParticipantsUpdateInput!): ConversationParticipants!
+  deleteConversationParticipants(id: ID!): Boolean!
+  createConversationParticipantsBatch(input: [ConversationParticipantsInput!]!): [ConversationParticipants!]!
+  createMessages(input: MessagesInput!): Messages!
+  updateMessages(id: ID!, input: MessagesUpdateInput!): Messages!
+  deleteMessages(id: ID!): Boolean!
+  createMessagesBatch(input: [MessagesInput!]!): [Messages!]!
+  createNotifications(input: NotificationsInput!): Notifications!
+  updateNotifications(id: ID!, input: NotificationsUpdateInput!): Notifications!
+  deleteNotifications(id: ID!): Boolean!
+  createNotificationsBatch(input: [NotificationsInput!]!): [Notifications!]!
+  createReports(input: ReportsInput!): Reports!
+  updateReports(id: ID!, input: ReportsUpdateInput!): Reports!
+  deleteReports(id: ID!): Boolean!
+  createReportsBatch(input: [ReportsInput!]!): [Reports!]!
+  createBannedContent(input: BannedContentInput!): BannedContent!
+  updateBannedContent(id: ID!, input: BannedContentUpdateInput!): BannedContent!
+  deleteBannedContent(id: ID!): Boolean!
+  createBannedContentBatch(input: [BannedContentInput!]!): [BannedContent!]!
+  createUserActivityLogs(input: UserActivityLogsInput!): UserActivityLogs!
+  updateUserActivityLogs(id: ID!, input: UserActivityLogsUpdateInput!): UserActivityLogs!
+  deleteUserActivityLogs(id: ID!): Boolean!
+  createUserActivityLogsBatch(input: [UserActivityLogsInput!]!): [UserActivityLogs!]!
+  createEngagementMetrics(input: EngagementMetricsInput!): EngagementMetrics!
+  updateEngagementMetrics(id: ID!, input: EngagementMetricsUpdateInput!): EngagementMetrics!
+  deleteEngagementMetrics(id: ID!): Boolean!
+  createEngagementMetricsBatch(input: [EngagementMetricsInput!]!): [EngagementMetrics!]!
+  createViralContentTracking(input: ViralContentTrackingInput!): ViralContentTracking!
+  updateViralContentTracking(id: ID!, input: ViralContentTrackingUpdateInput!): ViralContentTracking!
+  deleteViralContentTracking(id: ID!): Boolean!
+  createViralContentTrackingBatch(input: [ViralContentTrackingInput!]!): [ViralContentTracking!]!
+  createUserLists(input: UserListsInput!): UserLists!
+  updateUserLists(id: ID!, input: UserListsUpdateInput!): UserLists!
+  deleteUserLists(id: ID!): Boolean!
+  createUserListsBatch(input: [UserListsInput!]!): [UserLists!]!
+  createListMembers(input: ListMembersInput!): ListMembers!
+  updateListMembers(id: ID!, input: ListMembersUpdateInput!): ListMembers!
+  deleteListMembers(id: ID!): Boolean!
+  createListMembersBatch(input: [ListMembersInput!]!): [ListMembers!]!
+}

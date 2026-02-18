@@ -1,0 +1,908 @@
+type Query {
+  # Customer queries
+  customer(id: ID!): Customer
+  currentCustomer: Customer
+  customerAddresses(customerId: ID!): [CustomerAddress!]!
+
+  # Restaurant queries
+  restaurant(id: ID!): Restaurant
+  restaurantBySlug(slug: String!): Restaurant
+  nearbyRestaurants(
+    latitude: Float!
+    longitude: Float!
+    radiusKm: Float = 5
+    cuisineTypes: [String!]
+    priceRange: PriceRange
+    minRating: Float
+    limit: Int = 20
+  ): [Restaurant!]!
+  searchRestaurants(query: String!, limit: Int = 20): [Restaurant!]!
+
+  # Menu queries
+  menuCategories(restaurantId: ID!): [MenuCategory!]!
+  menuItems(
+    restaurantId: ID!
+    categoryId: ID
+    dietary: DietaryFilter
+  ): [MenuItem!]!
+  menuItem(id: ID!): MenuItem
+
+  # Order queries
+  order(id: ID!): Order
+  customerOrders(
+    customerId: ID!
+    status: OrderStatus
+    limit: Int = 20
+    offset: Int = 0
+  ): [Order!]!
+  trackOrder(orderId: ID!): DeliveryTracking
+
+  # Driver queries
+  driver(id: ID!): Driver
+  availableDrivers(
+    latitude: Float!
+    longitude: Float!
+    radiusKm: Float = 5
+  ): [Driver!]!
+
+  # Zone queries
+  deliveryZone(latitude: Float!, longitude: Float!): DeliveryZone
+  activeZones: [DeliveryZone!]!
+
+  # Promotion queries
+  promotion(code: String!): Promotion
+  activePromotions(segment: CustomerSegment): [Promotion!]!
+
+  # Review queries
+  restaurantReviews(
+    restaurantId: ID!
+    limit: Int = 20
+    offset: Int = 0
+  ): [RestaurantReview!]!
+}
+
+type Mutation {
+  # Customer management
+  registerCustomer(input: RegisterCustomerInput!): AuthResponse!
+  loginCustomer(email: String!, password: String!): AuthResponse!
+  updateCustomerProfile(input: UpdateCustomerInput!): Customer!
+  addCustomerAddress(input: AddressInput!): CustomerAddress!
+  deleteCustomerAddress(addressId: ID!): Boolean!
+
+  # Restaurant management
+  registerRestaurant(input: RegisterRestaurantInput!): Restaurant!
+  updateRestaurant(id: ID!, input: UpdateRestaurantInput!): Restaurant!
+  updateRestaurantHours(restaurantId: ID!, hours: [RestaurantHoursInput!]!): [RestaurantHours!]!
+
+  # Menu management
+  createMenuCategory(restaurantId: ID!, input: MenuCategoryInput!): MenuCategory!
+  createMenuItem(categoryId: ID!, input: MenuItemInput!): MenuItem!
+  updateMenuItem(id: ID!, input: UpdateMenuItemInput!): MenuItem!
+  toggleItemAvailability(itemId: ID!, available: Boolean!): MenuItem!
+
+  # Order management
+  createOrder(input: CreateOrderInput!): Order!
+  confirmOrder(orderId: ID!): Order!
+  cancelOrder(orderId: ID!, reason: String!): Order!
+  scheduleOrder(input: ScheduleOrderInput!): Order!
+
+  # Driver management
+  registerDriver(input: RegisterDriverInput!): Driver!
+  updateDriverStatus(driverId: ID!, status: DriverStatus!): Driver!
+  updateDriverLocation(driverId: ID!, latitude: Float!, longitude: Float!): Boolean!
+  acceptOrder(driverId: ID!, orderId: ID!): Order!
+  completeDelivery(orderId: ID!): Order!
+
+  # Payment
+  addPaymentMethod(input: PaymentMethodInput!): PaymentMethod!
+  removePaymentMethod(id: ID!): Boolean!
+  processPayment(orderId: ID!, paymentMethodId: ID!): PaymentResult!
+
+  # Reviews and ratings
+  submitRestaurantReview(input: RestaurantReviewInput!): RestaurantReview!
+  rateDriver(input: DriverRatingInput!): DriverRating!
+
+  # Promotions
+  applyPromotion(orderId: ID!, code: String!): Order!
+}
+
+type Subscription {
+  # Order tracking
+  orderUpdates(orderId: ID!): OrderUpdate!
+  deliveryTracking(orderId: ID!): DeliveryTracking!
+
+  # Driver tracking
+  driverLocation(driverId: ID!): LocationUpdate!
+
+  # Restaurant updates
+  restaurantOrderUpdates(restaurantId: ID!): Order!
+
+  # Zone updates
+  zoneUpdates(zoneId: ID!): ZoneUpdate!
+}
+
+# ============================================================================
+# CUSTOMER TYPES
+# ============================================================================
+
+type Customer {
+  id: ID!
+  email: String!
+  phoneNumber: String!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date
+  dietaryRestrictions: [String!]
+  preferredCuisines: [String!]
+  defaultTipPercentage: Float!
+  status: CustomerStatus!
+  emailVerified: Boolean!
+  phoneVerified: Boolean!
+  loyaltyPoints: Int!
+  loyaltyTier: LoyaltyTier!
+  totalOrders: Int!
+  totalSpent: Float!
+  referralCode: String
+  createdAt: DateTime!
+  lastOrderAt: DateTime
+
+  # Relations
+  addresses: [CustomerAddress!]!
+  orders(limit: Int = 20): [Order!]!
+  paymentMethods: [PaymentMethod!]!
+  favoriteRestaurants: [Restaurant!]!
+}
+
+type CustomerAddress {
+  id: ID!
+  customerId: ID!
+  label: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String!
+  postalCode: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  deliveryInstructions: String
+  gateCode: String
+  isDefault: Boolean!
+  isActive: Boolean!
+}
+
+# ============================================================================
+# RESTAURANT TYPES
+# ============================================================================
+
+type Restaurant {
+  id: ID!
+  name: String!
+  slug: String!
+  email: String!
+  phoneNumber: String!
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String!
+  postalCode: String!
+  country: String!
+  latitude: Float!
+  longitude: Float!
+  cuisineTypes: [String!]!
+  priceRange: PriceRange!
+  deliveryRadiusKm: Float!
+  minimumOrderAmount: Float!
+  preparationTimeMinutes: Int!
+  pickupEnabled: Boolean!
+  deliveryEnabled: Boolean!
+  scheduleOrdersEnabled: Boolean!
+  deliveryFee: Float!
+  serviceFeePercentage: Float!
+  status: RestaurantStatus!
+  isFeatured: Boolean!
+  isPromoted: Boolean!
+  averageRating: Float!
+  totalRatings: Int!
+  totalOrders: Int!
+  logoUrl: String
+  bannerImageUrl: String
+  createdAt: DateTime!
+
+  # Relations
+  hours: [RestaurantHours!]!
+  categories: [MenuCategory!]!
+  reviews(limit: Int = 20): [RestaurantReview!]!
+  isOpen: Boolean!
+  distanceKm(latitude: Float!, longitude: Float!): Float
+}
+
+type RestaurantHours {
+  id: ID!
+  restaurantId: ID!
+  dayOfWeek: DayOfWeek!
+  openTime: Time!
+  closeTime: Time!
+  isClosed: Boolean!
+  specialHoursDate: Date
+  specialHoursReason: String
+}
+
+type MenuCategory {
+  id: ID!
+  restaurantId: ID!
+  name: String!
+  description: String
+  displayOrder: Int!
+  isActive: Boolean!
+  availableStartTime: Time
+  availableEndTime: Time
+  items: [MenuItem!]!
+}
+
+type MenuItem {
+  id: ID!
+  restaurantId: ID!
+  category: MenuCategory!
+  name: String!
+  description: String
+  basePrice: Float!
+  salePrice: Float
+  calories: Int
+  preparationTimeMinutes: Int!
+  spiceLevel: SpiceLevel
+  isVegetarian: Boolean!
+  isVegan: Boolean!
+  isGlutenFree: Boolean!
+  isHalal: Boolean!
+  isKosher: Boolean!
+  allergens: [String!]
+  isAvailable: Boolean!
+  dailyLimit: Int
+  currentStock: Int
+  timesOrdered: Int!
+  isPopular: Boolean!
+  isRecommended: Boolean!
+  imageUrl: String
+  customizations: [ItemCustomization!]!
+}
+
+type ItemCustomization {
+  id: ID!
+  itemId: ID!
+  groupName: String!
+  isRequired: Boolean!
+  minSelections: Int!
+  maxSelections: Int!
+  options: [CustomizationOption!]!
+}
+
+type CustomizationOption {
+  id: ID!
+  customizationId: ID!
+  name: String!
+  priceAdjustment: Float!
+  isDefault: Boolean!
+  isAvailable: Boolean!
+}
+
+# ============================================================================
+# DRIVER TYPES
+# ============================================================================
+
+type Driver {
+  id: ID!
+  email: String!
+  phoneNumber: String!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date!
+  licenseNumber: String
+  licenseExpiry: Date
+  backgroundCheckStatus: BackgroundStatus!
+  vehicleType: VehicleType!
+  vehicleMake: String
+  vehicleModel: String
+  vehicleYear: Int
+  vehiclePlate: String
+  status: DriverStatus!
+  isAvailable: Boolean!
+  currentLatitude: Float
+  currentLongitude: Float
+  lastLocationUpdate: DateTime
+  totalDeliveries: Int!
+  successfulDeliveries: Int!
+  averageRating: Float!
+  totalRatings: Int!
+  onTimePercentage: Float!
+  acceptanceRate: Float!
+  totalEarnings: Float!
+  pendingPayout: Float!
+
+  # Relations
+  currentOrders: [Order!]!
+  shifts: [DriverShift!]!
+  ratings: [DriverRating!]!
+}
+
+type DriverShift {
+  id: ID!
+  driverId: ID!
+  scheduledStart: DateTime!
+  scheduledEnd: DateTime!
+  actualStart: DateTime
+  actualEnd: DateTime
+  ordersCompleted: Int!
+  distanceTraveledKm: Float!
+  earnings: Float!
+  tips: Float!
+  status: ShiftStatus!
+}
+
+# ============================================================================
+# ORDER TYPES
+# ============================================================================
+
+type Order {
+  id: ID!
+  orderNumber: String!
+  customer: Customer!
+  restaurant: Restaurant!
+  driver: Driver
+  orderType: OrderType!
+  deliveryAddress: CustomerAddress
+  deliveryLatitude: Float
+  deliveryLongitude: Float
+  deliveryInstructions: String
+  placedAt: DateTime!
+  confirmedAt: DateTime
+  preparingAt: DateTime
+  readyAt: DateTime
+  pickedUpAt: DateTime
+  deliveredAt: DateTime
+  isScheduled: Boolean!
+  scheduledFor: DateTime
+  estimatedPreparationTime: Int
+  estimatedDeliveryTime: Int
+  actualDeliveryTime: Int
+  subtotal: Float!
+  taxAmount: Float!
+  deliveryFee: Float!
+  serviceFee: Float!
+  smallOrderFee: Float!
+  tipAmount: Float!
+  discountAmount: Float!
+  totalAmount: Float!
+  promoCode: String
+  promoDiscount: Float!
+  paymentMethod: PaymentMethodType!
+  paymentStatus: PaymentStatus!
+  status: OrderStatus!
+  cancelledBy: CancelledBy
+  cancellationReason: String
+  refundAmount: Float
+  refundStatus: RefundStatus
+  customerRating: Int
+  customerReview: String
+  driverRating: Int
+
+  # Relations
+  items: [OrderItem!]!
+  tracking: [DeliveryTracking!]!
+}
+
+type OrderItem {
+  id: ID!
+  orderId: ID!
+  menuItem: MenuItem!
+  itemName: String!
+  itemPrice: Float!
+  quantity: Int!
+  subtotal: Float!
+  specialInstructions: String
+  customizations: [OrderItemCustomization!]!
+}
+
+type OrderItemCustomization {
+  id: ID!
+  orderItemId: ID!
+  groupName: String!
+  optionName: String!
+  priceAdjustment: Float!
+}
+
+type DeliveryTracking {
+  id: ID!
+  orderId: ID!
+  driverId: ID!
+  latitude: Float!
+  longitude: Float!
+  heading: Int
+  speedKmh: Float
+  distanceToRestaurantKm: Float
+  distanceToCustomerKm: Float
+  status: TrackingStatus!
+  recordedAt: DateTime!
+}
+
+# ============================================================================
+# ZONE & PRICING TYPES
+# ============================================================================
+
+type DeliveryZone {
+  id: ID!
+  name: String!
+  baseDeliveryFee: Float!
+  minOrderAmount: Float!
+  maxDeliveryDistanceKm: Float!
+  surgeMultiplier: Float!
+  surgeActive: Boolean!
+  surgeReason: String
+  activeDrivers: Int!
+  pendingOrders: Int!
+  averageWaitTimeMinutes: Int!
+  isActive: Boolean!
+  containsPoint(latitude: Float!, longitude: Float!): Boolean!
+}
+
+# ============================================================================
+# REVIEW & RATING TYPES
+# ============================================================================
+
+type RestaurantReview {
+  id: ID!
+  restaurant: Restaurant!
+  customer: Customer!
+  order: Order!
+  foodRating: Int!
+  deliveryRating: Int
+  overallRating: Int!
+  reviewText: String
+  restaurantResponse: String
+  respondedAt: DateTime
+  isVerifiedPurchase: Boolean!
+  isFeatured: Boolean!
+  helpfulCount: Int!
+  createdAt: DateTime!
+}
+
+type DriverRating {
+  id: ID!
+  driver: Driver!
+  customer: Customer!
+  order: Order!
+  rating: Int!
+  onTime: Boolean
+  friendly: Boolean
+  orderHandledCarefully: Boolean
+  followedInstructions: Boolean
+  comments: String
+  createdAt: DateTime!
+}
+
+# ============================================================================
+# PROMOTION & PAYMENT TYPES
+# ============================================================================
+
+type Promotion {
+  id: ID!
+  name: String!
+  description: String
+  code: String
+  discountType: DiscountType!
+  discountValue: Float!
+  maxDiscountAmount: Float
+  minOrderAmount: Float!
+  maxUsesTotal: Int
+  maxUsesPerCustomer: Int!
+  customerSegment: CustomerSegment!
+  validFrom: DateTime!
+  validUntil: DateTime!
+  validDays: [DayOfWeek!]
+  validHoursStart: Time
+  validHoursEnd: Time
+  timesUsed: Int!
+  isActive: Boolean!
+  isApplicable(customerId: ID!, orderAmount: Float!): Boolean!
+}
+
+type PaymentMethod {
+  id: ID!
+  customerId: ID!
+  type: PaymentMethodType!
+  cardLastFour: String
+  cardBrand: String
+  cardExpMonth: Int
+  cardExpYear: Int
+  isDefault: Boolean!
+  nickname: String
+  createdAt: DateTime!
+}
+
+type PaymentResult {
+  success: Boolean!
+  transactionId: String
+  message: String
+  amount: Float!
+}
+
+# ============================================================================
+# REAL-TIME UPDATE TYPES
+# ============================================================================
+
+type OrderUpdate {
+  order: Order!
+  previousStatus: OrderStatus!
+  newStatus: OrderStatus!
+  message: String!
+  timestamp: DateTime!
+}
+
+type LocationUpdate {
+  driverId: ID!
+  latitude: Float!
+  longitude: Float!
+  heading: Int
+  speedKmh: Float
+  timestamp: DateTime!
+}
+
+type ZoneUpdate {
+  zone: DeliveryZone!
+  changeType: ZoneChangeType!
+  timestamp: DateTime!
+}
+
+# ============================================================================
+# INPUT TYPES
+# ============================================================================
+
+input RegisterCustomerInput {
+  email: String!
+  phoneNumber: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date
+  referralCode: String
+}
+
+input UpdateCustomerInput {
+  firstName: String
+  lastName: String
+  phoneNumber: String
+  dietaryRestrictions: [String!]
+  preferredCuisines: [String!]
+  defaultTipPercentage: Float
+}
+
+input AddressInput {
+  label: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String!
+  postalCode: String!
+  country: String = "US"
+  deliveryInstructions: String
+  gateCode: String
+  isDefault: Boolean
+}
+
+input RegisterRestaurantInput {
+  name: String!
+  email: String!
+  phoneNumber: String!
+  businessLicense: String!
+  taxId: String!
+  address: AddressInput!
+  cuisineTypes: [String!]!
+  priceRange: PriceRange!
+}
+
+input UpdateRestaurantInput {
+  name: String
+  phoneNumber: String
+  cuisineTypes: [String!]
+  priceRange: PriceRange
+  deliveryRadiusKm: Float
+  minimumOrderAmount: Float
+  preparationTimeMinutes: Int
+  pickupEnabled: Boolean
+  deliveryEnabled: Boolean
+}
+
+input RestaurantHoursInput {
+  dayOfWeek: DayOfWeek!
+  openTime: Time!
+  closeTime: Time!
+  isClosed: Boolean
+}
+
+input MenuCategoryInput {
+  name: String!
+  description: String
+  displayOrder: Int
+  availableStartTime: Time
+  availableEndTime: Time
+}
+
+input MenuItemInput {
+  name: String!
+  description: String
+  basePrice: Float!
+  salePrice: Float
+  calories: Int
+  preparationTimeMinutes: Int
+  spiceLevel: SpiceLevel
+  isVegetarian: Boolean
+  isVegan: Boolean
+  isGlutenFree: Boolean
+  isHalal: Boolean
+  isKosher: Boolean
+  allergens: [String!]
+  imageUrl: String
+}
+
+input UpdateMenuItemInput {
+  name: String
+  description: String
+  basePrice: Float
+  salePrice: Float
+  isAvailable: Boolean
+  dailyLimit: Int
+  currentStock: Int
+}
+
+input CreateOrderInput {
+  restaurantId: ID!
+  orderType: OrderType!
+  deliveryAddressId: ID
+  items: [OrderItemInput!]!
+  promoCode: String
+  tipAmount: Float
+  paymentMethodId: ID!
+}
+
+input OrderItemInput {
+  menuItemId: ID!
+  quantity: Int!
+  specialInstructions: String
+  customizationIds: [ID!]
+}
+
+input ScheduleOrderInput {
+  restaurantId: ID!
+  scheduledFor: DateTime!
+  items: [OrderItemInput!]!
+  deliveryAddressId: ID!
+}
+
+input RegisterDriverInput {
+  email: String!
+  phoneNumber: String!
+  password: String!
+  firstName: String!
+  lastName: String!
+  dateOfBirth: Date!
+  licenseNumber: String!
+  licenseExpiry: Date!
+  vehicleType: VehicleType!
+  vehicleInfo: VehicleInfoInput!
+}
+
+input VehicleInfoInput {
+  make: String!
+  model: String!
+  year: Int!
+  color: String!
+  plate: String!
+}
+
+input RestaurantReviewInput {
+  orderId: ID!
+  foodRating: Int!
+  deliveryRating: Int
+  overallRating: Int!
+  reviewText: String
+}
+
+input DriverRatingInput {
+  orderId: ID!
+  rating: Int!
+  onTime: Boolean
+  friendly: Boolean
+  orderHandledCarefully: Boolean
+  followedInstructions: Boolean
+  comments: String
+}
+
+input PaymentMethodInput {
+  type: PaymentMethodType!
+  cardToken: String
+  nickname: String
+  isDefault: Boolean
+}
+
+input DietaryFilter {
+  isVegetarian: Boolean
+  isVegan: Boolean
+  isGlutenFree: Boolean
+  isHalal: Boolean
+  isKosher: Boolean
+}
+
+# ============================================================================
+# RESPONSE TYPES
+# ============================================================================
+
+type AuthResponse {
+  success: Boolean!
+  message: String
+  customer: Customer
+  token: String
+  expiresAt: DateTime
+}
+
+# ============================================================================
+# ENUMS
+# ============================================================================
+
+enum CustomerStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum LoyaltyTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum RestaurantStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum PriceRange {
+  BUDGET      # $
+  MODERATE    # $$
+  PREMIUM     # $$$
+  LUXURY      # $$$$
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum SpiceLevel {
+  NONE
+  MILD
+  MEDIUM
+  HOT
+  EXTRA_HOT
+}
+
+enum VehicleType {
+  BICYCLE
+  SCOOTER
+  MOTORCYCLE
+  CAR
+  DRONE
+  ROBOT
+}
+
+enum BackgroundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DriverStatus {
+  PENDING
+  ACTIVE
+  BUSY
+  OFFLINE
+  SUSPENDED
+}
+
+enum ShiftStatus {
+  SCHEDULED
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum OrderType {
+  DELIVERY
+  PICKUP
+  DINE_IN
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  PICKED_UP
+  ON_THE_WAY
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethodType {
+  CARD
+  CASH
+  WALLET
+  PAYPAL
+}
+
+enum PaymentStatus {
+  PENDING
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum CancelledBy {
+  CUSTOMER
+  RESTAURANT
+  DRIVER
+  SYSTEM
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum TrackingStatus {
+  HEADING_TO_RESTAURANT
+  AT_RESTAURANT
+  HEADING_TO_CUSTOMER
+  NEAR_CUSTOMER
+  DELIVERED
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  DELIVERY_FEE
+  BOGO
+}
+
+enum CustomerSegment {
+  ALL
+  NEW
+  RETURNING
+  VIP
+  INACTIVE
+}
+
+enum ZoneChangeType {
+  SURGE_ACTIVATED
+  SURGE_DEACTIVATED
+  STATS_UPDATED
+}
+
+# ============================================================================
+# SCALAR TYPES
+# ============================================================================
+
+scalar Date
+scalar DateTime
+scalar Time

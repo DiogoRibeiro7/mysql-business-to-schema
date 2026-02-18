@@ -1,0 +1,157 @@
+version: '3.8'
+
+# E-Commerce Platform Docker Compose Configuration
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3306 (user: root, password: ecommerce_root)
+#   - phpMyAdmin: http://localhost:8080
+#
+# Generate Data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ecommerce_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ecommerce_root
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: ecommerce_user
+      MYSQL_PASSWORD: ecommerce_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - ecommerce_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - ecommerce_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+      - --max_connections=1000
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ecommerce_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ecommerce_root
+      UPLOAD_LIMIT: 300M
+    ports:
+      - "8080:80"
+    networks:
+      - ecommerce_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: ecommerce_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: ecommerce_user
+      MYSQL_PASSWORD: ecommerce_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+    volumes:
+      - ../generators/ecommerce:/app
+      - ecommerce_generator_output:/app/output
+    networks:
+      - ecommerce_network
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        sleep 10 &&
+        echo 'Starting data generation...' &&
+        python generator.py &&
+        echo 'Data generation complete!'
+      "
+
+  # Optional: Data loader service to import CSV files
+  data_loader:
+    image: mysql:8.0
+    container_name: ecommerce_loader
+    depends_on:
+      data_generator:
+        condition: service_completed_successfully
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: ecommerce_db
+    volumes:
+      - ecommerce_generator_output:/data:ro
+      - ./scripts:/scripts:ro
+    networks:
+      - ecommerce_network
+    profiles:
+      - load-data
+    command: >
+      sh -c "
+        echo 'Loading generated data into database...' &&
+        for file in /data/*.csv; do
+          table=$$(basename $$file .csv)
+          echo \"Loading $$table...\"
+          mysql -h mysql -u root -pecommerce_root ecommerce_db \
+            -e \"LOAD DATA INFILE '/data/$$table.csv'
+                INTO TABLE $$table
+                FIELDS TERMINATED BY ','
+                OPTIONALLY ENCLOSED BY '\"'
+                LINES TERMINATED BY '\n'
+                IGNORE 1 ROWS;\"
+        done &&
+        echo 'Data loading complete!'
+      "
+
+  # Optional: Web interface
+  web_interface:
+    build:
+      context: ../web_interface
+      dockerfile: Dockerfile
+    container_name: ecommerce_web
+    depends_on:
+      - mysql
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ecommerce_db
+      MYSQL_USER: ecommerce_user
+      MYSQL_PASSWORD: ecommerce_pass
+      FLASK_ENV: development
+    ports:
+      - "5000:5000"
+    networks:
+      - ecommerce_network
+    profiles:
+      - web
+    volumes:
+      - ../web_interface:/app
+
+volumes:
+  ecommerce_mysql_data:
+    name: ecommerce_mysql_data
+  ecommerce_generator_output:
+    name: ecommerce_generator_output
+
+networks:
+  ecommerce_network:
+    name: ecommerce_network
+    driver: bridge

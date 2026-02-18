@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: food_delivery_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: food_delivery
+      MYSQL_USER: delivery_user
+      MYSQL_PASSWORD: delivery_password
+    ports:
+      - "3317:3306"
+    volumes:
+      - food_mysql_data:/var/lib/mysql
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - ./data:/data:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=1000
+      - --innodb-buffer-pool-size=2G
+      - --innodb-log-file-size=512M
+      - --innodb-flush-log-at-trx-commit=2
+      - --innodb-flush-method=O_DIRECT
+      - --innodb-file-per-table=ON
+      - --slow-query-log=ON
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=2
+      - --event-scheduler=ON
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: food_delivery_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - food_redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: food_delivery_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    ports:
+      - "8087:80"
+
+  # Optional: Grafana for monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: food_delivery_grafana
+    restart: unless-stopped
+    ports:
+      - "3007:3000"
+    volumes:
+      - food_grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+  # Optional: Location service simulator
+  # location-service:
+  #   build: ./location-service
+  #   container_name: food_delivery_location
+  #   depends_on:
+  #     - mysql
+  #     - redis
+  #   environment:
+  #     - DB_HOST=mysql
+  #     - DB_PORT=3306
+  #     - DB_NAME=food_delivery
+  #     - DB_USER=delivery_user
+  #     - DB_PASSWORD=delivery_password
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+
+volumes:
+  food_mysql_data:
+    name: food_delivery_mysql_data
+  food_redis_data:
+    name: food_delivery_redis_data
+  food_grafana_data:
+    name: food_delivery_grafana_data
+
+networks:
+  default:
+    name: food_delivery_network

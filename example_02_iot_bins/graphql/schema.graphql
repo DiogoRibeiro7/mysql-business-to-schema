@@ -1,0 +1,796 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.789455
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Districts {
+  name: String!
+  areaKm2: Float
+  population: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Bins {
+  districtId: Int!
+  binType: String
+  capacityLiters: Int!
+  latitude: Float
+  longitude: Float
+  address: String
+  locationType: String
+  installationDate: String!
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Sensors {
+  binId: Int!
+  sensorType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  installationDate: String!
+  readingFrequencySeconds: Int!
+  batteryLevel: Float
+  lastReadingTime: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CollectionRoutes {
+  districtId: Int!
+  routeName: String
+  routeType: String
+  estimatedDurationMinutes: Int
+  estimatedDistanceKm: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RouteBinAssignments {
+  routeId: Int!
+  binId: Int!
+  collectionOrder: Int!
+  estimatedCollectionTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Trucks {
+  manufacturer: String
+  model: String
+  year: Int
+  capacityKg: Int!
+  fuelType: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  odometerKm: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Drivers {
+  firstName: String!
+  lastName: String!
+  phone: String
+  licenseExpiryDate: String!
+  hireDate: String!
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CollectionSchedules {
+  routeId: Int!
+  truckId: Int!
+  driverId: Int!
+  scheduledDate: String!
+  scheduledStartTime: String!
+  scheduledEndTime: String!
+  status: String
+  actualStartTime: String
+  actualEndTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CollectionEvents {
+  eventId: Int
+  binId: Int!
+  scheduleId: Int
+  truckId: Int!
+  driverId: Int!
+  collectedAt: String!
+  fillLevelBefore: Float
+  weightKg: Float
+  collectionDurationSeconds: Int
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadings {
+  readingId: String
+  sensorId: Int!
+  readingTime: String!
+  readingValue: Float
+  unit: String!
+  quality: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadingsHourly {
+  sensorId: Int!
+  hourStart: String!
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+  qualityGoodCount: Int
+  qualityWarningCount: Int
+  qualityErrorCount: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadingsDaily {
+  sensorId: Int!
+  date: String!
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  peakHour: String
+  peakValue: Float
+  readingCount: Int
+  qualityGoodPct: Float
+  qualityWarningPct: Float
+  qualityErrorPct: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AlertThresholds {
+  name: String!
+  binType: String
+  sensorType: String
+  warningValue: Float
+  criticalValue: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Alerts {
+  alertId: String
+  binId: Int!
+  sensorId: Int
+  thresholdId: Int
+  alertType: String
+  severity: String
+  triggeredAt: String!
+  resolvedAt: String
+  alertValue: Float
+  message: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type FillRatePredictions {
+  binId: Int!
+  predictionDate: String!
+  predictionHour: String!
+  predictedFillRate: Float
+  confidenceScore: Float
+  modelVersion: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input DistrictsInput {
+  name: String
+  areaKm2: Float
+  population: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input DistrictsUpdateInput {
+  name: String
+  areaKm2: Float
+  population: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input BinsInput {
+  districtId: Int
+  binType: String
+  capacityLiters: Int
+  latitude: Float
+  longitude: Float
+  address: String
+  locationType: String
+  installationDate: String
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input BinsUpdateInput {
+  districtId: Int
+  binType: String
+  capacityLiters: Int
+  latitude: Float
+  longitude: Float
+  address: String
+  locationType: String
+  installationDate: String
+  lastMaintenanceDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SensorsInput {
+  binId: Int
+  sensorType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  installationDate: String
+  readingFrequencySeconds: Int
+  batteryLevel: Float
+  lastReadingTime: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SensorsUpdateInput {
+  binId: Int
+  sensorType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  installationDate: String
+  readingFrequencySeconds: Int
+  batteryLevel: Float
+  lastReadingTime: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CollectionRoutesInput {
+  districtId: Int
+  routeName: String
+  routeType: String
+  estimatedDurationMinutes: Int
+  estimatedDistanceKm: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CollectionRoutesUpdateInput {
+  districtId: Int
+  routeName: String
+  routeType: String
+  estimatedDurationMinutes: Int
+  estimatedDistanceKm: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input RouteBinAssignmentsInput {
+  routeId: Int
+  binId: Int
+  collectionOrder: Int
+  estimatedCollectionTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input RouteBinAssignmentsUpdateInput {
+  routeId: Int
+  binId: Int
+  collectionOrder: Int
+  estimatedCollectionTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TrucksInput {
+  manufacturer: String
+  model: String
+  year: Int
+  capacityKg: Int
+  fuelType: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  odometerKm: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TrucksUpdateInput {
+  manufacturer: String
+  model: String
+  year: Int
+  capacityKg: Int
+  fuelType: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  odometerKm: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DriversInput {
+  firstName: String
+  lastName: String
+  phone: String
+  licenseExpiryDate: String
+  hireDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DriversUpdateInput {
+  firstName: String
+  lastName: String
+  phone: String
+  licenseExpiryDate: String
+  hireDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CollectionSchedulesInput {
+  routeId: Int
+  truckId: Int
+  driverId: Int
+  scheduledDate: String
+  scheduledStartTime: String
+  scheduledEndTime: String
+  status: String
+  actualStartTime: String
+  actualEndTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CollectionSchedulesUpdateInput {
+  routeId: Int
+  truckId: Int
+  driverId: Int
+  scheduledDate: String
+  scheduledStartTime: String
+  scheduledEndTime: String
+  status: String
+  actualStartTime: String
+  actualEndTime: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CollectionEventsInput {
+  binId: Int
+  scheduleId: Int
+  truckId: Int
+  driverId: Int
+  collectedAt: String
+  fillLevelBefore: Float
+  weightKg: Float
+  collectionDurationSeconds: Int
+  notes: String
+  createdAt: String
+}
+
+input CollectionEventsUpdateInput {
+  binId: Int
+  scheduleId: Int
+  truckId: Int
+  driverId: Int
+  collectedAt: String
+  fillLevelBefore: Float
+  weightKg: Float
+  collectionDurationSeconds: Int
+  notes: String
+  createdAt: String
+}
+
+input SensorReadingsInput {
+  sensorId: Int
+  readingTime: String
+  readingValue: Float
+  unit: String
+  quality: String
+  createdAt: String
+}
+
+input SensorReadingsUpdateInput {
+  sensorId: Int
+  readingTime: String
+  readingValue: Float
+  unit: String
+  quality: String
+  createdAt: String
+}
+
+input SensorReadingsHourlyInput {
+  sensorId: Int
+  hourStart: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+  qualityGoodCount: Int
+  qualityWarningCount: Int
+  qualityErrorCount: Int
+  createdAt: String
+}
+
+input SensorReadingsHourlyUpdateInput {
+  sensorId: Int
+  hourStart: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+  qualityGoodCount: Int
+  qualityWarningCount: Int
+  qualityErrorCount: Int
+  createdAt: String
+}
+
+input SensorReadingsDailyInput {
+  sensorId: Int
+  date: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  peakHour: String
+  peakValue: Float
+  readingCount: Int
+  qualityGoodPct: Float
+  qualityWarningPct: Float
+  qualityErrorPct: Float
+  createdAt: String
+}
+
+input SensorReadingsDailyUpdateInput {
+  sensorId: Int
+  date: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  peakHour: String
+  peakValue: Float
+  readingCount: Int
+  qualityGoodPct: Float
+  qualityWarningPct: Float
+  qualityErrorPct: Float
+  createdAt: String
+}
+
+input AlertThresholdsInput {
+  name: String
+  binType: String
+  sensorType: String
+  warningValue: Float
+  criticalValue: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertThresholdsUpdateInput {
+  name: String
+  binType: String
+  sensorType: String
+  warningValue: Float
+  criticalValue: Float
+  active: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertsInput {
+  binId: Int
+  sensorId: Int
+  thresholdId: Int
+  alertType: String
+  severity: String
+  triggeredAt: String
+  resolvedAt: String
+  alertValue: Float
+  message: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  createdAt: String
+}
+
+input AlertsUpdateInput {
+  binId: Int
+  sensorId: Int
+  thresholdId: Int
+  alertType: String
+  severity: String
+  triggeredAt: String
+  resolvedAt: String
+  alertValue: Float
+  message: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  createdAt: String
+}
+
+input FillRatePredictionsInput {
+  binId: Int
+  predictionDate: String
+  predictionHour: String
+  predictedFillRate: Float
+  confidenceScore: Float
+  modelVersion: String
+  createdAt: String
+}
+
+input FillRatePredictionsUpdateInput {
+  binId: Int
+  predictionDate: String
+  predictionHour: String
+  predictedFillRate: Float
+  confidenceScore: Float
+  modelVersion: String
+  createdAt: String
+}
+
+type Query {
+  district(id: ID!): Districts
+  districts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Districts!]!
+  districtsCount(filter: String): Int!
+  bin(id: ID!): Bins
+  bins(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Bins!]!
+  binsCount(filter: String): Int!
+  sensor(id: ID!): Sensors
+  sensors(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Sensors!]!
+  sensorsCount(filter: String): Int!
+  collectionRoute(id: ID!): CollectionRoutes
+  collectionRoutes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CollectionRoutes!]!
+  collectionRoutesCount(filter: String): Int!
+  routeBinAssignment(id: ID!): RouteBinAssignments
+  routeBinAssignments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RouteBinAssignments!]!
+  routeBinAssignmentsCount(filter: String): Int!
+  truck(id: ID!): Trucks
+  trucks(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Trucks!]!
+  trucksCount(filter: String): Int!
+  driver(id: ID!): Drivers
+  drivers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Drivers!]!
+  driversCount(filter: String): Int!
+  collectionSchedule(id: ID!): CollectionSchedules
+  collectionSchedules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CollectionSchedules!]!
+  collectionSchedulesCount(filter: String): Int!
+  collectionEvent(id: ID!): CollectionEvents
+  collectionEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CollectionEvents!]!
+  collectionEventsCount(filter: String): Int!
+  sensorReading(id: ID!): SensorReadings
+  sensorReadings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadings!]!
+  sensorReadingsCount(filter: String): Int!
+  sensorReadingsHourly(id: ID!): SensorReadingsHourly
+  sensorReadingsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadingsHourly!]!
+  sensorReadingsHourlyCount(filter: String): Int!
+  sensorReadingsDaily(id: ID!): SensorReadingsDaily
+  sensorReadingsDaily(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadingsDaily!]!
+  sensorReadingsDailyCount(filter: String): Int!
+  alertThreshold(id: ID!): AlertThresholds
+  alertThresholds(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AlertThresholds!]!
+  alertThresholdsCount(filter: String): Int!
+  alert(id: ID!): Alerts
+  alerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Alerts!]!
+  alertsCount(filter: String): Int!
+  fillRatePrediction(id: ID!): FillRatePredictions
+  fillRatePredictions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FillRatePredictions!]!
+  fillRatePredictionsCount(filter: String): Int!
+}
+
+type Mutation {
+  createDistricts(input: DistrictsInput!): Districts!
+  updateDistricts(id: ID!, input: DistrictsUpdateInput!): Districts!
+  deleteDistricts(id: ID!): Boolean!
+  createDistrictsBatch(input: [DistrictsInput!]!): [Districts!]!
+  createBins(input: BinsInput!): Bins!
+  updateBins(id: ID!, input: BinsUpdateInput!): Bins!
+  deleteBins(id: ID!): Boolean!
+  createBinsBatch(input: [BinsInput!]!): [Bins!]!
+  createSensors(input: SensorsInput!): Sensors!
+  updateSensors(id: ID!, input: SensorsUpdateInput!): Sensors!
+  deleteSensors(id: ID!): Boolean!
+  createSensorsBatch(input: [SensorsInput!]!): [Sensors!]!
+  createCollectionRoutes(input: CollectionRoutesInput!): CollectionRoutes!
+  updateCollectionRoutes(id: ID!, input: CollectionRoutesUpdateInput!): CollectionRoutes!
+  deleteCollectionRoutes(id: ID!): Boolean!
+  createCollectionRoutesBatch(input: [CollectionRoutesInput!]!): [CollectionRoutes!]!
+  createRouteBinAssignments(input: RouteBinAssignmentsInput!): RouteBinAssignments!
+  updateRouteBinAssignments(id: ID!, input: RouteBinAssignmentsUpdateInput!): RouteBinAssignments!
+  deleteRouteBinAssignments(id: ID!): Boolean!
+  createRouteBinAssignmentsBatch(input: [RouteBinAssignmentsInput!]!): [RouteBinAssignments!]!
+  createTrucks(input: TrucksInput!): Trucks!
+  updateTrucks(id: ID!, input: TrucksUpdateInput!): Trucks!
+  deleteTrucks(id: ID!): Boolean!
+  createTrucksBatch(input: [TrucksInput!]!): [Trucks!]!
+  createDrivers(input: DriversInput!): Drivers!
+  updateDrivers(id: ID!, input: DriversUpdateInput!): Drivers!
+  deleteDrivers(id: ID!): Boolean!
+  createDriversBatch(input: [DriversInput!]!): [Drivers!]!
+  createCollectionSchedules(input: CollectionSchedulesInput!): CollectionSchedules!
+  updateCollectionSchedules(id: ID!, input: CollectionSchedulesUpdateInput!): CollectionSchedules!
+  deleteCollectionSchedules(id: ID!): Boolean!
+  createCollectionSchedulesBatch(input: [CollectionSchedulesInput!]!): [CollectionSchedules!]!
+  createCollectionEvents(input: CollectionEventsInput!): CollectionEvents!
+  updateCollectionEvents(id: ID!, input: CollectionEventsUpdateInput!): CollectionEvents!
+  deleteCollectionEvents(id: ID!): Boolean!
+  createCollectionEventsBatch(input: [CollectionEventsInput!]!): [CollectionEvents!]!
+  createSensorReadings(input: SensorReadingsInput!): SensorReadings!
+  updateSensorReadings(id: ID!, input: SensorReadingsUpdateInput!): SensorReadings!
+  deleteSensorReadings(id: ID!): Boolean!
+  createSensorReadingsBatch(input: [SensorReadingsInput!]!): [SensorReadings!]!
+  createSensorReadingsHourly(input: SensorReadingsHourlyInput!): SensorReadingsHourly!
+  updateSensorReadingsHourly(id: ID!, input: SensorReadingsHourlyUpdateInput!): SensorReadingsHourly!
+  deleteSensorReadingsHourly(id: ID!): Boolean!
+  createSensorReadingsHourlyBatch(input: [SensorReadingsHourlyInput!]!): [SensorReadingsHourly!]!
+  createSensorReadingsDaily(input: SensorReadingsDailyInput!): SensorReadingsDaily!
+  updateSensorReadingsDaily(id: ID!, input: SensorReadingsDailyUpdateInput!): SensorReadingsDaily!
+  deleteSensorReadingsDaily(id: ID!): Boolean!
+  createSensorReadingsDailyBatch(input: [SensorReadingsDailyInput!]!): [SensorReadingsDaily!]!
+  createAlertThresholds(input: AlertThresholdsInput!): AlertThresholds!
+  updateAlertThresholds(id: ID!, input: AlertThresholdsUpdateInput!): AlertThresholds!
+  deleteAlertThresholds(id: ID!): Boolean!
+  createAlertThresholdsBatch(input: [AlertThresholdsInput!]!): [AlertThresholds!]!
+  createAlerts(input: AlertsInput!): Alerts!
+  updateAlerts(id: ID!, input: AlertsUpdateInput!): Alerts!
+  deleteAlerts(id: ID!): Boolean!
+  createAlertsBatch(input: [AlertsInput!]!): [Alerts!]!
+  createFillRatePredictions(input: FillRatePredictionsInput!): FillRatePredictions!
+  updateFillRatePredictions(id: ID!, input: FillRatePredictionsUpdateInput!): FillRatePredictions!
+  deleteFillRatePredictions(id: ID!): Boolean!
+  createFillRatePredictionsBatch(input: [FillRatePredictionsInput!]!): [FillRatePredictions!]!
+}

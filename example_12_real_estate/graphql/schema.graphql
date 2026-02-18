@@ -1,0 +1,1699 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.176478
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Countries {
+  countryCode: String!
+  countryName: String!
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type StatesProvinces {
+  countryId: ID!
+  countrie: Countries
+  stateCode: String!
+  stateName: String!
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Cities {
+  stateId: ID!
+  statesProvince: StatesProvinces
+  cityName: String!
+  latitude: Float
+  longitude: Float
+  population: Int
+  medianIncome: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ZipCodes {
+  cityId: ID!
+  citie: Cities
+  latitude: Float
+  longitude: Float
+  timezone: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Neighborhoods {
+  cityId: ID!
+  citie: Cities
+  neighborhoodName: String!
+  boundaryPolygon: String
+  centerPoint: String
+  medianHomePrice: Float
+  medianRent: Float
+  walkScore: Int
+  transitScore: Int
+  crimeRate: Float
+  schoolRating: Float
+  description: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PropertyTypes {
+  parentTypeId: ID!
+  propertyType: PropertyTypes
+  typeName: String!
+  typeCategory: String
+  description: String
+}
+
+type Properties {
+  propertyTypeId: ID!
+  propertyType: PropertyTypes
+  addressLine1: String!
+  addressLine2: String
+  cityId: ID!
+  citie: Cities
+  stateId: ID!
+  statesProvince: StatesProvinces
+  zipCode: String!
+  neighborhoodId: ID!
+  neighborhood: Neighborhoods
+  latitude: Float
+  longitude: Float
+  locationPoint: String!
+  parcelNumber: String
+  legalDescription: String
+  yearBuilt: Int
+  lotSizeSqft: Int
+  buildingSizeSqft: Int
+  bedrooms: Int
+  bathrooms: Float
+  parkingSpaces: Int
+  garageSpaces: Int
+  stories: Int
+  constructionType: String
+  roofType: String
+  heatingType: String
+  coolingType: String
+  zoning: String
+  hoaFee: Float
+  taxAssessedValue: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PropertyFeatures {
+  propertyId: ID!
+  propertie: Properties
+  featureCategory: String
+  featureName: String!
+  featureValue: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PropertyRooms {
+  propertyId: ID!
+  propertie: Properties
+  roomType: String!
+  roomLevel: String
+  lengthFt: Float
+  widthFt: Float
+  description: String
+}
+
+type Brokerages {
+  brokerageName: String!
+  licenseNumber: String!
+  address: String
+  cityId: ID!
+  citie: Cities
+  stateId: ID!
+  statesProvince: StatesProvinces
+  zipCode: String
+  phone: String
+  email: String
+  website: String
+  establishedDate: String
+  totalAgents: Int
+  activeListings: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Agents {
+  brokerageId: ID!
+  brokerage: Brokerages
+  firstName: String!
+  lastName: String!
+  email: String!
+  phone: String
+  mobilePhone: String
+  licenseNumber: String!
+  licenseStateId: ID!
+  statesProvince: StatesProvinces
+  licenseExpiryDate: String
+  specializations: JSON
+  bio: String
+  profilePhotoUrl: String
+  yearsExperience: Int
+  totalSalesVolume: Float
+  totalTransactions: Int
+  avgDaysOnMarket: Int
+  rating: Float
+  isActive: Boolean
+  joinedDate: String!
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Users {
+  email: String!
+  passwordHash: String!
+  firstName: String
+  lastName: String
+  phone: String
+  userType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  profilePhotoUrl: String
+  preferredContact: String
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserPreferences {
+  userId: ID!
+  user: Users
+  minPrice: Float
+  maxPrice: Float
+  minBedrooms: Int
+  minBathrooms: Float
+  minSqft: Int
+  maxSqft: Int
+  propertyTypes: JSON
+  preferredCities: JSON
+  preferredNeighborhoods: JSON
+  mustHaveFeatures: JSON
+  niceToHaveFeatures: JSON
+  maxHoaFee: Float
+  schoolRatingMin: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Listings {
+  propertyId: ID!
+  propertie: Properties
+  listingAgentId: ID!
+  agent: Agents
+  coListingAgentId: ID!
+  agent: Agents
+  listingType: String
+  status: String
+  listPrice: Float
+  originalPrice: Float
+  pricePerSqft: Float
+  listingDate: String!
+  expiryDate: String
+  daysOnMarket: Int
+  title: String
+  description: String
+  virtualTourUrl: String
+  videoUrl: String
+  commissionBuyerAgent: Float
+  commissionListingAgent: Float
+  showingInstructions: String
+  mlsNumber: String
+  isFeatured: Boolean
+  viewCount: Int
+  inquiryCount: Int
+  showingCount: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ListingStatusHistory {
+  listingId: ID!
+  listing: Listings
+  status: String
+  changedDate: String
+  changedByUserId: ID!
+  user: Users
+  notes: String
+  changedDate: String
+}
+
+type PriceChanges {
+  listingId: ID!
+  listing: Listings
+  oldPrice: Float
+  newPrice: Float
+  changeAmount: Float
+  changePercentage: Float
+  changeDate: String
+  reason: String
+  changeDate: String
+}
+
+type PropertyPhotos {
+  propertyId: ID!
+  propertie: Properties
+  photoUrl: String!
+  thumbnailUrl: String
+  caption: String
+  photoType: String
+  displayOrder: Int
+  isPrimary: Boolean
+  width: Int
+  height: Int
+  fileSize: Int
+  uploadedByUserId: ID!
+  user: Users
+  uploadedAt: String
+}
+
+type VirtualTours {
+  propertyId: ID!
+  propertie: Properties
+  tourType: String
+  tourUrl: String!
+  embedCode: String
+  provider: String
+  viewCount: Int
+  avgViewDuration: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SavedSearches {
+  userId: ID!
+  user: Users
+  searchName: String
+  searchCriteria: JSON!
+  frequency: String
+  lastRun: String
+  lastMatchCount: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SavedProperties {
+  userId: ID!
+  user: Users
+  propertyId: ID!
+  propertie: Properties
+  listingId: ID!
+  listing: Listings
+  notes: String
+  rating: Int
+  savedDate: String
+}
+
+type ShowingRequests {
+  listingId: ID!
+  listing: Listings
+  userId: ID!
+  user: Users
+  agentId: ID!
+  agent: Agents
+  preferredDate: String!
+  preferredTimeStart: String
+  preferredTimeEnd: String
+  alternateDate: String
+  status: String
+  message: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OpenHouses {
+  listingId: ID!
+  listing: Listings
+  startDatetime: String!
+  endDatetime: String!
+  hostAgentId: ID!
+  agent: Agents
+  registrationRequired: Boolean
+  refreshments: Boolean
+  notes: String
+  attendeeCount: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Offers {
+  listingId: ID!
+  listing: Listings
+  buyerUserId: ID!
+  user: Users
+  buyerAgentId: ID!
+  agent: Agents
+  offerAmount: Float
+  offerType: String
+  status: String
+  earnestMoney: Float
+  downPaymentAmount: Float
+  downPaymentPercentage: Float
+  financingType: String
+  preApprovalLetter: Boolean
+  contingencies: JSON
+  closingDate: String
+  expiryDatetime: String
+  submittedAt: String
+  responseAt: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Transactions {
+  listingId: ID!
+  listing: Listings
+  acceptedOfferId: ID!
+  offer: Offers
+  salePrice: Float
+  closingDate: String
+  escrowCompany: String
+  escrowNumber: String
+  titleCompany: String
+  transactionStatus: String
+  commissionPaidListing: Float
+  commissionPaidBuyer: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MarketTrends {
+  neighborhoodId: ID!
+  neighborhood: Neighborhoods
+  cityId: ID!
+  citie: Cities
+  stateId: ID!
+  statesProvince: StatesProvinces
+  trendDate: String!
+  propertyType: String
+  medianListPrice: Float
+  medianSoldPrice: Float
+  avgPricePerSqft: Float
+  avgDaysOnMarket: Int
+  inventoryCount: Int
+  newListingsCount: Int
+  soldCount: Int
+  pendingCount: Int
+  priceReducedCount: Int
+  monthsOfSupply: Float
+  saleToListRatio: Float
+  createdAt: String
+  trendDate: String
+  trendDate: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ComparableSales {
+  subjectPropertyId: ID!
+  propertie: Properties
+  compPropertyId: ID!
+  propertie: Properties
+  saleDate: String!
+  salePrice: Float
+  pricePerSqft: Float
+  distanceMiles: Float
+  similarityScore: Float
+  adjustments: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SchoolDistricts {
+  districtName: String!
+  districtType: String
+  stateId: ID!
+  statesProvince: StatesProvinces
+  boundaryPolygon: String
+  website: String
+  rating: Float
+  totalSchools: Int
+  totalStudents: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Schools {
+  districtId: ID!
+  schoolDistrict: SchoolDistricts
+  schoolName: String!
+  schoolType: String
+  address: String
+  cityId: ID!
+  citie: Cities
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  locationPoint: String
+  gradeRange: String
+  enrollment: Int
+  studentTeacherRatio: Float
+  rating: Float
+  testScores: JSON
+  website: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PropertySchools {
+  propertyId: ID!
+  propertie: Properties
+  schoolId: ID!
+  school: Schools
+  schoolType: String
+  distanceMiles: Float
+}
+
+# Input Types
+
+input CountriesInput {
+  countryCode: String
+  countryName: String
+  createdAt: String
+}
+
+input CountriesUpdateInput {
+  countryCode: String
+  countryName: String
+  createdAt: String
+}
+
+input StatesProvincesInput {
+  countryId: ID
+  stateCode: String
+  stateName: String
+  createdAt: String
+}
+
+input StatesProvincesUpdateInput {
+  countryId: ID
+  stateCode: String
+  stateName: String
+  createdAt: String
+}
+
+input CitiesInput {
+  stateId: ID
+  cityName: String
+  latitude: Float
+  longitude: Float
+  population: Int
+  medianIncome: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input CitiesUpdateInput {
+  stateId: ID
+  cityName: String
+  latitude: Float
+  longitude: Float
+  population: Int
+  medianIncome: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input ZipCodesInput {
+  cityId: ID
+  latitude: Float
+  longitude: Float
+  timezone: String
+  createdAt: String
+}
+
+input ZipCodesUpdateInput {
+  cityId: ID
+  latitude: Float
+  longitude: Float
+  timezone: String
+  createdAt: String
+}
+
+input NeighborhoodsInput {
+  cityId: ID
+  neighborhoodName: String
+  boundaryPolygon: String
+  centerPoint: String
+  medianHomePrice: Float
+  medianRent: Float
+  walkScore: Int
+  transitScore: Int
+  crimeRate: Float
+  schoolRating: Float
+  description: String
+  createdAt: String
+  updatedAt: String
+}
+
+input NeighborhoodsUpdateInput {
+  cityId: ID
+  neighborhoodName: String
+  boundaryPolygon: String
+  centerPoint: String
+  medianHomePrice: Float
+  medianRent: Float
+  walkScore: Int
+  transitScore: Int
+  crimeRate: Float
+  schoolRating: Float
+  description: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PropertyTypesInput {
+  parentTypeId: ID
+  typeName: String
+  typeCategory: String
+  description: String
+}
+
+input PropertyTypesUpdateInput {
+  parentTypeId: ID
+  typeName: String
+  typeCategory: String
+  description: String
+}
+
+input PropertiesInput {
+  propertyTypeId: ID
+  addressLine1: String
+  addressLine2: String
+  cityId: ID
+  stateId: ID
+  zipCode: String
+  neighborhoodId: ID
+  latitude: Float
+  longitude: Float
+  locationPoint: String
+  parcelNumber: String
+  legalDescription: String
+  yearBuilt: Int
+  lotSizeSqft: Int
+  buildingSizeSqft: Int
+  bedrooms: Int
+  bathrooms: Float
+  parkingSpaces: Int
+  garageSpaces: Int
+  stories: Int
+  constructionType: String
+  roofType: String
+  heatingType: String
+  coolingType: String
+  zoning: String
+  hoaFee: Float
+  taxAssessedValue: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input PropertiesUpdateInput {
+  propertyTypeId: ID
+  addressLine1: String
+  addressLine2: String
+  cityId: ID
+  stateId: ID
+  zipCode: String
+  neighborhoodId: ID
+  latitude: Float
+  longitude: Float
+  locationPoint: String
+  parcelNumber: String
+  legalDescription: String
+  yearBuilt: Int
+  lotSizeSqft: Int
+  buildingSizeSqft: Int
+  bedrooms: Int
+  bathrooms: Float
+  parkingSpaces: Int
+  garageSpaces: Int
+  stories: Int
+  constructionType: String
+  roofType: String
+  heatingType: String
+  coolingType: String
+  zoning: String
+  hoaFee: Float
+  taxAssessedValue: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input PropertyFeaturesInput {
+  propertyId: ID
+  featureCategory: String
+  featureName: String
+  featureValue: String
+  createdAt: String
+}
+
+input PropertyFeaturesUpdateInput {
+  propertyId: ID
+  featureCategory: String
+  featureName: String
+  featureValue: String
+  createdAt: String
+}
+
+input PropertyRoomsInput {
+  propertyId: ID
+  roomType: String
+  roomLevel: String
+  lengthFt: Float
+  widthFt: Float
+  description: String
+}
+
+input PropertyRoomsUpdateInput {
+  propertyId: ID
+  roomType: String
+  roomLevel: String
+  lengthFt: Float
+  widthFt: Float
+  description: String
+}
+
+input BrokeragesInput {
+  brokerageName: String
+  licenseNumber: String
+  address: String
+  cityId: ID
+  stateId: ID
+  zipCode: String
+  phone: String
+  email: String
+  website: String
+  establishedDate: String
+  totalAgents: Int
+  activeListings: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input BrokeragesUpdateInput {
+  brokerageName: String
+  licenseNumber: String
+  address: String
+  cityId: ID
+  stateId: ID
+  zipCode: String
+  phone: String
+  email: String
+  website: String
+  establishedDate: String
+  totalAgents: Int
+  activeListings: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input AgentsInput {
+  brokerageId: ID
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  mobilePhone: String
+  licenseNumber: String
+  licenseStateId: ID
+  licenseExpiryDate: String
+  specializations: JSON
+  bio: String
+  profilePhotoUrl: String
+  yearsExperience: Int
+  totalSalesVolume: Float
+  totalTransactions: Int
+  avgDaysOnMarket: Int
+  rating: Float
+  isActive: Boolean
+  joinedDate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AgentsUpdateInput {
+  brokerageId: ID
+  firstName: String
+  lastName: String
+  email: String
+  phone: String
+  mobilePhone: String
+  licenseNumber: String
+  licenseStateId: ID
+  licenseExpiryDate: String
+  specializations: JSON
+  bio: String
+  profilePhotoUrl: String
+  yearsExperience: Int
+  totalSalesVolume: Float
+  totalTransactions: Int
+  avgDaysOnMarket: Int
+  rating: Float
+  isActive: Boolean
+  joinedDate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input UsersInput {
+  email: String
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  userType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  profilePhotoUrl: String
+  preferredContact: String
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+}
+
+input UsersUpdateInput {
+  email: String
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  userType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  profilePhotoUrl: String
+  preferredContact: String
+  lastLogin: String
+  createdAt: String
+  updatedAt: String
+}
+
+input UserPreferencesInput {
+  userId: ID
+  minPrice: Float
+  maxPrice: Float
+  minBedrooms: Int
+  minBathrooms: Float
+  minSqft: Int
+  maxSqft: Int
+  propertyTypes: JSON
+  preferredCities: JSON
+  preferredNeighborhoods: JSON
+  mustHaveFeatures: JSON
+  niceToHaveFeatures: JSON
+  maxHoaFee: Float
+  schoolRatingMin: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input UserPreferencesUpdateInput {
+  userId: ID
+  minPrice: Float
+  maxPrice: Float
+  minBedrooms: Int
+  minBathrooms: Float
+  minSqft: Int
+  maxSqft: Int
+  propertyTypes: JSON
+  preferredCities: JSON
+  preferredNeighborhoods: JSON
+  mustHaveFeatures: JSON
+  niceToHaveFeatures: JSON
+  maxHoaFee: Float
+  schoolRatingMin: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input ListingsInput {
+  propertyId: ID
+  listingAgentId: ID
+  coListingAgentId: ID
+  listingType: String
+  status: String
+  listPrice: Float
+  originalPrice: Float
+  pricePerSqft: Float
+  listingDate: String
+  expiryDate: String
+  daysOnMarket: Int
+  title: String
+  description: String
+  virtualTourUrl: String
+  videoUrl: String
+  commissionBuyerAgent: Float
+  commissionListingAgent: Float
+  showingInstructions: String
+  mlsNumber: String
+  isFeatured: Boolean
+  viewCount: Int
+  inquiryCount: Int
+  showingCount: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ListingsUpdateInput {
+  propertyId: ID
+  listingAgentId: ID
+  coListingAgentId: ID
+  listingType: String
+  status: String
+  listPrice: Float
+  originalPrice: Float
+  pricePerSqft: Float
+  listingDate: String
+  expiryDate: String
+  daysOnMarket: Int
+  title: String
+  description: String
+  virtualTourUrl: String
+  videoUrl: String
+  commissionBuyerAgent: Float
+  commissionListingAgent: Float
+  showingInstructions: String
+  mlsNumber: String
+  isFeatured: Boolean
+  viewCount: Int
+  inquiryCount: Int
+  showingCount: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ListingStatusHistoryInput {
+  listingId: ID
+  status: String
+  changedDate: String
+  changedByUserId: ID
+  notes: String
+  changedDate: String
+}
+
+input ListingStatusHistoryUpdateInput {
+  listingId: ID
+  status: String
+  changedDate: String
+  changedByUserId: ID
+  notes: String
+  changedDate: String
+}
+
+input PriceChangesInput {
+  listingId: ID
+  oldPrice: Float
+  newPrice: Float
+  changeAmount: Float
+  changePercentage: Float
+  changeDate: String
+  reason: String
+  changeDate: String
+}
+
+input PriceChangesUpdateInput {
+  listingId: ID
+  oldPrice: Float
+  newPrice: Float
+  changeAmount: Float
+  changePercentage: Float
+  changeDate: String
+  reason: String
+  changeDate: String
+}
+
+input PropertyPhotosInput {
+  propertyId: ID
+  photoUrl: String
+  thumbnailUrl: String
+  caption: String
+  photoType: String
+  displayOrder: Int
+  isPrimary: Boolean
+  width: Int
+  height: Int
+  fileSize: Int
+  uploadedByUserId: ID
+  uploadedAt: String
+}
+
+input PropertyPhotosUpdateInput {
+  propertyId: ID
+  photoUrl: String
+  thumbnailUrl: String
+  caption: String
+  photoType: String
+  displayOrder: Int
+  isPrimary: Boolean
+  width: Int
+  height: Int
+  fileSize: Int
+  uploadedByUserId: ID
+  uploadedAt: String
+}
+
+input VirtualToursInput {
+  propertyId: ID
+  tourType: String
+  tourUrl: String
+  embedCode: String
+  provider: String
+  viewCount: Int
+  avgViewDuration: Int
+  createdAt: String
+}
+
+input VirtualToursUpdateInput {
+  propertyId: ID
+  tourType: String
+  tourUrl: String
+  embedCode: String
+  provider: String
+  viewCount: Int
+  avgViewDuration: Int
+  createdAt: String
+}
+
+input SavedSearchesInput {
+  userId: ID
+  searchName: String
+  searchCriteria: JSON
+  frequency: String
+  lastRun: String
+  lastMatchCount: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input SavedSearchesUpdateInput {
+  userId: ID
+  searchName: String
+  searchCriteria: JSON
+  frequency: String
+  lastRun: String
+  lastMatchCount: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input SavedPropertiesInput {
+  userId: ID
+  propertyId: ID
+  listingId: ID
+  notes: String
+  rating: Int
+  savedDate: String
+}
+
+input SavedPropertiesUpdateInput {
+  userId: ID
+  propertyId: ID
+  listingId: ID
+  notes: String
+  rating: Int
+  savedDate: String
+}
+
+input ShowingRequestsInput {
+  listingId: ID
+  userId: ID
+  agentId: ID
+  preferredDate: String
+  preferredTimeStart: String
+  preferredTimeEnd: String
+  alternateDate: String
+  status: String
+  message: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ShowingRequestsUpdateInput {
+  listingId: ID
+  userId: ID
+  agentId: ID
+  preferredDate: String
+  preferredTimeStart: String
+  preferredTimeEnd: String
+  alternateDate: String
+  status: String
+  message: String
+  createdAt: String
+  updatedAt: String
+}
+
+input OpenHousesInput {
+  listingId: ID
+  startDatetime: String
+  endDatetime: String
+  hostAgentId: ID
+  registrationRequired: Boolean
+  refreshments: Boolean
+  notes: String
+  attendeeCount: Int
+  createdAt: String
+}
+
+input OpenHousesUpdateInput {
+  listingId: ID
+  startDatetime: String
+  endDatetime: String
+  hostAgentId: ID
+  registrationRequired: Boolean
+  refreshments: Boolean
+  notes: String
+  attendeeCount: Int
+  createdAt: String
+}
+
+input OffersInput {
+  listingId: ID
+  buyerUserId: ID
+  buyerAgentId: ID
+  offerAmount: Float
+  offerType: String
+  status: String
+  earnestMoney: Float
+  downPaymentAmount: Float
+  downPaymentPercentage: Float
+  financingType: String
+  preApprovalLetter: Boolean
+  contingencies: JSON
+  closingDate: String
+  expiryDatetime: String
+  submittedAt: String
+  responseAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input OffersUpdateInput {
+  listingId: ID
+  buyerUserId: ID
+  buyerAgentId: ID
+  offerAmount: Float
+  offerType: String
+  status: String
+  earnestMoney: Float
+  downPaymentAmount: Float
+  downPaymentPercentage: Float
+  financingType: String
+  preApprovalLetter: Boolean
+  contingencies: JSON
+  closingDate: String
+  expiryDatetime: String
+  submittedAt: String
+  responseAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TransactionsInput {
+  listingId: ID
+  acceptedOfferId: ID
+  salePrice: Float
+  closingDate: String
+  escrowCompany: String
+  escrowNumber: String
+  titleCompany: String
+  transactionStatus: String
+  commissionPaidListing: Float
+  commissionPaidBuyer: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input TransactionsUpdateInput {
+  listingId: ID
+  acceptedOfferId: ID
+  salePrice: Float
+  closingDate: String
+  escrowCompany: String
+  escrowNumber: String
+  titleCompany: String
+  transactionStatus: String
+  commissionPaidListing: Float
+  commissionPaidBuyer: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input MarketTrendsInput {
+  neighborhoodId: ID
+  cityId: ID
+  stateId: ID
+  trendDate: String
+  propertyType: String
+  medianListPrice: Float
+  medianSoldPrice: Float
+  avgPricePerSqft: Float
+  avgDaysOnMarket: Int
+  inventoryCount: Int
+  newListingsCount: Int
+  soldCount: Int
+  pendingCount: Int
+  priceReducedCount: Int
+  monthsOfSupply: Float
+  saleToListRatio: Float
+  createdAt: String
+  trendDate: String
+  trendDate: String
+}
+
+input MarketTrendsUpdateInput {
+  neighborhoodId: ID
+  cityId: ID
+  stateId: ID
+  trendDate: String
+  propertyType: String
+  medianListPrice: Float
+  medianSoldPrice: Float
+  avgPricePerSqft: Float
+  avgDaysOnMarket: Int
+  inventoryCount: Int
+  newListingsCount: Int
+  soldCount: Int
+  pendingCount: Int
+  priceReducedCount: Int
+  monthsOfSupply: Float
+  saleToListRatio: Float
+  createdAt: String
+  trendDate: String
+  trendDate: String
+}
+
+input ComparableSalesInput {
+  subjectPropertyId: ID
+  compPropertyId: ID
+  saleDate: String
+  salePrice: Float
+  pricePerSqft: Float
+  distanceMiles: Float
+  similarityScore: Float
+  adjustments: JSON
+  createdAt: String
+}
+
+input ComparableSalesUpdateInput {
+  subjectPropertyId: ID
+  compPropertyId: ID
+  saleDate: String
+  salePrice: Float
+  pricePerSqft: Float
+  distanceMiles: Float
+  similarityScore: Float
+  adjustments: JSON
+  createdAt: String
+}
+
+input SchoolDistrictsInput {
+  districtName: String
+  districtType: String
+  stateId: ID
+  boundaryPolygon: String
+  website: String
+  rating: Float
+  totalSchools: Int
+  totalStudents: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input SchoolDistrictsUpdateInput {
+  districtName: String
+  districtType: String
+  stateId: ID
+  boundaryPolygon: String
+  website: String
+  rating: Float
+  totalSchools: Int
+  totalStudents: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input SchoolsInput {
+  districtId: ID
+  schoolName: String
+  schoolType: String
+  address: String
+  cityId: ID
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  locationPoint: String
+  gradeRange: String
+  enrollment: Int
+  studentTeacherRatio: Float
+  rating: Float
+  testScores: JSON
+  website: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SchoolsUpdateInput {
+  districtId: ID
+  schoolName: String
+  schoolType: String
+  address: String
+  cityId: ID
+  zipCode: String
+  latitude: Float
+  longitude: Float
+  locationPoint: String
+  gradeRange: String
+  enrollment: Int
+  studentTeacherRatio: Float
+  rating: Float
+  testScores: JSON
+  website: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PropertySchoolsInput {
+  propertyId: ID
+  schoolId: ID
+  schoolType: String
+  distanceMiles: Float
+}
+
+input PropertySchoolsUpdateInput {
+  propertyId: ID
+  schoolId: ID
+  schoolType: String
+  distanceMiles: Float
+}
+
+type Query {
+  countrie(id: ID!): Countries
+  countries(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Countries!]!
+  countriesCount(filter: String): Int!
+  statesProvince(id: ID!): StatesProvinces
+  statesProvinces(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [StatesProvinces!]!
+  statesProvincesCount(filter: String): Int!
+  citie(id: ID!): Cities
+  cities(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Cities!]!
+  citiesCount(filter: String): Int!
+  zipCode(id: ID!): ZipCodes
+  zipCodes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ZipCodes!]!
+  zipCodesCount(filter: String): Int!
+  neighborhood(id: ID!): Neighborhoods
+  neighborhoods(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Neighborhoods!]!
+  neighborhoodsCount(filter: String): Int!
+  propertyType(id: ID!): PropertyTypes
+  propertyTypes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PropertyTypes!]!
+  propertyTypesCount(filter: String): Int!
+  propertie(id: ID!): Properties
+  properties(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Properties!]!
+  propertiesCount(filter: String): Int!
+  propertyFeature(id: ID!): PropertyFeatures
+  propertyFeatures(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PropertyFeatures!]!
+  propertyFeaturesCount(filter: String): Int!
+  propertyRoom(id: ID!): PropertyRooms
+  propertyRooms(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PropertyRooms!]!
+  propertyRoomsCount(filter: String): Int!
+  brokerage(id: ID!): Brokerages
+  brokerages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Brokerages!]!
+  brokeragesCount(filter: String): Int!
+  agent(id: ID!): Agents
+  agents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Agents!]!
+  agentsCount(filter: String): Int!
+  user(id: ID!): Users
+  users(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Users!]!
+  usersCount(filter: String): Int!
+  userPreference(id: ID!): UserPreferences
+  userPreferences(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserPreferences!]!
+  userPreferencesCount(filter: String): Int!
+  listing(id: ID!): Listings
+  listings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Listings!]!
+  listingsCount(filter: String): Int!
+  listingStatusHistory(id: ID!): ListingStatusHistory
+  listingStatusHistory(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ListingStatusHistory!]!
+  listingStatusHistoryCount(filter: String): Int!
+  priceChange(id: ID!): PriceChanges
+  priceChanges(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PriceChanges!]!
+  priceChangesCount(filter: String): Int!
+  propertyPhoto(id: ID!): PropertyPhotos
+  propertyPhotos(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PropertyPhotos!]!
+  propertyPhotosCount(filter: String): Int!
+  virtualTour(id: ID!): VirtualTours
+  virtualTours(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VirtualTours!]!
+  virtualToursCount(filter: String): Int!
+  savedSearche(id: ID!): SavedSearches
+  savedSearches(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SavedSearches!]!
+  savedSearchesCount(filter: String): Int!
+  savedPropertie(id: ID!): SavedProperties
+  savedProperties(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SavedProperties!]!
+  savedPropertiesCount(filter: String): Int!
+  showingRequest(id: ID!): ShowingRequests
+  showingRequests(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ShowingRequests!]!
+  showingRequestsCount(filter: String): Int!
+  openHouse(id: ID!): OpenHouses
+  openHouses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [OpenHouses!]!
+  openHousesCount(filter: String): Int!
+  offer(id: ID!): Offers
+  offers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Offers!]!
+  offersCount(filter: String): Int!
+  transaction(id: ID!): Transactions
+  transactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Transactions!]!
+  transactionsCount(filter: String): Int!
+  marketTrend(id: ID!): MarketTrends
+  marketTrends(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MarketTrends!]!
+  marketTrendsCount(filter: String): Int!
+  comparableSale(id: ID!): ComparableSales
+  comparableSales(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ComparableSales!]!
+  comparableSalesCount(filter: String): Int!
+  schoolDistrict(id: ID!): SchoolDistricts
+  schoolDistricts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SchoolDistricts!]!
+  schoolDistrictsCount(filter: String): Int!
+  school(id: ID!): Schools
+  schools(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Schools!]!
+  schoolsCount(filter: String): Int!
+  propertySchool(id: ID!): PropertySchools
+  propertySchools(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PropertySchools!]!
+  propertySchoolsCount(filter: String): Int!
+}
+
+type Mutation {
+  createCountries(input: CountriesInput!): Countries!
+  updateCountries(id: ID!, input: CountriesUpdateInput!): Countries!
+  deleteCountries(id: ID!): Boolean!
+  createCountriesBatch(input: [CountriesInput!]!): [Countries!]!
+  createStatesProvinces(input: StatesProvincesInput!): StatesProvinces!
+  updateStatesProvinces(id: ID!, input: StatesProvincesUpdateInput!): StatesProvinces!
+  deleteStatesProvinces(id: ID!): Boolean!
+  createStatesProvincesBatch(input: [StatesProvincesInput!]!): [StatesProvinces!]!
+  createCities(input: CitiesInput!): Cities!
+  updateCities(id: ID!, input: CitiesUpdateInput!): Cities!
+  deleteCities(id: ID!): Boolean!
+  createCitiesBatch(input: [CitiesInput!]!): [Cities!]!
+  createZipCodes(input: ZipCodesInput!): ZipCodes!
+  updateZipCodes(id: ID!, input: ZipCodesUpdateInput!): ZipCodes!
+  deleteZipCodes(id: ID!): Boolean!
+  createZipCodesBatch(input: [ZipCodesInput!]!): [ZipCodes!]!
+  createNeighborhoods(input: NeighborhoodsInput!): Neighborhoods!
+  updateNeighborhoods(id: ID!, input: NeighborhoodsUpdateInput!): Neighborhoods!
+  deleteNeighborhoods(id: ID!): Boolean!
+  createNeighborhoodsBatch(input: [NeighborhoodsInput!]!): [Neighborhoods!]!
+  createPropertyTypes(input: PropertyTypesInput!): PropertyTypes!
+  updatePropertyTypes(id: ID!, input: PropertyTypesUpdateInput!): PropertyTypes!
+  deletePropertyTypes(id: ID!): Boolean!
+  createPropertyTypesBatch(input: [PropertyTypesInput!]!): [PropertyTypes!]!
+  createProperties(input: PropertiesInput!): Properties!
+  updateProperties(id: ID!, input: PropertiesUpdateInput!): Properties!
+  deleteProperties(id: ID!): Boolean!
+  createPropertiesBatch(input: [PropertiesInput!]!): [Properties!]!
+  createPropertyFeatures(input: PropertyFeaturesInput!): PropertyFeatures!
+  updatePropertyFeatures(id: ID!, input: PropertyFeaturesUpdateInput!): PropertyFeatures!
+  deletePropertyFeatures(id: ID!): Boolean!
+  createPropertyFeaturesBatch(input: [PropertyFeaturesInput!]!): [PropertyFeatures!]!
+  createPropertyRooms(input: PropertyRoomsInput!): PropertyRooms!
+  updatePropertyRooms(id: ID!, input: PropertyRoomsUpdateInput!): PropertyRooms!
+  deletePropertyRooms(id: ID!): Boolean!
+  createPropertyRoomsBatch(input: [PropertyRoomsInput!]!): [PropertyRooms!]!
+  createBrokerages(input: BrokeragesInput!): Brokerages!
+  updateBrokerages(id: ID!, input: BrokeragesUpdateInput!): Brokerages!
+  deleteBrokerages(id: ID!): Boolean!
+  createBrokeragesBatch(input: [BrokeragesInput!]!): [Brokerages!]!
+  createAgents(input: AgentsInput!): Agents!
+  updateAgents(id: ID!, input: AgentsUpdateInput!): Agents!
+  deleteAgents(id: ID!): Boolean!
+  createAgentsBatch(input: [AgentsInput!]!): [Agents!]!
+  createUsers(input: UsersInput!): Users!
+  updateUsers(id: ID!, input: UsersUpdateInput!): Users!
+  deleteUsers(id: ID!): Boolean!
+  createUsersBatch(input: [UsersInput!]!): [Users!]!
+  createUserPreferences(input: UserPreferencesInput!): UserPreferences!
+  updateUserPreferences(id: ID!, input: UserPreferencesUpdateInput!): UserPreferences!
+  deleteUserPreferences(id: ID!): Boolean!
+  createUserPreferencesBatch(input: [UserPreferencesInput!]!): [UserPreferences!]!
+  createListings(input: ListingsInput!): Listings!
+  updateListings(id: ID!, input: ListingsUpdateInput!): Listings!
+  deleteListings(id: ID!): Boolean!
+  createListingsBatch(input: [ListingsInput!]!): [Listings!]!
+  createListingStatusHistory(input: ListingStatusHistoryInput!): ListingStatusHistory!
+  updateListingStatusHistory(id: ID!, input: ListingStatusHistoryUpdateInput!): ListingStatusHistory!
+  deleteListingStatusHistory(id: ID!): Boolean!
+  createListingStatusHistoryBatch(input: [ListingStatusHistoryInput!]!): [ListingStatusHistory!]!
+  createPriceChanges(input: PriceChangesInput!): PriceChanges!
+  updatePriceChanges(id: ID!, input: PriceChangesUpdateInput!): PriceChanges!
+  deletePriceChanges(id: ID!): Boolean!
+  createPriceChangesBatch(input: [PriceChangesInput!]!): [PriceChanges!]!
+  createPropertyPhotos(input: PropertyPhotosInput!): PropertyPhotos!
+  updatePropertyPhotos(id: ID!, input: PropertyPhotosUpdateInput!): PropertyPhotos!
+  deletePropertyPhotos(id: ID!): Boolean!
+  createPropertyPhotosBatch(input: [PropertyPhotosInput!]!): [PropertyPhotos!]!
+  createVirtualTours(input: VirtualToursInput!): VirtualTours!
+  updateVirtualTours(id: ID!, input: VirtualToursUpdateInput!): VirtualTours!
+  deleteVirtualTours(id: ID!): Boolean!
+  createVirtualToursBatch(input: [VirtualToursInput!]!): [VirtualTours!]!
+  createSavedSearches(input: SavedSearchesInput!): SavedSearches!
+  updateSavedSearches(id: ID!, input: SavedSearchesUpdateInput!): SavedSearches!
+  deleteSavedSearches(id: ID!): Boolean!
+  createSavedSearchesBatch(input: [SavedSearchesInput!]!): [SavedSearches!]!
+  createSavedProperties(input: SavedPropertiesInput!): SavedProperties!
+  updateSavedProperties(id: ID!, input: SavedPropertiesUpdateInput!): SavedProperties!
+  deleteSavedProperties(id: ID!): Boolean!
+  createSavedPropertiesBatch(input: [SavedPropertiesInput!]!): [SavedProperties!]!
+  createShowingRequests(input: ShowingRequestsInput!): ShowingRequests!
+  updateShowingRequests(id: ID!, input: ShowingRequestsUpdateInput!): ShowingRequests!
+  deleteShowingRequests(id: ID!): Boolean!
+  createShowingRequestsBatch(input: [ShowingRequestsInput!]!): [ShowingRequests!]!
+  createOpenHouses(input: OpenHousesInput!): OpenHouses!
+  updateOpenHouses(id: ID!, input: OpenHousesUpdateInput!): OpenHouses!
+  deleteOpenHouses(id: ID!): Boolean!
+  createOpenHousesBatch(input: [OpenHousesInput!]!): [OpenHouses!]!
+  createOffers(input: OffersInput!): Offers!
+  updateOffers(id: ID!, input: OffersUpdateInput!): Offers!
+  deleteOffers(id: ID!): Boolean!
+  createOffersBatch(input: [OffersInput!]!): [Offers!]!
+  createTransactions(input: TransactionsInput!): Transactions!
+  updateTransactions(id: ID!, input: TransactionsUpdateInput!): Transactions!
+  deleteTransactions(id: ID!): Boolean!
+  createTransactionsBatch(input: [TransactionsInput!]!): [Transactions!]!
+  createMarketTrends(input: MarketTrendsInput!): MarketTrends!
+  updateMarketTrends(id: ID!, input: MarketTrendsUpdateInput!): MarketTrends!
+  deleteMarketTrends(id: ID!): Boolean!
+  createMarketTrendsBatch(input: [MarketTrendsInput!]!): [MarketTrends!]!
+  createComparableSales(input: ComparableSalesInput!): ComparableSales!
+  updateComparableSales(id: ID!, input: ComparableSalesUpdateInput!): ComparableSales!
+  deleteComparableSales(id: ID!): Boolean!
+  createComparableSalesBatch(input: [ComparableSalesInput!]!): [ComparableSales!]!
+  createSchoolDistricts(input: SchoolDistrictsInput!): SchoolDistricts!
+  updateSchoolDistricts(id: ID!, input: SchoolDistrictsUpdateInput!): SchoolDistricts!
+  deleteSchoolDistricts(id: ID!): Boolean!
+  createSchoolDistrictsBatch(input: [SchoolDistrictsInput!]!): [SchoolDistricts!]!
+  createSchools(input: SchoolsInput!): Schools!
+  updateSchools(id: ID!, input: SchoolsUpdateInput!): Schools!
+  deleteSchools(id: ID!): Boolean!
+  createSchoolsBatch(input: [SchoolsInput!]!): [Schools!]!
+  createPropertySchools(input: PropertySchoolsInput!): PropertySchools!
+  updatePropertySchools(id: ID!, input: PropertySchoolsUpdateInput!): PropertySchools!
+  deletePropertySchools(id: ID!): Boolean!
+  createPropertySchoolsBatch(input: [PropertySchoolsInput!]!): [PropertySchools!]!
+}

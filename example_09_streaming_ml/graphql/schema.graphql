@@ -1,0 +1,1762 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.142470
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type SchemaVersion {
+  version: String!
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+type SystemMetrics {
+  metricName: String!
+  metricValue: Float
+  metricUnit: String
+  component: String
+  timestamp: String
+  tags: JSON
+  timestamp: String
+  timestamp: String
+}
+
+type Organizations {
+  orgType: String
+  contactEmail: String
+  subscriptionTier: String
+  maxModels: Int
+  maxDeployments: Int
+  maxStreams: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Projects {
+  orgId: Int!
+  projectName: String!
+  projectDescription: String
+  projectType: String
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DataStreams {
+  projectId: Int!
+  streamName: String!
+  streamType: String
+  connectionConfig: JSON!
+  schemaDefinition: JSON
+  dataFormat: String
+  batchSize: Int
+  bufferTimeMs: Int
+  isActive: Boolean
+  lastConnected: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type StreamPipelines {
+  streamId: Int!
+  pipelineName: String!
+  pipelineConfig: JSON!
+  processingType: String
+  windowType: String
+  windowSizeSeconds: Int
+  watermarkDelaySeconds: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type StreamEvents {
+  streamId: Int!
+  eventTimestamp: String!
+  eventData: JSON!
+  eventMetadata: JSON
+  processingStatus: String
+  errorMessage: String
+  createdAt: String
+  eventTimestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type FeatureDefinitions {
+  projectId: Int!
+  featureName: String!
+  featureGroup: String
+  description: String
+  dataType: String
+  computationType: String
+  computationLogic: String
+  dependencies: JSON
+  isOnline: Boolean
+  isOffline: Boolean
+  ttlSeconds: Int
+  version: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RawFeatures {
+  featureId: Int!
+  entityId: String!
+  featureValue: JSON!
+  eventTimestamp: String!
+  ingestionTimestamp: String
+  eventTimestamp: String
+  eventTimestamp: String
+}
+
+type FeatureComputations {
+  featureId: Int!
+  entityId: String!
+  windowStart: String!
+  windowEnd: String!
+  featureValue: JSON!
+  statistics: JSON
+  computedAt: String
+  windowEnd: String
+}
+
+type FeatureSets {
+  projectId: Int!
+  setName: String!
+  description: String
+  featureIds: JSON!
+  labelDefinition: JSON
+  splitConfig: JSON
+  validationRules: JSON
+  version: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Experiments {
+  projectId: Int!
+  experimentName: String!
+  description: String
+  hypothesis: String
+  status: String
+  startTime: String
+  endTime: String
+  createdBy: String
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ExperimentRuns {
+  experimentId: Int!
+  runName: String
+  status: String
+  parameters: JSON
+  metrics: JSON
+  artifacts: JSON
+  environment: JSON
+  startTime: String!
+  endTime: String
+  durationSeconds: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RunMetrics {
+  runId: String!
+  metricName: String!
+  metricValue: Float
+  step: Int
+  timestamp: String!
+  timestamp: String
+}
+
+type Models {
+  projectId: Int!
+  experimentId: Int
+  runId: String
+  modelName: String!
+  modelVersion: String!
+  algorithm: String
+  framework: String
+  modelType: String
+  featureSetId: Int
+  trainingDataset: JSON
+  hyperparameters: JSON
+  modelSizeBytes: String
+  modelLocation: String
+  metrics: JSON
+  tags: JSON
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ModelEvaluations {
+  modelId: Int!
+  evaluationType: String
+  datasetInfo: JSON
+  metrics: JSON!
+  confusionMatrix: JSON
+  rocCurve: JSON
+  precisionRecallCurve: JSON
+  featureImportance: JSON
+  evaluationTimestamp: String!
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ModelComparisons {
+  projectId: Int!
+  comparisonName: String
+  modelIds: JSON!
+  comparisonMetrics: JSON
+  winnerModelId: Int
+  comparisonNotes: String
+  createdBy: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ModelDeployments {
+  modelId: Int!
+  deploymentName: String!
+  environment: String
+  deploymentType: String
+  endpointUrl: String
+  deploymentConfig: JSON
+  resourceConfig: JSON
+  scalingConfig: JSON
+  trafficPercentage: Int
+  status: String
+  healthStatus: String
+  deployedAt: String
+  retiredAt: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AbTests {
+  projectId: Int!
+  testName: String!
+  controlDeploymentId: Int!
+  treatmentDeploymentId: Int!
+  trafficSplit: JSON
+  successMetrics: JSON
+  significanceLevel: Float
+  minimumSampleSize: Int
+  status: String
+  startTime: String
+  endTime: String
+  winnerDeploymentId: Int
+  results: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Predictions {
+  deploymentId: Int!
+  inputFeatures: JSON!
+  predictionResult: JSON!
+  predictionProbability: Float
+  predictionTimestamp: String!
+  responseTimeMs: Int
+  modelVersion: String
+  createdAt: String
+  predictionTimestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type GroundTruth {
+  trueLabel: JSON!
+  feedbackType: String
+  feedbackSource: String
+  receivedAt: String
+}
+
+type DriftDetection {
+  deploymentId: Int!
+  featureName: String
+  driftType: String
+  referenceWindowStart: String!
+  referenceWindowEnd: String!
+  currentWindowStart: String!
+  currentWindowEnd: String!
+  driftScore: Float
+  statisticalTest: String
+  pValue: Float
+  isSignificant: Boolean
+  detectedAt: String
+  detectedAt: String
+}
+
+type PerformanceMetrics {
+  deploymentId: Int!
+  metricWindowStart: String!
+  metricWindowEnd: String!
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p50ResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  p99ResponseTimeMs: Float
+  accuracy: Float
+  precisionScore: Float
+  recallScore: Float
+  f1Score: Float
+  aucRoc: Float
+  confusionMatrix: JSON
+  createdAt: String
+  metricWindowEnd: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ModelAlerts {
+  deploymentId: Int!
+  alertType: String
+  severity: String
+  alertMessage: String!
+  alertDetails: JSON
+  triggeredAt: String!
+  acknowledgedAt: String
+  acknowledgedBy: String
+  resolvedAt: String
+  resolvedBy: String
+  resolutionNotes: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ComputeResources {
+  resourceType: String
+  provider: String
+  specifications: JSON
+  totalCapacity: Float
+  availableCapacity: Float
+  unit: String
+  costPerUnit: Float
+  location: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ResourceAllocations {
+  resourceId: Int!
+  allocatedToType: String
+  allocatedToId: Int!
+  allocatedAmount: Float
+  allocationStart: String!
+  allocationEnd: String
+  costEstimate: Float
+  actualCost: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DataLineage {
+  sourceType: String
+  sourceId: Int!
+  targetType: String
+  targetId: Int!
+  transformationType: String
+  transformationDetails: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DataQualityRules {
+  appliesToType: String
+  appliesToId: Int!
+  ruleName: String!
+  ruleType: String
+  ruleDefinition: JSON!
+  severity: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DataQualityViolations {
+  ruleId: Int!
+  violationTimestamp: String!
+  affectedRecords: Int
+  violationDetails: JSON
+  severity: String
+  resolved: Boolean
+  resolvedAt: String
+  createdAt: String
+  violationTimestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UserActivity {
+  userId: String!
+  orgId: Int!
+  activityType: String
+  activityDetails: JSON
+  resourceType: String
+  resourceId: Int
+  ipAddress: String
+  userAgent: String
+  activityTimestamp: String!
+  createdAt: String
+  activityTimestamp: String
+  activityTimestamp: String
+  activityTimestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ApiUsage {
+  orgId: Int!
+  endpoint: String!
+  method: String!
+  requestTimestamp: String!
+  responseStatus: Int
+  responseTimeMs: Int
+  requestSizeBytes: Int
+  responseSizeBytes: Int
+  errorMessage: String
+  createdAt: String
+  requestTimestamp: String
+  requestTimestamp: String
+  requestTimestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PredictionsHourly {
+  deploymentId: Int!
+  hourTimestamp: String!
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  errorCount: Int
+  hourTimestamp: String
+}
+
+type StreamEventsDaily {
+  streamId: Int!
+  dayDate: String!
+  eventCount: String
+  processedCount: String
+  failedCount: String
+  avgProcessingTimeMs: Float
+  dayDate: String
+}
+
+# Input Types
+
+input SchemaVersionInput {
+  version: String
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+input SchemaVersionUpdateInput {
+  version: String
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+input SystemMetricsInput {
+  metricName: String
+  metricValue: Float
+  metricUnit: String
+  component: String
+  timestamp: String
+  tags: JSON
+  timestamp: String
+  timestamp: String
+}
+
+input SystemMetricsUpdateInput {
+  metricName: String
+  metricValue: Float
+  metricUnit: String
+  component: String
+  timestamp: String
+  tags: JSON
+  timestamp: String
+  timestamp: String
+}
+
+input OrganizationsInput {
+  orgType: String
+  contactEmail: String
+  subscriptionTier: String
+  maxModels: Int
+  maxDeployments: Int
+  maxStreams: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input OrganizationsUpdateInput {
+  orgType: String
+  contactEmail: String
+  subscriptionTier: String
+  maxModels: Int
+  maxDeployments: Int
+  maxStreams: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ProjectsInput {
+  orgId: Int
+  projectName: String
+  projectDescription: String
+  projectType: String
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ProjectsUpdateInput {
+  orgId: Int
+  projectName: String
+  projectDescription: String
+  projectType: String
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DataStreamsInput {
+  projectId: Int
+  streamName: String
+  streamType: String
+  connectionConfig: JSON
+  schemaDefinition: JSON
+  dataFormat: String
+  batchSize: Int
+  bufferTimeMs: Int
+  isActive: Boolean
+  lastConnected: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DataStreamsUpdateInput {
+  projectId: Int
+  streamName: String
+  streamType: String
+  connectionConfig: JSON
+  schemaDefinition: JSON
+  dataFormat: String
+  batchSize: Int
+  bufferTimeMs: Int
+  isActive: Boolean
+  lastConnected: String
+  createdAt: String
+  updatedAt: String
+}
+
+input StreamPipelinesInput {
+  streamId: Int
+  pipelineName: String
+  pipelineConfig: JSON
+  processingType: String
+  windowType: String
+  windowSizeSeconds: Int
+  watermarkDelaySeconds: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input StreamPipelinesUpdateInput {
+  streamId: Int
+  pipelineName: String
+  pipelineConfig: JSON
+  processingType: String
+  windowType: String
+  windowSizeSeconds: Int
+  watermarkDelaySeconds: Int
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input StreamEventsInput {
+  streamId: Int
+  eventTimestamp: String
+  eventData: JSON
+  eventMetadata: JSON
+  processingStatus: String
+  errorMessage: String
+  createdAt: String
+  eventTimestamp: String
+}
+
+input StreamEventsUpdateInput {
+  streamId: Int
+  eventTimestamp: String
+  eventData: JSON
+  eventMetadata: JSON
+  processingStatus: String
+  errorMessage: String
+  createdAt: String
+  eventTimestamp: String
+}
+
+input FeatureDefinitionsInput {
+  projectId: Int
+  featureName: String
+  featureGroup: String
+  description: String
+  dataType: String
+  computationType: String
+  computationLogic: String
+  dependencies: JSON
+  isOnline: Boolean
+  isOffline: Boolean
+  ttlSeconds: Int
+  version: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input FeatureDefinitionsUpdateInput {
+  projectId: Int
+  featureName: String
+  featureGroup: String
+  description: String
+  dataType: String
+  computationType: String
+  computationLogic: String
+  dependencies: JSON
+  isOnline: Boolean
+  isOffline: Boolean
+  ttlSeconds: Int
+  version: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input RawFeaturesInput {
+  featureId: Int
+  entityId: String
+  featureValue: JSON
+  eventTimestamp: String
+  ingestionTimestamp: String
+  eventTimestamp: String
+  eventTimestamp: String
+}
+
+input RawFeaturesUpdateInput {
+  featureId: Int
+  entityId: String
+  featureValue: JSON
+  eventTimestamp: String
+  ingestionTimestamp: String
+  eventTimestamp: String
+  eventTimestamp: String
+}
+
+input FeatureComputationsInput {
+  featureId: Int
+  entityId: String
+  windowStart: String
+  windowEnd: String
+  featureValue: JSON
+  statistics: JSON
+  computedAt: String
+  windowEnd: String
+}
+
+input FeatureComputationsUpdateInput {
+  featureId: Int
+  entityId: String
+  windowStart: String
+  windowEnd: String
+  featureValue: JSON
+  statistics: JSON
+  computedAt: String
+  windowEnd: String
+}
+
+input FeatureSetsInput {
+  projectId: Int
+  setName: String
+  description: String
+  featureIds: JSON
+  labelDefinition: JSON
+  splitConfig: JSON
+  validationRules: JSON
+  version: Int
+  createdAt: String
+}
+
+input FeatureSetsUpdateInput {
+  projectId: Int
+  setName: String
+  description: String
+  featureIds: JSON
+  labelDefinition: JSON
+  splitConfig: JSON
+  validationRules: JSON
+  version: Int
+  createdAt: String
+}
+
+input ExperimentsInput {
+  projectId: Int
+  experimentName: String
+  description: String
+  hypothesis: String
+  status: String
+  startTime: String
+  endTime: String
+  createdBy: String
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input ExperimentsUpdateInput {
+  projectId: Int
+  experimentName: String
+  description: String
+  hypothesis: String
+  status: String
+  startTime: String
+  endTime: String
+  createdBy: String
+  tags: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input ExperimentRunsInput {
+  experimentId: Int
+  runName: String
+  status: String
+  parameters: JSON
+  metrics: JSON
+  artifacts: JSON
+  environment: JSON
+  startTime: String
+  endTime: String
+  durationSeconds: Int
+  createdAt: String
+}
+
+input ExperimentRunsUpdateInput {
+  experimentId: Int
+  runName: String
+  status: String
+  parameters: JSON
+  metrics: JSON
+  artifacts: JSON
+  environment: JSON
+  startTime: String
+  endTime: String
+  durationSeconds: Int
+  createdAt: String
+}
+
+input RunMetricsInput {
+  runId: String
+  metricName: String
+  metricValue: Float
+  step: Int
+  timestamp: String
+  timestamp: String
+}
+
+input RunMetricsUpdateInput {
+  runId: String
+  metricName: String
+  metricValue: Float
+  step: Int
+  timestamp: String
+  timestamp: String
+}
+
+input ModelsInput {
+  projectId: Int
+  experimentId: Int
+  runId: String
+  modelName: String
+  modelVersion: String
+  algorithm: String
+  framework: String
+  modelType: String
+  featureSetId: Int
+  trainingDataset: JSON
+  hyperparameters: JSON
+  modelSizeBytes: String
+  modelLocation: String
+  metrics: JSON
+  tags: JSON
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ModelsUpdateInput {
+  projectId: Int
+  experimentId: Int
+  runId: String
+  modelName: String
+  modelVersion: String
+  algorithm: String
+  framework: String
+  modelType: String
+  featureSetId: Int
+  trainingDataset: JSON
+  hyperparameters: JSON
+  modelSizeBytes: String
+  modelLocation: String
+  metrics: JSON
+  tags: JSON
+  status: String
+  createdBy: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ModelEvaluationsInput {
+  modelId: Int
+  evaluationType: String
+  datasetInfo: JSON
+  metrics: JSON
+  confusionMatrix: JSON
+  rocCurve: JSON
+  precisionRecallCurve: JSON
+  featureImportance: JSON
+  evaluationTimestamp: String
+  createdAt: String
+}
+
+input ModelEvaluationsUpdateInput {
+  modelId: Int
+  evaluationType: String
+  datasetInfo: JSON
+  metrics: JSON
+  confusionMatrix: JSON
+  rocCurve: JSON
+  precisionRecallCurve: JSON
+  featureImportance: JSON
+  evaluationTimestamp: String
+  createdAt: String
+}
+
+input ModelComparisonsInput {
+  projectId: Int
+  comparisonName: String
+  modelIds: JSON
+  comparisonMetrics: JSON
+  winnerModelId: Int
+  comparisonNotes: String
+  createdBy: String
+  createdAt: String
+}
+
+input ModelComparisonsUpdateInput {
+  projectId: Int
+  comparisonName: String
+  modelIds: JSON
+  comparisonMetrics: JSON
+  winnerModelId: Int
+  comparisonNotes: String
+  createdBy: String
+  createdAt: String
+}
+
+input ModelDeploymentsInput {
+  modelId: Int
+  deploymentName: String
+  environment: String
+  deploymentType: String
+  endpointUrl: String
+  deploymentConfig: JSON
+  resourceConfig: JSON
+  scalingConfig: JSON
+  trafficPercentage: Int
+  status: String
+  healthStatus: String
+  deployedAt: String
+  retiredAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ModelDeploymentsUpdateInput {
+  modelId: Int
+  deploymentName: String
+  environment: String
+  deploymentType: String
+  endpointUrl: String
+  deploymentConfig: JSON
+  resourceConfig: JSON
+  scalingConfig: JSON
+  trafficPercentage: Int
+  status: String
+  healthStatus: String
+  deployedAt: String
+  retiredAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AbTestsInput {
+  projectId: Int
+  testName: String
+  controlDeploymentId: Int
+  treatmentDeploymentId: Int
+  trafficSplit: JSON
+  successMetrics: JSON
+  significanceLevel: Float
+  minimumSampleSize: Int
+  status: String
+  startTime: String
+  endTime: String
+  winnerDeploymentId: Int
+  results: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input AbTestsUpdateInput {
+  projectId: Int
+  testName: String
+  controlDeploymentId: Int
+  treatmentDeploymentId: Int
+  trafficSplit: JSON
+  successMetrics: JSON
+  significanceLevel: Float
+  minimumSampleSize: Int
+  status: String
+  startTime: String
+  endTime: String
+  winnerDeploymentId: Int
+  results: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PredictionsInput {
+  deploymentId: Int
+  inputFeatures: JSON
+  predictionResult: JSON
+  predictionProbability: Float
+  predictionTimestamp: String
+  responseTimeMs: Int
+  modelVersion: String
+  createdAt: String
+  predictionTimestamp: String
+}
+
+input PredictionsUpdateInput {
+  deploymentId: Int
+  inputFeatures: JSON
+  predictionResult: JSON
+  predictionProbability: Float
+  predictionTimestamp: String
+  responseTimeMs: Int
+  modelVersion: String
+  createdAt: String
+  predictionTimestamp: String
+}
+
+input GroundTruthInput {
+  trueLabel: JSON
+  feedbackType: String
+  feedbackSource: String
+  receivedAt: String
+}
+
+input GroundTruthUpdateInput {
+  trueLabel: JSON
+  feedbackType: String
+  feedbackSource: String
+  receivedAt: String
+}
+
+input DriftDetectionInput {
+  deploymentId: Int
+  featureName: String
+  driftType: String
+  referenceWindowStart: String
+  referenceWindowEnd: String
+  currentWindowStart: String
+  currentWindowEnd: String
+  driftScore: Float
+  statisticalTest: String
+  pValue: Float
+  isSignificant: Boolean
+  detectedAt: String
+  detectedAt: String
+}
+
+input DriftDetectionUpdateInput {
+  deploymentId: Int
+  featureName: String
+  driftType: String
+  referenceWindowStart: String
+  referenceWindowEnd: String
+  currentWindowStart: String
+  currentWindowEnd: String
+  driftScore: Float
+  statisticalTest: String
+  pValue: Float
+  isSignificant: Boolean
+  detectedAt: String
+  detectedAt: String
+}
+
+input PerformanceMetricsInput {
+  deploymentId: Int
+  metricWindowStart: String
+  metricWindowEnd: String
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p50ResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  p99ResponseTimeMs: Float
+  accuracy: Float
+  precisionScore: Float
+  recallScore: Float
+  f1Score: Float
+  aucRoc: Float
+  confusionMatrix: JSON
+  createdAt: String
+  metricWindowEnd: String
+}
+
+input PerformanceMetricsUpdateInput {
+  deploymentId: Int
+  metricWindowStart: String
+  metricWindowEnd: String
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p50ResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  p99ResponseTimeMs: Float
+  accuracy: Float
+  precisionScore: Float
+  recallScore: Float
+  f1Score: Float
+  aucRoc: Float
+  confusionMatrix: JSON
+  createdAt: String
+  metricWindowEnd: String
+}
+
+input ModelAlertsInput {
+  deploymentId: Int
+  alertType: String
+  severity: String
+  alertMessage: String
+  alertDetails: JSON
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: String
+  resolvedAt: String
+  resolvedBy: String
+  resolutionNotes: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+}
+
+input ModelAlertsUpdateInput {
+  deploymentId: Int
+  alertType: String
+  severity: String
+  alertMessage: String
+  alertDetails: JSON
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: String
+  resolvedAt: String
+  resolvedBy: String
+  resolutionNotes: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+}
+
+input ComputeResourcesInput {
+  resourceType: String
+  provider: String
+  specifications: JSON
+  totalCapacity: Float
+  availableCapacity: Float
+  unit: String
+  costPerUnit: Float
+  location: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ComputeResourcesUpdateInput {
+  resourceType: String
+  provider: String
+  specifications: JSON
+  totalCapacity: Float
+  availableCapacity: Float
+  unit: String
+  costPerUnit: Float
+  location: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ResourceAllocationsInput {
+  resourceId: Int
+  allocatedToType: String
+  allocatedToId: Int
+  allocatedAmount: Float
+  allocationStart: String
+  allocationEnd: String
+  costEstimate: Float
+  actualCost: Float
+  createdAt: String
+}
+
+input ResourceAllocationsUpdateInput {
+  resourceId: Int
+  allocatedToType: String
+  allocatedToId: Int
+  allocatedAmount: Float
+  allocationStart: String
+  allocationEnd: String
+  costEstimate: Float
+  actualCost: Float
+  createdAt: String
+}
+
+input DataLineageInput {
+  sourceType: String
+  sourceId: Int
+  targetType: String
+  targetId: Int
+  transformationType: String
+  transformationDetails: JSON
+  createdAt: String
+}
+
+input DataLineageUpdateInput {
+  sourceType: String
+  sourceId: Int
+  targetType: String
+  targetId: Int
+  transformationType: String
+  transformationDetails: JSON
+  createdAt: String
+}
+
+input DataQualityRulesInput {
+  appliesToType: String
+  appliesToId: Int
+  ruleName: String
+  ruleType: String
+  ruleDefinition: JSON
+  severity: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input DataQualityRulesUpdateInput {
+  appliesToType: String
+  appliesToId: Int
+  ruleName: String
+  ruleType: String
+  ruleDefinition: JSON
+  severity: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input DataQualityViolationsInput {
+  ruleId: Int
+  violationTimestamp: String
+  affectedRecords: Int
+  violationDetails: JSON
+  severity: String
+  resolved: Boolean
+  resolvedAt: String
+  createdAt: String
+  violationTimestamp: String
+}
+
+input DataQualityViolationsUpdateInput {
+  ruleId: Int
+  violationTimestamp: String
+  affectedRecords: Int
+  violationDetails: JSON
+  severity: String
+  resolved: Boolean
+  resolvedAt: String
+  createdAt: String
+  violationTimestamp: String
+}
+
+input UserActivityInput {
+  userId: String
+  orgId: Int
+  activityType: String
+  activityDetails: JSON
+  resourceType: String
+  resourceId: Int
+  ipAddress: String
+  userAgent: String
+  activityTimestamp: String
+  createdAt: String
+  activityTimestamp: String
+  activityTimestamp: String
+  activityTimestamp: String
+}
+
+input UserActivityUpdateInput {
+  userId: String
+  orgId: Int
+  activityType: String
+  activityDetails: JSON
+  resourceType: String
+  resourceId: Int
+  ipAddress: String
+  userAgent: String
+  activityTimestamp: String
+  createdAt: String
+  activityTimestamp: String
+  activityTimestamp: String
+  activityTimestamp: String
+}
+
+input ApiUsageInput {
+  orgId: Int
+  endpoint: String
+  method: String
+  requestTimestamp: String
+  responseStatus: Int
+  responseTimeMs: Int
+  requestSizeBytes: Int
+  responseSizeBytes: Int
+  errorMessage: String
+  createdAt: String
+  requestTimestamp: String
+  requestTimestamp: String
+  requestTimestamp: String
+}
+
+input ApiUsageUpdateInput {
+  orgId: Int
+  endpoint: String
+  method: String
+  requestTimestamp: String
+  responseStatus: Int
+  responseTimeMs: Int
+  requestSizeBytes: Int
+  responseSizeBytes: Int
+  errorMessage: String
+  createdAt: String
+  requestTimestamp: String
+  requestTimestamp: String
+  requestTimestamp: String
+}
+
+input PredictionsHourlyInput {
+  deploymentId: Int
+  hourTimestamp: String
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  errorCount: Int
+  hourTimestamp: String
+}
+
+input PredictionsHourlyUpdateInput {
+  deploymentId: Int
+  hourTimestamp: String
+  predictionCount: Int
+  avgResponseTimeMs: Float
+  p95ResponseTimeMs: Float
+  errorCount: Int
+  hourTimestamp: String
+}
+
+input StreamEventsDailyInput {
+  streamId: Int
+  dayDate: String
+  eventCount: String
+  processedCount: String
+  failedCount: String
+  avgProcessingTimeMs: Float
+  dayDate: String
+}
+
+input StreamEventsDailyUpdateInput {
+  streamId: Int
+  dayDate: String
+  eventCount: String
+  processedCount: String
+  failedCount: String
+  avgProcessingTimeMs: Float
+  dayDate: String
+}
+
+type Query {
+  schemaVersion(id: ID!): SchemaVersion
+  schemaVersion(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SchemaVersion!]!
+  schemaVersionCount(filter: String): Int!
+  systemMetric(id: ID!): SystemMetrics
+  systemMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SystemMetrics!]!
+  systemMetricsCount(filter: String): Int!
+  organization(id: ID!): Organizations
+  organizations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Organizations!]!
+  organizationsCount(filter: String): Int!
+  project(id: ID!): Projects
+  projects(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Projects!]!
+  projectsCount(filter: String): Int!
+  dataStream(id: ID!): DataStreams
+  dataStreams(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DataStreams!]!
+  dataStreamsCount(filter: String): Int!
+  streamPipeline(id: ID!): StreamPipelines
+  streamPipelines(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [StreamPipelines!]!
+  streamPipelinesCount(filter: String): Int!
+  streamEvent(id: ID!): StreamEvents
+  streamEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [StreamEvents!]!
+  streamEventsCount(filter: String): Int!
+  featureDefinition(id: ID!): FeatureDefinitions
+  featureDefinitions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FeatureDefinitions!]!
+  featureDefinitionsCount(filter: String): Int!
+  rawFeature(id: ID!): RawFeatures
+  rawFeatures(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RawFeatures!]!
+  rawFeaturesCount(filter: String): Int!
+  featureComputation(id: ID!): FeatureComputations
+  featureComputations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FeatureComputations!]!
+  featureComputationsCount(filter: String): Int!
+  featureSet(id: ID!): FeatureSets
+  featureSets(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FeatureSets!]!
+  featureSetsCount(filter: String): Int!
+  experiment(id: ID!): Experiments
+  experiments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Experiments!]!
+  experimentsCount(filter: String): Int!
+  experimentRun(id: ID!): ExperimentRuns
+  experimentRuns(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ExperimentRuns!]!
+  experimentRunsCount(filter: String): Int!
+  runMetric(id: ID!): RunMetrics
+  runMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RunMetrics!]!
+  runMetricsCount(filter: String): Int!
+  model(id: ID!): Models
+  models(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Models!]!
+  modelsCount(filter: String): Int!
+  modelEvaluation(id: ID!): ModelEvaluations
+  modelEvaluations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ModelEvaluations!]!
+  modelEvaluationsCount(filter: String): Int!
+  modelComparison(id: ID!): ModelComparisons
+  modelComparisons(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ModelComparisons!]!
+  modelComparisonsCount(filter: String): Int!
+  modelDeployment(id: ID!): ModelDeployments
+  modelDeployments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ModelDeployments!]!
+  modelDeploymentsCount(filter: String): Int!
+  abTest(id: ID!): AbTests
+  abTests(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AbTests!]!
+  abTestsCount(filter: String): Int!
+  prediction(id: ID!): Predictions
+  predictions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Predictions!]!
+  predictionsCount(filter: String): Int!
+  groundTruth(id: ID!): GroundTruth
+  groundTruth(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GroundTruth!]!
+  groundTruthCount(filter: String): Int!
+  driftDetection(id: ID!): DriftDetection
+  driftDetection(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DriftDetection!]!
+  driftDetectionCount(filter: String): Int!
+  performanceMetric(id: ID!): PerformanceMetrics
+  performanceMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PerformanceMetrics!]!
+  performanceMetricsCount(filter: String): Int!
+  modelAlert(id: ID!): ModelAlerts
+  modelAlerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ModelAlerts!]!
+  modelAlertsCount(filter: String): Int!
+  computeResource(id: ID!): ComputeResources
+  computeResources(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ComputeResources!]!
+  computeResourcesCount(filter: String): Int!
+  resourceAllocation(id: ID!): ResourceAllocations
+  resourceAllocations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ResourceAllocations!]!
+  resourceAllocationsCount(filter: String): Int!
+  dataLineage(id: ID!): DataLineage
+  dataLineage(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DataLineage!]!
+  dataLineageCount(filter: String): Int!
+  dataQualityRule(id: ID!): DataQualityRules
+  dataQualityRules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DataQualityRules!]!
+  dataQualityRulesCount(filter: String): Int!
+  dataQualityViolation(id: ID!): DataQualityViolations
+  dataQualityViolations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DataQualityViolations!]!
+  dataQualityViolationsCount(filter: String): Int!
+  userActivity(id: ID!): UserActivity
+  userActivity(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UserActivity!]!
+  userActivityCount(filter: String): Int!
+  apiUsage(id: ID!): ApiUsage
+  apiUsage(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ApiUsage!]!
+  apiUsageCount(filter: String): Int!
+  predictionsHourly(id: ID!): PredictionsHourly
+  predictionsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PredictionsHourly!]!
+  predictionsHourlyCount(filter: String): Int!
+  streamEventsDaily(id: ID!): StreamEventsDaily
+  streamEventsDaily(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [StreamEventsDaily!]!
+  streamEventsDailyCount(filter: String): Int!
+}
+
+type Mutation {
+  createSchemaVersion(input: SchemaVersionInput!): SchemaVersion!
+  updateSchemaVersion(id: ID!, input: SchemaVersionUpdateInput!): SchemaVersion!
+  deleteSchemaVersion(id: ID!): Boolean!
+  createSchemaVersionBatch(input: [SchemaVersionInput!]!): [SchemaVersion!]!
+  createSystemMetrics(input: SystemMetricsInput!): SystemMetrics!
+  updateSystemMetrics(id: ID!, input: SystemMetricsUpdateInput!): SystemMetrics!
+  deleteSystemMetrics(id: ID!): Boolean!
+  createSystemMetricsBatch(input: [SystemMetricsInput!]!): [SystemMetrics!]!
+  createOrganizations(input: OrganizationsInput!): Organizations!
+  updateOrganizations(id: ID!, input: OrganizationsUpdateInput!): Organizations!
+  deleteOrganizations(id: ID!): Boolean!
+  createOrganizationsBatch(input: [OrganizationsInput!]!): [Organizations!]!
+  createProjects(input: ProjectsInput!): Projects!
+  updateProjects(id: ID!, input: ProjectsUpdateInput!): Projects!
+  deleteProjects(id: ID!): Boolean!
+  createProjectsBatch(input: [ProjectsInput!]!): [Projects!]!
+  createDataStreams(input: DataStreamsInput!): DataStreams!
+  updateDataStreams(id: ID!, input: DataStreamsUpdateInput!): DataStreams!
+  deleteDataStreams(id: ID!): Boolean!
+  createDataStreamsBatch(input: [DataStreamsInput!]!): [DataStreams!]!
+  createStreamPipelines(input: StreamPipelinesInput!): StreamPipelines!
+  updateStreamPipelines(id: ID!, input: StreamPipelinesUpdateInput!): StreamPipelines!
+  deleteStreamPipelines(id: ID!): Boolean!
+  createStreamPipelinesBatch(input: [StreamPipelinesInput!]!): [StreamPipelines!]!
+  createStreamEvents(input: StreamEventsInput!): StreamEvents!
+  updateStreamEvents(id: ID!, input: StreamEventsUpdateInput!): StreamEvents!
+  deleteStreamEvents(id: ID!): Boolean!
+  createStreamEventsBatch(input: [StreamEventsInput!]!): [StreamEvents!]!
+  createFeatureDefinitions(input: FeatureDefinitionsInput!): FeatureDefinitions!
+  updateFeatureDefinitions(id: ID!, input: FeatureDefinitionsUpdateInput!): FeatureDefinitions!
+  deleteFeatureDefinitions(id: ID!): Boolean!
+  createFeatureDefinitionsBatch(input: [FeatureDefinitionsInput!]!): [FeatureDefinitions!]!
+  createRawFeatures(input: RawFeaturesInput!): RawFeatures!
+  updateRawFeatures(id: ID!, input: RawFeaturesUpdateInput!): RawFeatures!
+  deleteRawFeatures(id: ID!): Boolean!
+  createRawFeaturesBatch(input: [RawFeaturesInput!]!): [RawFeatures!]!
+  createFeatureComputations(input: FeatureComputationsInput!): FeatureComputations!
+  updateFeatureComputations(id: ID!, input: FeatureComputationsUpdateInput!): FeatureComputations!
+  deleteFeatureComputations(id: ID!): Boolean!
+  createFeatureComputationsBatch(input: [FeatureComputationsInput!]!): [FeatureComputations!]!
+  createFeatureSets(input: FeatureSetsInput!): FeatureSets!
+  updateFeatureSets(id: ID!, input: FeatureSetsUpdateInput!): FeatureSets!
+  deleteFeatureSets(id: ID!): Boolean!
+  createFeatureSetsBatch(input: [FeatureSetsInput!]!): [FeatureSets!]!
+  createExperiments(input: ExperimentsInput!): Experiments!
+  updateExperiments(id: ID!, input: ExperimentsUpdateInput!): Experiments!
+  deleteExperiments(id: ID!): Boolean!
+  createExperimentsBatch(input: [ExperimentsInput!]!): [Experiments!]!
+  createExperimentRuns(input: ExperimentRunsInput!): ExperimentRuns!
+  updateExperimentRuns(id: ID!, input: ExperimentRunsUpdateInput!): ExperimentRuns!
+  deleteExperimentRuns(id: ID!): Boolean!
+  createExperimentRunsBatch(input: [ExperimentRunsInput!]!): [ExperimentRuns!]!
+  createRunMetrics(input: RunMetricsInput!): RunMetrics!
+  updateRunMetrics(id: ID!, input: RunMetricsUpdateInput!): RunMetrics!
+  deleteRunMetrics(id: ID!): Boolean!
+  createRunMetricsBatch(input: [RunMetricsInput!]!): [RunMetrics!]!
+  createModels(input: ModelsInput!): Models!
+  updateModels(id: ID!, input: ModelsUpdateInput!): Models!
+  deleteModels(id: ID!): Boolean!
+  createModelsBatch(input: [ModelsInput!]!): [Models!]!
+  createModelEvaluations(input: ModelEvaluationsInput!): ModelEvaluations!
+  updateModelEvaluations(id: ID!, input: ModelEvaluationsUpdateInput!): ModelEvaluations!
+  deleteModelEvaluations(id: ID!): Boolean!
+  createModelEvaluationsBatch(input: [ModelEvaluationsInput!]!): [ModelEvaluations!]!
+  createModelComparisons(input: ModelComparisonsInput!): ModelComparisons!
+  updateModelComparisons(id: ID!, input: ModelComparisonsUpdateInput!): ModelComparisons!
+  deleteModelComparisons(id: ID!): Boolean!
+  createModelComparisonsBatch(input: [ModelComparisonsInput!]!): [ModelComparisons!]!
+  createModelDeployments(input: ModelDeploymentsInput!): ModelDeployments!
+  updateModelDeployments(id: ID!, input: ModelDeploymentsUpdateInput!): ModelDeployments!
+  deleteModelDeployments(id: ID!): Boolean!
+  createModelDeploymentsBatch(input: [ModelDeploymentsInput!]!): [ModelDeployments!]!
+  createAbTests(input: AbTestsInput!): AbTests!
+  updateAbTests(id: ID!, input: AbTestsUpdateInput!): AbTests!
+  deleteAbTests(id: ID!): Boolean!
+  createAbTestsBatch(input: [AbTestsInput!]!): [AbTests!]!
+  createPredictions(input: PredictionsInput!): Predictions!
+  updatePredictions(id: ID!, input: PredictionsUpdateInput!): Predictions!
+  deletePredictions(id: ID!): Boolean!
+  createPredictionsBatch(input: [PredictionsInput!]!): [Predictions!]!
+  createGroundTruth(input: GroundTruthInput!): GroundTruth!
+  updateGroundTruth(id: ID!, input: GroundTruthUpdateInput!): GroundTruth!
+  deleteGroundTruth(id: ID!): Boolean!
+  createGroundTruthBatch(input: [GroundTruthInput!]!): [GroundTruth!]!
+  createDriftDetection(input: DriftDetectionInput!): DriftDetection!
+  updateDriftDetection(id: ID!, input: DriftDetectionUpdateInput!): DriftDetection!
+  deleteDriftDetection(id: ID!): Boolean!
+  createDriftDetectionBatch(input: [DriftDetectionInput!]!): [DriftDetection!]!
+  createPerformanceMetrics(input: PerformanceMetricsInput!): PerformanceMetrics!
+  updatePerformanceMetrics(id: ID!, input: PerformanceMetricsUpdateInput!): PerformanceMetrics!
+  deletePerformanceMetrics(id: ID!): Boolean!
+  createPerformanceMetricsBatch(input: [PerformanceMetricsInput!]!): [PerformanceMetrics!]!
+  createModelAlerts(input: ModelAlertsInput!): ModelAlerts!
+  updateModelAlerts(id: ID!, input: ModelAlertsUpdateInput!): ModelAlerts!
+  deleteModelAlerts(id: ID!): Boolean!
+  createModelAlertsBatch(input: [ModelAlertsInput!]!): [ModelAlerts!]!
+  createComputeResources(input: ComputeResourcesInput!): ComputeResources!
+  updateComputeResources(id: ID!, input: ComputeResourcesUpdateInput!): ComputeResources!
+  deleteComputeResources(id: ID!): Boolean!
+  createComputeResourcesBatch(input: [ComputeResourcesInput!]!): [ComputeResources!]!
+  createResourceAllocations(input: ResourceAllocationsInput!): ResourceAllocations!
+  updateResourceAllocations(id: ID!, input: ResourceAllocationsUpdateInput!): ResourceAllocations!
+  deleteResourceAllocations(id: ID!): Boolean!
+  createResourceAllocationsBatch(input: [ResourceAllocationsInput!]!): [ResourceAllocations!]!
+  createDataLineage(input: DataLineageInput!): DataLineage!
+  updateDataLineage(id: ID!, input: DataLineageUpdateInput!): DataLineage!
+  deleteDataLineage(id: ID!): Boolean!
+  createDataLineageBatch(input: [DataLineageInput!]!): [DataLineage!]!
+  createDataQualityRules(input: DataQualityRulesInput!): DataQualityRules!
+  updateDataQualityRules(id: ID!, input: DataQualityRulesUpdateInput!): DataQualityRules!
+  deleteDataQualityRules(id: ID!): Boolean!
+  createDataQualityRulesBatch(input: [DataQualityRulesInput!]!): [DataQualityRules!]!
+  createDataQualityViolations(input: DataQualityViolationsInput!): DataQualityViolations!
+  updateDataQualityViolations(id: ID!, input: DataQualityViolationsUpdateInput!): DataQualityViolations!
+  deleteDataQualityViolations(id: ID!): Boolean!
+  createDataQualityViolationsBatch(input: [DataQualityViolationsInput!]!): [DataQualityViolations!]!
+  createUserActivity(input: UserActivityInput!): UserActivity!
+  updateUserActivity(id: ID!, input: UserActivityUpdateInput!): UserActivity!
+  deleteUserActivity(id: ID!): Boolean!
+  createUserActivityBatch(input: [UserActivityInput!]!): [UserActivity!]!
+  createApiUsage(input: ApiUsageInput!): ApiUsage!
+  updateApiUsage(id: ID!, input: ApiUsageUpdateInput!): ApiUsage!
+  deleteApiUsage(id: ID!): Boolean!
+  createApiUsageBatch(input: [ApiUsageInput!]!): [ApiUsage!]!
+  createPredictionsHourly(input: PredictionsHourlyInput!): PredictionsHourly!
+  updatePredictionsHourly(id: ID!, input: PredictionsHourlyUpdateInput!): PredictionsHourly!
+  deletePredictionsHourly(id: ID!): Boolean!
+  createPredictionsHourlyBatch(input: [PredictionsHourlyInput!]!): [PredictionsHourly!]!
+  createStreamEventsDaily(input: StreamEventsDailyInput!): StreamEventsDaily!
+  updateStreamEventsDaily(id: ID!, input: StreamEventsDailyUpdateInput!): StreamEventsDaily!
+  deleteStreamEventsDaily(id: ID!): Boolean!
+  createStreamEventsDailyBatch(input: [StreamEventsDailyInput!]!): [StreamEventsDaily!]!
+}

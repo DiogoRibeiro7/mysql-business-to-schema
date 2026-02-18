@@ -1,0 +1,124 @@
+version: '3.8'
+
+# Industrial IoT Manufacturing System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3311 (user: root, password: industrial_root)
+#   - phpMyAdmin: http://localhost:8085
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: industrial_iot_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: industrial_root
+      MYSQL_DATABASE: industrial_iot_db
+      MYSQL_USER: industrial_user
+      MYSQL_PASSWORD: industrial_pass
+    ports:
+      - "3311:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - industrial_iot_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - industrial_iot_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=3G
+      - --max_connections=1000
+      - --innodb_log_file_size=512M
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: industrial_iot_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: industrial_root
+    ports:
+      - "8085:80"
+    networks:
+      - industrial_iot_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: industrial_iot_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: industrial_iot_db
+      MYSQL_USER: industrial_user
+      MYSQL_PASSWORD: industrial_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Industrial IoT specific settings
+      FACTORY_COUNT: ${FACTORY_COUNT:-5}
+      SENSOR_DENSITY: ${SENSOR_DENSITY:-high}
+      FAILURE_RATE: ${FAILURE_RATE:-0.05}
+    volumes:
+      - ../generators/industrial_iot:/app
+      - industrial_iot_generator_output:/app/output
+    networks:
+      - industrial_iot_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating industrial IoT data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: MQTT broker for IoT communication
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: industrial_iot_mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - industrial_iot_mqtt_data:/mosquitto/data
+      - industrial_iot_mqtt_logs:/mosquitto/log
+    networks:
+      - industrial_iot_network
+    profiles:
+      - iot
+
+volumes:
+  industrial_iot_mysql_data:
+    name: industrial_iot_mysql_data
+  industrial_iot_generator_output:
+    name: industrial_iot_generator_output
+  industrial_iot_mqtt_data:
+    name: industrial_iot_mqtt_data
+  industrial_iot_mqtt_logs:
+    name: industrial_iot_mqtt_logs
+
+networks:
+  industrial_iot_network:
+    name: industrial_iot_network
+    driver: bridge

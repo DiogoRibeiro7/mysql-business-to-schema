@@ -1,0 +1,1589 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.822780
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Buildings {
+  buildingName: String!
+  address: String!
+  city: String
+  postalCode: String
+  latitude: Float
+  longitude: Float
+  totalAreaSqm: Float
+  floorsCount: Int!
+  yearBuilt: Int
+  buildingType: String
+  energyRating: String
+  occupancyType: String
+  typicalOccupancy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Floors {
+  buildingId: Int!
+  floorNumber: Int!
+  floorName: String
+  areaSqm: Float
+  heightMeters: Float
+  isMechanical: Boolean
+  hasHvacZone: Boolean
+  typicalOccupancy: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Zones {
+  floorId: Int!
+  zoneName: String
+  zoneType: String
+  areaSqm: Float
+  hasWindows: Boolean
+  windowOrientation: String
+  targetTemperatureC: Float
+  targetHumidityPct: Float
+  occupancySchedule: JSON
+  maxOccupancy: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Tenants {
+  companyName: String!
+  contactName: String
+  contactEmail: String
+  contactPhone: String
+  leaseStartDate: String!
+  leaseEndDate: String
+  billingType: String
+  monthlyBaseRate: Float
+  energyBudgetKwh: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type TenantZoneAssignments {
+  tenantId: Int!
+  zoneId: Int!
+  assignmentStartDate: String!
+  assignmentEndDate: String
+  isExclusive: Boolean
+  usagePercentage: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MeterTypes {
+  typeName: String!
+  measurementUnit: String!
+  readingFrequencySeconds: Int
+  isUtilityMeter: Boolean
+  isSubMeter: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyMeters {
+  meterTypeId: Int!
+  buildingId: Int!
+  zoneId: Int
+  meterName: String
+  manufacturer: String
+  model: String
+  installationDate: String!
+  calibrationDate: String
+  nextCalibrationDate: String
+  maxReadingValue: Float
+  meterConstant: Float
+  isSmartMeter: Boolean
+  communicationType: String
+  ipAddress: String
+  lastReadingTime: String
+  status: String
+  parentMeterId: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SolarSystems {
+  buildingId: Int!
+  systemName: String
+  installationDate: String!
+  capacityKw: Float
+  panelCount: Int
+  panelType: String
+  inverterModel: String
+  inverterCount: Int
+  orientationDegrees: Int
+  tiltDegrees: Int
+  annualProductionEstimateKwh: Float
+  degradationRateYearly: Float
+  warrantyEndDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type BatteryStorage {
+  buildingId: Int!
+  systemName: String
+  manufacturer: String
+  model: String
+  capacityKwh: Float
+  maxPowerKw: Float
+  efficiencyPct: Float
+  cyclesCount: Int
+  maxCycles: Int
+  depthOfDischargePct: Float
+  stateOfChargePct: Float
+  installationDate: String!
+  warrantyEndDate: String
+  temperatureC: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type HvacUnits {
+  buildingId: Int!
+  unitName: String
+  unitType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  capacityKw: Float
+  efficiencyRating: Float
+  refrigerantType: String
+  installationDate: String!
+  lastServiceDate: String
+  nextServiceDate: String
+  operatingHours: Int
+  servesZones: JSON
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EquipmentInventory {
+  zoneId: Int!
+  equipmentType: String
+  equipmentName: String
+  manufacturer: String
+  model: String
+  powerRatingWatts: Float
+  quantity: Int
+  usageHoursPerDay: Float
+  efficiencyPct: Float
+  installationDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyReadings {
+  meterId: Int!
+  readingTimestamp: String!
+  energyValue: Float
+  powerValue: Float
+  powerFactor: Float
+  voltageV: Float
+  currentA: Float
+  frequencyHz: Float
+  qualityFlag: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyConsumptionHourly {
+  meterId: Int!
+  hourStart: String!
+  energyConsumedKwh: Float
+  avgPowerKw: Float
+  maxPowerKw: Float
+  minPowerKw: Float
+  avgPowerFactor: Float
+  readingCount: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyConsumptionDaily {
+  meterId: Int!
+  consumptionDate: String!
+  totalEnergyKwh: Float
+  peakPowerKw: Float
+  peakHour: String
+  offPeakEnergyKwh: Float
+  peakEnergyKwh: Float
+  baseLoadKw: Float
+  loadFactor: Float
+  dailyCost: Float
+  weatherTempAvgC: Float
+  weatherCondition: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SolarProduction {
+  systemId: Int!
+  timestamp: String!
+  powerKw: Float
+  energyKwh: Float
+  irradianceWM2: Float
+  panelTempC: Float
+  ambientTempC: Float
+  efficiencyPct: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type BatteryStatus {
+  batteryId: Int!
+  timestamp: String!
+  stateOfChargePct: Float
+  powerKw: Float
+  energyKwh: Float
+  voltageV: Float
+  currentA: Float
+  temperatureC: Float
+  cycleCount: Int
+  healthPct: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type HvacTelemetry {
+  unitId: Int!
+  timestamp: String!
+  supplyTempC: Float
+  returnTempC: Float
+  setpointTempC: Float
+  outdoorTempC: Float
+  fanSpeedPct: Float
+  compressorStatus: String
+  powerKw: Float
+  efficiencyCop: Float
+  runtimeMinutes: Int
+  faultCode: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DemandResponseEvents {
+  eventType: String
+  startTime: String!
+  endTime: String!
+  targetReductionKw: Float
+  targetReductionPct: Float
+  incentiveRate: Float
+  notificationTime: String
+  responseStatus: String
+  actualReductionKw: Float
+  compliancePct: Float
+  revenueEarned: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LoadProfiles {
+  buildingId: Int!
+  profileType: String
+  season: String
+  hourOfDay: Int!
+  typicalLoadKw: Float
+  minLoadKw: Float
+  maxLoadKw: Float
+  stdDeviationKw: Float
+  sampleCount: Int
+  lastUpdated: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyForecasts {
+  buildingId: Int!
+  forecastTimestamp: String!
+  forecastHorizonHours: Int!
+  predictedLoadKw: Float
+  confidenceLowerKw: Float
+  confidenceUpperKw: Float
+  weatherTempC: Float
+  isWorkday: Boolean
+  modelVersion: String
+  actualLoadKw: Float
+  errorPct: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type UtilityRates {
+  rateName: String!
+  utilityCompany: String
+  rateType: String
+  effectiveDate: String!
+  endDate: String
+  timePeriods: JSON
+  demandCharge: Float
+  fixedCharge: Float
+  isDefault: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type TenantBilling {
+  tenantId: Int!
+  billingPeriodStart: String!
+  billingPeriodEnd: String!
+  totalEnergyKwh: Float
+  peakDemandKw: Float
+  energyCharge: Float
+  demandCharge: Float
+  fixedCharges: Float
+  taxes: Float
+  totalAmount: Float
+  paymentStatus: String
+  paymentDate: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AlertRules {
+  ruleName: String!
+  ruleType: String
+  entityType: String
+  conditionJson: JSON!
+  severity: String
+  notificationChannels: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EnergyAlerts {
+  ruleId: Int!
+  entityType: String!
+  entityId: Int!
+  alertType: String!
+  severity: String
+  triggeredAt: String!
+  alertValue: Float
+  thresholdValue: Float
+  message: String
+  resolvedAt: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  resolutionNotes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MaintenanceSchedules {
+  equipmentType: String
+  equipmentId: Int!
+  maintenanceType: String
+  scheduledDate: String!
+  frequencyDays: Int
+  estimatedDurationHours: Float
+  contractor: String
+  estimatedCost: Float
+  status: String
+  completedDate: String
+  actualCost: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PerformanceMetrics {
+  buildingId: Int!
+  metricDate: String!
+  energyIntensityKwhSqm: Float
+  peakDemandKw: Float
+  loadFactor: Float
+  renewablePercentage: Float
+  carbonEmissionsKg: Float
+  costPerKwh: Float
+  totalCost: Float
+  powerQualityScore: Float
+  equipmentEfficiencyScore: Float
+  benchmarkComparison: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input BuildingsInput {
+  buildingName: String
+  address: String
+  city: String
+  postalCode: String
+  latitude: Float
+  longitude: Float
+  totalAreaSqm: Float
+  floorsCount: Int
+  yearBuilt: Int
+  buildingType: String
+  energyRating: String
+  occupancyType: String
+  typicalOccupancy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input BuildingsUpdateInput {
+  buildingName: String
+  address: String
+  city: String
+  postalCode: String
+  latitude: Float
+  longitude: Float
+  totalAreaSqm: Float
+  floorsCount: Int
+  yearBuilt: Int
+  buildingType: String
+  energyRating: String
+  occupancyType: String
+  typicalOccupancy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input FloorsInput {
+  buildingId: Int
+  floorNumber: Int
+  floorName: String
+  areaSqm: Float
+  heightMeters: Float
+  isMechanical: Boolean
+  hasHvacZone: Boolean
+  typicalOccupancy: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input FloorsUpdateInput {
+  buildingId: Int
+  floorNumber: Int
+  floorName: String
+  areaSqm: Float
+  heightMeters: Float
+  isMechanical: Boolean
+  hasHvacZone: Boolean
+  typicalOccupancy: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ZonesInput {
+  floorId: Int
+  zoneName: String
+  zoneType: String
+  areaSqm: Float
+  hasWindows: Boolean
+  windowOrientation: String
+  targetTemperatureC: Float
+  targetHumidityPct: Float
+  occupancySchedule: JSON
+  maxOccupancy: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ZonesUpdateInput {
+  floorId: Int
+  zoneName: String
+  zoneType: String
+  areaSqm: Float
+  hasWindows: Boolean
+  windowOrientation: String
+  targetTemperatureC: Float
+  targetHumidityPct: Float
+  occupancySchedule: JSON
+  maxOccupancy: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input TenantsInput {
+  companyName: String
+  contactName: String
+  contactEmail: String
+  contactPhone: String
+  leaseStartDate: String
+  leaseEndDate: String
+  billingType: String
+  monthlyBaseRate: Float
+  energyBudgetKwh: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TenantsUpdateInput {
+  companyName: String
+  contactName: String
+  contactEmail: String
+  contactPhone: String
+  leaseStartDate: String
+  leaseEndDate: String
+  billingType: String
+  monthlyBaseRate: Float
+  energyBudgetKwh: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TenantZoneAssignmentsInput {
+  tenantId: Int
+  zoneId: Int
+  assignmentStartDate: String
+  assignmentEndDate: String
+  isExclusive: Boolean
+  usagePercentage: Float
+  createdAt: String
+}
+
+input TenantZoneAssignmentsUpdateInput {
+  tenantId: Int
+  zoneId: Int
+  assignmentStartDate: String
+  assignmentEndDate: String
+  isExclusive: Boolean
+  usagePercentage: Float
+  createdAt: String
+}
+
+input MeterTypesInput {
+  typeName: String
+  measurementUnit: String
+  readingFrequencySeconds: Int
+  isUtilityMeter: Boolean
+  isSubMeter: Boolean
+  createdAt: String
+}
+
+input MeterTypesUpdateInput {
+  typeName: String
+  measurementUnit: String
+  readingFrequencySeconds: Int
+  isUtilityMeter: Boolean
+  isSubMeter: Boolean
+  createdAt: String
+}
+
+input EnergyMetersInput {
+  meterTypeId: Int
+  buildingId: Int
+  zoneId: Int
+  meterName: String
+  manufacturer: String
+  model: String
+  installationDate: String
+  calibrationDate: String
+  nextCalibrationDate: String
+  maxReadingValue: Float
+  meterConstant: Float
+  isSmartMeter: Boolean
+  communicationType: String
+  ipAddress: String
+  lastReadingTime: String
+  status: String
+  parentMeterId: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input EnergyMetersUpdateInput {
+  meterTypeId: Int
+  buildingId: Int
+  zoneId: Int
+  meterName: String
+  manufacturer: String
+  model: String
+  installationDate: String
+  calibrationDate: String
+  nextCalibrationDate: String
+  maxReadingValue: Float
+  meterConstant: Float
+  isSmartMeter: Boolean
+  communicationType: String
+  ipAddress: String
+  lastReadingTime: String
+  status: String
+  parentMeterId: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input SolarSystemsInput {
+  buildingId: Int
+  systemName: String
+  installationDate: String
+  capacityKw: Float
+  panelCount: Int
+  panelType: String
+  inverterModel: String
+  inverterCount: Int
+  orientationDegrees: Int
+  tiltDegrees: Int
+  annualProductionEstimateKwh: Float
+  degradationRateYearly: Float
+  warrantyEndDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SolarSystemsUpdateInput {
+  buildingId: Int
+  systemName: String
+  installationDate: String
+  capacityKw: Float
+  panelCount: Int
+  panelType: String
+  inverterModel: String
+  inverterCount: Int
+  orientationDegrees: Int
+  tiltDegrees: Int
+  annualProductionEstimateKwh: Float
+  degradationRateYearly: Float
+  warrantyEndDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input BatteryStorageInput {
+  buildingId: Int
+  systemName: String
+  manufacturer: String
+  model: String
+  capacityKwh: Float
+  maxPowerKw: Float
+  efficiencyPct: Float
+  cyclesCount: Int
+  maxCycles: Int
+  depthOfDischargePct: Float
+  stateOfChargePct: Float
+  installationDate: String
+  warrantyEndDate: String
+  temperatureC: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input BatteryStorageUpdateInput {
+  buildingId: Int
+  systemName: String
+  manufacturer: String
+  model: String
+  capacityKwh: Float
+  maxPowerKw: Float
+  efficiencyPct: Float
+  cyclesCount: Int
+  maxCycles: Int
+  depthOfDischargePct: Float
+  stateOfChargePct: Float
+  installationDate: String
+  warrantyEndDate: String
+  temperatureC: Float
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input HvacUnitsInput {
+  buildingId: Int
+  unitName: String
+  unitType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  capacityKw: Float
+  efficiencyRating: Float
+  refrigerantType: String
+  installationDate: String
+  lastServiceDate: String
+  nextServiceDate: String
+  operatingHours: Int
+  servesZones: JSON
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input HvacUnitsUpdateInput {
+  buildingId: Int
+  unitName: String
+  unitType: String
+  manufacturer: String
+  model: String
+  serialNumber: String
+  capacityKw: Float
+  efficiencyRating: Float
+  refrigerantType: String
+  installationDate: String
+  lastServiceDate: String
+  nextServiceDate: String
+  operatingHours: Int
+  servesZones: JSON
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input EquipmentInventoryInput {
+  zoneId: Int
+  equipmentType: String
+  equipmentName: String
+  manufacturer: String
+  model: String
+  powerRatingWatts: Float
+  quantity: Int
+  usageHoursPerDay: Float
+  efficiencyPct: Float
+  installationDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input EquipmentInventoryUpdateInput {
+  zoneId: Int
+  equipmentType: String
+  equipmentName: String
+  manufacturer: String
+  model: String
+  powerRatingWatts: Float
+  quantity: Int
+  usageHoursPerDay: Float
+  efficiencyPct: Float
+  installationDate: String
+  status: String
+  createdAt: String
+  updatedAt: String
+}
+
+input EnergyReadingsInput {
+  meterId: Int
+  readingTimestamp: String
+  energyValue: Float
+  powerValue: Float
+  powerFactor: Float
+  voltageV: Float
+  currentA: Float
+  frequencyHz: Float
+  qualityFlag: String
+  createdAt: String
+}
+
+input EnergyReadingsUpdateInput {
+  meterId: Int
+  readingTimestamp: String
+  energyValue: Float
+  powerValue: Float
+  powerFactor: Float
+  voltageV: Float
+  currentA: Float
+  frequencyHz: Float
+  qualityFlag: String
+  createdAt: String
+}
+
+input EnergyConsumptionHourlyInput {
+  meterId: Int
+  hourStart: String
+  energyConsumedKwh: Float
+  avgPowerKw: Float
+  maxPowerKw: Float
+  minPowerKw: Float
+  avgPowerFactor: Float
+  readingCount: Int
+  createdAt: String
+}
+
+input EnergyConsumptionHourlyUpdateInput {
+  meterId: Int
+  hourStart: String
+  energyConsumedKwh: Float
+  avgPowerKw: Float
+  maxPowerKw: Float
+  minPowerKw: Float
+  avgPowerFactor: Float
+  readingCount: Int
+  createdAt: String
+}
+
+input EnergyConsumptionDailyInput {
+  meterId: Int
+  consumptionDate: String
+  totalEnergyKwh: Float
+  peakPowerKw: Float
+  peakHour: String
+  offPeakEnergyKwh: Float
+  peakEnergyKwh: Float
+  baseLoadKw: Float
+  loadFactor: Float
+  dailyCost: Float
+  weatherTempAvgC: Float
+  weatherCondition: String
+  createdAt: String
+}
+
+input EnergyConsumptionDailyUpdateInput {
+  meterId: Int
+  consumptionDate: String
+  totalEnergyKwh: Float
+  peakPowerKw: Float
+  peakHour: String
+  offPeakEnergyKwh: Float
+  peakEnergyKwh: Float
+  baseLoadKw: Float
+  loadFactor: Float
+  dailyCost: Float
+  weatherTempAvgC: Float
+  weatherCondition: String
+  createdAt: String
+}
+
+input SolarProductionInput {
+  systemId: Int
+  timestamp: String
+  powerKw: Float
+  energyKwh: Float
+  irradianceWM2: Float
+  panelTempC: Float
+  ambientTempC: Float
+  efficiencyPct: Float
+  createdAt: String
+}
+
+input SolarProductionUpdateInput {
+  systemId: Int
+  timestamp: String
+  powerKw: Float
+  energyKwh: Float
+  irradianceWM2: Float
+  panelTempC: Float
+  ambientTempC: Float
+  efficiencyPct: Float
+  createdAt: String
+}
+
+input BatteryStatusInput {
+  batteryId: Int
+  timestamp: String
+  stateOfChargePct: Float
+  powerKw: Float
+  energyKwh: Float
+  voltageV: Float
+  currentA: Float
+  temperatureC: Float
+  cycleCount: Int
+  healthPct: Float
+  createdAt: String
+}
+
+input BatteryStatusUpdateInput {
+  batteryId: Int
+  timestamp: String
+  stateOfChargePct: Float
+  powerKw: Float
+  energyKwh: Float
+  voltageV: Float
+  currentA: Float
+  temperatureC: Float
+  cycleCount: Int
+  healthPct: Float
+  createdAt: String
+}
+
+input HvacTelemetryInput {
+  unitId: Int
+  timestamp: String
+  supplyTempC: Float
+  returnTempC: Float
+  setpointTempC: Float
+  outdoorTempC: Float
+  fanSpeedPct: Float
+  compressorStatus: String
+  powerKw: Float
+  efficiencyCop: Float
+  runtimeMinutes: Int
+  faultCode: String
+  createdAt: String
+}
+
+input HvacTelemetryUpdateInput {
+  unitId: Int
+  timestamp: String
+  supplyTempC: Float
+  returnTempC: Float
+  setpointTempC: Float
+  outdoorTempC: Float
+  fanSpeedPct: Float
+  compressorStatus: String
+  powerKw: Float
+  efficiencyCop: Float
+  runtimeMinutes: Int
+  faultCode: String
+  createdAt: String
+}
+
+input DemandResponseEventsInput {
+  eventType: String
+  startTime: String
+  endTime: String
+  targetReductionKw: Float
+  targetReductionPct: Float
+  incentiveRate: Float
+  notificationTime: String
+  responseStatus: String
+  actualReductionKw: Float
+  compliancePct: Float
+  revenueEarned: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input DemandResponseEventsUpdateInput {
+  eventType: String
+  startTime: String
+  endTime: String
+  targetReductionKw: Float
+  targetReductionPct: Float
+  incentiveRate: Float
+  notificationTime: String
+  responseStatus: String
+  actualReductionKw: Float
+  compliancePct: Float
+  revenueEarned: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input LoadProfilesInput {
+  buildingId: Int
+  profileType: String
+  season: String
+  hourOfDay: Int
+  typicalLoadKw: Float
+  minLoadKw: Float
+  maxLoadKw: Float
+  stdDeviationKw: Float
+  sampleCount: Int
+  lastUpdated: String
+  createdAt: String
+}
+
+input LoadProfilesUpdateInput {
+  buildingId: Int
+  profileType: String
+  season: String
+  hourOfDay: Int
+  typicalLoadKw: Float
+  minLoadKw: Float
+  maxLoadKw: Float
+  stdDeviationKw: Float
+  sampleCount: Int
+  lastUpdated: String
+  createdAt: String
+}
+
+input EnergyForecastsInput {
+  buildingId: Int
+  forecastTimestamp: String
+  forecastHorizonHours: Int
+  predictedLoadKw: Float
+  confidenceLowerKw: Float
+  confidenceUpperKw: Float
+  weatherTempC: Float
+  isWorkday: Boolean
+  modelVersion: String
+  actualLoadKw: Float
+  errorPct: Float
+  createdAt: String
+}
+
+input EnergyForecastsUpdateInput {
+  buildingId: Int
+  forecastTimestamp: String
+  forecastHorizonHours: Int
+  predictedLoadKw: Float
+  confidenceLowerKw: Float
+  confidenceUpperKw: Float
+  weatherTempC: Float
+  isWorkday: Boolean
+  modelVersion: String
+  actualLoadKw: Float
+  errorPct: Float
+  createdAt: String
+}
+
+input UtilityRatesInput {
+  rateName: String
+  utilityCompany: String
+  rateType: String
+  effectiveDate: String
+  endDate: String
+  timePeriods: JSON
+  demandCharge: Float
+  fixedCharge: Float
+  isDefault: Boolean
+  createdAt: String
+}
+
+input UtilityRatesUpdateInput {
+  rateName: String
+  utilityCompany: String
+  rateType: String
+  effectiveDate: String
+  endDate: String
+  timePeriods: JSON
+  demandCharge: Float
+  fixedCharge: Float
+  isDefault: Boolean
+  createdAt: String
+}
+
+input TenantBillingInput {
+  tenantId: Int
+  billingPeriodStart: String
+  billingPeriodEnd: String
+  totalEnergyKwh: Float
+  peakDemandKw: Float
+  energyCharge: Float
+  demandCharge: Float
+  fixedCharges: Float
+  taxes: Float
+  totalAmount: Float
+  paymentStatus: String
+  paymentDate: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input TenantBillingUpdateInput {
+  tenantId: Int
+  billingPeriodStart: String
+  billingPeriodEnd: String
+  totalEnergyKwh: Float
+  peakDemandKw: Float
+  energyCharge: Float
+  demandCharge: Float
+  fixedCharges: Float
+  taxes: Float
+  totalAmount: Float
+  paymentStatus: String
+  paymentDate: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertRulesInput {
+  ruleName: String
+  ruleType: String
+  entityType: String
+  conditionJson: JSON
+  severity: String
+  notificationChannels: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertRulesUpdateInput {
+  ruleName: String
+  ruleType: String
+  entityType: String
+  conditionJson: JSON
+  severity: String
+  notificationChannels: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input EnergyAlertsInput {
+  ruleId: Int
+  entityType: String
+  entityId: Int
+  alertType: String
+  severity: String
+  triggeredAt: String
+  alertValue: Float
+  thresholdValue: Float
+  message: String
+  resolvedAt: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  resolutionNotes: String
+  createdAt: String
+}
+
+input EnergyAlertsUpdateInput {
+  ruleId: Int
+  entityType: String
+  entityId: Int
+  alertType: String
+  severity: String
+  triggeredAt: String
+  alertValue: Float
+  thresholdValue: Float
+  message: String
+  resolvedAt: String
+  acknowledged: Boolean
+  acknowledgedBy: String
+  acknowledgedAt: String
+  resolutionNotes: String
+  createdAt: String
+}
+
+input MaintenanceSchedulesInput {
+  equipmentType: String
+  equipmentId: Int
+  maintenanceType: String
+  scheduledDate: String
+  frequencyDays: Int
+  estimatedDurationHours: Float
+  contractor: String
+  estimatedCost: Float
+  status: String
+  completedDate: String
+  actualCost: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input MaintenanceSchedulesUpdateInput {
+  equipmentType: String
+  equipmentId: Int
+  maintenanceType: String
+  scheduledDate: String
+  frequencyDays: Int
+  estimatedDurationHours: Float
+  contractor: String
+  estimatedCost: Float
+  status: String
+  completedDate: String
+  actualCost: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PerformanceMetricsInput {
+  buildingId: Int
+  metricDate: String
+  energyIntensityKwhSqm: Float
+  peakDemandKw: Float
+  loadFactor: Float
+  renewablePercentage: Float
+  carbonEmissionsKg: Float
+  costPerKwh: Float
+  totalCost: Float
+  powerQualityScore: Float
+  equipmentEfficiencyScore: Float
+  benchmarkComparison: Float
+  createdAt: String
+}
+
+input PerformanceMetricsUpdateInput {
+  buildingId: Int
+  metricDate: String
+  energyIntensityKwhSqm: Float
+  peakDemandKw: Float
+  loadFactor: Float
+  renewablePercentage: Float
+  carbonEmissionsKg: Float
+  costPerKwh: Float
+  totalCost: Float
+  powerQualityScore: Float
+  equipmentEfficiencyScore: Float
+  benchmarkComparison: Float
+  createdAt: String
+}
+
+type Query {
+  building(id: ID!): Buildings
+  buildings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Buildings!]!
+  buildingsCount(filter: String): Int!
+  floor(id: ID!): Floors
+  floors(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Floors!]!
+  floorsCount(filter: String): Int!
+  zone(id: ID!): Zones
+  zones(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Zones!]!
+  zonesCount(filter: String): Int!
+  tenant(id: ID!): Tenants
+  tenants(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Tenants!]!
+  tenantsCount(filter: String): Int!
+  tenantZoneAssignment(id: ID!): TenantZoneAssignments
+  tenantZoneAssignments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [TenantZoneAssignments!]!
+  tenantZoneAssignmentsCount(filter: String): Int!
+  meterType(id: ID!): MeterTypes
+  meterTypes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MeterTypes!]!
+  meterTypesCount(filter: String): Int!
+  energyMeter(id: ID!): EnergyMeters
+  energyMeters(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyMeters!]!
+  energyMetersCount(filter: String): Int!
+  solarSystem(id: ID!): SolarSystems
+  solarSystems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SolarSystems!]!
+  solarSystemsCount(filter: String): Int!
+  batteryStorage(id: ID!): BatteryStorage
+  batteryStorage(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [BatteryStorage!]!
+  batteryStorageCount(filter: String): Int!
+  hvacUnit(id: ID!): HvacUnits
+  hvacUnits(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [HvacUnits!]!
+  hvacUnitsCount(filter: String): Int!
+  equipmentInventory(id: ID!): EquipmentInventory
+  equipmentInventory(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EquipmentInventory!]!
+  equipmentInventoryCount(filter: String): Int!
+  energyReading(id: ID!): EnergyReadings
+  energyReadings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyReadings!]!
+  energyReadingsCount(filter: String): Int!
+  energyConsumptionHourly(id: ID!): EnergyConsumptionHourly
+  energyConsumptionHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyConsumptionHourly!]!
+  energyConsumptionHourlyCount(filter: String): Int!
+  energyConsumptionDaily(id: ID!): EnergyConsumptionDaily
+  energyConsumptionDaily(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyConsumptionDaily!]!
+  energyConsumptionDailyCount(filter: String): Int!
+  solarProduction(id: ID!): SolarProduction
+  solarProduction(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SolarProduction!]!
+  solarProductionCount(filter: String): Int!
+  batteryStatu(id: ID!): BatteryStatus
+  batteryStatus(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [BatteryStatus!]!
+  batteryStatusCount(filter: String): Int!
+  hvacTelemetry(id: ID!): HvacTelemetry
+  hvacTelemetry(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [HvacTelemetry!]!
+  hvacTelemetryCount(filter: String): Int!
+  demandResponseEvent(id: ID!): DemandResponseEvents
+  demandResponseEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DemandResponseEvents!]!
+  demandResponseEventsCount(filter: String): Int!
+  loadProfile(id: ID!): LoadProfiles
+  loadProfiles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LoadProfiles!]!
+  loadProfilesCount(filter: String): Int!
+  energyForecast(id: ID!): EnergyForecasts
+  energyForecasts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyForecasts!]!
+  energyForecastsCount(filter: String): Int!
+  utilityRate(id: ID!): UtilityRates
+  utilityRates(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [UtilityRates!]!
+  utilityRatesCount(filter: String): Int!
+  tenantBilling(id: ID!): TenantBilling
+  tenantBilling(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [TenantBilling!]!
+  tenantBillingCount(filter: String): Int!
+  alertRule(id: ID!): AlertRules
+  alertRules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AlertRules!]!
+  alertRulesCount(filter: String): Int!
+  energyAlert(id: ID!): EnergyAlerts
+  energyAlerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EnergyAlerts!]!
+  energyAlertsCount(filter: String): Int!
+  maintenanceSchedule(id: ID!): MaintenanceSchedules
+  maintenanceSchedules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MaintenanceSchedules!]!
+  maintenanceSchedulesCount(filter: String): Int!
+  performanceMetric(id: ID!): PerformanceMetrics
+  performanceMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PerformanceMetrics!]!
+  performanceMetricsCount(filter: String): Int!
+}
+
+type Mutation {
+  createBuildings(input: BuildingsInput!): Buildings!
+  updateBuildings(id: ID!, input: BuildingsUpdateInput!): Buildings!
+  deleteBuildings(id: ID!): Boolean!
+  createBuildingsBatch(input: [BuildingsInput!]!): [Buildings!]!
+  createFloors(input: FloorsInput!): Floors!
+  updateFloors(id: ID!, input: FloorsUpdateInput!): Floors!
+  deleteFloors(id: ID!): Boolean!
+  createFloorsBatch(input: [FloorsInput!]!): [Floors!]!
+  createZones(input: ZonesInput!): Zones!
+  updateZones(id: ID!, input: ZonesUpdateInput!): Zones!
+  deleteZones(id: ID!): Boolean!
+  createZonesBatch(input: [ZonesInput!]!): [Zones!]!
+  createTenants(input: TenantsInput!): Tenants!
+  updateTenants(id: ID!, input: TenantsUpdateInput!): Tenants!
+  deleteTenants(id: ID!): Boolean!
+  createTenantsBatch(input: [TenantsInput!]!): [Tenants!]!
+  createTenantZoneAssignments(input: TenantZoneAssignmentsInput!): TenantZoneAssignments!
+  updateTenantZoneAssignments(id: ID!, input: TenantZoneAssignmentsUpdateInput!): TenantZoneAssignments!
+  deleteTenantZoneAssignments(id: ID!): Boolean!
+  createTenantZoneAssignmentsBatch(input: [TenantZoneAssignmentsInput!]!): [TenantZoneAssignments!]!
+  createMeterTypes(input: MeterTypesInput!): MeterTypes!
+  updateMeterTypes(id: ID!, input: MeterTypesUpdateInput!): MeterTypes!
+  deleteMeterTypes(id: ID!): Boolean!
+  createMeterTypesBatch(input: [MeterTypesInput!]!): [MeterTypes!]!
+  createEnergyMeters(input: EnergyMetersInput!): EnergyMeters!
+  updateEnergyMeters(id: ID!, input: EnergyMetersUpdateInput!): EnergyMeters!
+  deleteEnergyMeters(id: ID!): Boolean!
+  createEnergyMetersBatch(input: [EnergyMetersInput!]!): [EnergyMeters!]!
+  createSolarSystems(input: SolarSystemsInput!): SolarSystems!
+  updateSolarSystems(id: ID!, input: SolarSystemsUpdateInput!): SolarSystems!
+  deleteSolarSystems(id: ID!): Boolean!
+  createSolarSystemsBatch(input: [SolarSystemsInput!]!): [SolarSystems!]!
+  createBatteryStorage(input: BatteryStorageInput!): BatteryStorage!
+  updateBatteryStorage(id: ID!, input: BatteryStorageUpdateInput!): BatteryStorage!
+  deleteBatteryStorage(id: ID!): Boolean!
+  createBatteryStorageBatch(input: [BatteryStorageInput!]!): [BatteryStorage!]!
+  createHvacUnits(input: HvacUnitsInput!): HvacUnits!
+  updateHvacUnits(id: ID!, input: HvacUnitsUpdateInput!): HvacUnits!
+  deleteHvacUnits(id: ID!): Boolean!
+  createHvacUnitsBatch(input: [HvacUnitsInput!]!): [HvacUnits!]!
+  createEquipmentInventory(input: EquipmentInventoryInput!): EquipmentInventory!
+  updateEquipmentInventory(id: ID!, input: EquipmentInventoryUpdateInput!): EquipmentInventory!
+  deleteEquipmentInventory(id: ID!): Boolean!
+  createEquipmentInventoryBatch(input: [EquipmentInventoryInput!]!): [EquipmentInventory!]!
+  createEnergyReadings(input: EnergyReadingsInput!): EnergyReadings!
+  updateEnergyReadings(id: ID!, input: EnergyReadingsUpdateInput!): EnergyReadings!
+  deleteEnergyReadings(id: ID!): Boolean!
+  createEnergyReadingsBatch(input: [EnergyReadingsInput!]!): [EnergyReadings!]!
+  createEnergyConsumptionHourly(input: EnergyConsumptionHourlyInput!): EnergyConsumptionHourly!
+  updateEnergyConsumptionHourly(id: ID!, input: EnergyConsumptionHourlyUpdateInput!): EnergyConsumptionHourly!
+  deleteEnergyConsumptionHourly(id: ID!): Boolean!
+  createEnergyConsumptionHourlyBatch(input: [EnergyConsumptionHourlyInput!]!): [EnergyConsumptionHourly!]!
+  createEnergyConsumptionDaily(input: EnergyConsumptionDailyInput!): EnergyConsumptionDaily!
+  updateEnergyConsumptionDaily(id: ID!, input: EnergyConsumptionDailyUpdateInput!): EnergyConsumptionDaily!
+  deleteEnergyConsumptionDaily(id: ID!): Boolean!
+  createEnergyConsumptionDailyBatch(input: [EnergyConsumptionDailyInput!]!): [EnergyConsumptionDaily!]!
+  createSolarProduction(input: SolarProductionInput!): SolarProduction!
+  updateSolarProduction(id: ID!, input: SolarProductionUpdateInput!): SolarProduction!
+  deleteSolarProduction(id: ID!): Boolean!
+  createSolarProductionBatch(input: [SolarProductionInput!]!): [SolarProduction!]!
+  createBatteryStatus(input: BatteryStatusInput!): BatteryStatus!
+  updateBatteryStatus(id: ID!, input: BatteryStatusUpdateInput!): BatteryStatus!
+  deleteBatteryStatus(id: ID!): Boolean!
+  createBatteryStatusBatch(input: [BatteryStatusInput!]!): [BatteryStatus!]!
+  createHvacTelemetry(input: HvacTelemetryInput!): HvacTelemetry!
+  updateHvacTelemetry(id: ID!, input: HvacTelemetryUpdateInput!): HvacTelemetry!
+  deleteHvacTelemetry(id: ID!): Boolean!
+  createHvacTelemetryBatch(input: [HvacTelemetryInput!]!): [HvacTelemetry!]!
+  createDemandResponseEvents(input: DemandResponseEventsInput!): DemandResponseEvents!
+  updateDemandResponseEvents(id: ID!, input: DemandResponseEventsUpdateInput!): DemandResponseEvents!
+  deleteDemandResponseEvents(id: ID!): Boolean!
+  createDemandResponseEventsBatch(input: [DemandResponseEventsInput!]!): [DemandResponseEvents!]!
+  createLoadProfiles(input: LoadProfilesInput!): LoadProfiles!
+  updateLoadProfiles(id: ID!, input: LoadProfilesUpdateInput!): LoadProfiles!
+  deleteLoadProfiles(id: ID!): Boolean!
+  createLoadProfilesBatch(input: [LoadProfilesInput!]!): [LoadProfiles!]!
+  createEnergyForecasts(input: EnergyForecastsInput!): EnergyForecasts!
+  updateEnergyForecasts(id: ID!, input: EnergyForecastsUpdateInput!): EnergyForecasts!
+  deleteEnergyForecasts(id: ID!): Boolean!
+  createEnergyForecastsBatch(input: [EnergyForecastsInput!]!): [EnergyForecasts!]!
+  createUtilityRates(input: UtilityRatesInput!): UtilityRates!
+  updateUtilityRates(id: ID!, input: UtilityRatesUpdateInput!): UtilityRates!
+  deleteUtilityRates(id: ID!): Boolean!
+  createUtilityRatesBatch(input: [UtilityRatesInput!]!): [UtilityRates!]!
+  createTenantBilling(input: TenantBillingInput!): TenantBilling!
+  updateTenantBilling(id: ID!, input: TenantBillingUpdateInput!): TenantBilling!
+  deleteTenantBilling(id: ID!): Boolean!
+  createTenantBillingBatch(input: [TenantBillingInput!]!): [TenantBilling!]!
+  createAlertRules(input: AlertRulesInput!): AlertRules!
+  updateAlertRules(id: ID!, input: AlertRulesUpdateInput!): AlertRules!
+  deleteAlertRules(id: ID!): Boolean!
+  createAlertRulesBatch(input: [AlertRulesInput!]!): [AlertRules!]!
+  createEnergyAlerts(input: EnergyAlertsInput!): EnergyAlerts!
+  updateEnergyAlerts(id: ID!, input: EnergyAlertsUpdateInput!): EnergyAlerts!
+  deleteEnergyAlerts(id: ID!): Boolean!
+  createEnergyAlertsBatch(input: [EnergyAlertsInput!]!): [EnergyAlerts!]!
+  createMaintenanceSchedules(input: MaintenanceSchedulesInput!): MaintenanceSchedules!
+  updateMaintenanceSchedules(id: ID!, input: MaintenanceSchedulesUpdateInput!): MaintenanceSchedules!
+  deleteMaintenanceSchedules(id: ID!): Boolean!
+  createMaintenanceSchedulesBatch(input: [MaintenanceSchedulesInput!]!): [MaintenanceSchedules!]!
+  createPerformanceMetrics(input: PerformanceMetricsInput!): PerformanceMetrics!
+  updatePerformanceMetrics(id: ID!, input: PerformanceMetricsUpdateInput!): PerformanceMetrics!
+  deletePerformanceMetrics(id: ID!): Boolean!
+  createPerformanceMetricsBatch(input: [PerformanceMetricsInput!]!): [PerformanceMetrics!]!
+}

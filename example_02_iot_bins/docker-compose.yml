@@ -1,0 +1,122 @@
+version: '3.8'
+
+# IoT Smart Waste Management System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3309 (user: root, password: iot_bins_root)
+#   - phpMyAdmin: http://localhost:8083
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: iot_bins_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: iot_bins_root
+      MYSQL_DATABASE: iot_bins_db
+      MYSQL_USER: iot_bins_user
+      MYSQL_PASSWORD: iot_bins_pass
+    ports:
+      - "3309:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - iot_bins_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - iot_bins_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: iot_bins_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: iot_bins_root
+    ports:
+      - "8083:80"
+    networks:
+      - iot_bins_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: iot_bins_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: iot_bins_db
+      MYSQL_USER: iot_bins_user
+      MYSQL_PASSWORD: iot_bins_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # IoT specific settings
+      SENSOR_SIMULATION: ${SENSOR_SIMULATION:-true}
+      READING_FREQUENCY: ${READING_FREQUENCY:-5min}
+    volumes:
+      - ../generators/iot_bins:/app
+      - iot_bins_generator_output:/app/output
+    networks:
+      - iot_bins_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating IoT bins data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: InfluxDB for time-series data
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: iot_bins_influxdb
+    restart: unless-stopped
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: iot_bins_admin
+      DOCKER_INFLUXDB_INIT_ORG: iot_bins
+      DOCKER_INFLUXDB_INIT_BUCKET: sensor_data
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: iot_bins_token
+    ports:
+      - "8086:8086"
+    volumes:
+      - iot_bins_influxdb_data:/var/lib/influxdb2
+    networks:
+      - iot_bins_network
+    profiles:
+      - timeseries
+
+volumes:
+  iot_bins_mysql_data:
+    name: iot_bins_mysql_data
+  iot_bins_generator_output:
+    name: iot_bins_generator_output
+  iot_bins_influxdb_data:
+    name: iot_bins_influxdb_data
+
+networks:
+  iot_bins_network:
+    name: iot_bins_network
+    driver: bridge

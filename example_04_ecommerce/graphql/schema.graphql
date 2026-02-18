@@ -1,0 +1,2039 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.826918
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Customers {
+  passwordHash: String!
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  customerType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  twoFactorEnabled: Boolean
+  preferredLanguage: String
+  preferredCurrency: String
+  referredBy: Int
+  loyaltyPoints: Int
+  lifetimeValue: Float
+  status: String
+  lastLoginAt: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CustomerAddresses {
+  customerId: Int!
+  addressType: String
+  isDefault: Boolean
+  recipientName: String
+  companyName: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String
+  postalCode: String
+  countryCode: String!
+  phone: String
+  deliveryInstructions: String
+  latitude: Float
+  longitude: Float
+  validated: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Categories {
+  parentCategoryId: Int
+  categoryName: String!
+  description: String
+  imageUrl: String
+  metaTitle: String
+  metaDescription: String
+  displayOrder: Int
+  isActive: Boolean
+  productCount: Int
+  path: String
+  level: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Brands {
+  brandName: String!
+  logoUrl: String
+  websiteUrl: String
+  description: String
+  countryOfOrigin: String
+  isFeatured: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Products {
+  productName: String!
+  brandId: Int
+  categoryId: Int!
+  description: String
+  shortDescription: String
+  features: JSON
+  specifications: JSON
+  basePrice: Float
+  compareAtPrice: Float
+  cost: Float
+  taxClass: String
+  weightKg: Float
+  dimensionsCm: JSON
+  isDigital: Boolean
+  isFeatured: Boolean
+  isNew: Boolean
+  requiresShipping: Boolean
+  maxQuantityPerOrder: Int
+  minQuantityPerOrder: Int
+  status: String
+  launchDate: String
+  discontinueDate: String
+  viewCount: Int
+  soldCount: Int
+  averageRating: Float
+  reviewCount: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductVariants {
+  productId: Int!
+  variantName: String
+  attributes: JSON!
+  price: Float
+  compareAtPrice: Float
+  cost: Float
+  weightKg: Float
+  barcode: String
+  imageUrl: String
+  position: Int
+  isDefault: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductImages {
+  productId: Int!
+  variantId: Int
+  imageUrl: String!
+  thumbnailUrl: String
+  altText: String
+  position: Int
+  isPrimary: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Warehouses {
+  warehouseName: String!
+  address: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  phone: String
+  email: String
+  managerName: String
+  latitude: Float
+  longitude: Float
+  isActive: Boolean
+  isDefault: Boolean
+  fulfillsOnlineOrders: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Inventory {
+  productId: Int!
+  variantId: Int
+  warehouseId: Int!
+  quantityAvailable: Int!
+  quantityReserved: Int!
+  quantityIncoming: Int!
+  reorderPoint: Int
+  reorderQuantity: Int
+  lastRestockDate: String
+  lastSaleDate: String
+  lastCountedDate: String
+  averageDailySales: Float
+  daysOfStock: Float
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type InventoryMovements {
+  inventoryId: Int!
+  movementType: String
+  quantity: Int!
+  referenceType: String
+  referenceId: Int
+  fromWarehouseId: Int
+  toWarehouseId: Int
+  unitCost: Float
+  notes: String
+  performedBy: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CartItems {
+  customerId: Int!
+  productId: Int!
+  variantId: Int
+  quantity: Int!
+  priceAtTime: Float
+  discountAmount: Float
+  savedForLater: Boolean
+  addedAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type WishlistItems {
+  customerId: Int!
+  productId: Int!
+  variantId: Int
+  priority: Int
+  notes: String
+  priceWhenAdded: Float
+  notifyOnSale: Boolean
+  notifyOnRestock: Boolean
+  addedAt: String
+}
+
+type Orders {
+  customerId: Int
+  guestEmail: String
+  status: String
+  paymentStatus: String
+  subtotal: Float
+  taxAmount: Float
+  shippingAmount: Float
+  discountAmount: Float
+  totalAmount: Float
+  currencyCode: String
+  exchangeRate: Float
+  shippingAddressId: Int
+  billingAddressId: Int
+  shippingMethod: String
+  trackingNumber: String
+  notes: String
+  internalNotes: String
+  ipAddress: String
+  userAgent: String
+  referredFrom: String
+  couponCode: String
+  createdAt: String
+  updatedAt: String
+  confirmedAt: String
+  shippedAt: String
+  deliveredAt: String
+  cancelledAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OrderItems {
+  orderId: Int!
+  productId: Int!
+  variantId: Int
+  productName: String!
+  variantName: String
+  sku: String
+  quantity: Int!
+  unitPrice: Float
+  discountAmount: Float
+  taxAmount: Float
+  totalPrice: Float
+  cost: Float
+  weightKg: Float
+  requiresShipping: Boolean
+  isGift: Boolean
+  giftMessage: String
+  fulfillmentStatus: String
+  fulfilledQuantity: Int
+  warehouseId: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type OrderStatusHistory {
+  orderId: Int!
+  status: String
+  notes: String
+  changedBy: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PaymentMethods {
+  customerId: Int!
+  type: String
+  provider: String
+  isDefault: Boolean
+  cardBrand: String
+  cardLastFour: String
+  cardExpMonth: Int
+  cardExpYear: Int
+  billingAddressId: Int
+  token: String
+  fingerprint: String
+  metadata: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PaymentTransactions {
+  orderId: Int!
+  paymentMethodId: Int
+  transactionType: String
+  amount: Float
+  currencyCode: String
+  status: String
+  gateway: String
+  gatewayTransactionId: String
+  gatewayResponse: JSON
+  failureReason: String
+  processedAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ShippingMethods {
+  carrierName: String!
+  serviceName: String!
+  deliveryDaysMin: Int
+  deliveryDaysMax: Int
+  baseRate: Float
+  perKgRate: Float
+  perItemRate: Float
+  freeShippingThreshold: Float
+  maxWeightKg: Float
+  countries: JSON
+  isExpress: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Shipments {
+  orderId: Int!
+  warehouseId: Int
+  shippingMethodId: Int!
+  trackingNumber: String
+  carrierName: String
+  status: String
+  weightKg: Float
+  dimensionsCm: JSON
+  shippingLabelUrl: String
+  shippedAt: String
+  deliveredAt: String
+  deliverySignature: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductReviews {
+  productId: Int!
+  variantId: Int
+  customerId: Int!
+  orderItemId: Int
+  title: String
+  reviewText: String
+  pros: String
+  cons: String
+  isVerifiedPurchase: Boolean
+  isFeatured: Boolean
+  helpfulCount: Int
+  unhelpfulCount: Int
+  adminReply: String
+  adminReplyAt: String
+  status: String
+  images: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ReviewVotes {
+  reviewId: Int!
+  customerId: Int!
+  isHelpful: Boolean!
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Coupons {
+  description: String
+  discountType: String
+  discountValue: Float
+  minimumAmount: Float
+  maximumDiscount: Float
+  applicableTo: String
+  applicableIds: JSON
+  usageLimit: Int
+  usageLimitPerCustomer: Int
+  usageCount: Int
+  validFrom: String!
+  validTo: String!
+  isActive: Boolean
+  requiresAccount: Boolean
+  stackable: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CouponUsage {
+  couponId: Int!
+  customerId: Int
+  orderId: Int!
+  discountAmount: Float
+  usedAt: String
+}
+
+type PriceRules {
+  ruleName: String!
+  ruleType: String
+  priority: Int
+  conditions: JSON
+  discountType: String
+  discountValue: Float
+  applicableTo: String
+  applicableIds: JSON
+  validFrom: String!
+  validTo: String!
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PageViews {
+  customerId: Int
+  sessionId: String
+  productId: Int
+  pageType: String
+  pageUrl: String
+  referrerUrl: String
+  ipAddress: String
+  userAgent: String
+  deviceType: String
+  durationSeconds: Int
+  bounce: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SearchQueries {
+  customerId: Int
+  sessionId: String
+  queryText: String!
+  resultsCount: Int
+  clickedPosition: Int
+  clickedProductId: Int
+  deviceType: String
+  createdAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type RecentlyViewed {
+  customerId: Int!
+  productId: Int!
+  viewedAt: String
+  viewCount: Int
+}
+
+type ProductRecommendations {
+  customerId: Int
+  productId: Int!
+  recommendationType: String
+  score: Float
+  reason: String
+  expiresAt: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SupportTickets {
+  customerId: Int!
+  orderId: Int
+  category: String
+  priority: String
+  status: String
+  subject: String!
+  description: String!
+  resolution: String
+  assignedTo: Int
+  resolvedAt: String
+  satisfactionRating: Int
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Returns {
+  orderId: Int!
+  customerId: Int!
+  status: String
+  reason: String
+  reasonDetails: String
+  returnShippingMethod: String
+  returnTrackingNumber: String
+  refundAmount: Float
+  restockingFee: Float
+  returnLabelUrl: String
+  receivedCondition: String
+  inspectionNotes: String
+  requestedAt: String
+  approvedAt: String
+  receivedAt: String
+  refundedAt: String
+}
+
+type ReturnItems {
+  returnId: Int!
+  orderItemId: Int!
+  quantity: Int!
+  condition: String
+  refundAmount: Float
+  replacementSent: Boolean
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EmailTemplates {
+  templateName: String!
+  subject: String!
+  htmlContent: String!
+  textContent: String
+  variables: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EmailQueue {
+  customerId: Int
+  toEmail: String!
+  templateId: Int
+  subject: String
+  variables: JSON
+  priority: Int
+  status: String
+  attempts: Int
+  sentAt: String
+  errorMessage: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+# Input Types
+
+input CustomersInput {
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  customerType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  twoFactorEnabled: Boolean
+  preferredLanguage: String
+  preferredCurrency: String
+  referredBy: Int
+  loyaltyPoints: Int
+  lifetimeValue: Float
+  status: String
+  lastLoginAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomersUpdateInput {
+  passwordHash: String
+  firstName: String
+  lastName: String
+  phone: String
+  dateOfBirth: String
+  gender: String
+  customerType: String
+  emailVerified: Boolean
+  phoneVerified: Boolean
+  twoFactorEnabled: Boolean
+  preferredLanguage: String
+  preferredCurrency: String
+  referredBy: Int
+  loyaltyPoints: Int
+  lifetimeValue: Float
+  status: String
+  lastLoginAt: String
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomerAddressesInput {
+  customerId: Int
+  addressType: String
+  isDefault: Boolean
+  recipientName: String
+  companyName: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  phone: String
+  deliveryInstructions: String
+  latitude: Float
+  longitude: Float
+  validated: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomerAddressesUpdateInput {
+  customerId: Int
+  addressType: String
+  isDefault: Boolean
+  recipientName: String
+  companyName: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  phone: String
+  deliveryInstructions: String
+  latitude: Float
+  longitude: Float
+  validated: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CategoriesInput {
+  parentCategoryId: Int
+  categoryName: String
+  description: String
+  imageUrl: String
+  metaTitle: String
+  metaDescription: String
+  displayOrder: Int
+  isActive: Boolean
+  productCount: Int
+  path: String
+  level: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input CategoriesUpdateInput {
+  parentCategoryId: Int
+  categoryName: String
+  description: String
+  imageUrl: String
+  metaTitle: String
+  metaDescription: String
+  displayOrder: Int
+  isActive: Boolean
+  productCount: Int
+  path: String
+  level: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input BrandsInput {
+  brandName: String
+  logoUrl: String
+  websiteUrl: String
+  description: String
+  countryOfOrigin: String
+  isFeatured: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input BrandsUpdateInput {
+  brandName: String
+  logoUrl: String
+  websiteUrl: String
+  description: String
+  countryOfOrigin: String
+  isFeatured: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductsInput {
+  productName: String
+  brandId: Int
+  categoryId: Int
+  description: String
+  shortDescription: String
+  features: JSON
+  specifications: JSON
+  basePrice: Float
+  compareAtPrice: Float
+  cost: Float
+  taxClass: String
+  weightKg: Float
+  dimensionsCm: JSON
+  isDigital: Boolean
+  isFeatured: Boolean
+  isNew: Boolean
+  requiresShipping: Boolean
+  maxQuantityPerOrder: Int
+  minQuantityPerOrder: Int
+  status: String
+  launchDate: String
+  discontinueDate: String
+  viewCount: Int
+  soldCount: Int
+  averageRating: Float
+  reviewCount: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input ProductsUpdateInput {
+  productName: String
+  brandId: Int
+  categoryId: Int
+  description: String
+  shortDescription: String
+  features: JSON
+  specifications: JSON
+  basePrice: Float
+  compareAtPrice: Float
+  cost: Float
+  taxClass: String
+  weightKg: Float
+  dimensionsCm: JSON
+  isDigital: Boolean
+  isFeatured: Boolean
+  isNew: Boolean
+  requiresShipping: Boolean
+  maxQuantityPerOrder: Int
+  minQuantityPerOrder: Int
+  status: String
+  launchDate: String
+  discontinueDate: String
+  viewCount: Int
+  soldCount: Int
+  averageRating: Float
+  reviewCount: Int
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input ProductVariantsInput {
+  productId: Int
+  variantName: String
+  attributes: JSON
+  price: Float
+  compareAtPrice: Float
+  cost: Float
+  weightKg: Float
+  barcode: String
+  imageUrl: String
+  position: Int
+  isDefault: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductVariantsUpdateInput {
+  productId: Int
+  variantName: String
+  attributes: JSON
+  price: Float
+  compareAtPrice: Float
+  cost: Float
+  weightKg: Float
+  barcode: String
+  imageUrl: String
+  position: Int
+  isDefault: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductImagesInput {
+  productId: Int
+  variantId: Int
+  imageUrl: String
+  thumbnailUrl: String
+  altText: String
+  position: Int
+  isPrimary: Boolean
+  createdAt: String
+}
+
+input ProductImagesUpdateInput {
+  productId: Int
+  variantId: Int
+  imageUrl: String
+  thumbnailUrl: String
+  altText: String
+  position: Int
+  isPrimary: Boolean
+  createdAt: String
+}
+
+input WarehousesInput {
+  warehouseName: String
+  address: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  phone: String
+  email: String
+  managerName: String
+  latitude: Float
+  longitude: Float
+  isActive: Boolean
+  isDefault: Boolean
+  fulfillsOnlineOrders: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input WarehousesUpdateInput {
+  warehouseName: String
+  address: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  phone: String
+  email: String
+  managerName: String
+  latitude: Float
+  longitude: Float
+  isActive: Boolean
+  isDefault: Boolean
+  fulfillsOnlineOrders: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input InventoryInput {
+  productId: Int
+  variantId: Int
+  warehouseId: Int
+  quantityAvailable: Int
+  quantityReserved: Int
+  quantityIncoming: Int
+  reorderPoint: Int
+  reorderQuantity: Int
+  lastRestockDate: String
+  lastSaleDate: String
+  lastCountedDate: String
+  averageDailySales: Float
+  daysOfStock: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input InventoryUpdateInput {
+  productId: Int
+  variantId: Int
+  warehouseId: Int
+  quantityAvailable: Int
+  quantityReserved: Int
+  quantityIncoming: Int
+  reorderPoint: Int
+  reorderQuantity: Int
+  lastRestockDate: String
+  lastSaleDate: String
+  lastCountedDate: String
+  averageDailySales: Float
+  daysOfStock: Float
+  createdAt: String
+  updatedAt: String
+}
+
+input InventoryMovementsInput {
+  inventoryId: Int
+  movementType: String
+  quantity: Int
+  referenceType: String
+  referenceId: Int
+  fromWarehouseId: Int
+  toWarehouseId: Int
+  unitCost: Float
+  notes: String
+  performedBy: Int
+  createdAt: String
+}
+
+input InventoryMovementsUpdateInput {
+  inventoryId: Int
+  movementType: String
+  quantity: Int
+  referenceType: String
+  referenceId: Int
+  fromWarehouseId: Int
+  toWarehouseId: Int
+  unitCost: Float
+  notes: String
+  performedBy: Int
+  createdAt: String
+}
+
+input CartItemsInput {
+  customerId: Int
+  productId: Int
+  variantId: Int
+  quantity: Int
+  priceAtTime: Float
+  discountAmount: Float
+  savedForLater: Boolean
+  addedAt: String
+  updatedAt: String
+}
+
+input CartItemsUpdateInput {
+  customerId: Int
+  productId: Int
+  variantId: Int
+  quantity: Int
+  priceAtTime: Float
+  discountAmount: Float
+  savedForLater: Boolean
+  addedAt: String
+  updatedAt: String
+}
+
+input WishlistItemsInput {
+  customerId: Int
+  productId: Int
+  variantId: Int
+  priority: Int
+  notes: String
+  priceWhenAdded: Float
+  notifyOnSale: Boolean
+  notifyOnRestock: Boolean
+  addedAt: String
+}
+
+input WishlistItemsUpdateInput {
+  customerId: Int
+  productId: Int
+  variantId: Int
+  priority: Int
+  notes: String
+  priceWhenAdded: Float
+  notifyOnSale: Boolean
+  notifyOnRestock: Boolean
+  addedAt: String
+}
+
+input OrdersInput {
+  customerId: Int
+  guestEmail: String
+  status: String
+  paymentStatus: String
+  subtotal: Float
+  taxAmount: Float
+  shippingAmount: Float
+  discountAmount: Float
+  totalAmount: Float
+  currencyCode: String
+  exchangeRate: Float
+  shippingAddressId: Int
+  billingAddressId: Int
+  shippingMethod: String
+  trackingNumber: String
+  notes: String
+  internalNotes: String
+  ipAddress: String
+  userAgent: String
+  referredFrom: String
+  couponCode: String
+  createdAt: String
+  updatedAt: String
+  confirmedAt: String
+  shippedAt: String
+  deliveredAt: String
+  cancelledAt: String
+}
+
+input OrdersUpdateInput {
+  customerId: Int
+  guestEmail: String
+  status: String
+  paymentStatus: String
+  subtotal: Float
+  taxAmount: Float
+  shippingAmount: Float
+  discountAmount: Float
+  totalAmount: Float
+  currencyCode: String
+  exchangeRate: Float
+  shippingAddressId: Int
+  billingAddressId: Int
+  shippingMethod: String
+  trackingNumber: String
+  notes: String
+  internalNotes: String
+  ipAddress: String
+  userAgent: String
+  referredFrom: String
+  couponCode: String
+  createdAt: String
+  updatedAt: String
+  confirmedAt: String
+  shippedAt: String
+  deliveredAt: String
+  cancelledAt: String
+}
+
+input OrderItemsInput {
+  orderId: Int
+  productId: Int
+  variantId: Int
+  productName: String
+  variantName: String
+  sku: String
+  quantity: Int
+  unitPrice: Float
+  discountAmount: Float
+  taxAmount: Float
+  totalPrice: Float
+  cost: Float
+  weightKg: Float
+  requiresShipping: Boolean
+  isGift: Boolean
+  giftMessage: String
+  fulfillmentStatus: String
+  fulfilledQuantity: Int
+  warehouseId: Int
+  createdAt: String
+}
+
+input OrderItemsUpdateInput {
+  orderId: Int
+  productId: Int
+  variantId: Int
+  productName: String
+  variantName: String
+  sku: String
+  quantity: Int
+  unitPrice: Float
+  discountAmount: Float
+  taxAmount: Float
+  totalPrice: Float
+  cost: Float
+  weightKg: Float
+  requiresShipping: Boolean
+  isGift: Boolean
+  giftMessage: String
+  fulfillmentStatus: String
+  fulfilledQuantity: Int
+  warehouseId: Int
+  createdAt: String
+}
+
+input OrderStatusHistoryInput {
+  orderId: Int
+  status: String
+  notes: String
+  changedBy: Int
+  createdAt: String
+}
+
+input OrderStatusHistoryUpdateInput {
+  orderId: Int
+  status: String
+  notes: String
+  changedBy: Int
+  createdAt: String
+}
+
+input PaymentMethodsInput {
+  customerId: Int
+  type: String
+  provider: String
+  isDefault: Boolean
+  cardBrand: String
+  cardLastFour: String
+  cardExpMonth: Int
+  cardExpYear: Int
+  billingAddressId: Int
+  token: String
+  fingerprint: String
+  metadata: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PaymentMethodsUpdateInput {
+  customerId: Int
+  type: String
+  provider: String
+  isDefault: Boolean
+  cardBrand: String
+  cardLastFour: String
+  cardExpMonth: Int
+  cardExpYear: Int
+  billingAddressId: Int
+  token: String
+  fingerprint: String
+  metadata: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PaymentTransactionsInput {
+  orderId: Int
+  paymentMethodId: Int
+  transactionType: String
+  amount: Float
+  currencyCode: String
+  status: String
+  gateway: String
+  gatewayTransactionId: String
+  gatewayResponse: JSON
+  failureReason: String
+  processedAt: String
+  createdAt: String
+}
+
+input PaymentTransactionsUpdateInput {
+  orderId: Int
+  paymentMethodId: Int
+  transactionType: String
+  amount: Float
+  currencyCode: String
+  status: String
+  gateway: String
+  gatewayTransactionId: String
+  gatewayResponse: JSON
+  failureReason: String
+  processedAt: String
+  createdAt: String
+}
+
+input ShippingMethodsInput {
+  carrierName: String
+  serviceName: String
+  deliveryDaysMin: Int
+  deliveryDaysMax: Int
+  baseRate: Float
+  perKgRate: Float
+  perItemRate: Float
+  freeShippingThreshold: Float
+  maxWeightKg: Float
+  countries: JSON
+  isExpress: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ShippingMethodsUpdateInput {
+  carrierName: String
+  serviceName: String
+  deliveryDaysMin: Int
+  deliveryDaysMax: Int
+  baseRate: Float
+  perKgRate: Float
+  perItemRate: Float
+  freeShippingThreshold: Float
+  maxWeightKg: Float
+  countries: JSON
+  isExpress: Boolean
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input ShipmentsInput {
+  orderId: Int
+  warehouseId: Int
+  shippingMethodId: Int
+  trackingNumber: String
+  carrierName: String
+  status: String
+  weightKg: Float
+  dimensionsCm: JSON
+  shippingLabelUrl: String
+  shippedAt: String
+  deliveredAt: String
+  deliverySignature: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ShipmentsUpdateInput {
+  orderId: Int
+  warehouseId: Int
+  shippingMethodId: Int
+  trackingNumber: String
+  carrierName: String
+  status: String
+  weightKg: Float
+  dimensionsCm: JSON
+  shippingLabelUrl: String
+  shippedAt: String
+  deliveredAt: String
+  deliverySignature: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductReviewsInput {
+  productId: Int
+  variantId: Int
+  customerId: Int
+  orderItemId: Int
+  title: String
+  reviewText: String
+  pros: String
+  cons: String
+  isVerifiedPurchase: Boolean
+  isFeatured: Boolean
+  helpfulCount: Int
+  unhelpfulCount: Int
+  adminReply: String
+  adminReplyAt: String
+  status: String
+  images: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input ProductReviewsUpdateInput {
+  productId: Int
+  variantId: Int
+  customerId: Int
+  orderItemId: Int
+  title: String
+  reviewText: String
+  pros: String
+  cons: String
+  isVerifiedPurchase: Boolean
+  isFeatured: Boolean
+  helpfulCount: Int
+  unhelpfulCount: Int
+  adminReply: String
+  adminReplyAt: String
+  status: String
+  images: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input ReviewVotesInput {
+  reviewId: Int
+  customerId: Int
+  isHelpful: Boolean
+  createdAt: String
+}
+
+input ReviewVotesUpdateInput {
+  reviewId: Int
+  customerId: Int
+  isHelpful: Boolean
+  createdAt: String
+}
+
+input CouponsInput {
+  description: String
+  discountType: String
+  discountValue: Float
+  minimumAmount: Float
+  maximumDiscount: Float
+  applicableTo: String
+  applicableIds: JSON
+  usageLimit: Int
+  usageLimitPerCustomer: Int
+  usageCount: Int
+  validFrom: String
+  validTo: String
+  isActive: Boolean
+  requiresAccount: Boolean
+  stackable: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CouponsUpdateInput {
+  description: String
+  discountType: String
+  discountValue: Float
+  minimumAmount: Float
+  maximumDiscount: Float
+  applicableTo: String
+  applicableIds: JSON
+  usageLimit: Int
+  usageLimitPerCustomer: Int
+  usageCount: Int
+  validFrom: String
+  validTo: String
+  isActive: Boolean
+  requiresAccount: Boolean
+  stackable: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CouponUsageInput {
+  couponId: Int
+  customerId: Int
+  orderId: Int
+  discountAmount: Float
+  usedAt: String
+}
+
+input CouponUsageUpdateInput {
+  couponId: Int
+  customerId: Int
+  orderId: Int
+  discountAmount: Float
+  usedAt: String
+}
+
+input PriceRulesInput {
+  ruleName: String
+  ruleType: String
+  priority: Int
+  conditions: JSON
+  discountType: String
+  discountValue: Float
+  applicableTo: String
+  applicableIds: JSON
+  validFrom: String
+  validTo: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input PriceRulesUpdateInput {
+  ruleName: String
+  ruleType: String
+  priority: Int
+  conditions: JSON
+  discountType: String
+  discountValue: Float
+  applicableTo: String
+  applicableIds: JSON
+  validFrom: String
+  validTo: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input PageViewsInput {
+  customerId: Int
+  sessionId: String
+  productId: Int
+  pageType: String
+  pageUrl: String
+  referrerUrl: String
+  ipAddress: String
+  userAgent: String
+  deviceType: String
+  durationSeconds: Int
+  bounce: Boolean
+  createdAt: String
+}
+
+input PageViewsUpdateInput {
+  customerId: Int
+  sessionId: String
+  productId: Int
+  pageType: String
+  pageUrl: String
+  referrerUrl: String
+  ipAddress: String
+  userAgent: String
+  deviceType: String
+  durationSeconds: Int
+  bounce: Boolean
+  createdAt: String
+}
+
+input SearchQueriesInput {
+  customerId: Int
+  sessionId: String
+  queryText: String
+  resultsCount: Int
+  clickedPosition: Int
+  clickedProductId: Int
+  deviceType: String
+  createdAt: String
+  FULLTEXT: String
+}
+
+input SearchQueriesUpdateInput {
+  customerId: Int
+  sessionId: String
+  queryText: String
+  resultsCount: Int
+  clickedPosition: Int
+  clickedProductId: Int
+  deviceType: String
+  createdAt: String
+  FULLTEXT: String
+}
+
+input RecentlyViewedInput {
+  customerId: Int
+  productId: Int
+  viewedAt: String
+  viewCount: Int
+}
+
+input RecentlyViewedUpdateInput {
+  customerId: Int
+  productId: Int
+  viewedAt: String
+  viewCount: Int
+}
+
+input ProductRecommendationsInput {
+  customerId: Int
+  productId: Int
+  recommendationType: String
+  score: Float
+  reason: String
+  expiresAt: String
+  createdAt: String
+}
+
+input ProductRecommendationsUpdateInput {
+  customerId: Int
+  productId: Int
+  recommendationType: String
+  score: Float
+  reason: String
+  expiresAt: String
+  createdAt: String
+}
+
+input SupportTicketsInput {
+  customerId: Int
+  orderId: Int
+  category: String
+  priority: String
+  status: String
+  subject: String
+  description: String
+  resolution: String
+  assignedTo: Int
+  resolvedAt: String
+  satisfactionRating: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input SupportTicketsUpdateInput {
+  customerId: Int
+  orderId: Int
+  category: String
+  priority: String
+  status: String
+  subject: String
+  description: String
+  resolution: String
+  assignedTo: Int
+  resolvedAt: String
+  satisfactionRating: Int
+  createdAt: String
+  updatedAt: String
+}
+
+input ReturnsInput {
+  orderId: Int
+  customerId: Int
+  status: String
+  reason: String
+  reasonDetails: String
+  returnShippingMethod: String
+  returnTrackingNumber: String
+  refundAmount: Float
+  restockingFee: Float
+  returnLabelUrl: String
+  receivedCondition: String
+  inspectionNotes: String
+  requestedAt: String
+  approvedAt: String
+  receivedAt: String
+  refundedAt: String
+}
+
+input ReturnsUpdateInput {
+  orderId: Int
+  customerId: Int
+  status: String
+  reason: String
+  reasonDetails: String
+  returnShippingMethod: String
+  returnTrackingNumber: String
+  refundAmount: Float
+  restockingFee: Float
+  returnLabelUrl: String
+  receivedCondition: String
+  inspectionNotes: String
+  requestedAt: String
+  approvedAt: String
+  receivedAt: String
+  refundedAt: String
+}
+
+input ReturnItemsInput {
+  returnId: Int
+  orderItemId: Int
+  quantity: Int
+  condition: String
+  refundAmount: Float
+  replacementSent: Boolean
+  notes: String
+  createdAt: String
+}
+
+input ReturnItemsUpdateInput {
+  returnId: Int
+  orderItemId: Int
+  quantity: Int
+  condition: String
+  refundAmount: Float
+  replacementSent: Boolean
+  notes: String
+  createdAt: String
+}
+
+input EmailTemplatesInput {
+  templateName: String
+  subject: String
+  htmlContent: String
+  textContent: String
+  variables: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input EmailTemplatesUpdateInput {
+  templateName: String
+  subject: String
+  htmlContent: String
+  textContent: String
+  variables: JSON
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input EmailQueueInput {
+  customerId: Int
+  toEmail: String
+  templateId: Int
+  subject: String
+  variables: JSON
+  priority: Int
+  status: String
+  attempts: Int
+  sentAt: String
+  errorMessage: String
+  createdAt: String
+}
+
+input EmailQueueUpdateInput {
+  customerId: Int
+  toEmail: String
+  templateId: Int
+  subject: String
+  variables: JSON
+  priority: Int
+  status: String
+  attempts: Int
+  sentAt: String
+  errorMessage: String
+  createdAt: String
+}
+
+type Query {
+  customer(id: ID!): Customers
+  customers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Customers!]!
+  customersCount(filter: String): Int!
+  customerAddresse(id: ID!): CustomerAddresses
+  customerAddresses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CustomerAddresses!]!
+  customerAddressesCount(filter: String): Int!
+  categorie(id: ID!): Categories
+  categories(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Categories!]!
+  categoriesCount(filter: String): Int!
+  brand(id: ID!): Brands
+  brands(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Brands!]!
+  brandsCount(filter: String): Int!
+  product(id: ID!): Products
+  products(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Products!]!
+  productsCount(filter: String): Int!
+  productVariant(id: ID!): ProductVariants
+  productVariants(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductVariants!]!
+  productVariantsCount(filter: String): Int!
+  productImage(id: ID!): ProductImages
+  productImages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductImages!]!
+  productImagesCount(filter: String): Int!
+  warehouse(id: ID!): Warehouses
+  warehouses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Warehouses!]!
+  warehousesCount(filter: String): Int!
+  inventory(id: ID!): Inventory
+  inventory(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Inventory!]!
+  inventoryCount(filter: String): Int!
+  inventoryMovement(id: ID!): InventoryMovements
+  inventoryMovements(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [InventoryMovements!]!
+  inventoryMovementsCount(filter: String): Int!
+  cartItem(id: ID!): CartItems
+  cartItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CartItems!]!
+  cartItemsCount(filter: String): Int!
+  wishlistItem(id: ID!): WishlistItems
+  wishlistItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WishlistItems!]!
+  wishlistItemsCount(filter: String): Int!
+  order(id: ID!): Orders
+  orders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Orders!]!
+  ordersCount(filter: String): Int!
+  orderItem(id: ID!): OrderItems
+  orderItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [OrderItems!]!
+  orderItemsCount(filter: String): Int!
+  orderStatusHistory(id: ID!): OrderStatusHistory
+  orderStatusHistory(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [OrderStatusHistory!]!
+  orderStatusHistoryCount(filter: String): Int!
+  paymentMethod(id: ID!): PaymentMethods
+  paymentMethods(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PaymentMethods!]!
+  paymentMethodsCount(filter: String): Int!
+  paymentTransaction(id: ID!): PaymentTransactions
+  paymentTransactions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PaymentTransactions!]!
+  paymentTransactionsCount(filter: String): Int!
+  shippingMethod(id: ID!): ShippingMethods
+  shippingMethods(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ShippingMethods!]!
+  shippingMethodsCount(filter: String): Int!
+  shipment(id: ID!): Shipments
+  shipments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Shipments!]!
+  shipmentsCount(filter: String): Int!
+  productReview(id: ID!): ProductReviews
+  productReviews(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductReviews!]!
+  productReviewsCount(filter: String): Int!
+  reviewVote(id: ID!): ReviewVotes
+  reviewVotes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ReviewVotes!]!
+  reviewVotesCount(filter: String): Int!
+  coupon(id: ID!): Coupons
+  coupons(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Coupons!]!
+  couponsCount(filter: String): Int!
+  couponUsage(id: ID!): CouponUsage
+  couponUsage(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CouponUsage!]!
+  couponUsageCount(filter: String): Int!
+  priceRule(id: ID!): PriceRules
+  priceRules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PriceRules!]!
+  priceRulesCount(filter: String): Int!
+  pageView(id: ID!): PageViews
+  pageViews(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PageViews!]!
+  pageViewsCount(filter: String): Int!
+  searchQuerie(id: ID!): SearchQueries
+  searchQueries(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SearchQueries!]!
+  searchQueriesCount(filter: String): Int!
+  recentlyViewed(id: ID!): RecentlyViewed
+  recentlyViewed(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [RecentlyViewed!]!
+  recentlyViewedCount(filter: String): Int!
+  productRecommendation(id: ID!): ProductRecommendations
+  productRecommendations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductRecommendations!]!
+  productRecommendationsCount(filter: String): Int!
+  supportTicket(id: ID!): SupportTickets
+  supportTickets(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SupportTickets!]!
+  supportTicketsCount(filter: String): Int!
+  return(id: ID!): Returns
+  returns(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Returns!]!
+  returnsCount(filter: String): Int!
+  returnItem(id: ID!): ReturnItems
+  returnItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ReturnItems!]!
+  returnItemsCount(filter: String): Int!
+  emailTemplate(id: ID!): EmailTemplates
+  emailTemplates(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EmailTemplates!]!
+  emailTemplatesCount(filter: String): Int!
+  emailQueue(id: ID!): EmailQueue
+  emailQueue(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EmailQueue!]!
+  emailQueueCount(filter: String): Int!
+}
+
+type Mutation {
+  createCustomers(input: CustomersInput!): Customers!
+  updateCustomers(id: ID!, input: CustomersUpdateInput!): Customers!
+  deleteCustomers(id: ID!): Boolean!
+  createCustomersBatch(input: [CustomersInput!]!): [Customers!]!
+  createCustomerAddresses(input: CustomerAddressesInput!): CustomerAddresses!
+  updateCustomerAddresses(id: ID!, input: CustomerAddressesUpdateInput!): CustomerAddresses!
+  deleteCustomerAddresses(id: ID!): Boolean!
+  createCustomerAddressesBatch(input: [CustomerAddressesInput!]!): [CustomerAddresses!]!
+  createCategories(input: CategoriesInput!): Categories!
+  updateCategories(id: ID!, input: CategoriesUpdateInput!): Categories!
+  deleteCategories(id: ID!): Boolean!
+  createCategoriesBatch(input: [CategoriesInput!]!): [Categories!]!
+  createBrands(input: BrandsInput!): Brands!
+  updateBrands(id: ID!, input: BrandsUpdateInput!): Brands!
+  deleteBrands(id: ID!): Boolean!
+  createBrandsBatch(input: [BrandsInput!]!): [Brands!]!
+  createProducts(input: ProductsInput!): Products!
+  updateProducts(id: ID!, input: ProductsUpdateInput!): Products!
+  deleteProducts(id: ID!): Boolean!
+  createProductsBatch(input: [ProductsInput!]!): [Products!]!
+  createProductVariants(input: ProductVariantsInput!): ProductVariants!
+  updateProductVariants(id: ID!, input: ProductVariantsUpdateInput!): ProductVariants!
+  deleteProductVariants(id: ID!): Boolean!
+  createProductVariantsBatch(input: [ProductVariantsInput!]!): [ProductVariants!]!
+  createProductImages(input: ProductImagesInput!): ProductImages!
+  updateProductImages(id: ID!, input: ProductImagesUpdateInput!): ProductImages!
+  deleteProductImages(id: ID!): Boolean!
+  createProductImagesBatch(input: [ProductImagesInput!]!): [ProductImages!]!
+  createWarehouses(input: WarehousesInput!): Warehouses!
+  updateWarehouses(id: ID!, input: WarehousesUpdateInput!): Warehouses!
+  deleteWarehouses(id: ID!): Boolean!
+  createWarehousesBatch(input: [WarehousesInput!]!): [Warehouses!]!
+  createInventory(input: InventoryInput!): Inventory!
+  updateInventory(id: ID!, input: InventoryUpdateInput!): Inventory!
+  deleteInventory(id: ID!): Boolean!
+  createInventoryBatch(input: [InventoryInput!]!): [Inventory!]!
+  createInventoryMovements(input: InventoryMovementsInput!): InventoryMovements!
+  updateInventoryMovements(id: ID!, input: InventoryMovementsUpdateInput!): InventoryMovements!
+  deleteInventoryMovements(id: ID!): Boolean!
+  createInventoryMovementsBatch(input: [InventoryMovementsInput!]!): [InventoryMovements!]!
+  createCartItems(input: CartItemsInput!): CartItems!
+  updateCartItems(id: ID!, input: CartItemsUpdateInput!): CartItems!
+  deleteCartItems(id: ID!): Boolean!
+  createCartItemsBatch(input: [CartItemsInput!]!): [CartItems!]!
+  createWishlistItems(input: WishlistItemsInput!): WishlistItems!
+  updateWishlistItems(id: ID!, input: WishlistItemsUpdateInput!): WishlistItems!
+  deleteWishlistItems(id: ID!): Boolean!
+  createWishlistItemsBatch(input: [WishlistItemsInput!]!): [WishlistItems!]!
+  createOrders(input: OrdersInput!): Orders!
+  updateOrders(id: ID!, input: OrdersUpdateInput!): Orders!
+  deleteOrders(id: ID!): Boolean!
+  createOrdersBatch(input: [OrdersInput!]!): [Orders!]!
+  createOrderItems(input: OrderItemsInput!): OrderItems!
+  updateOrderItems(id: ID!, input: OrderItemsUpdateInput!): OrderItems!
+  deleteOrderItems(id: ID!): Boolean!
+  createOrderItemsBatch(input: [OrderItemsInput!]!): [OrderItems!]!
+  createOrderStatusHistory(input: OrderStatusHistoryInput!): OrderStatusHistory!
+  updateOrderStatusHistory(id: ID!, input: OrderStatusHistoryUpdateInput!): OrderStatusHistory!
+  deleteOrderStatusHistory(id: ID!): Boolean!
+  createOrderStatusHistoryBatch(input: [OrderStatusHistoryInput!]!): [OrderStatusHistory!]!
+  createPaymentMethods(input: PaymentMethodsInput!): PaymentMethods!
+  updatePaymentMethods(id: ID!, input: PaymentMethodsUpdateInput!): PaymentMethods!
+  deletePaymentMethods(id: ID!): Boolean!
+  createPaymentMethodsBatch(input: [PaymentMethodsInput!]!): [PaymentMethods!]!
+  createPaymentTransactions(input: PaymentTransactionsInput!): PaymentTransactions!
+  updatePaymentTransactions(id: ID!, input: PaymentTransactionsUpdateInput!): PaymentTransactions!
+  deletePaymentTransactions(id: ID!): Boolean!
+  createPaymentTransactionsBatch(input: [PaymentTransactionsInput!]!): [PaymentTransactions!]!
+  createShippingMethods(input: ShippingMethodsInput!): ShippingMethods!
+  updateShippingMethods(id: ID!, input: ShippingMethodsUpdateInput!): ShippingMethods!
+  deleteShippingMethods(id: ID!): Boolean!
+  createShippingMethodsBatch(input: [ShippingMethodsInput!]!): [ShippingMethods!]!
+  createShipments(input: ShipmentsInput!): Shipments!
+  updateShipments(id: ID!, input: ShipmentsUpdateInput!): Shipments!
+  deleteShipments(id: ID!): Boolean!
+  createShipmentsBatch(input: [ShipmentsInput!]!): [Shipments!]!
+  createProductReviews(input: ProductReviewsInput!): ProductReviews!
+  updateProductReviews(id: ID!, input: ProductReviewsUpdateInput!): ProductReviews!
+  deleteProductReviews(id: ID!): Boolean!
+  createProductReviewsBatch(input: [ProductReviewsInput!]!): [ProductReviews!]!
+  createReviewVotes(input: ReviewVotesInput!): ReviewVotes!
+  updateReviewVotes(id: ID!, input: ReviewVotesUpdateInput!): ReviewVotes!
+  deleteReviewVotes(id: ID!): Boolean!
+  createReviewVotesBatch(input: [ReviewVotesInput!]!): [ReviewVotes!]!
+  createCoupons(input: CouponsInput!): Coupons!
+  updateCoupons(id: ID!, input: CouponsUpdateInput!): Coupons!
+  deleteCoupons(id: ID!): Boolean!
+  createCouponsBatch(input: [CouponsInput!]!): [Coupons!]!
+  createCouponUsage(input: CouponUsageInput!): CouponUsage!
+  updateCouponUsage(id: ID!, input: CouponUsageUpdateInput!): CouponUsage!
+  deleteCouponUsage(id: ID!): Boolean!
+  createCouponUsageBatch(input: [CouponUsageInput!]!): [CouponUsage!]!
+  createPriceRules(input: PriceRulesInput!): PriceRules!
+  updatePriceRules(id: ID!, input: PriceRulesUpdateInput!): PriceRules!
+  deletePriceRules(id: ID!): Boolean!
+  createPriceRulesBatch(input: [PriceRulesInput!]!): [PriceRules!]!
+  createPageViews(input: PageViewsInput!): PageViews!
+  updatePageViews(id: ID!, input: PageViewsUpdateInput!): PageViews!
+  deletePageViews(id: ID!): Boolean!
+  createPageViewsBatch(input: [PageViewsInput!]!): [PageViews!]!
+  createSearchQueries(input: SearchQueriesInput!): SearchQueries!
+  updateSearchQueries(id: ID!, input: SearchQueriesUpdateInput!): SearchQueries!
+  deleteSearchQueries(id: ID!): Boolean!
+  createSearchQueriesBatch(input: [SearchQueriesInput!]!): [SearchQueries!]!
+  createRecentlyViewed(input: RecentlyViewedInput!): RecentlyViewed!
+  updateRecentlyViewed(id: ID!, input: RecentlyViewedUpdateInput!): RecentlyViewed!
+  deleteRecentlyViewed(id: ID!): Boolean!
+  createRecentlyViewedBatch(input: [RecentlyViewedInput!]!): [RecentlyViewed!]!
+  createProductRecommendations(input: ProductRecommendationsInput!): ProductRecommendations!
+  updateProductRecommendations(id: ID!, input: ProductRecommendationsUpdateInput!): ProductRecommendations!
+  deleteProductRecommendations(id: ID!): Boolean!
+  createProductRecommendationsBatch(input: [ProductRecommendationsInput!]!): [ProductRecommendations!]!
+  createSupportTickets(input: SupportTicketsInput!): SupportTickets!
+  updateSupportTickets(id: ID!, input: SupportTicketsUpdateInput!): SupportTickets!
+  deleteSupportTickets(id: ID!): Boolean!
+  createSupportTicketsBatch(input: [SupportTicketsInput!]!): [SupportTickets!]!
+  createReturns(input: ReturnsInput!): Returns!
+  updateReturns(id: ID!, input: ReturnsUpdateInput!): Returns!
+  deleteReturns(id: ID!): Boolean!
+  createReturnsBatch(input: [ReturnsInput!]!): [Returns!]!
+  createReturnItems(input: ReturnItemsInput!): ReturnItems!
+  updateReturnItems(id: ID!, input: ReturnItemsUpdateInput!): ReturnItems!
+  deleteReturnItems(id: ID!): Boolean!
+  createReturnItemsBatch(input: [ReturnItemsInput!]!): [ReturnItems!]!
+  createEmailTemplates(input: EmailTemplatesInput!): EmailTemplates!
+  updateEmailTemplates(id: ID!, input: EmailTemplatesUpdateInput!): EmailTemplates!
+  deleteEmailTemplates(id: ID!): Boolean!
+  createEmailTemplatesBatch(input: [EmailTemplatesInput!]!): [EmailTemplates!]!
+  createEmailQueue(input: EmailQueueInput!): EmailQueue!
+  updateEmailQueue(id: ID!, input: EmailQueueUpdateInput!): EmailQueue!
+  deleteEmailQueue(id: ID!): Boolean!
+  createEmailQueueBatch(input: [EmailQueueInput!]!): [EmailQueue!]!
+}

@@ -1,0 +1,1941 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.212143
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Warehouses {
+  warehouseName: String!
+  warehouseType: String
+  addressLine1: String!
+  addressLine2: String
+  city: String!
+  stateProvince: String
+  postalCode: String
+  countryCode: String!
+  latitude: Float
+  longitude: Float
+  totalCapacityCbm: Float
+  availableCapacityCbm: Float
+  operatingHours: JSON
+  capabilities: [String]
+  managerName: String
+  contactPhone: String
+  contactEmail: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type WarehouseZones {
+  warehouseId: ID!
+  warehouse: Warehouses
+  zoneCode: String!
+  zoneName: String
+  zoneType: String
+  temperatureRange: String
+  maxWeightKg: Float
+  maxHeightMeters: Float
+  totalLocations: Int
+  occupiedLocations: Int
+  aisleWidthMeters: Float
+  isAutomated: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type WarehouseBins {
+  zoneId: ID!
+  warehouseZone: WarehouseZones
+  binCode: String!
+  aisle: String
+  rack: String
+  level: String
+  position: String
+  binType: String
+  maxWeightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isOccupied: Boolean
+  currentProductId: Int
+  currentQuantity: Float
+  lastCountedDate: String
+  isLocked: Boolean
+  lockReason: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DockingStations {
+  warehouseId: ID!
+  warehouse: Warehouses
+  dockNumber: String!
+  dockType: String
+  doorHeightMeters: Float
+  doorWidthMeters: Float
+  hasDockLeveler: Boolean
+  hasDockSeal: Boolean
+  currentVehicleId: Int
+  currentShipmentId: Int
+  status: String
+  nextAvailableTime: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Products {
+  productName: String!
+  productDescription: String
+  category: String
+  subcategory: String
+  brand: String
+  unitOfMeasure: String
+  weightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isHazmat: Boolean
+  hazmatClass: String
+  requiresTemperatureControl: Boolean
+  minTemperatureCelsius: Float
+  maxTemperatureCelsius: Float
+  shelfLifeDays: Int
+  isSerialized: Boolean
+  isLotControlled: Boolean
+  reorderPoint: Int
+  reorderQuantity: Int
+  leadTimeDays: Int
+  unitCost: Float
+  sellingPrice: Float
+  abcClassification: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type InventoryLevels {
+  warehouseId: ID!
+  warehouse: Warehouses
+  productId: ID!
+  product: Products
+  quantityOnHand: Float
+  quantityAvailable: Float
+  quantityAllocated: Float
+  quantityInTransit: Float
+  quantityDamaged: Float
+  quantityQuarantine: Float
+  averageCost: Float
+  lastReceivedDate: String
+  lastCountedDate: String
+  lastShippedDate: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ProductBatches {
+  productId: ID!
+  product: Products
+  warehouseId: ID!
+  warehouse: Warehouses
+  batchNumber: String!
+  lotNumber: String
+  serialNumbers: JSON
+  manufactureDate: String
+  expiryDate: String
+  receivedDate: String!
+  quantityReceived: Float
+  quantityRemaining: Float
+  supplierId: Int
+  purchaseOrderId: Int
+  qualityStatus: String
+  qualityCertificateUrl: String
+  storageConditions: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type InventoryMovements {
+  movementType: String
+  referenceType: String
+  referenceId: Int
+  productId: ID!
+  product: Products
+  batchId: ID!
+  productBatche: ProductBatches
+  fromWarehouseId: ID!
+  warehouse: Warehouses
+  fromBinId: ID!
+  warehouseBin: WarehouseBins
+  toWarehouseId: ID!
+  warehouse: Warehouses
+  toBinId: ID!
+  warehouseBin: WarehouseBins
+  quantity: Float
+  unitCost: Float
+  totalCost: Float
+  movementDate: String!
+  performedBy: Int
+  reason: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Suppliers {
+  supplierName: String!
+  supplierType: String
+  taxId: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  currencyCode: String
+  creditLimit: Float
+  leadTimeDays: Int
+  minimumOrderValue: Float
+  performanceScore: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  certifications: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Customers {
+  customerName: String!
+  customerType: String
+  taxId: String
+  billingAddressLine1: String
+  billingAddressLine2: String
+  billingCity: String
+  billingStateProvince: String
+  billingPostalCode: String
+  billingCountryCode: String
+  shippingSameAsBilling: Boolean
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  creditLimit: Float
+  currentBalance: Float
+  priorityLevel: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PurchaseOrders {
+  supplierId: ID!
+  supplier: Suppliers
+  warehouseId: ID!
+  warehouse: Warehouses
+  orderDate: String!
+  expectedDeliveryDate: String
+  actualDeliveryDate: String
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  notes: String
+  createdBy: Int
+  approvedBy: Int
+  approvalDate: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PurchaseOrderItems {
+  poId: ID!
+  purchaseOrder: PurchaseOrders
+  productId: ID!
+  product: Products
+  quantityOrdered: Float
+  quantityReceived: Float
+  unitPrice: Float
+  lineTotal: Float
+  discountPercent: Float
+  taxAmount: Float
+  expectedDeliveryDate: String
+  notes: String
+}
+
+type SalesOrders {
+  customerId: ID!
+  customer: Customers
+  orderDate: String!
+  requestedDeliveryDate: String
+  promisedDeliveryDate: String
+  actualDeliveryDate: String
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  subtotalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  shippingCost: Float
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  fulfillmentPriority: String
+  specialInstructions: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SalesOrderItems {
+  soId: ID!
+  salesOrder: SalesOrders
+  productId: ID!
+  product: Products
+  warehouseId: ID!
+  warehouse: Warehouses
+  quantityOrdered: Float
+  quantityAllocated: Float
+  quantityPicked: Float
+  quantityShipped: Float
+  unitPrice: Float
+  discountPercent: Float
+  taxRate: Float
+  lineTotal: Float
+  allocatedBatchId: ID!
+  productBatche: ProductBatches
+  backorderQuantity: Float
+  notes: String
+}
+
+type Carriers {
+  carrierName: String!
+  carrierType: String
+  scacCode: String
+  mcNumber: String
+  dotNumber: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  apiEndpoint: String
+  trackingUrlTemplate: String
+  insuranceCoverage: Float
+  liabilityLimit: Float
+  performanceScore: Float
+  onTimePercentage: Float
+  damageClaimRate: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  supportedServices: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type CarrierServices {
+  carrierId: ID!
+  carrier: Carriers
+  serviceCode: String!
+  serviceName: String!
+  serviceType: String
+  transitTimeDays: Int
+  cutoffTime: String
+  deliveryCommitment: String
+  maxWeightKg: Float
+  maxDimensionsCm: String
+  supportsCod: Boolean
+  supportsInsurance: Boolean
+  supportsSignature: Boolean
+  isActive: Boolean
+}
+
+type Shipments {
+  shipmentType: String
+  referenceType: String
+  referenceId: Int
+  carrierId: ID!
+  carrier: Carriers
+  serviceId: ID!
+  carrierService: CarrierServices
+  trackingNumber: String
+  fromWarehouseId: ID!
+  warehouse: Warehouses
+  toWarehouseId: ID!
+  warehouse: Warehouses
+  originAddress: JSON
+  destinationAddress: JSON
+  pickupDate: String
+  deliveryDate: String
+  actualDeliveryDate: String
+  totalPackages: Int
+  totalWeightKg: Float
+  totalVolumeCbm: Float
+  declaredValue: Float
+  insuranceAmount: Float
+  shippingCost: Float
+  fuelSurcharge: Float
+  otherCharges: Float
+  totalCost: Float
+  status: String
+  statusDetails: String
+  podSignature: String
+  podTimestamp: String
+  temperatureControlled: Boolean
+  temperatureRange: String
+  specialHandling: JSON
+  createdAt: String
+  updatedAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ShipmentTracking {
+  shipmentId: ID!
+  shipment: Shipments
+  statusCode: String
+  statusDescription: String
+  locationCity: String
+  locationState: String
+  locationCountry: String
+  locationZip: String
+  latitude: Float
+  longitude: Float
+  eventTimestamp: String!
+  carrierStatusCode: String
+  exceptionType: String
+  exceptionDescription: String
+  estimatedDelivery: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Vehicles {
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  vin: String
+  licensePlate: String
+  registrationState: String
+  ownershipType: String
+  capacityKg: Float
+  capacityCbm: Float
+  fuelType: String
+  fuelEfficiencyKmPerLiter: Float
+  currentOdometerKm: Int
+  lastServiceDate: String
+  nextServiceDate: String
+  insurancePolicyNumber: String
+  insuranceExpiryDate: String
+  currentLocationLat: Float
+  currentLocationLng: Float
+  currentStatus: String
+  assignedDriverId: Int
+  homeWarehouseId: ID!
+  warehouse: Warehouses
+  isActive: Boolean
+  telematicsDeviceId: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Drivers {
+  firstName: String!
+  lastName: String!
+  licenseNumber: String!
+  licenseClass: String
+  licenseExpiryDate: String
+  licenseState: String
+  phoneNumber: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  hireDate: String
+  homeBaseWarehouseId: ID!
+  warehouse: Warehouses
+  currentVehicleId: ID!
+  vehicle: Vehicles
+  hoursOfServiceRemaining: Float
+  lastDrugTestDate: String
+  medicalCertificateExpiry: String
+  safetyScore: Float
+  totalMilesDriven: Int
+  totalDeliveries: Int
+  status: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Routes {
+  routeName: String
+  routeType: String
+  originWarehouseId: ID!
+  warehouse: Warehouses
+  destinationWarehouseId: ID!
+  warehouse: Warehouses
+  totalDistanceKm: Float
+  estimatedDurationHours: Float
+  stops: JSON
+  preferredDepartureTime: String
+  serviceDays: [String]
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DeliveryRuns {
+  runDate: String!
+  routeId: ID!
+  route: Routes
+  vehicleId: ID!
+  vehicle: Vehicles
+  driverId: ID!
+  driver: Drivers
+  plannedStartTime: String
+  actualStartTime: String
+  plannedEndTime: String
+  actualEndTime: String
+  totalStops: Int
+  completedStops: Int
+  totalPackages: Int
+  deliveredPackages: Int
+  totalDistanceKm: Float
+  fuelConsumedLiters: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type KpiMetrics {
+  metricDate: String!
+  metricType: String
+  warehouseId: ID!
+  warehouse: Warehouses
+  inventoryTurnoverRatio: Float
+  stockoutIncidents: Int
+  inventoryAccuracyPercent: Float
+  carryingCost: Float
+  ordersProcessed: Int
+  perfectOrderRate: Float
+  orderCycleTimeHours: Float
+  fillRatePercent: Float
+  backorderRatePercent: Float
+  warehouseUtilizationPercent: Float
+  pickingAccuracyPercent: Float
+  putawayCycleTimeMinutes: Float
+  laborProductivityUnitsPerHour: Float
+  onTimeDeliveryPercent: Float
+  freightCostPerUnit: Float
+  deliverySuccessRate: Float
+  averageDeliveryTimeHours: Float
+  fuelEfficiencyKmPerLiter: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AuditLog {
+  tableName: String!
+  recordId: Int!
+  action: String
+  changedBy: Int
+  changedAt: String
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+# Input Types
+
+input WarehousesInput {
+  warehouseName: String
+  warehouseType: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  latitude: Float
+  longitude: Float
+  totalCapacityCbm: Float
+  availableCapacityCbm: Float
+  operatingHours: JSON
+  capabilities: [String]
+  managerName: String
+  contactPhone: String
+  contactEmail: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input WarehousesUpdateInput {
+  warehouseName: String
+  warehouseType: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  latitude: Float
+  longitude: Float
+  totalCapacityCbm: Float
+  availableCapacityCbm: Float
+  operatingHours: JSON
+  capabilities: [String]
+  managerName: String
+  contactPhone: String
+  contactEmail: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input WarehouseZonesInput {
+  warehouseId: ID
+  zoneCode: String
+  zoneName: String
+  zoneType: String
+  temperatureRange: String
+  maxWeightKg: Float
+  maxHeightMeters: Float
+  totalLocations: Int
+  occupiedLocations: Int
+  aisleWidthMeters: Float
+  isAutomated: Boolean
+  createdAt: String
+}
+
+input WarehouseZonesUpdateInput {
+  warehouseId: ID
+  zoneCode: String
+  zoneName: String
+  zoneType: String
+  temperatureRange: String
+  maxWeightKg: Float
+  maxHeightMeters: Float
+  totalLocations: Int
+  occupiedLocations: Int
+  aisleWidthMeters: Float
+  isAutomated: Boolean
+  createdAt: String
+}
+
+input WarehouseBinsInput {
+  zoneId: ID
+  binCode: String
+  aisle: String
+  rack: String
+  level: String
+  position: String
+  binType: String
+  maxWeightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isOccupied: Boolean
+  currentProductId: Int
+  currentQuantity: Float
+  lastCountedDate: String
+  isLocked: Boolean
+  lockReason: String
+  createdAt: String
+}
+
+input WarehouseBinsUpdateInput {
+  zoneId: ID
+  binCode: String
+  aisle: String
+  rack: String
+  level: String
+  position: String
+  binType: String
+  maxWeightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isOccupied: Boolean
+  currentProductId: Int
+  currentQuantity: Float
+  lastCountedDate: String
+  isLocked: Boolean
+  lockReason: String
+  createdAt: String
+}
+
+input DockingStationsInput {
+  warehouseId: ID
+  dockNumber: String
+  dockType: String
+  doorHeightMeters: Float
+  doorWidthMeters: Float
+  hasDockLeveler: Boolean
+  hasDockSeal: Boolean
+  currentVehicleId: Int
+  currentShipmentId: Int
+  status: String
+  nextAvailableTime: String
+  createdAt: String
+}
+
+input DockingStationsUpdateInput {
+  warehouseId: ID
+  dockNumber: String
+  dockType: String
+  doorHeightMeters: Float
+  doorWidthMeters: Float
+  hasDockLeveler: Boolean
+  hasDockSeal: Boolean
+  currentVehicleId: Int
+  currentShipmentId: Int
+  status: String
+  nextAvailableTime: String
+  createdAt: String
+}
+
+input ProductsInput {
+  productName: String
+  productDescription: String
+  category: String
+  subcategory: String
+  brand: String
+  unitOfMeasure: String
+  weightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isHazmat: Boolean
+  hazmatClass: String
+  requiresTemperatureControl: Boolean
+  minTemperatureCelsius: Float
+  maxTemperatureCelsius: Float
+  shelfLifeDays: Int
+  isSerialized: Boolean
+  isLotControlled: Boolean
+  reorderPoint: Int
+  reorderQuantity: Int
+  leadTimeDays: Int
+  unitCost: Float
+  sellingPrice: Float
+  abcClassification: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input ProductsUpdateInput {
+  productName: String
+  productDescription: String
+  category: String
+  subcategory: String
+  brand: String
+  unitOfMeasure: String
+  weightKg: Float
+  dimensionsLwh: String
+  volumeCbm: Float
+  isHazmat: Boolean
+  hazmatClass: String
+  requiresTemperatureControl: Boolean
+  minTemperatureCelsius: Float
+  maxTemperatureCelsius: Float
+  shelfLifeDays: Int
+  isSerialized: Boolean
+  isLotControlled: Boolean
+  reorderPoint: Int
+  reorderQuantity: Int
+  leadTimeDays: Int
+  unitCost: Float
+  sellingPrice: Float
+  abcClassification: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  FULLTEXT: String
+}
+
+input InventoryLevelsInput {
+  warehouseId: ID
+  productId: ID
+  quantityOnHand: Float
+  quantityAvailable: Float
+  quantityAllocated: Float
+  quantityInTransit: Float
+  quantityDamaged: Float
+  quantityQuarantine: Float
+  averageCost: Float
+  lastReceivedDate: String
+  lastCountedDate: String
+  lastShippedDate: String
+  updatedAt: String
+}
+
+input InventoryLevelsUpdateInput {
+  warehouseId: ID
+  productId: ID
+  quantityOnHand: Float
+  quantityAvailable: Float
+  quantityAllocated: Float
+  quantityInTransit: Float
+  quantityDamaged: Float
+  quantityQuarantine: Float
+  averageCost: Float
+  lastReceivedDate: String
+  lastCountedDate: String
+  lastShippedDate: String
+  updatedAt: String
+}
+
+input ProductBatchesInput {
+  productId: ID
+  warehouseId: ID
+  batchNumber: String
+  lotNumber: String
+  serialNumbers: JSON
+  manufactureDate: String
+  expiryDate: String
+  receivedDate: String
+  quantityReceived: Float
+  quantityRemaining: Float
+  supplierId: Int
+  purchaseOrderId: Int
+  qualityStatus: String
+  qualityCertificateUrl: String
+  storageConditions: String
+  createdAt: String
+}
+
+input ProductBatchesUpdateInput {
+  productId: ID
+  warehouseId: ID
+  batchNumber: String
+  lotNumber: String
+  serialNumbers: JSON
+  manufactureDate: String
+  expiryDate: String
+  receivedDate: String
+  quantityReceived: Float
+  quantityRemaining: Float
+  supplierId: Int
+  purchaseOrderId: Int
+  qualityStatus: String
+  qualityCertificateUrl: String
+  storageConditions: String
+  createdAt: String
+}
+
+input InventoryMovementsInput {
+  movementType: String
+  referenceType: String
+  referenceId: Int
+  productId: ID
+  batchId: ID
+  fromWarehouseId: ID
+  fromBinId: ID
+  toWarehouseId: ID
+  toBinId: ID
+  quantity: Float
+  unitCost: Float
+  totalCost: Float
+  movementDate: String
+  performedBy: Int
+  reason: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input InventoryMovementsUpdateInput {
+  movementType: String
+  referenceType: String
+  referenceId: Int
+  productId: ID
+  batchId: ID
+  fromWarehouseId: ID
+  fromBinId: ID
+  toWarehouseId: ID
+  toBinId: ID
+  quantity: Float
+  unitCost: Float
+  totalCost: Float
+  movementDate: String
+  performedBy: Int
+  reason: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input SuppliersInput {
+  supplierName: String
+  supplierType: String
+  taxId: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  currencyCode: String
+  creditLimit: Float
+  leadTimeDays: Int
+  minimumOrderValue: Float
+  performanceScore: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  certifications: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input SuppliersUpdateInput {
+  supplierName: String
+  supplierType: String
+  taxId: String
+  addressLine1: String
+  addressLine2: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  countryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  currencyCode: String
+  creditLimit: Float
+  leadTimeDays: Int
+  minimumOrderValue: Float
+  performanceScore: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  certifications: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomersInput {
+  customerName: String
+  customerType: String
+  taxId: String
+  billingAddressLine1: String
+  billingAddressLine2: String
+  billingCity: String
+  billingStateProvince: String
+  billingPostalCode: String
+  billingCountryCode: String
+  shippingSameAsBilling: Boolean
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  creditLimit: Float
+  currentBalance: Float
+  priorityLevel: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input CustomersUpdateInput {
+  customerName: String
+  customerType: String
+  taxId: String
+  billingAddressLine1: String
+  billingAddressLine2: String
+  billingCity: String
+  billingStateProvince: String
+  billingPostalCode: String
+  billingCountryCode: String
+  shippingSameAsBilling: Boolean
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  paymentTerms: String
+  creditLimit: Float
+  currentBalance: Float
+  priorityLevel: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input PurchaseOrdersInput {
+  supplierId: ID
+  warehouseId: ID
+  orderDate: String
+  expectedDeliveryDate: String
+  actualDeliveryDate: String
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  notes: String
+  createdBy: Int
+  approvedBy: Int
+  approvalDate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PurchaseOrdersUpdateInput {
+  supplierId: ID
+  warehouseId: ID
+  orderDate: String
+  expectedDeliveryDate: String
+  actualDeliveryDate: String
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  notes: String
+  createdBy: Int
+  approvedBy: Int
+  approvalDate: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PurchaseOrderItemsInput {
+  poId: ID
+  productId: ID
+  quantityOrdered: Float
+  quantityReceived: Float
+  unitPrice: Float
+  lineTotal: Float
+  discountPercent: Float
+  taxAmount: Float
+  expectedDeliveryDate: String
+  notes: String
+}
+
+input PurchaseOrderItemsUpdateInput {
+  poId: ID
+  productId: ID
+  quantityOrdered: Float
+  quantityReceived: Float
+  unitPrice: Float
+  lineTotal: Float
+  discountPercent: Float
+  taxAmount: Float
+  expectedDeliveryDate: String
+  notes: String
+}
+
+input SalesOrdersInput {
+  customerId: ID
+  orderDate: String
+  requestedDeliveryDate: String
+  promisedDeliveryDate: String
+  actualDeliveryDate: String
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  subtotalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  shippingCost: Float
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  fulfillmentPriority: String
+  specialInstructions: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SalesOrdersUpdateInput {
+  customerId: ID
+  orderDate: String
+  requestedDeliveryDate: String
+  promisedDeliveryDate: String
+  actualDeliveryDate: String
+  shippingAddressLine1: String
+  shippingAddressLine2: String
+  shippingCity: String
+  shippingStateProvince: String
+  shippingPostalCode: String
+  shippingCountryCode: String
+  subtotalAmount: Float
+  discountAmount: Float
+  taxAmount: Float
+  shippingCost: Float
+  totalAmount: Float
+  currencyCode: String
+  status: String
+  paymentStatus: String
+  fulfillmentPriority: String
+  specialInstructions: String
+  createdAt: String
+  updatedAt: String
+}
+
+input SalesOrderItemsInput {
+  soId: ID
+  productId: ID
+  warehouseId: ID
+  quantityOrdered: Float
+  quantityAllocated: Float
+  quantityPicked: Float
+  quantityShipped: Float
+  unitPrice: Float
+  discountPercent: Float
+  taxRate: Float
+  lineTotal: Float
+  allocatedBatchId: ID
+  backorderQuantity: Float
+  notes: String
+}
+
+input SalesOrderItemsUpdateInput {
+  soId: ID
+  productId: ID
+  warehouseId: ID
+  quantityOrdered: Float
+  quantityAllocated: Float
+  quantityPicked: Float
+  quantityShipped: Float
+  unitPrice: Float
+  discountPercent: Float
+  taxRate: Float
+  lineTotal: Float
+  allocatedBatchId: ID
+  backorderQuantity: Float
+  notes: String
+}
+
+input CarriersInput {
+  carrierName: String
+  carrierType: String
+  scacCode: String
+  mcNumber: String
+  dotNumber: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  apiEndpoint: String
+  trackingUrlTemplate: String
+  insuranceCoverage: Float
+  liabilityLimit: Float
+  performanceScore: Float
+  onTimePercentage: Float
+  damageClaimRate: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  supportedServices: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input CarriersUpdateInput {
+  carrierName: String
+  carrierType: String
+  scacCode: String
+  mcNumber: String
+  dotNumber: String
+  contactName: String
+  contactPhone: String
+  contactEmail: String
+  apiEndpoint: String
+  trackingUrlTemplate: String
+  insuranceCoverage: Float
+  liabilityLimit: Float
+  performanceScore: Float
+  onTimePercentage: Float
+  damageClaimRate: Float
+  isPreferred: Boolean
+  isActive: Boolean
+  supportedServices: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input CarrierServicesInput {
+  carrierId: ID
+  serviceCode: String
+  serviceName: String
+  serviceType: String
+  transitTimeDays: Int
+  cutoffTime: String
+  deliveryCommitment: String
+  maxWeightKg: Float
+  maxDimensionsCm: String
+  supportsCod: Boolean
+  supportsInsurance: Boolean
+  supportsSignature: Boolean
+  isActive: Boolean
+}
+
+input CarrierServicesUpdateInput {
+  carrierId: ID
+  serviceCode: String
+  serviceName: String
+  serviceType: String
+  transitTimeDays: Int
+  cutoffTime: String
+  deliveryCommitment: String
+  maxWeightKg: Float
+  maxDimensionsCm: String
+  supportsCod: Boolean
+  supportsInsurance: Boolean
+  supportsSignature: Boolean
+  isActive: Boolean
+}
+
+input ShipmentsInput {
+  shipmentType: String
+  referenceType: String
+  referenceId: Int
+  carrierId: ID
+  serviceId: ID
+  trackingNumber: String
+  fromWarehouseId: ID
+  toWarehouseId: ID
+  originAddress: JSON
+  destinationAddress: JSON
+  pickupDate: String
+  deliveryDate: String
+  actualDeliveryDate: String
+  totalPackages: Int
+  totalWeightKg: Float
+  totalVolumeCbm: Float
+  declaredValue: Float
+  insuranceAmount: Float
+  shippingCost: Float
+  fuelSurcharge: Float
+  otherCharges: Float
+  totalCost: Float
+  status: String
+  statusDetails: String
+  podSignature: String
+  podTimestamp: String
+  temperatureControlled: Boolean
+  temperatureRange: String
+  specialHandling: JSON
+  createdAt: String
+  updatedAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input ShipmentsUpdateInput {
+  shipmentType: String
+  referenceType: String
+  referenceId: Int
+  carrierId: ID
+  serviceId: ID
+  trackingNumber: String
+  fromWarehouseId: ID
+  toWarehouseId: ID
+  originAddress: JSON
+  destinationAddress: JSON
+  pickupDate: String
+  deliveryDate: String
+  actualDeliveryDate: String
+  totalPackages: Int
+  totalWeightKg: Float
+  totalVolumeCbm: Float
+  declaredValue: Float
+  insuranceAmount: Float
+  shippingCost: Float
+  fuelSurcharge: Float
+  otherCharges: Float
+  totalCost: Float
+  status: String
+  statusDetails: String
+  podSignature: String
+  podTimestamp: String
+  temperatureControlled: Boolean
+  temperatureRange: String
+  specialHandling: JSON
+  createdAt: String
+  updatedAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input ShipmentTrackingInput {
+  shipmentId: ID
+  statusCode: String
+  statusDescription: String
+  locationCity: String
+  locationState: String
+  locationCountry: String
+  locationZip: String
+  latitude: Float
+  longitude: Float
+  eventTimestamp: String
+  carrierStatusCode: String
+  exceptionType: String
+  exceptionDescription: String
+  estimatedDelivery: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input ShipmentTrackingUpdateInput {
+  shipmentId: ID
+  statusCode: String
+  statusDescription: String
+  locationCity: String
+  locationState: String
+  locationCountry: String
+  locationZip: String
+  latitude: Float
+  longitude: Float
+  eventTimestamp: String
+  carrierStatusCode: String
+  exceptionType: String
+  exceptionDescription: String
+  estimatedDelivery: String
+  createdAt: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input VehiclesInput {
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  vin: String
+  licensePlate: String
+  registrationState: String
+  ownershipType: String
+  capacityKg: Float
+  capacityCbm: Float
+  fuelType: String
+  fuelEfficiencyKmPerLiter: Float
+  currentOdometerKm: Int
+  lastServiceDate: String
+  nextServiceDate: String
+  insurancePolicyNumber: String
+  insuranceExpiryDate: String
+  currentLocationLat: Float
+  currentLocationLng: Float
+  currentStatus: String
+  assignedDriverId: Int
+  homeWarehouseId: ID
+  isActive: Boolean
+  telematicsDeviceId: String
+  createdAt: String
+  updatedAt: String
+}
+
+input VehiclesUpdateInput {
+  vehicleType: String
+  make: String
+  model: String
+  year: Int
+  vin: String
+  licensePlate: String
+  registrationState: String
+  ownershipType: String
+  capacityKg: Float
+  capacityCbm: Float
+  fuelType: String
+  fuelEfficiencyKmPerLiter: Float
+  currentOdometerKm: Int
+  lastServiceDate: String
+  nextServiceDate: String
+  insurancePolicyNumber: String
+  insuranceExpiryDate: String
+  currentLocationLat: Float
+  currentLocationLng: Float
+  currentStatus: String
+  assignedDriverId: Int
+  homeWarehouseId: ID
+  isActive: Boolean
+  telematicsDeviceId: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DriversInput {
+  firstName: String
+  lastName: String
+  licenseNumber: String
+  licenseClass: String
+  licenseExpiryDate: String
+  licenseState: String
+  phoneNumber: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  hireDate: String
+  homeBaseWarehouseId: ID
+  currentVehicleId: ID
+  hoursOfServiceRemaining: Float
+  lastDrugTestDate: String
+  medicalCertificateExpiry: String
+  safetyScore: Float
+  totalMilesDriven: Int
+  totalDeliveries: Int
+  status: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input DriversUpdateInput {
+  firstName: String
+  lastName: String
+  licenseNumber: String
+  licenseClass: String
+  licenseExpiryDate: String
+  licenseState: String
+  phoneNumber: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  hireDate: String
+  homeBaseWarehouseId: ID
+  currentVehicleId: ID
+  hoursOfServiceRemaining: Float
+  lastDrugTestDate: String
+  medicalCertificateExpiry: String
+  safetyScore: Float
+  totalMilesDriven: Int
+  totalDeliveries: Int
+  status: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input RoutesInput {
+  routeName: String
+  routeType: String
+  originWarehouseId: ID
+  destinationWarehouseId: ID
+  totalDistanceKm: Float
+  estimatedDurationHours: Float
+  stops: JSON
+  preferredDepartureTime: String
+  serviceDays: [String]
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input RoutesUpdateInput {
+  routeName: String
+  routeType: String
+  originWarehouseId: ID
+  destinationWarehouseId: ID
+  totalDistanceKm: Float
+  estimatedDurationHours: Float
+  stops: JSON
+  preferredDepartureTime: String
+  serviceDays: [String]
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input DeliveryRunsInput {
+  runDate: String
+  routeId: ID
+  vehicleId: ID
+  driverId: ID
+  plannedStartTime: String
+  actualStartTime: String
+  plannedEndTime: String
+  actualEndTime: String
+  totalStops: Int
+  completedStops: Int
+  totalPackages: Int
+  deliveredPackages: Int
+  totalDistanceKm: Float
+  fuelConsumedLiters: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DeliveryRunsUpdateInput {
+  runDate: String
+  routeId: ID
+  vehicleId: ID
+  driverId: ID
+  plannedStartTime: String
+  actualStartTime: String
+  plannedEndTime: String
+  actualEndTime: String
+  totalStops: Int
+  completedStops: Int
+  totalPackages: Int
+  deliveredPackages: Int
+  totalDistanceKm: Float
+  fuelConsumedLiters: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input KpiMetricsInput {
+  metricDate: String
+  metricType: String
+  warehouseId: ID
+  inventoryTurnoverRatio: Float
+  stockoutIncidents: Int
+  inventoryAccuracyPercent: Float
+  carryingCost: Float
+  ordersProcessed: Int
+  perfectOrderRate: Float
+  orderCycleTimeHours: Float
+  fillRatePercent: Float
+  backorderRatePercent: Float
+  warehouseUtilizationPercent: Float
+  pickingAccuracyPercent: Float
+  putawayCycleTimeMinutes: Float
+  laborProductivityUnitsPerHour: Float
+  onTimeDeliveryPercent: Float
+  freightCostPerUnit: Float
+  deliverySuccessRate: Float
+  averageDeliveryTimeHours: Float
+  fuelEfficiencyKmPerLiter: Float
+  createdAt: String
+}
+
+input KpiMetricsUpdateInput {
+  metricDate: String
+  metricType: String
+  warehouseId: ID
+  inventoryTurnoverRatio: Float
+  stockoutIncidents: Int
+  inventoryAccuracyPercent: Float
+  carryingCost: Float
+  ordersProcessed: Int
+  perfectOrderRate: Float
+  orderCycleTimeHours: Float
+  fillRatePercent: Float
+  backorderRatePercent: Float
+  warehouseUtilizationPercent: Float
+  pickingAccuracyPercent: Float
+  putawayCycleTimeMinutes: Float
+  laborProductivityUnitsPerHour: Float
+  onTimeDeliveryPercent: Float
+  freightCostPerUnit: Float
+  deliverySuccessRate: Float
+  averageDeliveryTimeHours: Float
+  fuelEfficiencyKmPerLiter: Float
+  createdAt: String
+}
+
+input AuditLogInput {
+  tableName: String
+  recordId: Int
+  action: String
+  changedBy: Int
+  changedAt: String
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+input AuditLogUpdateInput {
+  tableName: String
+  recordId: Int
+  action: String
+  changedBy: Int
+  changedAt: String
+  oldValues: JSON
+  newValues: JSON
+  ipAddress: String
+  userAgent: String
+  PARTITION: String
+  PARTITION: String
+  PARTITION: String
+}
+
+type Query {
+  warehouse(id: ID!): Warehouses
+  warehouses(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Warehouses!]!
+  warehousesCount(filter: String): Int!
+  warehouseZone(id: ID!): WarehouseZones
+  warehouseZones(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WarehouseZones!]!
+  warehouseZonesCount(filter: String): Int!
+  warehouseBin(id: ID!): WarehouseBins
+  warehouseBins(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WarehouseBins!]!
+  warehouseBinsCount(filter: String): Int!
+  dockingStation(id: ID!): DockingStations
+  dockingStations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DockingStations!]!
+  dockingStationsCount(filter: String): Int!
+  product(id: ID!): Products
+  products(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Products!]!
+  productsCount(filter: String): Int!
+  inventoryLevel(id: ID!): InventoryLevels
+  inventoryLevels(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [InventoryLevels!]!
+  inventoryLevelsCount(filter: String): Int!
+  productBatche(id: ID!): ProductBatches
+  productBatches(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ProductBatches!]!
+  productBatchesCount(filter: String): Int!
+  inventoryMovement(id: ID!): InventoryMovements
+  inventoryMovements(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [InventoryMovements!]!
+  inventoryMovementsCount(filter: String): Int!
+  supplier(id: ID!): Suppliers
+  suppliers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Suppliers!]!
+  suppliersCount(filter: String): Int!
+  customer(id: ID!): Customers
+  customers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Customers!]!
+  customersCount(filter: String): Int!
+  purchaseOrder(id: ID!): PurchaseOrders
+  purchaseOrders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PurchaseOrders!]!
+  purchaseOrdersCount(filter: String): Int!
+  purchaseOrderItem(id: ID!): PurchaseOrderItems
+  purchaseOrderItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PurchaseOrderItems!]!
+  purchaseOrderItemsCount(filter: String): Int!
+  salesOrder(id: ID!): SalesOrders
+  salesOrders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SalesOrders!]!
+  salesOrdersCount(filter: String): Int!
+  salesOrderItem(id: ID!): SalesOrderItems
+  salesOrderItems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SalesOrderItems!]!
+  salesOrderItemsCount(filter: String): Int!
+  carrier(id: ID!): Carriers
+  carriers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Carriers!]!
+  carriersCount(filter: String): Int!
+  carrierService(id: ID!): CarrierServices
+  carrierServices(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [CarrierServices!]!
+  carrierServicesCount(filter: String): Int!
+  shipment(id: ID!): Shipments
+  shipments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Shipments!]!
+  shipmentsCount(filter: String): Int!
+  shipmentTracking(id: ID!): ShipmentTracking
+  shipmentTracking(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ShipmentTracking!]!
+  shipmentTrackingCount(filter: String): Int!
+  vehicle(id: ID!): Vehicles
+  vehicles(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Vehicles!]!
+  vehiclesCount(filter: String): Int!
+  driver(id: ID!): Drivers
+  drivers(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Drivers!]!
+  driversCount(filter: String): Int!
+  route(id: ID!): Routes
+  routes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Routes!]!
+  routesCount(filter: String): Int!
+  deliveryRun(id: ID!): DeliveryRuns
+  deliveryRuns(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DeliveryRuns!]!
+  deliveryRunsCount(filter: String): Int!
+  kpiMetric(id: ID!): KpiMetrics
+  kpiMetrics(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [KpiMetrics!]!
+  kpiMetricsCount(filter: String): Int!
+  auditLog(id: ID!): AuditLog
+  auditLog(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AuditLog!]!
+  auditLogCount(filter: String): Int!
+}
+
+type Mutation {
+  createWarehouses(input: WarehousesInput!): Warehouses!
+  updateWarehouses(id: ID!, input: WarehousesUpdateInput!): Warehouses!
+  deleteWarehouses(id: ID!): Boolean!
+  createWarehousesBatch(input: [WarehousesInput!]!): [Warehouses!]!
+  createWarehouseZones(input: WarehouseZonesInput!): WarehouseZones!
+  updateWarehouseZones(id: ID!, input: WarehouseZonesUpdateInput!): WarehouseZones!
+  deleteWarehouseZones(id: ID!): Boolean!
+  createWarehouseZonesBatch(input: [WarehouseZonesInput!]!): [WarehouseZones!]!
+  createWarehouseBins(input: WarehouseBinsInput!): WarehouseBins!
+  updateWarehouseBins(id: ID!, input: WarehouseBinsUpdateInput!): WarehouseBins!
+  deleteWarehouseBins(id: ID!): Boolean!
+  createWarehouseBinsBatch(input: [WarehouseBinsInput!]!): [WarehouseBins!]!
+  createDockingStations(input: DockingStationsInput!): DockingStations!
+  updateDockingStations(id: ID!, input: DockingStationsUpdateInput!): DockingStations!
+  deleteDockingStations(id: ID!): Boolean!
+  createDockingStationsBatch(input: [DockingStationsInput!]!): [DockingStations!]!
+  createProducts(input: ProductsInput!): Products!
+  updateProducts(id: ID!, input: ProductsUpdateInput!): Products!
+  deleteProducts(id: ID!): Boolean!
+  createProductsBatch(input: [ProductsInput!]!): [Products!]!
+  createInventoryLevels(input: InventoryLevelsInput!): InventoryLevels!
+  updateInventoryLevels(id: ID!, input: InventoryLevelsUpdateInput!): InventoryLevels!
+  deleteInventoryLevels(id: ID!): Boolean!
+  createInventoryLevelsBatch(input: [InventoryLevelsInput!]!): [InventoryLevels!]!
+  createProductBatches(input: ProductBatchesInput!): ProductBatches!
+  updateProductBatches(id: ID!, input: ProductBatchesUpdateInput!): ProductBatches!
+  deleteProductBatches(id: ID!): Boolean!
+  createProductBatchesBatch(input: [ProductBatchesInput!]!): [ProductBatches!]!
+  createInventoryMovements(input: InventoryMovementsInput!): InventoryMovements!
+  updateInventoryMovements(id: ID!, input: InventoryMovementsUpdateInput!): InventoryMovements!
+  deleteInventoryMovements(id: ID!): Boolean!
+  createInventoryMovementsBatch(input: [InventoryMovementsInput!]!): [InventoryMovements!]!
+  createSuppliers(input: SuppliersInput!): Suppliers!
+  updateSuppliers(id: ID!, input: SuppliersUpdateInput!): Suppliers!
+  deleteSuppliers(id: ID!): Boolean!
+  createSuppliersBatch(input: [SuppliersInput!]!): [Suppliers!]!
+  createCustomers(input: CustomersInput!): Customers!
+  updateCustomers(id: ID!, input: CustomersUpdateInput!): Customers!
+  deleteCustomers(id: ID!): Boolean!
+  createCustomersBatch(input: [CustomersInput!]!): [Customers!]!
+  createPurchaseOrders(input: PurchaseOrdersInput!): PurchaseOrders!
+  updatePurchaseOrders(id: ID!, input: PurchaseOrdersUpdateInput!): PurchaseOrders!
+  deletePurchaseOrders(id: ID!): Boolean!
+  createPurchaseOrdersBatch(input: [PurchaseOrdersInput!]!): [PurchaseOrders!]!
+  createPurchaseOrderItems(input: PurchaseOrderItemsInput!): PurchaseOrderItems!
+  updatePurchaseOrderItems(id: ID!, input: PurchaseOrderItemsUpdateInput!): PurchaseOrderItems!
+  deletePurchaseOrderItems(id: ID!): Boolean!
+  createPurchaseOrderItemsBatch(input: [PurchaseOrderItemsInput!]!): [PurchaseOrderItems!]!
+  createSalesOrders(input: SalesOrdersInput!): SalesOrders!
+  updateSalesOrders(id: ID!, input: SalesOrdersUpdateInput!): SalesOrders!
+  deleteSalesOrders(id: ID!): Boolean!
+  createSalesOrdersBatch(input: [SalesOrdersInput!]!): [SalesOrders!]!
+  createSalesOrderItems(input: SalesOrderItemsInput!): SalesOrderItems!
+  updateSalesOrderItems(id: ID!, input: SalesOrderItemsUpdateInput!): SalesOrderItems!
+  deleteSalesOrderItems(id: ID!): Boolean!
+  createSalesOrderItemsBatch(input: [SalesOrderItemsInput!]!): [SalesOrderItems!]!
+  createCarriers(input: CarriersInput!): Carriers!
+  updateCarriers(id: ID!, input: CarriersUpdateInput!): Carriers!
+  deleteCarriers(id: ID!): Boolean!
+  createCarriersBatch(input: [CarriersInput!]!): [Carriers!]!
+  createCarrierServices(input: CarrierServicesInput!): CarrierServices!
+  updateCarrierServices(id: ID!, input: CarrierServicesUpdateInput!): CarrierServices!
+  deleteCarrierServices(id: ID!): Boolean!
+  createCarrierServicesBatch(input: [CarrierServicesInput!]!): [CarrierServices!]!
+  createShipments(input: ShipmentsInput!): Shipments!
+  updateShipments(id: ID!, input: ShipmentsUpdateInput!): Shipments!
+  deleteShipments(id: ID!): Boolean!
+  createShipmentsBatch(input: [ShipmentsInput!]!): [Shipments!]!
+  createShipmentTracking(input: ShipmentTrackingInput!): ShipmentTracking!
+  updateShipmentTracking(id: ID!, input: ShipmentTrackingUpdateInput!): ShipmentTracking!
+  deleteShipmentTracking(id: ID!): Boolean!
+  createShipmentTrackingBatch(input: [ShipmentTrackingInput!]!): [ShipmentTracking!]!
+  createVehicles(input: VehiclesInput!): Vehicles!
+  updateVehicles(id: ID!, input: VehiclesUpdateInput!): Vehicles!
+  deleteVehicles(id: ID!): Boolean!
+  createVehiclesBatch(input: [VehiclesInput!]!): [Vehicles!]!
+  createDrivers(input: DriversInput!): Drivers!
+  updateDrivers(id: ID!, input: DriversUpdateInput!): Drivers!
+  deleteDrivers(id: ID!): Boolean!
+  createDriversBatch(input: [DriversInput!]!): [Drivers!]!
+  createRoutes(input: RoutesInput!): Routes!
+  updateRoutes(id: ID!, input: RoutesUpdateInput!): Routes!
+  deleteRoutes(id: ID!): Boolean!
+  createRoutesBatch(input: [RoutesInput!]!): [Routes!]!
+  createDeliveryRuns(input: DeliveryRunsInput!): DeliveryRuns!
+  updateDeliveryRuns(id: ID!, input: DeliveryRunsUpdateInput!): DeliveryRuns!
+  deleteDeliveryRuns(id: ID!): Boolean!
+  createDeliveryRunsBatch(input: [DeliveryRunsInput!]!): [DeliveryRuns!]!
+  createKpiMetrics(input: KpiMetricsInput!): KpiMetrics!
+  updateKpiMetrics(id: ID!, input: KpiMetricsUpdateInput!): KpiMetrics!
+  deleteKpiMetrics(id: ID!): Boolean!
+  createKpiMetricsBatch(input: [KpiMetricsInput!]!): [KpiMetrics!]!
+  createAuditLog(input: AuditLogInput!): AuditLog!
+  updateAuditLog(id: ID!, input: AuditLogUpdateInput!): AuditLog!
+  deleteAuditLog(id: ID!): Boolean!
+  createAuditLogBatch(input: [AuditLogInput!]!): [AuditLog!]!
+}

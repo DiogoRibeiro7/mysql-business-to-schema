@@ -1,0 +1,1659 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:16.097609
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type AuditLog {
+  tableName: String!
+  operation: String
+  user: String
+  timestamp: String
+  recordId: Int
+  oldValues: JSON
+  newValues: JSON
+}
+
+type SchemaVersion {
+  version: String!
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+type Hospitals {
+  hospitalName: String!
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  licenseNumber: String
+  accreditation: String
+  bedCapacity: Int
+  emergencyServices: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Departments {
+  hospitalId: Int!
+  departmentName: String!
+  departmentCode: String!
+  departmentType: String
+  floorNumber: Int
+  bedCount: Int
+  nurseStationLocation: String
+  phoneExtension: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Rooms {
+  departmentId: Int!
+  roomNumber: String!
+  roomType: String
+  bedCount: Int
+  floor: Int
+  isOccupied: Boolean
+  isIsolation: Boolean
+  hasMonitoring: Boolean
+  equipmentList: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Staff {
+  hospitalId: Int!
+  firstName: String!
+  lastName: String!
+  title: String
+  role: String
+  specialization: String
+  licenseNumber: String
+  licenseExpiry: String
+  departmentId: Int
+  email: String
+  phone: String
+  shiftType: String
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type StaffSchedules {
+  staffId: Int!
+  departmentId: Int!
+  shiftDate: String!
+  shiftStart: String!
+  shiftEnd: String!
+  breakMinutes: Int
+  isOnCall: Boolean
+  actualStart: String
+  actualEnd: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Patients {
+  firstName: String!
+  lastName: String!
+  dateOfBirth: String!
+  gender: String
+  bloodType: String
+  heightCm: Float
+  weightKg: Float
+  bmi: Float
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  phone: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  emergencyContactRelation: String
+  insuranceProvider: String
+  insuranceId: String
+  primaryPhysicianId: Int
+  allergies: JSON
+  chronicConditions: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Admissions {
+  patientId: Int!
+  hospitalId: Int!
+  departmentId: Int!
+  roomId: Int
+  admissionDate: String!
+  dischargeDate: String
+  admissionType: String
+  admissionSource: String
+  chiefComplaint: String
+  diagnosisCodes: JSON
+  attendingPhysicianId: Int!
+  admittingPhysicianId: Int
+  status: String
+  dischargeDisposition: String
+  totalCharges: Float
+  insuranceCoverage: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Devices {
+  deviceType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  hospitalId: Int!
+  departmentId: Int
+  roomId: Int
+  currentPatientId: Int
+  installationDate: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  calibrationDate: String
+  batteryLevel: Int
+  connectivityStatus: String
+  lastSeen: String
+  isActive: Boolean
+  settings: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DeviceAssignments {
+  deviceId: Int!
+  patientId: Int!
+  admissionId: Int!
+  assignedAt: String!
+  unassignedAt: String
+  assignedBy: Int!
+  unassignedBy: Int
+  reason: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VitalSigns {
+  patientId: Int!
+  admissionId: Int
+  deviceId: Int
+  recordedAt: String!
+  heartRate: Int
+  respiratoryRate: Int
+  systolicBp: Int
+  diastolicBp: Int
+  oxygenSaturation: Float
+  temperature: Float
+  bloodGlucose: Float
+  painLevel: Int
+  consciousnessLevel: String
+  earlyWarningScore: Int
+  temperature: String
+  recordedBy: Int
+  isManualEntry: Boolean
+  notes: String
+  createdAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type DeviceReadings {
+  deviceId: Int!
+  patientId: Int
+  timestamp: String!
+  metricType: String!
+  metricValue: Float
+  metricUnit: String
+  qualityScore: Int
+  rawData: JSON
+  createdAt: String
+  timestamp: String
+  timestamp: String
+  timestamp: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Alerts {
+  patientId: Int!
+  admissionId: Int
+  deviceId: Int
+  alertType: String
+  alertCategory: String
+  alertCode: String
+  alertMessage: String!
+  metricName: String
+  metricValue: Float
+  thresholdValue: Float
+  triggeredAt: String!
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  escalated: Boolean
+  responseTimeSeconds: Int
+  actionsTaken: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+  triggeredAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type AlertRules {
+  ruleName: String!
+  ruleType: String
+  metricType: String!
+  conditionOperator: String
+  thresholdValue1: Float
+  thresholdValue2: Float
+  timeWindowMinutes: Int
+  severity: String
+  departmentId: Int
+  isActive: Boolean
+  notificationChannels: JSON
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Medications {
+  medicationName: String!
+  genericName: String
+  drugClass: String
+  ndcCode: String
+  dosageForm: String
+  strength: String
+  unit: String
+  manufacturer: String
+  controlledSubstanceSchedule: String
+  requiresRefrigeration: Boolean
+  blackBoxWarning: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Prescriptions {
+  patientId: Int!
+  admissionId: Int
+  medicationId: Int!
+  prescribingPhysicianId: Int!
+  dosage: String!
+  frequency: String!
+  route: String
+  startDate: String!
+  endDate: String
+  durationDays: Int
+  refills: Int
+  instructions: String
+  isPrn: Boolean
+  prnReason: String
+  isActive: Boolean
+  discontinuedDate: String
+  discontinuedBy: Int
+  discontinuedReason: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MedicationAdministration {
+  prescriptionId: Int!
+  patientId: Int!
+  scheduledTime: String!
+  actualTime: String
+  administeredBy: Int
+  dosageGiven: String
+  routeUsed: String
+  taken: Boolean
+  missed: Boolean
+  refused: Boolean
+  reason: String
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LabTests {
+  testCode: String!
+  testName: String!
+  testCategory: String
+  specimenType: String
+  normalRangeLow: Float
+  normalRangeHigh: Float
+  unit: String
+  criticalLow: Float
+  criticalHigh: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LabOrders {
+  patientId: Int!
+  admissionId: Int
+  orderingPhysicianId: Int!
+  orderDate: String!
+  priority: String
+  testsOrdered: JSON!
+  specimenCollected: Boolean
+  collectedAt: String
+  collectedBy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  orderDate: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type LabResults {
+  orderId: Int!
+  testId: Int!
+  patientId: Int!
+  resultValue: Float
+  resultText: String
+  abnormalFlag: String
+  referenceRange: String
+  resultedAt: String!
+  verifiedBy: Int
+  verifiedAt: String
+  comments: String
+  createdAt: String
+  resultedAt: String
+  resultedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type ClinicalNotes {
+  patientId: Int!
+  admissionId: Int
+  noteType: String
+  authorId: Int!
+  noteDate: String!
+  noteText: String!
+  isSigned: Boolean
+  signedAt: String
+  cosignerId: Int
+  cosignedAt: String
+  createdAt: String
+  updatedAt: String
+  noteDate: String
+  noteDate: String
+  noteDate: String
+  FULLTEXT: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type EmergencyEvents {
+  patientId: Int!
+  admissionId: Int
+  eventType: String
+  location: String!
+  initiatedAt: String!
+  teamArrivedAt: String
+  resolvedAt: String
+  initiatedBy: Int!
+  teamLeadId: Int
+  outcome: String
+  interventions: JSON
+  medicationsGiven: JSON
+  notes: String
+  createdAt: String
+  initiatedAt: String
+  initiatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PatientDailySummary {
+  patientId: Int!
+  admissionId: Int!
+  summaryDate: String!
+  avgHeartRate: Float
+  avgBpSystolic: Float
+  avgBpDiastolic: Float
+  avgTemperature: Float
+  avgOxygenSat: Float
+  minOxygenSat: Float
+  maxEarlyWarningScore: Int
+  alertCount: Int
+  criticalAlertCount: Int
+  medicationsAdministered: Int
+  medicationsMissed: Int
+  labTestsOrdered: Int
+  labResultsAbnormal: Int
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type VitalSignsHourly {
+  patientId: Int!
+  admissionId: Int
+  hourTimestamp: String!
+  avgHeartRate: Float
+  avgRespiratoryRate: Float
+  avgSystolicBp: Float
+  avgDiastolicBp: Float
+  avgOxygenSat: Float
+  avgTemperature: Float
+  maxEarlyWarningScore: Int
+  readingCount: Int
+}
+
+# Input Types
+
+input AuditLogInput {
+  tableName: String
+  operation: String
+  user: String
+  timestamp: String
+  recordId: Int
+  oldValues: JSON
+  newValues: JSON
+}
+
+input AuditLogUpdateInput {
+  tableName: String
+  operation: String
+  user: String
+  timestamp: String
+  recordId: Int
+  oldValues: JSON
+  newValues: JSON
+}
+
+input SchemaVersionInput {
+  version: String
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+input SchemaVersionUpdateInput {
+  version: String
+  description: String
+  appliedAt: String
+  appliedBy: String
+}
+
+input HospitalsInput {
+  hospitalName: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  licenseNumber: String
+  accreditation: String
+  bedCapacity: Int
+  emergencyServices: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input HospitalsUpdateInput {
+  hospitalName: String
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  country: String
+  phone: String
+  email: String
+  licenseNumber: String
+  accreditation: String
+  bedCapacity: Int
+  emergencyServices: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input DepartmentsInput {
+  hospitalId: Int
+  departmentName: String
+  departmentCode: String
+  departmentType: String
+  floorNumber: Int
+  bedCount: Int
+  nurseStationLocation: String
+  phoneExtension: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input DepartmentsUpdateInput {
+  hospitalId: Int
+  departmentName: String
+  departmentCode: String
+  departmentType: String
+  floorNumber: Int
+  bedCount: Int
+  nurseStationLocation: String
+  phoneExtension: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input RoomsInput {
+  departmentId: Int
+  roomNumber: String
+  roomType: String
+  bedCount: Int
+  floor: Int
+  isOccupied: Boolean
+  isIsolation: Boolean
+  hasMonitoring: Boolean
+  equipmentList: JSON
+  createdAt: String
+}
+
+input RoomsUpdateInput {
+  departmentId: Int
+  roomNumber: String
+  roomType: String
+  bedCount: Int
+  floor: Int
+  isOccupied: Boolean
+  isIsolation: Boolean
+  hasMonitoring: Boolean
+  equipmentList: JSON
+  createdAt: String
+}
+
+input StaffInput {
+  hospitalId: Int
+  firstName: String
+  lastName: String
+  title: String
+  role: String
+  specialization: String
+  licenseNumber: String
+  licenseExpiry: String
+  departmentId: Int
+  email: String
+  phone: String
+  shiftType: String
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input StaffUpdateInput {
+  hospitalId: Int
+  firstName: String
+  lastName: String
+  title: String
+  role: String
+  specialization: String
+  licenseNumber: String
+  licenseExpiry: String
+  departmentId: Int
+  email: String
+  phone: String
+  shiftType: String
+  hireDate: String
+  isActive: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input StaffSchedulesInput {
+  staffId: Int
+  departmentId: Int
+  shiftDate: String
+  shiftStart: String
+  shiftEnd: String
+  breakMinutes: Int
+  isOnCall: Boolean
+  actualStart: String
+  actualEnd: String
+  createdAt: String
+}
+
+input StaffSchedulesUpdateInput {
+  staffId: Int
+  departmentId: Int
+  shiftDate: String
+  shiftStart: String
+  shiftEnd: String
+  breakMinutes: Int
+  isOnCall: Boolean
+  actualStart: String
+  actualEnd: String
+  createdAt: String
+}
+
+input PatientsInput {
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  gender: String
+  bloodType: String
+  heightCm: Float
+  weightKg: Float
+  bmi: Float
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  phone: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  emergencyContactRelation: String
+  insuranceProvider: String
+  insuranceId: String
+  primaryPhysicianId: Int
+  allergies: JSON
+  chronicConditions: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input PatientsUpdateInput {
+  firstName: String
+  lastName: String
+  dateOfBirth: String
+  gender: String
+  bloodType: String
+  heightCm: Float
+  weightKg: Float
+  bmi: Float
+  address: String
+  city: String
+  state: String
+  zipCode: String
+  phone: String
+  email: String
+  emergencyContactName: String
+  emergencyContactPhone: String
+  emergencyContactRelation: String
+  insuranceProvider: String
+  insuranceId: String
+  primaryPhysicianId: Int
+  allergies: JSON
+  chronicConditions: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input AdmissionsInput {
+  patientId: Int
+  hospitalId: Int
+  departmentId: Int
+  roomId: Int
+  admissionDate: String
+  dischargeDate: String
+  admissionType: String
+  admissionSource: String
+  chiefComplaint: String
+  diagnosisCodes: JSON
+  attendingPhysicianId: Int
+  admittingPhysicianId: Int
+  status: String
+  dischargeDisposition: String
+  totalCharges: Float
+  insuranceCoverage: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AdmissionsUpdateInput {
+  patientId: Int
+  hospitalId: Int
+  departmentId: Int
+  roomId: Int
+  admissionDate: String
+  dischargeDate: String
+  admissionType: String
+  admissionSource: String
+  chiefComplaint: String
+  diagnosisCodes: JSON
+  attendingPhysicianId: Int
+  admittingPhysicianId: Int
+  status: String
+  dischargeDisposition: String
+  totalCharges: Float
+  insuranceCoverage: Float
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input DevicesInput {
+  deviceType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  hospitalId: Int
+  departmentId: Int
+  roomId: Int
+  currentPatientId: Int
+  installationDate: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  calibrationDate: String
+  batteryLevel: Int
+  connectivityStatus: String
+  lastSeen: String
+  isActive: Boolean
+  settings: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input DevicesUpdateInput {
+  deviceType: String
+  manufacturer: String
+  model: String
+  firmwareVersion: String
+  hospitalId: Int
+  departmentId: Int
+  roomId: Int
+  currentPatientId: Int
+  installationDate: String
+  lastMaintenanceDate: String
+  nextMaintenanceDate: String
+  calibrationDate: String
+  batteryLevel: Int
+  connectivityStatus: String
+  lastSeen: String
+  isActive: Boolean
+  settings: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input DeviceAssignmentsInput {
+  deviceId: Int
+  patientId: Int
+  admissionId: Int
+  assignedAt: String
+  unassignedAt: String
+  assignedBy: Int
+  unassignedBy: Int
+  reason: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input DeviceAssignmentsUpdateInput {
+  deviceId: Int
+  patientId: Int
+  admissionId: Int
+  assignedAt: String
+  unassignedAt: String
+  assignedBy: Int
+  unassignedBy: Int
+  reason: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input VitalSignsInput {
+  patientId: Int
+  admissionId: Int
+  deviceId: Int
+  recordedAt: String
+  heartRate: Int
+  respiratoryRate: Int
+  systolicBp: Int
+  diastolicBp: Int
+  oxygenSaturation: Float
+  temperature: Float
+  bloodGlucose: Float
+  painLevel: Int
+  consciousnessLevel: String
+  earlyWarningScore: Int
+  temperature: String
+  recordedBy: Int
+  isManualEntry: Boolean
+  notes: String
+  createdAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+}
+
+input VitalSignsUpdateInput {
+  patientId: Int
+  admissionId: Int
+  deviceId: Int
+  recordedAt: String
+  heartRate: Int
+  respiratoryRate: Int
+  systolicBp: Int
+  diastolicBp: Int
+  oxygenSaturation: Float
+  temperature: Float
+  bloodGlucose: Float
+  painLevel: Int
+  consciousnessLevel: String
+  earlyWarningScore: Int
+  temperature: String
+  recordedBy: Int
+  isManualEntry: Boolean
+  notes: String
+  createdAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+  recordedAt: String
+}
+
+input DeviceReadingsInput {
+  deviceId: Int
+  patientId: Int
+  timestamp: String
+  metricType: String
+  metricValue: Float
+  metricUnit: String
+  qualityScore: Int
+  rawData: JSON
+  createdAt: String
+  timestamp: String
+  timestamp: String
+  timestamp: String
+}
+
+input DeviceReadingsUpdateInput {
+  deviceId: Int
+  patientId: Int
+  timestamp: String
+  metricType: String
+  metricValue: Float
+  metricUnit: String
+  qualityScore: Int
+  rawData: JSON
+  createdAt: String
+  timestamp: String
+  timestamp: String
+  timestamp: String
+}
+
+input AlertsInput {
+  patientId: Int
+  admissionId: Int
+  deviceId: Int
+  alertType: String
+  alertCategory: String
+  alertCode: String
+  alertMessage: String
+  metricName: String
+  metricValue: Float
+  thresholdValue: Float
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  escalated: Boolean
+  responseTimeSeconds: Int
+  actionsTaken: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+  triggeredAt: String
+}
+
+input AlertsUpdateInput {
+  patientId: Int
+  admissionId: Int
+  deviceId: Int
+  alertType: String
+  alertCategory: String
+  alertCode: String
+  alertMessage: String
+  metricName: String
+  metricValue: Float
+  thresholdValue: Float
+  triggeredAt: String
+  acknowledgedAt: String
+  acknowledgedBy: Int
+  resolvedAt: String
+  resolvedBy: Int
+  escalated: Boolean
+  responseTimeSeconds: Int
+  actionsTaken: String
+  createdAt: String
+  triggeredAt: String
+  triggeredAt: String
+  triggeredAt: String
+}
+
+input AlertRulesInput {
+  ruleName: String
+  ruleType: String
+  metricType: String
+  conditionOperator: String
+  thresholdValue1: Float
+  thresholdValue2: Float
+  timeWindowMinutes: Int
+  severity: String
+  departmentId: Int
+  isActive: Boolean
+  notificationChannels: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input AlertRulesUpdateInput {
+  ruleName: String
+  ruleType: String
+  metricType: String
+  conditionOperator: String
+  thresholdValue1: Float
+  thresholdValue2: Float
+  timeWindowMinutes: Int
+  severity: String
+  departmentId: Int
+  isActive: Boolean
+  notificationChannels: JSON
+  createdAt: String
+  updatedAt: String
+}
+
+input MedicationsInput {
+  medicationName: String
+  genericName: String
+  drugClass: String
+  ndcCode: String
+  dosageForm: String
+  strength: String
+  unit: String
+  manufacturer: String
+  controlledSubstanceSchedule: String
+  requiresRefrigeration: Boolean
+  blackBoxWarning: String
+  createdAt: String
+}
+
+input MedicationsUpdateInput {
+  medicationName: String
+  genericName: String
+  drugClass: String
+  ndcCode: String
+  dosageForm: String
+  strength: String
+  unit: String
+  manufacturer: String
+  controlledSubstanceSchedule: String
+  requiresRefrigeration: Boolean
+  blackBoxWarning: String
+  createdAt: String
+}
+
+input PrescriptionsInput {
+  patientId: Int
+  admissionId: Int
+  medicationId: Int
+  prescribingPhysicianId: Int
+  dosage: String
+  frequency: String
+  route: String
+  startDate: String
+  endDate: String
+  durationDays: Int
+  refills: Int
+  instructions: String
+  isPrn: Boolean
+  prnReason: String
+  isActive: Boolean
+  discontinuedDate: String
+  discontinuedBy: Int
+  discontinuedReason: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PrescriptionsUpdateInput {
+  patientId: Int
+  admissionId: Int
+  medicationId: Int
+  prescribingPhysicianId: Int
+  dosage: String
+  frequency: String
+  route: String
+  startDate: String
+  endDate: String
+  durationDays: Int
+  refills: Int
+  instructions: String
+  isPrn: Boolean
+  prnReason: String
+  isActive: Boolean
+  discontinuedDate: String
+  discontinuedBy: Int
+  discontinuedReason: String
+  createdAt: String
+  updatedAt: String
+}
+
+input MedicationAdministrationInput {
+  prescriptionId: Int
+  patientId: Int
+  scheduledTime: String
+  actualTime: String
+  administeredBy: Int
+  dosageGiven: String
+  routeUsed: String
+  taken: Boolean
+  missed: Boolean
+  refused: Boolean
+  reason: String
+  notes: String
+  createdAt: String
+}
+
+input MedicationAdministrationUpdateInput {
+  prescriptionId: Int
+  patientId: Int
+  scheduledTime: String
+  actualTime: String
+  administeredBy: Int
+  dosageGiven: String
+  routeUsed: String
+  taken: Boolean
+  missed: Boolean
+  refused: Boolean
+  reason: String
+  notes: String
+  createdAt: String
+}
+
+input LabTestsInput {
+  testCode: String
+  testName: String
+  testCategory: String
+  specimenType: String
+  normalRangeLow: Float
+  normalRangeHigh: Float
+  unit: String
+  criticalLow: Float
+  criticalHigh: Float
+  createdAt: String
+}
+
+input LabTestsUpdateInput {
+  testCode: String
+  testName: String
+  testCategory: String
+  specimenType: String
+  normalRangeLow: Float
+  normalRangeHigh: Float
+  unit: String
+  criticalLow: Float
+  criticalHigh: Float
+  createdAt: String
+}
+
+input LabOrdersInput {
+  patientId: Int
+  admissionId: Int
+  orderingPhysicianId: Int
+  orderDate: String
+  priority: String
+  testsOrdered: JSON
+  specimenCollected: Boolean
+  collectedAt: String
+  collectedBy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  orderDate: String
+}
+
+input LabOrdersUpdateInput {
+  patientId: Int
+  admissionId: Int
+  orderingPhysicianId: Int
+  orderDate: String
+  priority: String
+  testsOrdered: JSON
+  specimenCollected: Boolean
+  collectedAt: String
+  collectedBy: Int
+  status: String
+  createdAt: String
+  updatedAt: String
+  orderDate: String
+}
+
+input LabResultsInput {
+  orderId: Int
+  testId: Int
+  patientId: Int
+  resultValue: Float
+  resultText: String
+  abnormalFlag: String
+  referenceRange: String
+  resultedAt: String
+  verifiedBy: Int
+  verifiedAt: String
+  comments: String
+  createdAt: String
+  resultedAt: String
+  resultedAt: String
+}
+
+input LabResultsUpdateInput {
+  orderId: Int
+  testId: Int
+  patientId: Int
+  resultValue: Float
+  resultText: String
+  abnormalFlag: String
+  referenceRange: String
+  resultedAt: String
+  verifiedBy: Int
+  verifiedAt: String
+  comments: String
+  createdAt: String
+  resultedAt: String
+  resultedAt: String
+}
+
+input ClinicalNotesInput {
+  patientId: Int
+  admissionId: Int
+  noteType: String
+  authorId: Int
+  noteDate: String
+  noteText: String
+  isSigned: Boolean
+  signedAt: String
+  cosignerId: Int
+  cosignedAt: String
+  createdAt: String
+  updatedAt: String
+  noteDate: String
+  noteDate: String
+  noteDate: String
+  FULLTEXT: String
+}
+
+input ClinicalNotesUpdateInput {
+  patientId: Int
+  admissionId: Int
+  noteType: String
+  authorId: Int
+  noteDate: String
+  noteText: String
+  isSigned: Boolean
+  signedAt: String
+  cosignerId: Int
+  cosignedAt: String
+  createdAt: String
+  updatedAt: String
+  noteDate: String
+  noteDate: String
+  noteDate: String
+  FULLTEXT: String
+}
+
+input EmergencyEventsInput {
+  patientId: Int
+  admissionId: Int
+  eventType: String
+  location: String
+  initiatedAt: String
+  teamArrivedAt: String
+  resolvedAt: String
+  initiatedBy: Int
+  teamLeadId: Int
+  outcome: String
+  interventions: JSON
+  medicationsGiven: JSON
+  notes: String
+  createdAt: String
+  initiatedAt: String
+  initiatedAt: String
+}
+
+input EmergencyEventsUpdateInput {
+  patientId: Int
+  admissionId: Int
+  eventType: String
+  location: String
+  initiatedAt: String
+  teamArrivedAt: String
+  resolvedAt: String
+  initiatedBy: Int
+  teamLeadId: Int
+  outcome: String
+  interventions: JSON
+  medicationsGiven: JSON
+  notes: String
+  createdAt: String
+  initiatedAt: String
+  initiatedAt: String
+}
+
+input PatientDailySummaryInput {
+  patientId: Int
+  admissionId: Int
+  summaryDate: String
+  avgHeartRate: Float
+  avgBpSystolic: Float
+  avgBpDiastolic: Float
+  avgTemperature: Float
+  avgOxygenSat: Float
+  minOxygenSat: Float
+  maxEarlyWarningScore: Int
+  alertCount: Int
+  criticalAlertCount: Int
+  medicationsAdministered: Int
+  medicationsMissed: Int
+  labTestsOrdered: Int
+  labResultsAbnormal: Int
+  createdAt: String
+}
+
+input PatientDailySummaryUpdateInput {
+  patientId: Int
+  admissionId: Int
+  summaryDate: String
+  avgHeartRate: Float
+  avgBpSystolic: Float
+  avgBpDiastolic: Float
+  avgTemperature: Float
+  avgOxygenSat: Float
+  minOxygenSat: Float
+  maxEarlyWarningScore: Int
+  alertCount: Int
+  criticalAlertCount: Int
+  medicationsAdministered: Int
+  medicationsMissed: Int
+  labTestsOrdered: Int
+  labResultsAbnormal: Int
+  createdAt: String
+}
+
+input VitalSignsHourlyInput {
+  patientId: Int
+  admissionId: Int
+  hourTimestamp: String
+  avgHeartRate: Float
+  avgRespiratoryRate: Float
+  avgSystolicBp: Float
+  avgDiastolicBp: Float
+  avgOxygenSat: Float
+  avgTemperature: Float
+  maxEarlyWarningScore: Int
+  readingCount: Int
+}
+
+input VitalSignsHourlyUpdateInput {
+  patientId: Int
+  admissionId: Int
+  hourTimestamp: String
+  avgHeartRate: Float
+  avgRespiratoryRate: Float
+  avgSystolicBp: Float
+  avgDiastolicBp: Float
+  avgOxygenSat: Float
+  avgTemperature: Float
+  maxEarlyWarningScore: Int
+  readingCount: Int
+}
+
+type Query {
+  auditLog(id: ID!): AuditLog
+  auditLog(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AuditLog!]!
+  auditLogCount(filter: String): Int!
+  schemaVersion(id: ID!): SchemaVersion
+  schemaVersion(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SchemaVersion!]!
+  schemaVersionCount(filter: String): Int!
+  hospital(id: ID!): Hospitals
+  hospitals(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Hospitals!]!
+  hospitalsCount(filter: String): Int!
+  department(id: ID!): Departments
+  departments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Departments!]!
+  departmentsCount(filter: String): Int!
+  room(id: ID!): Rooms
+  rooms(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Rooms!]!
+  roomsCount(filter: String): Int!
+  staff(id: ID!): Staff
+  staff(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Staff!]!
+  staffCount(filter: String): Int!
+  staffSchedule(id: ID!): StaffSchedules
+  staffSchedules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [StaffSchedules!]!
+  staffSchedulesCount(filter: String): Int!
+  patient(id: ID!): Patients
+  patients(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Patients!]!
+  patientsCount(filter: String): Int!
+  admission(id: ID!): Admissions
+  admissions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Admissions!]!
+  admissionsCount(filter: String): Int!
+  device(id: ID!): Devices
+  devices(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Devices!]!
+  devicesCount(filter: String): Int!
+  deviceAssignment(id: ID!): DeviceAssignments
+  deviceAssignments(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DeviceAssignments!]!
+  deviceAssignmentsCount(filter: String): Int!
+  vitalSign(id: ID!): VitalSigns
+  vitalSigns(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VitalSigns!]!
+  vitalSignsCount(filter: String): Int!
+  deviceReading(id: ID!): DeviceReadings
+  deviceReadings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [DeviceReadings!]!
+  deviceReadingsCount(filter: String): Int!
+  alert(id: ID!): Alerts
+  alerts(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Alerts!]!
+  alertsCount(filter: String): Int!
+  alertRule(id: ID!): AlertRules
+  alertRules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [AlertRules!]!
+  alertRulesCount(filter: String): Int!
+  medication(id: ID!): Medications
+  medications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Medications!]!
+  medicationsCount(filter: String): Int!
+  prescription(id: ID!): Prescriptions
+  prescriptions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Prescriptions!]!
+  prescriptionsCount(filter: String): Int!
+  medicationAdministration(id: ID!): MedicationAdministration
+  medicationAdministration(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MedicationAdministration!]!
+  medicationAdministrationCount(filter: String): Int!
+  labTest(id: ID!): LabTests
+  labTests(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LabTests!]!
+  labTestsCount(filter: String): Int!
+  labOrder(id: ID!): LabOrders
+  labOrders(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LabOrders!]!
+  labOrdersCount(filter: String): Int!
+  labResult(id: ID!): LabResults
+  labResults(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [LabResults!]!
+  labResultsCount(filter: String): Int!
+  clinicalNote(id: ID!): ClinicalNotes
+  clinicalNotes(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [ClinicalNotes!]!
+  clinicalNotesCount(filter: String): Int!
+  emergencyEvent(id: ID!): EmergencyEvents
+  emergencyEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [EmergencyEvents!]!
+  emergencyEventsCount(filter: String): Int!
+  patientDailySummary(id: ID!): PatientDailySummary
+  patientDailySummary(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PatientDailySummary!]!
+  patientDailySummaryCount(filter: String): Int!
+  vitalSignsHourly(id: ID!): VitalSignsHourly
+  vitalSignsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [VitalSignsHourly!]!
+  vitalSignsHourlyCount(filter: String): Int!
+}
+
+type Mutation {
+  createAuditLog(input: AuditLogInput!): AuditLog!
+  updateAuditLog(id: ID!, input: AuditLogUpdateInput!): AuditLog!
+  deleteAuditLog(id: ID!): Boolean!
+  createAuditLogBatch(input: [AuditLogInput!]!): [AuditLog!]!
+  createSchemaVersion(input: SchemaVersionInput!): SchemaVersion!
+  updateSchemaVersion(id: ID!, input: SchemaVersionUpdateInput!): SchemaVersion!
+  deleteSchemaVersion(id: ID!): Boolean!
+  createSchemaVersionBatch(input: [SchemaVersionInput!]!): [SchemaVersion!]!
+  createHospitals(input: HospitalsInput!): Hospitals!
+  updateHospitals(id: ID!, input: HospitalsUpdateInput!): Hospitals!
+  deleteHospitals(id: ID!): Boolean!
+  createHospitalsBatch(input: [HospitalsInput!]!): [Hospitals!]!
+  createDepartments(input: DepartmentsInput!): Departments!
+  updateDepartments(id: ID!, input: DepartmentsUpdateInput!): Departments!
+  deleteDepartments(id: ID!): Boolean!
+  createDepartmentsBatch(input: [DepartmentsInput!]!): [Departments!]!
+  createRooms(input: RoomsInput!): Rooms!
+  updateRooms(id: ID!, input: RoomsUpdateInput!): Rooms!
+  deleteRooms(id: ID!): Boolean!
+  createRoomsBatch(input: [RoomsInput!]!): [Rooms!]!
+  createStaff(input: StaffInput!): Staff!
+  updateStaff(id: ID!, input: StaffUpdateInput!): Staff!
+  deleteStaff(id: ID!): Boolean!
+  createStaffBatch(input: [StaffInput!]!): [Staff!]!
+  createStaffSchedules(input: StaffSchedulesInput!): StaffSchedules!
+  updateStaffSchedules(id: ID!, input: StaffSchedulesUpdateInput!): StaffSchedules!
+  deleteStaffSchedules(id: ID!): Boolean!
+  createStaffSchedulesBatch(input: [StaffSchedulesInput!]!): [StaffSchedules!]!
+  createPatients(input: PatientsInput!): Patients!
+  updatePatients(id: ID!, input: PatientsUpdateInput!): Patients!
+  deletePatients(id: ID!): Boolean!
+  createPatientsBatch(input: [PatientsInput!]!): [Patients!]!
+  createAdmissions(input: AdmissionsInput!): Admissions!
+  updateAdmissions(id: ID!, input: AdmissionsUpdateInput!): Admissions!
+  deleteAdmissions(id: ID!): Boolean!
+  createAdmissionsBatch(input: [AdmissionsInput!]!): [Admissions!]!
+  createDevices(input: DevicesInput!): Devices!
+  updateDevices(id: ID!, input: DevicesUpdateInput!): Devices!
+  deleteDevices(id: ID!): Boolean!
+  createDevicesBatch(input: [DevicesInput!]!): [Devices!]!
+  createDeviceAssignments(input: DeviceAssignmentsInput!): DeviceAssignments!
+  updateDeviceAssignments(id: ID!, input: DeviceAssignmentsUpdateInput!): DeviceAssignments!
+  deleteDeviceAssignments(id: ID!): Boolean!
+  createDeviceAssignmentsBatch(input: [DeviceAssignmentsInput!]!): [DeviceAssignments!]!
+  createVitalSigns(input: VitalSignsInput!): VitalSigns!
+  updateVitalSigns(id: ID!, input: VitalSignsUpdateInput!): VitalSigns!
+  deleteVitalSigns(id: ID!): Boolean!
+  createVitalSignsBatch(input: [VitalSignsInput!]!): [VitalSigns!]!
+  createDeviceReadings(input: DeviceReadingsInput!): DeviceReadings!
+  updateDeviceReadings(id: ID!, input: DeviceReadingsUpdateInput!): DeviceReadings!
+  deleteDeviceReadings(id: ID!): Boolean!
+  createDeviceReadingsBatch(input: [DeviceReadingsInput!]!): [DeviceReadings!]!
+  createAlerts(input: AlertsInput!): Alerts!
+  updateAlerts(id: ID!, input: AlertsUpdateInput!): Alerts!
+  deleteAlerts(id: ID!): Boolean!
+  createAlertsBatch(input: [AlertsInput!]!): [Alerts!]!
+  createAlertRules(input: AlertRulesInput!): AlertRules!
+  updateAlertRules(id: ID!, input: AlertRulesUpdateInput!): AlertRules!
+  deleteAlertRules(id: ID!): Boolean!
+  createAlertRulesBatch(input: [AlertRulesInput!]!): [AlertRules!]!
+  createMedications(input: MedicationsInput!): Medications!
+  updateMedications(id: ID!, input: MedicationsUpdateInput!): Medications!
+  deleteMedications(id: ID!): Boolean!
+  createMedicationsBatch(input: [MedicationsInput!]!): [Medications!]!
+  createPrescriptions(input: PrescriptionsInput!): Prescriptions!
+  updatePrescriptions(id: ID!, input: PrescriptionsUpdateInput!): Prescriptions!
+  deletePrescriptions(id: ID!): Boolean!
+  createPrescriptionsBatch(input: [PrescriptionsInput!]!): [Prescriptions!]!
+  createMedicationAdministration(input: MedicationAdministrationInput!): MedicationAdministration!
+  updateMedicationAdministration(id: ID!, input: MedicationAdministrationUpdateInput!): MedicationAdministration!
+  deleteMedicationAdministration(id: ID!): Boolean!
+  createMedicationAdministrationBatch(input: [MedicationAdministrationInput!]!): [MedicationAdministration!]!
+  createLabTests(input: LabTestsInput!): LabTests!
+  updateLabTests(id: ID!, input: LabTestsUpdateInput!): LabTests!
+  deleteLabTests(id: ID!): Boolean!
+  createLabTestsBatch(input: [LabTestsInput!]!): [LabTests!]!
+  createLabOrders(input: LabOrdersInput!): LabOrders!
+  updateLabOrders(id: ID!, input: LabOrdersUpdateInput!): LabOrders!
+  deleteLabOrders(id: ID!): Boolean!
+  createLabOrdersBatch(input: [LabOrdersInput!]!): [LabOrders!]!
+  createLabResults(input: LabResultsInput!): LabResults!
+  updateLabResults(id: ID!, input: LabResultsUpdateInput!): LabResults!
+  deleteLabResults(id: ID!): Boolean!
+  createLabResultsBatch(input: [LabResultsInput!]!): [LabResults!]!
+  createClinicalNotes(input: ClinicalNotesInput!): ClinicalNotes!
+  updateClinicalNotes(id: ID!, input: ClinicalNotesUpdateInput!): ClinicalNotes!
+  deleteClinicalNotes(id: ID!): Boolean!
+  createClinicalNotesBatch(input: [ClinicalNotesInput!]!): [ClinicalNotes!]!
+  createEmergencyEvents(input: EmergencyEventsInput!): EmergencyEvents!
+  updateEmergencyEvents(id: ID!, input: EmergencyEventsUpdateInput!): EmergencyEvents!
+  deleteEmergencyEvents(id: ID!): Boolean!
+  createEmergencyEventsBatch(input: [EmergencyEventsInput!]!): [EmergencyEvents!]!
+  createPatientDailySummary(input: PatientDailySummaryInput!): PatientDailySummary!
+  updatePatientDailySummary(id: ID!, input: PatientDailySummaryUpdateInput!): PatientDailySummary!
+  deletePatientDailySummary(id: ID!): Boolean!
+  createPatientDailySummaryBatch(input: [PatientDailySummaryInput!]!): [PatientDailySummary!]!
+  createVitalSignsHourly(input: VitalSignsHourlyInput!): VitalSignsHourly!
+  updateVitalSignsHourly(id: ID!, input: VitalSignsHourlyUpdateInput!): VitalSignsHourly!
+  deleteVitalSignsHourly(id: ID!): Boolean!
+  createVitalSignsHourlyBatch(input: [VitalSignsHourlyInput!]!): [VitalSignsHourly!]!
+}

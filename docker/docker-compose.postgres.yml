@@ -1,0 +1,240 @@
+version: '3.8'
+
+# PostgreSQL Docker Compose Template for MySQL Business-to-Schema
+#
+# This template provides PostgreSQL alongside MySQL for migration and comparison
+#
+# Usage:
+#   docker-compose -f docker-compose.postgres.yml up -d
+#
+# Services:
+#   - PostgreSQL 16 (port 5432)
+#   - pgAdmin 4 (port 5050)
+#   - MySQL 8.0 (port 3306)
+#   - phpMyAdmin (port 8080)
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: ${CONTAINER_PREFIX:-example}_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-example_db}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=en_US.utf8"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - ./schema_postgres:/docker-entrypoint-initdb.d:ro
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - database_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=256MB"
+      - "-c"
+      - "max_connections=200"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=64MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=4MB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_duration=on"
+
+  # pgAdmin for PostgreSQL
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: ${CONTAINER_PREFIX:-example}_pgadmin
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@example.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - database_network
+
+  # MySQL Database (for comparison)
+  mysql:
+    image: mysql:8.0
+    container_name: ${CONTAINER_PREFIX:-example}_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql_root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-mysql_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-mysql_pass}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - mysql_data:/var/lib/mysql
+    networks:
+      - database_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+
+  # phpMyAdmin for MySQL
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ${CONTAINER_PREFIX:-example}_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql_root}
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - database_network
+
+  # Data Migration Service
+  migrator:
+    build:
+      context: ../tools
+      dockerfile: Dockerfile.migrator
+    container_name: ${CONTAINER_PREFIX:-example}_migrator
+    depends_on:
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      # MySQL connection
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql_root}
+      # PostgreSQL connection
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: ${POSTGRES_DB:-example_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
+      # Migration settings
+      MIGRATION_MODE: ${MIGRATION_MODE:-schema_only}  # schema_only, data_only, full
+      BATCH_SIZE: ${BATCH_SIZE:-1000}
+    volumes:
+      - ../tools:/app
+      - migration_logs:/logs
+    networks:
+      - database_network
+    profiles:
+      - migration
+
+  # PostgreSQL Data Generator
+  pg_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile.postgres
+    container_name: ${CONTAINER_PREFIX:-example}_pg_generator
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: ${POSTGRES_DB:-example_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+    volumes:
+      - ../generators/${GENERATOR_NAME}:/app
+      - pg_generator_output:/app/output
+    networks:
+      - database_network
+    profiles:
+      - generate
+
+  # Performance Comparison Tool
+  benchmarker:
+    build:
+      context: ../tools
+      dockerfile: Dockerfile.benchmark
+    container_name: ${CONTAINER_PREFIX:-example}_benchmarker
+    depends_on:
+      - mysql
+      - postgres
+    environment:
+      # Test configuration
+      TEST_MODE: ${TEST_MODE:-both}  # mysql, postgres, both
+      BENCHMARK_TYPE: ${BENCHMARK_TYPE:-all}  # inserts, selects, joins, aggregates, all
+      ITERATIONS: ${ITERATIONS:-1000}
+      # MySQL connection
+      MYSQL_HOST: mysql
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: root
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysql_root}
+      # PostgreSQL connection
+      POSTGRES_HOST: postgres
+      POSTGRES_DATABASE: ${POSTGRES_DB:-example_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres_pass}
+    volumes:
+      - ../tools:/app
+      - benchmark_results:/results
+    networks:
+      - database_network
+    profiles:
+      - benchmark
+
+volumes:
+  postgres_data:
+    name: ${CONTAINER_PREFIX:-example}_postgres_data
+  pgadmin_data:
+    name: ${CONTAINER_PREFIX:-example}_pgadmin_data
+  mysql_data:
+    name: ${CONTAINER_PREFIX:-example}_mysql_data
+  migration_logs:
+    name: ${CONTAINER_PREFIX:-example}_migration_logs
+  pg_generator_output:
+    name: ${CONTAINER_PREFIX:-example}_pg_generator_output
+  benchmark_results:
+    name: ${CONTAINER_PREFIX:-example}_benchmark_results
+
+networks:
+  database_network:
+    name: ${CONTAINER_PREFIX:-example}_database_network
+    driver: bridge

@@ -1,0 +1,1276 @@
+# GraphQL Schema Generated from MySQL
+# Generated: 2026-02-17T22:44:15.912812
+# Generator: MySQL Business-to-Schema GraphQL Generator
+
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+# Custom Scalars
+scalar DateTime
+scalar Date
+scalar Time
+scalar JSON
+scalar BigInt
+
+# Types
+
+type Farms {
+  farmName: String!
+  farmType: String
+  ownerName: String
+  location: String
+  totalAreaHectares: Float
+  latitude: Float
+  longitude: Float
+  elevationMeters: Int
+  climateZone: String
+  soilType: String
+  establishedDate: String
+  organicCertified: Boolean
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Fields {
+  farmId: Int!
+  fieldName: String!
+  areaHectares: Float
+  soilType: String
+  slopePercentage: Float
+  drainageClass: String
+  irrigationType: String
+  gpsBoundaries: JSON
+  lastSoilTest: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Zones {
+  fieldId: Int!
+  zoneName: String
+  areaHectares: Float
+  managementZoneType: String
+  characteristics: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Crops {
+  cropName: String!
+  scientificName: String
+  cropFamily: String
+  cropType: String
+  growthDays: Int
+  baseTemperatureC: Float
+  optimalTempMin: Float
+  optimalTempMax: Float
+  waterNeedsMmPerDay: Float
+  nitrogenKgPerHectare: Float
+  phosphorusKgPerHectare: Float
+  potassiumKgPerHectare: Float
+  optimalPhMin: Float
+  optimalPhMax: Float
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PlantingRecords {
+  fieldId: Int!
+  zoneId: Int
+  cropId: Int!
+  variety: String
+  plantingDate: String!
+  expectedHarvestDate: String
+  actualHarvestDate: String
+  areaPlantedHectares: Float
+  seedRateKgPerHectare: Float
+  rowSpacingCm: Float
+  plantSpacingCm: Float
+  plantingDepthCm: Float
+  expectedYieldKgPerHectare: Float
+  actualYieldKgPerHectare: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type GrowthStages {
+  plantingId: Int!
+  stageName: String!
+  stageCode: String
+  observationDate: String!
+  gddAccumulated: Float
+  plantHeightCm: Float
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Sensors {
+  zoneId: Int!
+  sensorType: String
+  manufacturer: String
+  model: String
+  installationDate: String
+  depthCm: Int
+  heightM: Float
+  calibrationDate: String
+  batteryType: String
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadings {
+  readingId: String
+  sensorId: Int!
+  timestamp: String!
+  value: Float
+  unit: String
+  qualityFlag: String
+  batteryVoltage: Float
+}
+
+type WeatherStations {
+  farmId: Int!
+  stationName: String
+  latitude: Float
+  longitude: Float
+  elevationM: Int
+  installationDate: String
+  isActive: Boolean
+}
+
+type WeatherData {
+  stationId: Int!
+  observationTime: String!
+  temperatureC: Float
+  humidityPercent: Float
+  pressureHpa: Float
+  rainfallMm: Float
+  windSpeedKmh: Float
+  windDirectionDegrees: Int
+  solarRadiationWm2: Float
+  evapotranspirationMm: Float
+  dewPointC: Float
+}
+
+type IrrigationSystems {
+  fieldId: Int!
+  systemType: String
+  flowRateLpm: Float
+  coverageAreaHectares: Float
+  efficiencyPercentage: Float
+  installationDate: String
+  lastMaintenanceDate: String
+  isActive: Boolean
+}
+
+type IrrigationEvents {
+  systemId: Int!
+  zoneId: Int
+  startTime: String!
+  endTime: String
+  waterAmountLiters: Float
+  triggerType: String
+  triggerReason: String
+  soilMoistureBefore: Float
+  soilMoistureAfter: Float
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type IrrigationSchedules {
+  systemId: Int!
+  scheduleName: String
+  daysOfWeek: [String]
+  startTime: String
+  durationMinutes: Int
+  waterAmountMm: Float
+  moistureThresholdMin: Float
+  moistureThresholdMax: Float
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type FertilizerApplications {
+  fieldId: Int!
+  zoneId: Int
+  applicationDate: String!
+  fertilizerType: String
+  nKgPerHectare: Float
+  pKgPerHectare: Float
+  kKgPerHectare: Float
+  applicationMethod: String
+  costPerHectare: Float
+  weatherConditions: String
+  operatorId: Int
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type PesticideApplications {
+  fieldId: Int!
+  zoneId: Int
+  applicationDate: String!
+  productName: String!
+  activeIngredient: String
+  targetPest: String
+  applicationRatePerHectare: String
+  reiHours: Int
+  phiDays: Int
+  applicationMethod: String
+  weatherConditions: String
+  windSpeedKmh: Float
+  temperatureC: Float
+  operatorId: Int
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Animals {
+  farmId: Int!
+  animalType: String
+  breed: String
+  gender: String
+  birthDate: String
+  weightKg: Float
+  motherId: Int
+  fatherId: Int
+  purchaseDate: String
+  purchasePrice: Float
+  currentLocation: String
+  healthStatus: String
+  createdAt: String
+  updatedAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type HealthRecords {
+  animalId: Int!
+  recordDate: String!
+  recordType: String
+  description: String
+  medication: String
+  dosage: String
+  veterinarianName: String
+  cost: Float
+  nextFollowupDate: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type MilkProduction {
+  animalId: Int!
+  milkingDate: String!
+  milkingTime: String
+  quantityLiters: Float
+  fatPercentage: Float
+  proteinPercentage: Float
+  somaticCellCount: Int
+  temperatureC: Float
+  qualityGrade: String
+}
+
+type HarvestRecords {
+  plantingId: Int!
+  harvestDate: String!
+  areaHarvestedHectares: Float
+  totalYieldKg: Float
+  marketableYieldKg: Float
+  moisturePercentage: Float
+  qualityGrade: String
+  storageLocation: String
+  harvestMethod: String
+  weatherConditions: String
+  laborHours: Float
+  harvestCost: Float
+  notes: String
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type YieldPredictions {
+  plantingId: Int!
+  predictionDate: String!
+  predictedYieldKgPerHectare: Float
+  confidenceLevel: Float
+  modelVersion: String
+  factors: JSON
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type Operators {
+  farmId: Int!
+  firstName: String!
+  lastName: String!
+  role: String
+  specialization: String
+  phone: String
+  email: String
+  hireDate: String
+  certifications: JSON
+  isActive: Boolean
+  createdAt: String
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+type SensorReadingsHourly {
+  sensorId: Int!
+  hourTimestamp: String!
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+type WeatherDailySummary {
+  stationId: Int!
+  summaryDate: String!
+  tempMin: Float
+  tempMax: Float
+  tempAvg: Float
+  humidityAvg: Float
+  rainfallTotal: Float
+  windSpeedMax: Float
+  solarRadiationTotal: Float
+  gddAccumulated: Float
+}
+
+# Input Types
+
+input FarmsInput {
+  farmName: String
+  farmType: String
+  ownerName: String
+  location: String
+  totalAreaHectares: Float
+  latitude: Float
+  longitude: Float
+  elevationMeters: Int
+  climateZone: String
+  soilType: String
+  establishedDate: String
+  organicCertified: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input FarmsUpdateInput {
+  farmName: String
+  farmType: String
+  ownerName: String
+  location: String
+  totalAreaHectares: Float
+  latitude: Float
+  longitude: Float
+  elevationMeters: Int
+  climateZone: String
+  soilType: String
+  establishedDate: String
+  organicCertified: Boolean
+  createdAt: String
+  updatedAt: String
+}
+
+input FieldsInput {
+  farmId: Int
+  fieldName: String
+  areaHectares: Float
+  soilType: String
+  slopePercentage: Float
+  drainageClass: String
+  irrigationType: String
+  gpsBoundaries: JSON
+  lastSoilTest: String
+  createdAt: String
+}
+
+input FieldsUpdateInput {
+  farmId: Int
+  fieldName: String
+  areaHectares: Float
+  soilType: String
+  slopePercentage: Float
+  drainageClass: String
+  irrigationType: String
+  gpsBoundaries: JSON
+  lastSoilTest: String
+  createdAt: String
+}
+
+input ZonesInput {
+  fieldId: Int
+  zoneName: String
+  areaHectares: Float
+  managementZoneType: String
+  characteristics: JSON
+  createdAt: String
+}
+
+input ZonesUpdateInput {
+  fieldId: Int
+  zoneName: String
+  areaHectares: Float
+  managementZoneType: String
+  characteristics: JSON
+  createdAt: String
+}
+
+input CropsInput {
+  cropName: String
+  scientificName: String
+  cropFamily: String
+  cropType: String
+  growthDays: Int
+  baseTemperatureC: Float
+  optimalTempMin: Float
+  optimalTempMax: Float
+  waterNeedsMmPerDay: Float
+  nitrogenKgPerHectare: Float
+  phosphorusKgPerHectare: Float
+  potassiumKgPerHectare: Float
+  optimalPhMin: Float
+  optimalPhMax: Float
+  createdAt: String
+}
+
+input CropsUpdateInput {
+  cropName: String
+  scientificName: String
+  cropFamily: String
+  cropType: String
+  growthDays: Int
+  baseTemperatureC: Float
+  optimalTempMin: Float
+  optimalTempMax: Float
+  waterNeedsMmPerDay: Float
+  nitrogenKgPerHectare: Float
+  phosphorusKgPerHectare: Float
+  potassiumKgPerHectare: Float
+  optimalPhMin: Float
+  optimalPhMax: Float
+  createdAt: String
+}
+
+input PlantingRecordsInput {
+  fieldId: Int
+  zoneId: Int
+  cropId: Int
+  variety: String
+  plantingDate: String
+  expectedHarvestDate: String
+  actualHarvestDate: String
+  areaPlantedHectares: Float
+  seedRateKgPerHectare: Float
+  rowSpacingCm: Float
+  plantSpacingCm: Float
+  plantingDepthCm: Float
+  expectedYieldKgPerHectare: Float
+  actualYieldKgPerHectare: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input PlantingRecordsUpdateInput {
+  fieldId: Int
+  zoneId: Int
+  cropId: Int
+  variety: String
+  plantingDate: String
+  expectedHarvestDate: String
+  actualHarvestDate: String
+  areaPlantedHectares: Float
+  seedRateKgPerHectare: Float
+  rowSpacingCm: Float
+  plantSpacingCm: Float
+  plantingDepthCm: Float
+  expectedYieldKgPerHectare: Float
+  actualYieldKgPerHectare: Float
+  status: String
+  notes: String
+  createdAt: String
+  updatedAt: String
+}
+
+input GrowthStagesInput {
+  plantingId: Int
+  stageName: String
+  stageCode: String
+  observationDate: String
+  gddAccumulated: Float
+  plantHeightCm: Float
+  notes: String
+  createdAt: String
+}
+
+input GrowthStagesUpdateInput {
+  plantingId: Int
+  stageName: String
+  stageCode: String
+  observationDate: String
+  gddAccumulated: Float
+  plantHeightCm: Float
+  notes: String
+  createdAt: String
+}
+
+input SensorsInput {
+  zoneId: Int
+  sensorType: String
+  manufacturer: String
+  model: String
+  installationDate: String
+  depthCm: Int
+  heightM: Float
+  calibrationDate: String
+  batteryType: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input SensorsUpdateInput {
+  zoneId: Int
+  sensorType: String
+  manufacturer: String
+  model: String
+  installationDate: String
+  depthCm: Int
+  heightM: Float
+  calibrationDate: String
+  batteryType: String
+  isActive: Boolean
+  createdAt: String
+}
+
+input SensorReadingsInput {
+  sensorId: Int
+  timestamp: String
+  value: Float
+  unit: String
+  qualityFlag: String
+  batteryVoltage: Float
+}
+
+input SensorReadingsUpdateInput {
+  sensorId: Int
+  timestamp: String
+  value: Float
+  unit: String
+  qualityFlag: String
+  batteryVoltage: Float
+}
+
+input WeatherStationsInput {
+  farmId: Int
+  stationName: String
+  latitude: Float
+  longitude: Float
+  elevationM: Int
+  installationDate: String
+  isActive: Boolean
+}
+
+input WeatherStationsUpdateInput {
+  farmId: Int
+  stationName: String
+  latitude: Float
+  longitude: Float
+  elevationM: Int
+  installationDate: String
+  isActive: Boolean
+}
+
+input WeatherDataInput {
+  stationId: Int
+  observationTime: String
+  temperatureC: Float
+  humidityPercent: Float
+  pressureHpa: Float
+  rainfallMm: Float
+  windSpeedKmh: Float
+  windDirectionDegrees: Int
+  solarRadiationWm2: Float
+  evapotranspirationMm: Float
+  dewPointC: Float
+}
+
+input WeatherDataUpdateInput {
+  stationId: Int
+  observationTime: String
+  temperatureC: Float
+  humidityPercent: Float
+  pressureHpa: Float
+  rainfallMm: Float
+  windSpeedKmh: Float
+  windDirectionDegrees: Int
+  solarRadiationWm2: Float
+  evapotranspirationMm: Float
+  dewPointC: Float
+}
+
+input IrrigationSystemsInput {
+  fieldId: Int
+  systemType: String
+  flowRateLpm: Float
+  coverageAreaHectares: Float
+  efficiencyPercentage: Float
+  installationDate: String
+  lastMaintenanceDate: String
+  isActive: Boolean
+}
+
+input IrrigationSystemsUpdateInput {
+  fieldId: Int
+  systemType: String
+  flowRateLpm: Float
+  coverageAreaHectares: Float
+  efficiencyPercentage: Float
+  installationDate: String
+  lastMaintenanceDate: String
+  isActive: Boolean
+}
+
+input IrrigationEventsInput {
+  systemId: Int
+  zoneId: Int
+  startTime: String
+  endTime: String
+  waterAmountLiters: Float
+  triggerType: String
+  triggerReason: String
+  soilMoistureBefore: Float
+  soilMoistureAfter: Float
+  notes: String
+  createdAt: String
+}
+
+input IrrigationEventsUpdateInput {
+  systemId: Int
+  zoneId: Int
+  startTime: String
+  endTime: String
+  waterAmountLiters: Float
+  triggerType: String
+  triggerReason: String
+  soilMoistureBefore: Float
+  soilMoistureAfter: Float
+  notes: String
+  createdAt: String
+}
+
+input IrrigationSchedulesInput {
+  systemId: Int
+  scheduleName: String
+  daysOfWeek: [String]
+  startTime: String
+  durationMinutes: Int
+  waterAmountMm: Float
+  moistureThresholdMin: Float
+  moistureThresholdMax: Float
+  isActive: Boolean
+  createdAt: String
+}
+
+input IrrigationSchedulesUpdateInput {
+  systemId: Int
+  scheduleName: String
+  daysOfWeek: [String]
+  startTime: String
+  durationMinutes: Int
+  waterAmountMm: Float
+  moistureThresholdMin: Float
+  moistureThresholdMax: Float
+  isActive: Boolean
+  createdAt: String
+}
+
+input FertilizerApplicationsInput {
+  fieldId: Int
+  zoneId: Int
+  applicationDate: String
+  fertilizerType: String
+  nKgPerHectare: Float
+  pKgPerHectare: Float
+  kKgPerHectare: Float
+  applicationMethod: String
+  costPerHectare: Float
+  weatherConditions: String
+  operatorId: Int
+  notes: String
+  createdAt: String
+}
+
+input FertilizerApplicationsUpdateInput {
+  fieldId: Int
+  zoneId: Int
+  applicationDate: String
+  fertilizerType: String
+  nKgPerHectare: Float
+  pKgPerHectare: Float
+  kKgPerHectare: Float
+  applicationMethod: String
+  costPerHectare: Float
+  weatherConditions: String
+  operatorId: Int
+  notes: String
+  createdAt: String
+}
+
+input PesticideApplicationsInput {
+  fieldId: Int
+  zoneId: Int
+  applicationDate: String
+  productName: String
+  activeIngredient: String
+  targetPest: String
+  applicationRatePerHectare: String
+  reiHours: Int
+  phiDays: Int
+  applicationMethod: String
+  weatherConditions: String
+  windSpeedKmh: Float
+  temperatureC: Float
+  operatorId: Int
+  notes: String
+  createdAt: String
+}
+
+input PesticideApplicationsUpdateInput {
+  fieldId: Int
+  zoneId: Int
+  applicationDate: String
+  productName: String
+  activeIngredient: String
+  targetPest: String
+  applicationRatePerHectare: String
+  reiHours: Int
+  phiDays: Int
+  applicationMethod: String
+  weatherConditions: String
+  windSpeedKmh: Float
+  temperatureC: Float
+  operatorId: Int
+  notes: String
+  createdAt: String
+}
+
+input AnimalsInput {
+  farmId: Int
+  animalType: String
+  breed: String
+  gender: String
+  birthDate: String
+  weightKg: Float
+  motherId: Int
+  fatherId: Int
+  purchaseDate: String
+  purchasePrice: Float
+  currentLocation: String
+  healthStatus: String
+  createdAt: String
+  updatedAt: String
+}
+
+input AnimalsUpdateInput {
+  farmId: Int
+  animalType: String
+  breed: String
+  gender: String
+  birthDate: String
+  weightKg: Float
+  motherId: Int
+  fatherId: Int
+  purchaseDate: String
+  purchasePrice: Float
+  currentLocation: String
+  healthStatus: String
+  createdAt: String
+  updatedAt: String
+}
+
+input HealthRecordsInput {
+  animalId: Int
+  recordDate: String
+  recordType: String
+  description: String
+  medication: String
+  dosage: String
+  veterinarianName: String
+  cost: Float
+  nextFollowupDate: String
+  createdAt: String
+}
+
+input HealthRecordsUpdateInput {
+  animalId: Int
+  recordDate: String
+  recordType: String
+  description: String
+  medication: String
+  dosage: String
+  veterinarianName: String
+  cost: Float
+  nextFollowupDate: String
+  createdAt: String
+}
+
+input MilkProductionInput {
+  animalId: Int
+  milkingDate: String
+  milkingTime: String
+  quantityLiters: Float
+  fatPercentage: Float
+  proteinPercentage: Float
+  somaticCellCount: Int
+  temperatureC: Float
+  qualityGrade: String
+}
+
+input MilkProductionUpdateInput {
+  animalId: Int
+  milkingDate: String
+  milkingTime: String
+  quantityLiters: Float
+  fatPercentage: Float
+  proteinPercentage: Float
+  somaticCellCount: Int
+  temperatureC: Float
+  qualityGrade: String
+}
+
+input HarvestRecordsInput {
+  plantingId: Int
+  harvestDate: String
+  areaHarvestedHectares: Float
+  totalYieldKg: Float
+  marketableYieldKg: Float
+  moisturePercentage: Float
+  qualityGrade: String
+  storageLocation: String
+  harvestMethod: String
+  weatherConditions: String
+  laborHours: Float
+  harvestCost: Float
+  notes: String
+  createdAt: String
+}
+
+input HarvestRecordsUpdateInput {
+  plantingId: Int
+  harvestDate: String
+  areaHarvestedHectares: Float
+  totalYieldKg: Float
+  marketableYieldKg: Float
+  moisturePercentage: Float
+  qualityGrade: String
+  storageLocation: String
+  harvestMethod: String
+  weatherConditions: String
+  laborHours: Float
+  harvestCost: Float
+  notes: String
+  createdAt: String
+}
+
+input YieldPredictionsInput {
+  plantingId: Int
+  predictionDate: String
+  predictedYieldKgPerHectare: Float
+  confidenceLevel: Float
+  modelVersion: String
+  factors: JSON
+  createdAt: String
+}
+
+input YieldPredictionsUpdateInput {
+  plantingId: Int
+  predictionDate: String
+  predictedYieldKgPerHectare: Float
+  confidenceLevel: Float
+  modelVersion: String
+  factors: JSON
+  createdAt: String
+}
+
+input OperatorsInput {
+  farmId: Int
+  firstName: String
+  lastName: String
+  role: String
+  specialization: String
+  phone: String
+  email: String
+  hireDate: String
+  certifications: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input OperatorsUpdateInput {
+  farmId: Int
+  firstName: String
+  lastName: String
+  role: String
+  specialization: String
+  phone: String
+  email: String
+  hireDate: String
+  certifications: JSON
+  isActive: Boolean
+  createdAt: String
+}
+
+input SensorReadingsHourlyInput {
+  sensorId: Int
+  hourTimestamp: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+input SensorReadingsHourlyUpdateInput {
+  sensorId: Int
+  hourTimestamp: String
+  minValue: Float
+  maxValue: Float
+  avgValue: Float
+  readingCount: Int
+}
+
+input WeatherDailySummaryInput {
+  stationId: Int
+  summaryDate: String
+  tempMin: Float
+  tempMax: Float
+  tempAvg: Float
+  humidityAvg: Float
+  rainfallTotal: Float
+  windSpeedMax: Float
+  solarRadiationTotal: Float
+  gddAccumulated: Float
+}
+
+input WeatherDailySummaryUpdateInput {
+  stationId: Int
+  summaryDate: String
+  tempMin: Float
+  tempMax: Float
+  tempAvg: Float
+  humidityAvg: Float
+  rainfallTotal: Float
+  windSpeedMax: Float
+  solarRadiationTotal: Float
+  gddAccumulated: Float
+}
+
+type Query {
+  farm(id: ID!): Farms
+  farms(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Farms!]!
+  farmsCount(filter: String): Int!
+  field(id: ID!): Fields
+  fields(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Fields!]!
+  fieldsCount(filter: String): Int!
+  zone(id: ID!): Zones
+  zones(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Zones!]!
+  zonesCount(filter: String): Int!
+  crop(id: ID!): Crops
+  crops(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Crops!]!
+  cropsCount(filter: String): Int!
+  plantingRecord(id: ID!): PlantingRecords
+  plantingRecords(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PlantingRecords!]!
+  plantingRecordsCount(filter: String): Int!
+  growthStage(id: ID!): GrowthStages
+  growthStages(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [GrowthStages!]!
+  growthStagesCount(filter: String): Int!
+  sensor(id: ID!): Sensors
+  sensors(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Sensors!]!
+  sensorsCount(filter: String): Int!
+  sensorReading(id: ID!): SensorReadings
+  sensorReadings(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadings!]!
+  sensorReadingsCount(filter: String): Int!
+  weatherStation(id: ID!): WeatherStations
+  weatherStations(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WeatherStations!]!
+  weatherStationsCount(filter: String): Int!
+  weatherData(id: ID!): WeatherData
+  weatherData(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WeatherData!]!
+  weatherDataCount(filter: String): Int!
+  irrigationSystem(id: ID!): IrrigationSystems
+  irrigationSystems(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [IrrigationSystems!]!
+  irrigationSystemsCount(filter: String): Int!
+  irrigationEvent(id: ID!): IrrigationEvents
+  irrigationEvents(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [IrrigationEvents!]!
+  irrigationEventsCount(filter: String): Int!
+  irrigationSchedule(id: ID!): IrrigationSchedules
+  irrigationSchedules(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [IrrigationSchedules!]!
+  irrigationSchedulesCount(filter: String): Int!
+  fertilizerApplication(id: ID!): FertilizerApplications
+  fertilizerApplications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [FertilizerApplications!]!
+  fertilizerApplicationsCount(filter: String): Int!
+  pesticideApplication(id: ID!): PesticideApplications
+  pesticideApplications(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [PesticideApplications!]!
+  pesticideApplicationsCount(filter: String): Int!
+  animal(id: ID!): Animals
+  animals(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Animals!]!
+  animalsCount(filter: String): Int!
+  healthRecord(id: ID!): HealthRecords
+  healthRecords(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [HealthRecords!]!
+  healthRecordsCount(filter: String): Int!
+  milkProduction(id: ID!): MilkProduction
+  milkProduction(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [MilkProduction!]!
+  milkProductionCount(filter: String): Int!
+  harvestRecord(id: ID!): HarvestRecords
+  harvestRecords(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [HarvestRecords!]!
+  harvestRecordsCount(filter: String): Int!
+  yieldPrediction(id: ID!): YieldPredictions
+  yieldPredictions(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [YieldPredictions!]!
+  yieldPredictionsCount(filter: String): Int!
+  operator(id: ID!): Operators
+  operators(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [Operators!]!
+  operatorsCount(filter: String): Int!
+  sensorReadingsHourly(id: ID!): SensorReadingsHourly
+  sensorReadingsHourly(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [SensorReadingsHourly!]!
+  sensorReadingsHourlyCount(filter: String): Int!
+  weatherDailySummary(id: ID!): WeatherDailySummary
+  weatherDailySummary(
+    limit: Int = 10
+    offset: Int = 0
+    orderBy: String
+    filter: String
+  ): [WeatherDailySummary!]!
+  weatherDailySummaryCount(filter: String): Int!
+}
+
+type Mutation {
+  createFarms(input: FarmsInput!): Farms!
+  updateFarms(id: ID!, input: FarmsUpdateInput!): Farms!
+  deleteFarms(id: ID!): Boolean!
+  createFarmsBatch(input: [FarmsInput!]!): [Farms!]!
+  createFields(input: FieldsInput!): Fields!
+  updateFields(id: ID!, input: FieldsUpdateInput!): Fields!
+  deleteFields(id: ID!): Boolean!
+  createFieldsBatch(input: [FieldsInput!]!): [Fields!]!
+  createZones(input: ZonesInput!): Zones!
+  updateZones(id: ID!, input: ZonesUpdateInput!): Zones!
+  deleteZones(id: ID!): Boolean!
+  createZonesBatch(input: [ZonesInput!]!): [Zones!]!
+  createCrops(input: CropsInput!): Crops!
+  updateCrops(id: ID!, input: CropsUpdateInput!): Crops!
+  deleteCrops(id: ID!): Boolean!
+  createCropsBatch(input: [CropsInput!]!): [Crops!]!
+  createPlantingRecords(input: PlantingRecordsInput!): PlantingRecords!
+  updatePlantingRecords(id: ID!, input: PlantingRecordsUpdateInput!): PlantingRecords!
+  deletePlantingRecords(id: ID!): Boolean!
+  createPlantingRecordsBatch(input: [PlantingRecordsInput!]!): [PlantingRecords!]!
+  createGrowthStages(input: GrowthStagesInput!): GrowthStages!
+  updateGrowthStages(id: ID!, input: GrowthStagesUpdateInput!): GrowthStages!
+  deleteGrowthStages(id: ID!): Boolean!
+  createGrowthStagesBatch(input: [GrowthStagesInput!]!): [GrowthStages!]!
+  createSensors(input: SensorsInput!): Sensors!
+  updateSensors(id: ID!, input: SensorsUpdateInput!): Sensors!
+  deleteSensors(id: ID!): Boolean!
+  createSensorsBatch(input: [SensorsInput!]!): [Sensors!]!
+  createSensorReadings(input: SensorReadingsInput!): SensorReadings!
+  updateSensorReadings(id: ID!, input: SensorReadingsUpdateInput!): SensorReadings!
+  deleteSensorReadings(id: ID!): Boolean!
+  createSensorReadingsBatch(input: [SensorReadingsInput!]!): [SensorReadings!]!
+  createWeatherStations(input: WeatherStationsInput!): WeatherStations!
+  updateWeatherStations(id: ID!, input: WeatherStationsUpdateInput!): WeatherStations!
+  deleteWeatherStations(id: ID!): Boolean!
+  createWeatherStationsBatch(input: [WeatherStationsInput!]!): [WeatherStations!]!
+  createWeatherData(input: WeatherDataInput!): WeatherData!
+  updateWeatherData(id: ID!, input: WeatherDataUpdateInput!): WeatherData!
+  deleteWeatherData(id: ID!): Boolean!
+  createWeatherDataBatch(input: [WeatherDataInput!]!): [WeatherData!]!
+  createIrrigationSystems(input: IrrigationSystemsInput!): IrrigationSystems!
+  updateIrrigationSystems(id: ID!, input: IrrigationSystemsUpdateInput!): IrrigationSystems!
+  deleteIrrigationSystems(id: ID!): Boolean!
+  createIrrigationSystemsBatch(input: [IrrigationSystemsInput!]!): [IrrigationSystems!]!
+  createIrrigationEvents(input: IrrigationEventsInput!): IrrigationEvents!
+  updateIrrigationEvents(id: ID!, input: IrrigationEventsUpdateInput!): IrrigationEvents!
+  deleteIrrigationEvents(id: ID!): Boolean!
+  createIrrigationEventsBatch(input: [IrrigationEventsInput!]!): [IrrigationEvents!]!
+  createIrrigationSchedules(input: IrrigationSchedulesInput!): IrrigationSchedules!
+  updateIrrigationSchedules(id: ID!, input: IrrigationSchedulesUpdateInput!): IrrigationSchedules!
+  deleteIrrigationSchedules(id: ID!): Boolean!
+  createIrrigationSchedulesBatch(input: [IrrigationSchedulesInput!]!): [IrrigationSchedules!]!
+  createFertilizerApplications(input: FertilizerApplicationsInput!): FertilizerApplications!
+  updateFertilizerApplications(id: ID!, input: FertilizerApplicationsUpdateInput!): FertilizerApplications!
+  deleteFertilizerApplications(id: ID!): Boolean!
+  createFertilizerApplicationsBatch(input: [FertilizerApplicationsInput!]!): [FertilizerApplications!]!
+  createPesticideApplications(input: PesticideApplicationsInput!): PesticideApplications!
+  updatePesticideApplications(id: ID!, input: PesticideApplicationsUpdateInput!): PesticideApplications!
+  deletePesticideApplications(id: ID!): Boolean!
+  createPesticideApplicationsBatch(input: [PesticideApplicationsInput!]!): [PesticideApplications!]!
+  createAnimals(input: AnimalsInput!): Animals!
+  updateAnimals(id: ID!, input: AnimalsUpdateInput!): Animals!
+  deleteAnimals(id: ID!): Boolean!
+  createAnimalsBatch(input: [AnimalsInput!]!): [Animals!]!
+  createHealthRecords(input: HealthRecordsInput!): HealthRecords!
+  updateHealthRecords(id: ID!, input: HealthRecordsUpdateInput!): HealthRecords!
+  deleteHealthRecords(id: ID!): Boolean!
+  createHealthRecordsBatch(input: [HealthRecordsInput!]!): [HealthRecords!]!
+  createMilkProduction(input: MilkProductionInput!): MilkProduction!
+  updateMilkProduction(id: ID!, input: MilkProductionUpdateInput!): MilkProduction!
+  deleteMilkProduction(id: ID!): Boolean!
+  createMilkProductionBatch(input: [MilkProductionInput!]!): [MilkProduction!]!
+  createHarvestRecords(input: HarvestRecordsInput!): HarvestRecords!
+  updateHarvestRecords(id: ID!, input: HarvestRecordsUpdateInput!): HarvestRecords!
+  deleteHarvestRecords(id: ID!): Boolean!
+  createHarvestRecordsBatch(input: [HarvestRecordsInput!]!): [HarvestRecords!]!
+  createYieldPredictions(input: YieldPredictionsInput!): YieldPredictions!
+  updateYieldPredictions(id: ID!, input: YieldPredictionsUpdateInput!): YieldPredictions!
+  deleteYieldPredictions(id: ID!): Boolean!
+  createYieldPredictionsBatch(input: [YieldPredictionsInput!]!): [YieldPredictions!]!
+  createOperators(input: OperatorsInput!): Operators!
+  updateOperators(id: ID!, input: OperatorsUpdateInput!): Operators!
+  deleteOperators(id: ID!): Boolean!
+  createOperatorsBatch(input: [OperatorsInput!]!): [Operators!]!
+  createSensorReadingsHourly(input: SensorReadingsHourlyInput!): SensorReadingsHourly!
+  updateSensorReadingsHourly(id: ID!, input: SensorReadingsHourlyUpdateInput!): SensorReadingsHourly!
+  deleteSensorReadingsHourly(id: ID!): Boolean!
+  createSensorReadingsHourlyBatch(input: [SensorReadingsHourlyInput!]!): [SensorReadingsHourly!]!
+  createWeatherDailySummary(input: WeatherDailySummaryInput!): WeatherDailySummary!
+  updateWeatherDailySummary(id: ID!, input: WeatherDailySummaryUpdateInput!): WeatherDailySummary!
+  deleteWeatherDailySummary(id: ID!): Boolean!
+  createWeatherDailySummaryBatch(input: [WeatherDailySummaryInput!]!): [WeatherDailySummary!]!
+}

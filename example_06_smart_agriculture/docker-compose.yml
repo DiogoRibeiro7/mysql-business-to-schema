@@ -1,0 +1,118 @@
+version: '3.8'
+
+# Smart Agriculture Management System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3312 (user: root, password: agriculture_root)
+#   - phpMyAdmin: http://localhost:8086
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smart_agriculture_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: agriculture_root
+      MYSQL_DATABASE: agriculture_db
+      MYSQL_USER: agriculture_user
+      MYSQL_PASSWORD: agriculture_pass
+    ports:
+      - "3312:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - smart_agriculture_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - smart_agriculture_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --innodb_buffer_pool_size=2G
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: smart_agriculture_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: agriculture_root
+    ports:
+      - "8086:80"
+    networks:
+      - smart_agriculture_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: smart_agriculture_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: agriculture_db
+      MYSQL_USER: agriculture_user
+      MYSQL_PASSWORD: agriculture_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Agriculture specific settings
+      FARM_COUNT: ${FARM_COUNT:-10}
+      SEASON: ${SEASON:-summer}
+      WEATHER_SIMULATION: ${WEATHER_SIMULATION:-true}
+      PEST_SIMULATION: ${PEST_SIMULATION:-true}
+    volumes:
+      - ../generators/smart_agriculture:/app
+      - smart_agriculture_generator_output:/app/output
+    networks:
+      - smart_agriculture_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating smart agriculture data...' &&
+        python generator.py &&
+        echo 'Done!'
+      "
+
+  # Optional: Weather API simulator
+  weather_service:
+    build:
+      context: ./services/weather
+      dockerfile: Dockerfile
+    container_name: smart_agriculture_weather
+    restart: unless-stopped
+    ports:
+      - "8087:8000"
+    networks:
+      - smart_agriculture_network
+    profiles:
+      - services
+    environment:
+      UPDATE_FREQUENCY: 3600
+
+volumes:
+  smart_agriculture_mysql_data:
+    name: smart_agriculture_mysql_data
+  smart_agriculture_generator_output:
+    name: smart_agriculture_generator_output
+
+networks:
+  smart_agriculture_network:
+    name: smart_agriculture_network
+    driver: bridge

@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: crypto_exchange_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: crypto_exchange
+      MYSQL_USER: crypto_user
+      MYSQL_PASSWORD: crypto_password
+    ports:
+      - "3316:3306"
+    volumes:
+      - crypto_mysql_data:/var/lib/mysql
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - ./data:/data:ro
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=1000
+      - --innodb-buffer-pool-size=2G
+      - --innodb-log-file-size=512M
+      - --innodb-flush-log-at-trx-commit=2
+      - --innodb-flush-method=O_DIRECT
+      - --innodb-file-per-table=ON
+      - --slow-query-log=ON
+      - --slow-query-log-file=/var/log/mysql/slow.log
+      - --long-query-time=2
+      - --event-scheduler=ON
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: crypto_exchange_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - crypto_redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: crypto_exchange_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: rootpassword
+    ports:
+      - "8086:80"
+
+  # Optional: Grafana for monitoring
+  grafana:
+    image: grafana/grafana:latest
+    container_name: crypto_exchange_grafana
+    restart: unless-stopped
+    ports:
+      - "3006:3000"
+    volumes:
+      - crypto_grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_USERS_ALLOW_SIGN_UP=false
+
+  # Optional: Order matching engine simulator (placeholder)
+  # matching-engine:
+  #   build: ./matching-engine
+  #   container_name: crypto_exchange_matcher
+  #   depends_on:
+  #     - mysql
+  #     - redis
+  #   environment:
+  #     - DB_HOST=mysql
+  #     - DB_PORT=3306
+  #     - DB_NAME=crypto_exchange
+  #     - DB_USER=crypto_user
+  #     - DB_PASSWORD=crypto_password
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+
+volumes:
+  crypto_mysql_data:
+    name: crypto_exchange_mysql_data
+  crypto_redis_data:
+    name: crypto_exchange_redis_data
+  crypto_grafana_data:
+    name: crypto_exchange_grafana_data
+
+networks:
+  default:
+    name: crypto_exchange_network

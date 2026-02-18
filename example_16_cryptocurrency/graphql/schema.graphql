@@ -1,0 +1,656 @@
+type Query {
+  # User queries
+  user(id: ID!): User
+  userByEmail(email: String!): User
+  currentUser: User
+
+  # Currency queries
+  currencies(type: CurrencyType): [Currency!]!
+  currency(id: ID!): Currency
+  currencyBySymbol(symbol: String!): Currency
+
+  # Trading pair queries
+  tradingPairs(active: Boolean): [TradingPair!]!
+  tradingPair(id: ID!): TradingPair
+  tradingPairBySymbol(symbol: String!): TradingPair
+
+  # Order queries
+  order(id: ID!): Order
+  orders(
+    userId: ID
+    pairId: ID
+    status: OrderStatus
+    side: OrderSide
+    limit: Int = 20
+    offset: Int = 0
+  ): [Order!]!
+
+  # Order book
+  orderBook(pairId: ID!, depth: Int = 20): OrderBook!
+
+  # Trade queries
+  trades(
+    pairId: ID
+    userId: ID
+    limit: Int = 50
+    offset: Int = 0
+  ): [Trade!]!
+  recentTrades(pairId: ID!, limit: Int = 20): [Trade!]!
+
+  # Wallet queries
+  wallet(userId: ID!, currencyId: ID!): Wallet
+  userWallets(userId: ID!): [Wallet!]!
+
+  # Transaction queries
+  transaction(id: ID!): Transaction
+  transactions(
+    userId: ID
+    type: TransactionType
+    status: TransactionStatus
+    limit: Int = 20
+    offset: Int = 0
+  ): [Transaction!]!
+
+  # Market data
+  ticker(pairId: ID!): Ticker!
+  tickers: [Ticker!]!
+  candles(
+    pairId: ID!
+    interval: CandleInterval!
+    startTime: DateTime
+    endTime: DateTime
+    limit: Int = 100
+  ): [Candle!]!
+
+  # Fee structure
+  feeTiers: [FeeTier!]!
+  userFeeTier(userId: ID!): UserTradingVolume
+
+  # KYC
+  kycDocuments(userId: ID!): [KYCDocument!]!
+  pendingKYCReviews: [KYCDocument!]!
+}
+
+type Mutation {
+  # User management
+  register(input: RegisterInput!): AuthResponse!
+  login(email: String!, password: String!, twoFactorCode: String): AuthResponse!
+  logout: Boolean!
+  enable2FA: TwoFactorSetup!
+  disable2FA(code: String!): Boolean!
+
+  # KYC
+  submitKYCDocument(input: KYCDocumentInput!): KYCDocument!
+  verifyKYCDocument(documentId: ID!, status: VerificationStatus!, notes: String): KYCDocument!
+
+  # Trading
+  createOrder(input: CreateOrderInput!): Order!
+  cancelOrder(orderId: ID!): Order!
+  cancelAllOrders(pairId: ID): Boolean!
+
+  # Transactions
+  requestWithdrawal(input: WithdrawalInput!): Transaction!
+  confirmWithdrawal(transactionId: ID!, code: String!): Transaction!
+  cancelWithdrawal(transactionId: ID!): Transaction!
+
+  # API keys
+  createAPIKey(input: APIKeyInput!): APIKey!
+  revokeAPIKey(keyId: ID!): Boolean!
+}
+
+type Subscription {
+  # Real-time order book updates
+  orderBookUpdate(pairId: ID!): OrderBookUpdate!
+
+  # Real-time trades
+  tradeStream(pairId: ID!): Trade!
+
+  # Real-time ticker updates
+  tickerUpdate(pairId: ID!): Ticker!
+
+  # User-specific updates
+  orderUpdate(userId: ID!): Order!
+  walletUpdate(userId: ID!): WalletUpdate!
+
+  # Price alerts
+  priceAlert(userId: ID!): PriceAlert!
+}
+
+# ============================================================================
+# USER TYPES
+# ============================================================================
+
+type User {
+  id: ID!
+  email: String!
+  username: String!
+  firstName: String
+  lastName: String
+  dateOfBirth: Date
+  nationality: String
+  phoneNumber: String
+  phoneVerified: Boolean!
+  emailVerified: Boolean!
+  kycLevel: KYCLevel!
+  kycStatus: KYCStatus!
+  status: UserStatus!
+  accountType: AccountType!
+  dailyWithdrawalLimit: Float!
+  dailyTradingLimit: Float!
+  twoFactorEnabled: Boolean!
+  referralCode: String
+  referredBy: User
+  createdAt: DateTime!
+  updatedAt: DateTime!
+
+  # Relations
+  wallets: [Wallet!]!
+  orders(limit: Int = 20): [Order!]!
+  transactions(limit: Int = 20): [Transaction!]!
+  sessions: [UserSession!]!
+  apiKeys: [APIKey!]!
+  tradingVolume: UserTradingVolume
+}
+
+type UserSession {
+  id: ID!
+  userId: ID!
+  sessionToken: String!
+  ipAddress: String
+  userAgent: String
+  deviceType: DeviceType!
+  isActive: Boolean!
+  createdAt: DateTime!
+  lastActivityAt: DateTime!
+  expiresAt: DateTime!
+}
+
+type APIKey {
+  id: ID!
+  userId: ID!
+  keyName: String!
+  apiKey: String!
+  canRead: Boolean!
+  canTrade: Boolean!
+  canWithdraw: Boolean!
+  ipWhitelist: [String!]
+  isActive: Boolean!
+  lastUsedAt: DateTime
+  expiresAt: DateTime
+  createdAt: DateTime!
+}
+
+# ============================================================================
+# CURRENCY & TRADING TYPES
+# ============================================================================
+
+type Currency {
+  id: ID!
+  symbol: String!
+  name: String!
+  currencyType: CurrencyType!
+  blockchain: String
+  contractAddress: String
+  decimals: Int!
+  isActive: Boolean!
+  canDeposit: Boolean!
+  canWithdraw: Boolean!
+  canTrade: Boolean!
+  minDeposit: Float!
+  minWithdrawal: Float!
+  withdrawalFee: Float!
+  depositConfirmations: Int!
+  iconUrl: String
+  websiteUrl: String
+  marketCapRank: Int
+}
+
+type TradingPair {
+  id: ID!
+  baseCurrency: Currency!
+  quoteCurrency: Currency!
+  symbol: String!
+  isActive: Boolean!
+  pricePrecision: Int!
+  quantityPrecision: Int!
+  minOrderValue: Float!
+  maxOrderValue: Float!
+  minQuantity: Float!
+  maxQuantity: Float!
+  makerFeeRate: Float!
+  takerFeeRate: Float!
+  lastPrice: Float
+  priceChange24h: Float
+  volume24h: Float
+  high24h: Float
+  low24h: Float
+}
+
+# ============================================================================
+# WALLET & BALANCE TYPES
+# ============================================================================
+
+type Wallet {
+  id: ID!
+  userId: ID!
+  currency: Currency!
+  depositAddress: String
+  depositTag: String
+  availableBalance: Float!
+  lockedBalance: Float!
+  totalBalance: Float!
+  totalDeposited: Float!
+  totalWithdrawn: Float!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type WalletUpdate {
+  wallet: Wallet!
+  changeType: WalletChangeType!
+  amount: Float!
+  reason: String!
+}
+
+# ============================================================================
+# ORDER & TRADING TYPES
+# ============================================================================
+
+type Order {
+  id: ID!
+  user: User!
+  pair: TradingPair!
+  orderType: OrderType!
+  side: OrderSide!
+  price: Float
+  stopPrice: Float
+  quantity: Float!
+  filledQuantity: Float!
+  remainingQuantity: Float!
+  executedValue: Float!
+  averagePrice: Float
+  feeAmount: Float!
+  feeCurrency: Currency
+  status: OrderStatus!
+  timeInForce: TimeInForce!
+  expireTime: DateTime
+  source: OrderSource!
+  ipAddress: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  cancelledAt: DateTime
+
+  # Related trades
+  trades: [Trade!]!
+}
+
+type Trade {
+  id: ID!
+  pair: TradingPair!
+  makerOrder: Order!
+  takerOrder: Order!
+  makerUser: User!
+  takerUser: User!
+  price: Float!
+  quantity: Float!
+  value: Float!
+  side: OrderSide!
+  makerFee: Float!
+  takerFee: Float!
+  feeCurrency: Currency
+  executedAt: DateTime!
+}
+
+type OrderBook {
+  pairId: ID!
+  bids: [OrderBookLevel!]!
+  asks: [OrderBookLevel!]!
+  lastUpdateId: String!
+}
+
+type OrderBookLevel {
+  price: Float!
+  quantity: Float!
+  orderCount: Int!
+}
+
+type OrderBookUpdate {
+  pairId: ID!
+  side: OrderSide!
+  price: Float!
+  quantity: Float!
+  action: UpdateAction!
+}
+
+# ============================================================================
+# TRANSACTION TYPES
+# ============================================================================
+
+type Transaction {
+  id: ID!
+  user: User!
+  wallet: Wallet!
+  currency: Currency!
+  type: TransactionType!
+  amount: Float!
+  fee: Float!
+  blockchainTxid: String
+  blockchainAddress: String
+  confirmations: Int!
+  status: TransactionStatus!
+  relatedTransaction: Transaction
+  notes: String
+  riskScore: Float
+  requiresManualReview: Boolean!
+  reviewedBy: User
+  reviewedAt: DateTime
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  completedAt: DateTime
+}
+
+# ============================================================================
+# MARKET DATA TYPES
+# ============================================================================
+
+type Ticker {
+  pair: TradingPair!
+  lastPrice: Float!
+  bidPrice: Float!
+  askPrice: Float!
+  openPrice24h: Float!
+  highPrice24h: Float!
+  lowPrice24h: Float!
+  volume24h: Float!
+  quoteVolume24h: Float!
+  priceChange24h: Float!
+  priceChangePercent24h: Float!
+  weightedAvgPrice24h: Float!
+  timestamp: DateTime!
+}
+
+type Candle {
+  pairId: ID!
+  interval: CandleInterval!
+  openTime: DateTime!
+  closeTime: DateTime!
+  openPrice: Float!
+  highPrice: Float!
+  lowPrice: Float!
+  closePrice: Float!
+  volume: Float!
+  quoteVolume: Float!
+  tradeCount: Int!
+}
+
+# ============================================================================
+# FEE & COMPLIANCE TYPES
+# ============================================================================
+
+type FeeTier {
+  id: ID!
+  tierName: String!
+  minVolume: Float!
+  maxVolume: Float
+  makerFeeRate: Float!
+  takerFeeRate: Float!
+  withdrawalFeeDiscount: Float!
+}
+
+type UserTradingVolume {
+  userId: ID!
+  volume30d: Float!
+  volume7d: Float!
+  volume24h: Float!
+  feeTier: FeeTier!
+  lastCalculatedAt: DateTime!
+}
+
+type KYCDocument {
+  id: ID!
+  user: User!
+  documentType: DocumentType!
+  documentNumber: String
+  verificationStatus: VerificationStatus!
+  verifiedBy: User
+  verificationNotes: String
+  issueDate: Date
+  expiryDate: Date
+  issuingCountry: String
+  uploadedAt: DateTime!
+  verifiedAt: DateTime
+}
+
+type PriceAlert {
+  id: ID!
+  userId: ID!
+  pair: TradingPair!
+  targetPrice: Float!
+  condition: AlertCondition!
+  triggered: Boolean!
+  message: String!
+}
+
+# ============================================================================
+# INPUT TYPES
+# ============================================================================
+
+input RegisterInput {
+  email: String!
+  username: String!
+  password: String!
+  firstName: String
+  lastName: String
+  dateOfBirth: Date
+  nationality: String
+  phoneNumber: String
+  referralCode: String
+}
+
+input CreateOrderInput {
+  pairId: ID!
+  orderType: OrderType!
+  side: OrderSide!
+  price: Float
+  stopPrice: Float
+  quantity: Float!
+  timeInForce: TimeInForce = GTC
+  expireTime: DateTime
+}
+
+input WithdrawalInput {
+  currencyId: ID!
+  amount: Float!
+  address: String!
+  tag: String
+  twoFactorCode: String!
+}
+
+input KYCDocumentInput {
+  documentType: DocumentType!
+  documentNumber: String
+  fileUpload: Upload!
+  issueDate: Date
+  expiryDate: Date
+  issuingCountry: String
+}
+
+input APIKeyInput {
+  keyName: String!
+  canRead: Boolean = true
+  canTrade: Boolean = false
+  canWithdraw: Boolean = false
+  ipWhitelist: [String!]
+  expiresAt: DateTime
+}
+
+# ============================================================================
+# RESPONSE TYPES
+# ============================================================================
+
+type AuthResponse {
+  success: Boolean!
+  message: String
+  user: User
+  sessionToken: String
+  expiresAt: DateTime
+}
+
+type TwoFactorSetup {
+  secret: String!
+  qrCode: String!
+  backupCodes: [String!]!
+}
+
+# ============================================================================
+# ENUMS
+# ============================================================================
+
+enum KYCLevel {
+  NONE
+  BASIC
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum KYCStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DORMANT
+}
+
+enum AccountType {
+  INDIVIDUAL
+  INSTITUTIONAL
+  VIP
+}
+
+enum DeviceType {
+  WEB
+  MOBILE
+  TABLET
+  API
+}
+
+enum CurrencyType {
+  CRYPTO
+  FIAT
+  STABLECOIN
+}
+
+enum OrderType {
+  LIMIT
+  MARKET
+  STOP_LIMIT
+  STOP_MARKET
+}
+
+enum OrderSide {
+  BUY
+  SELL
+}
+
+enum OrderStatus {
+  PENDING
+  OPEN
+  PARTIALLY_FILLED
+  FILLED
+  CANCELLED
+  REJECTED
+  EXPIRED
+}
+
+enum TimeInForce {
+  GTC  # Good Till Cancel
+  IOC  # Immediate or Cancel
+  FOK  # Fill or Kill
+  GTD  # Good Till Date
+}
+
+enum OrderSource {
+  WEB
+  MOBILE
+  API
+  SYSTEM
+}
+
+enum TransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  FEE
+  REWARD
+  ADJUSTMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum WalletChangeType {
+  DEPOSIT
+  WITHDRAWAL
+  TRADE
+  FEE
+  TRANSFER
+}
+
+enum CandleInterval {
+  ONE_MINUTE
+  FIVE_MINUTES
+  FIFTEEN_MINUTES
+  THIRTY_MINUTES
+  ONE_HOUR
+  FOUR_HOURS
+  ONE_DAY
+  ONE_WEEK
+  ONE_MONTH
+}
+
+enum DocumentType {
+  PASSPORT
+  DRIVERS_LICENSE
+  NATIONAL_ID
+  PROOF_OF_ADDRESS
+  BANK_STATEMENT
+  SELFIE
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum UpdateAction {
+  ADD
+  UPDATE
+  REMOVE
+}
+
+enum AlertCondition {
+  ABOVE
+  BELOW
+  CROSSES
+}
+
+# ============================================================================
+# SCALAR TYPES
+# ============================================================================
+
+scalar Date
+scalar DateTime
+scalar Upload
