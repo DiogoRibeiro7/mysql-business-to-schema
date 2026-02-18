@@ -12,7 +12,7 @@ WORKDIR /app
 # Install Python dependencies
 RUN pip install --no-cache-dir \
     faker==20.1.0 \
-    numpy==1.24.3 \
+    numpy==1.26.4 \
     pyyaml==6.0.1 \
     mysql-connector-python==8.2.0
 

@@ -13,7 +13,7 @@ license = "MIT"
 python = ">=3.10,<4.0"
 Faker = "24.11.0"
 PyYAML = "6.0.2"
-numpy = "1.24.3"
+numpy = "1.26.4"
 mysql-connector-python = "9.6.0"
 
 [tool.poetry.group.web.dependencies]
