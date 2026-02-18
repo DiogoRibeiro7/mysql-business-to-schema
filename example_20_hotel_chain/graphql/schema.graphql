@@ -1,0 +1,959 @@
+# Hotel Chain Management GraphQL Schema
+
+scalar DateTime
+scalar Date
+scalar Decimal
+scalar JSON
+
+# ============================================================================
+# ENUMS
+# ============================================================================
+
+enum PropertyType {
+  HOTEL
+  RESORT
+  BOUTIQUE
+  AIRPORT
+  EXTENDED_STAY
+  CONFERENCE_CENTER
+}
+
+enum PropertyStatus {
+  ACTIVE
+  RENOVATION
+  TEMPORARILY_CLOSED
+  PERMANENTLY_CLOSED
+}
+
+enum RoomStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  MAINTENANCE
+  OUT_OF_ORDER
+}
+
+enum HousekeepingStatus {
+  CLEAN
+  DIRTY
+  IN_PROGRESS
+  INSPECTED
+  DEEP_CLEANING
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  GUARANTEED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+  COMPLETED
+}
+
+enum BookingChannel {
+  DIRECT
+  WEBSITE
+  MOBILE_APP
+  CALL_CENTER
+  WALK_IN
+  OTA_BOOKING
+  OTA_EXPEDIA
+  CORPORATE
+  GROUP
+  TRAVEL_AGENT
+}
+
+enum VIPStatus {
+  NONE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+  INVITATION_ONLY
+}
+
+enum LoyaltyTier {
+  MEMBER
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+}
+
+enum PaymentMethod {
+  CASH
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  MOBILE_PAYMENT
+  LOYALTY_POINTS
+  VOUCHER
+  CORPORATE_ACCOUNT
+}
+
+enum ChargeType {
+  ROOM
+  TAX
+  FOOD
+  BEVERAGE
+  SPA
+  PARKING
+  TELEPHONE
+  INTERNET
+  MINIBAR
+  LAUNDRY
+  OTHER
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum RequestStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+# ============================================================================
+# TYPES
+# ============================================================================
+
+type Property {
+  propertyId: Int!
+  propertyName: String!
+  propertyType: PropertyType!
+  brandName: String
+  address: String!
+  city: String!
+  stateProvince: String!
+  postalCode: String!
+  country: String!
+  phone: String!
+  email: String!
+  website: String
+  starRating: Int
+  totalRooms: Int!
+  totalFloors: Int!
+  yearBuilt: Int
+  lastRenovation: Int
+  checkInTime: String!
+  checkOutTime: String!
+  amenities: JSON
+  locationCoordinates: String
+  status: PropertyStatus!
+  generalManager: Staff
+  rooms: [Room!]
+  reservations: [Reservation!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type RoomType {
+  roomTypeId: Int!
+  property: Property!
+  typeName: String!
+  typeCode: String!
+  category: String!
+  description: String
+  maxOccupancy: Int!
+  standardOccupancy: Int!
+  extraBedAllowed: Boolean!
+  baseRate: Decimal!
+  size: Float
+  amenities: JSON
+  isActive: Boolean!
+  rooms: [Room!]
+  ratePlans: [RatePlan!]
+}
+
+type Room {
+  roomId: Int!
+  property: Property!
+  roomType: RoomType!
+  roomNumber: String!
+  floorNumber: Int!
+  buildingSection: String
+  viewType: String
+  bedConfiguration: JSON
+  isAccessible: Boolean!
+  isSmoking: Boolean!
+  status: RoomStatus!
+  housekeepingStatus: HousekeepingStatus!
+  lastCleaned: DateTime
+  maintenanceStatus: String
+  assignments: [RoomAssignment!]
+  housekeepingTasks: [HousekeepingTask!]
+  maintenanceRequests: [MaintenanceRequest!]
+}
+
+type Guest {
+  guestId: BigInt!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  alternatePhone: String
+  address: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  dateOfBirth: Date
+  nationality: String
+  passportNumber: String
+  identityDocument: String
+  companyName: String
+  vipStatus: VIPStatus!
+  preferences: JSON
+  dietaryRestrictions: String
+  loyaltyMember: LoyaltyMember
+  marketingConsent: Boolean!
+  blacklisted: Boolean!
+  blacklistReason: String
+  totalStays: Int!
+  totalSpent: Decimal!
+  lastStayDate: Date
+  reservations: [Reservation!]
+  requests: [GuestRequest!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Reservation {
+  reservationId: BigInt!
+  confirmationNumber: String!
+  property: Property!
+  guest: Guest!
+  bookingChannel: BookingChannel!
+  checkInDate: Date!
+  checkOutDate: Date!
+  roomNights: Int!
+  adultsCount: Int!
+  childrenCount: Int!
+  roomType: RoomType!
+  rateCode: String
+  roomRate: Decimal!
+  totalAmount: Decimal!
+  depositAmount: Decimal
+  status: ReservationStatus!
+  arrivalTime: String
+  departureTime: String
+  specialRequests: String
+  internalNotes: String
+  groupBookingId: BigInt
+  isCorporate: Boolean!
+  corporateId: String
+  agent: Staff
+  broker: String
+  cancellationDate: DateTime
+  cancellationReason: String
+  roomAssignments: [RoomAssignment!]
+  folios: [Folio!]
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type RoomAssignment {
+  assignmentId: BigInt!
+  reservation: Reservation!
+  room: Room!
+  checkInDate: DateTime!
+  checkOutDate: DateTime!
+  actualCheckIn: DateTime
+  actualCheckOut: DateTime
+  adultsCount: Int!
+  childrenCount: Int!
+  status: String!
+  earlyCheckIn: Boolean!
+  lateCheckOut: Boolean!
+  upgradedFrom: Room
+  assignedBy: Staff
+}
+
+type Folio {
+  folioId: BigInt!
+  folioNumber: String!
+  property: Property!
+  reservation: Reservation
+  guest: Guest!
+  status: String!
+  totalCharges: Decimal!
+  totalPayments: Decimal!
+  balanceDue: Decimal!
+  taxAmount: Decimal!
+  currency: String!
+  masterFolioId: BigInt
+  charges: [FolioCharge!]
+  payments: [Payment!]
+  createdAt: DateTime!
+  closedAt: DateTime
+}
+
+type FolioCharge {
+  chargeId: BigInt!
+  folio: Folio!
+  chargeType: ChargeType!
+  description: String!
+  quantity: Int!
+  unitPrice: Decimal!
+  amount: Decimal!
+  taxAmount: Decimal!
+  department: String!
+  reference: String
+  postedDate: Date!
+  postedBy: Staff
+  voidedAt: DateTime
+  voidReason: String
+}
+
+type Payment {
+  paymentId: BigInt!
+  folio: Folio!
+  paymentMethod: PaymentMethod!
+  amount: Decimal!
+  currency: String!
+  referenceNumber: String
+  authorizationCode: String
+  cardLastFour: String
+  paymentDate: DateTime!
+  processedBy: Staff
+  isProcessed: Boolean!
+  refundedAmount: Decimal
+}
+
+type LoyaltyMember {
+  memberId: BigInt!
+  guest: Guest!
+  memberNumber: String!
+  tierLevel: LoyaltyTier!
+  currentPoints: Int!
+  lifetimePoints: Int!
+  ytdPoints: Int!
+  ytdNights: Int!
+  lifetimeNights: Int!
+  tierQualifyingPoints: Int!
+  nextTierPoints: Int!
+  memberSince: Date!
+  tierExpiry: Date
+  pointsExpiry: Date
+  isActive: Boolean!
+  transactions: [LoyaltyTransaction!]
+}
+
+type LoyaltyTransaction {
+  transactionId: BigInt!
+  member: LoyaltyMember!
+  transactionType: String!
+  points: Int!
+  description: String!
+  folio: Folio
+  expiryDate: Date
+  transactionDate: DateTime!
+}
+
+type Staff {
+  staffId: Int!
+  property: Property!
+  employeeId: String!
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  department: String!
+  positionTitle: String!
+  manager: Staff
+  hireDate: Date!
+  employmentStatus: String!
+  salary: Decimal
+  schedules: [StaffSchedule!]
+}
+
+type StaffSchedule {
+  scheduleId: BigInt!
+  staff: Staff!
+  property: Property!
+  shiftDate: Date!
+  shiftStart: String!
+  shiftEnd: String!
+  department: String!
+  actualStart: DateTime
+  actualEnd: DateTime
+  breakMinutes: Int!
+  overtimeHours: Float
+}
+
+type HousekeepingTask {
+  taskId: BigInt!
+  room: Room!
+  taskType: String!
+  priority: Priority!
+  status: String!
+  scheduledDate: Date!
+  scheduledTime: String
+  assignedTo: Staff
+  startedAt: DateTime
+  completedAt: DateTime
+  inspectedBy: Staff
+  inspectedAt: DateTime
+  notes: String
+  suppliesUsed: JSON
+}
+
+type MaintenanceRequest {
+  requestId: BigInt!
+  room: Room
+  property: Property!
+  issueType: String!
+  description: String!
+  priority: Priority!
+  status: String!
+  reportedBy: Staff!
+  reportedDate: DateTime!
+  assignedTo: Staff
+  estimatedCost: Decimal
+  actualCost: Decimal
+  partsRequired: JSON
+  resolutionNotes: String
+  completedAt: DateTime
+}
+
+type RestaurantReservation {
+  reservationId: BigInt!
+  outlet: RestaurantOutlet!
+  guest: Guest
+  guestName: String!
+  guestEmail: String
+  guestPhone: String!
+  reservationDate: Date!
+  timeSlot: String!
+  partySize: Int!
+  tableNumber: String
+  specialRequests: String
+  status: String!
+  noShowFlag: Boolean!
+}
+
+type RestaurantOutlet {
+  outletId: Int!
+  property: Property!
+  outletName: String!
+  cuisine: String!
+  capacity: Int!
+  operatingHours: JSON
+  dressCode: String
+  reservationsRequired: Boolean!
+  reservations: [RestaurantReservation!]
+}
+
+type EventBooking {
+  bookingId: BigInt!
+  property: Property!
+  eventSpace: EventSpace!
+  eventName: String!
+  eventType: String!
+  organizerName: String!
+  organizerEmail: String!
+  organizerPhone: String!
+  eventDate: Date!
+  startTime: String!
+  endTime: String!
+  attendeeCount: Int!
+  setupType: String!
+  equipmentNeeds: JSON
+  cateringDetails: JSON
+  specialRequirements: String
+  totalCost: Decimal!
+  depositPaid: Decimal!
+  status: String!
+}
+
+type EventSpace {
+  spaceId: Int!
+  property: Property!
+  spaceName: String!
+  spaceType: String!
+  maxCapacity: Int!
+  area: Float!
+  setupOptions: JSON
+  equipment: JSON
+  hourlyRate: Decimal!
+  fullDayRate: Decimal!
+  bookings: [EventBooking!]
+}
+
+type SpaAppointment {
+  appointmentId: BigInt!
+  property: Property!
+  guest: Guest!
+  treatmentType: String!
+  therapist: Staff
+  appointmentDate: Date!
+  startTime: String!
+  duration: Int!
+  price: Decimal!
+  specialRequests: String
+  status: String!
+  checkedIn: Boolean!
+  noShow: Boolean!
+}
+
+type GuestRequest {
+  requestId: BigInt!
+  guest: Guest!
+  reservation: Reservation
+  requestType: String!
+  requestDetails: String!
+  priority: Priority!
+  status: RequestStatus!
+  assignedTo: Staff
+  requestedAt: DateTime!
+  completedAt: DateTime
+  resolutionNotes: String
+  satisfactionRating: Int
+}
+
+type RatePlan {
+  ratePlanId: Int!
+  property: Property!
+  roomType: RoomType!
+  planName: String!
+  planCode: String!
+  description: String
+  baseRate: Decimal!
+  weekendRate: Decimal
+  minimumStay: Int!
+  maximumStay: Int
+  advanceBookingDays: Int
+  cancellationPolicy: String!
+  inclusions: JSON
+  validFrom: Date!
+  validTo: Date!
+  isActive: Boolean!
+  overrides: [RateOverride!]
+}
+
+type RateOverride {
+  overrideId: BigInt!
+  property: Property!
+  roomType: RoomType!
+  overrideDate: Date!
+  overrideRate: Decimal!
+  reason: String!
+  minimumStay: Int
+  closedToArrival: Boolean!
+  closedToDeparture: Boolean!
+  createdBy: Staff!
+}
+
+# ============================================================================
+# QUERIES
+# ============================================================================
+
+type Query {
+  # Property queries
+  property(propertyId: Int!): Property
+  properties(
+    status: PropertyStatus
+    brandName: String
+    city: String
+    limit: Int
+    offset: Int
+  ): [Property!]
+
+  # Room queries
+  room(roomId: Int!): Room
+  availableRooms(
+    propertyId: Int!
+    checkInDate: Date!
+    checkOutDate: Date!
+    roomType: String
+    maxRate: Decimal
+  ): [Room!]
+
+  # Guest queries
+  guest(guestId: BigInt!): Guest
+  guestByEmail(email: String!): Guest
+  searchGuests(
+    query: String!
+    limit: Int
+  ): [Guest!]
+
+  # Reservation queries
+  reservation(reservationId: BigInt!): Reservation
+  reservationByConfirmation(confirmationNumber: String!): Reservation
+  todaysArrivals(propertyId: Int!): [Reservation!]
+  todaysDepartures(propertyId: Int!): [Reservation!]
+
+  # Folio queries
+  folio(folioId: BigInt!): Folio
+  openFolios(propertyId: Int!): [Folio!]
+
+  # Loyalty queries
+  loyaltyMember(memberNumber: String!): LoyaltyMember
+
+  # Staff queries
+  staff(staffId: Int!): Staff
+  staffSchedule(
+    propertyId: Int!
+    date: Date!
+    department: String
+  ): [StaffSchedule!]
+
+  # Reports
+  occupancyReport(
+    propertyId: Int!
+    startDate: Date!
+    endDate: Date!
+  ): OccupancyReport
+
+  revenueReport(
+    propertyId: Int!
+    startDate: Date!
+    endDate: Date!
+  ): RevenueReport
+}
+
+# ============================================================================
+# MUTATIONS
+# ============================================================================
+
+type Mutation {
+  # Property management
+  createProperty(input: CreatePropertyInput!): Property!
+  updateProperty(propertyId: Int!, input: UpdatePropertyInput!): Property!
+
+  # Room management
+  createRoom(input: CreateRoomInput!): Room!
+  updateRoomStatus(
+    roomId: Int!
+    status: RoomStatus!
+    reason: String
+  ): Room!
+
+  # Guest management
+  createGuest(input: CreateGuestInput!): Guest!
+  updateGuest(guestId: BigInt!, input: UpdateGuestInput!): Guest!
+
+  # Reservation management
+  createReservation(input: CreateReservationInput!): Reservation!
+  updateReservation(
+    reservationId: BigInt!
+    input: UpdateReservationInput!
+  ): Reservation!
+  cancelReservation(
+    reservationId: BigInt!
+    reason: String!
+  ): Reservation!
+
+  # Check-in/Check-out
+  checkIn(
+    reservationId: BigInt!
+    roomId: Int!
+  ): RoomAssignment!
+  checkOut(
+    assignmentId: BigInt!
+  ): RoomAssignment!
+
+  # Folio management
+  createCharge(input: CreateChargeInput!): FolioCharge!
+  voidCharge(
+    chargeId: BigInt!
+    reason: String!
+  ): FolioCharge!
+  processPayment(input: ProcessPaymentInput!): Payment!
+  closeFolio(folioId: BigInt!): Folio!
+
+  # Loyalty management
+  enrollLoyaltyMember(guestId: BigInt!): LoyaltyMember!
+  addLoyaltyPoints(
+    memberId: BigInt!
+    points: Int!
+    description: String!
+  ): LoyaltyTransaction!
+  redeemPoints(
+    memberId: BigInt!
+    points: Int!
+    folioId: BigInt!
+  ): LoyaltyTransaction!
+
+  # Housekeeping management
+  createHousekeepingTask(input: CreateHousekeepingTaskInput!): HousekeepingTask!
+  assignHousekeepingTask(
+    taskId: BigInt!
+    staffId: Int!
+  ): HousekeepingTask!
+  completeHousekeepingTask(
+    taskId: BigInt!
+    notes: String
+  ): HousekeepingTask!
+
+  # Maintenance management
+  createMaintenanceRequest(input: CreateMaintenanceRequestInput!): MaintenanceRequest!
+  assignMaintenanceRequest(
+    requestId: BigInt!
+    staffId: Int!
+  ): MaintenanceRequest!
+  completeMaintenanceRequest(
+    requestId: BigInt!
+    resolutionNotes: String!
+    actualCost: Decimal
+  ): MaintenanceRequest!
+
+  # Guest services
+  createGuestRequest(input: CreateGuestRequestInput!): GuestRequest!
+  assignGuestRequest(
+    requestId: BigInt!
+    staffId: Int!
+  ): GuestRequest!
+  completeGuestRequest(
+    requestId: BigInt!
+    resolutionNotes: String
+  ): GuestRequest!
+
+  # Rate management
+  createRatePlan(input: CreateRatePlanInput!): RatePlan!
+  createRateOverride(input: CreateRateOverrideInput!): RateOverride!
+}
+
+# ============================================================================
+# SUBSCRIPTIONS
+# ============================================================================
+
+type Subscription {
+  # Real-time reservation updates
+  reservationUpdated(propertyId: Int!): Reservation!
+
+  # Room status changes
+  roomStatusChanged(propertyId: Int!): Room!
+
+  # New guest requests
+  newGuestRequest(propertyId: Int!): GuestRequest!
+
+  # Housekeeping updates
+  housekeepingTaskUpdated(propertyId: Int!): HousekeepingTask!
+
+  # Maintenance alerts
+  newMaintenanceRequest(propertyId: Int!): MaintenanceRequest!
+
+  # Check-in/out notifications
+  guestCheckedIn(propertyId: Int!): RoomAssignment!
+  guestCheckedOut(propertyId: Int!): RoomAssignment!
+}
+
+# ============================================================================
+# INPUT TYPES
+# ============================================================================
+
+input CreatePropertyInput {
+  propertyName: String!
+  propertyType: PropertyType!
+  brandName: String
+  address: String!
+  city: String!
+  stateProvince: String!
+  postalCode: String!
+  country: String!
+  phone: String!
+  email: String!
+  website: String
+  starRating: Int
+  totalRooms: Int!
+  totalFloors: Int!
+  checkInTime: String!
+  checkOutTime: String!
+  amenities: JSON
+  locationCoordinates: String
+}
+
+input UpdatePropertyInput {
+  propertyName: String
+  status: PropertyStatus
+  phone: String
+  email: String
+  website: String
+  checkInTime: String
+  checkOutTime: String
+  amenities: JSON
+}
+
+input CreateRoomInput {
+  propertyId: Int!
+  roomTypeId: Int!
+  roomNumber: String!
+  floorNumber: Int!
+  buildingSection: String
+  viewType: String
+  isAccessible: Boolean
+  isSmoking: Boolean
+}
+
+input CreateGuestInput {
+  firstName: String!
+  lastName: String!
+  email: String!
+  phoneNumber: String!
+  address: String
+  city: String
+  stateProvince: String
+  postalCode: String
+  country: String
+  dateOfBirth: Date
+  nationality: String
+  passportNumber: String
+  preferences: JSON
+}
+
+input UpdateGuestInput {
+  firstName: String
+  lastName: String
+  email: String
+  phoneNumber: String
+  address: String
+  preferences: JSON
+  vipStatus: VIPStatus
+  marketingConsent: Boolean
+}
+
+input CreateReservationInput {
+  propertyId: Int!
+  guestId: BigInt!
+  checkInDate: Date!
+  checkOutDate: Date!
+  roomTypeId: Int!
+  adultsCount: Int!
+  childrenCount: Int
+  roomRate: Decimal!
+  bookingChannel: BookingChannel!
+  specialRequests: String
+  arrivalTime: String
+}
+
+input UpdateReservationInput {
+  checkInDate: Date
+  checkOutDate: Date
+  roomTypeId: Int
+  adultsCount: Int
+  childrenCount: Int
+  arrivalTime: String
+  specialRequests: String
+  status: ReservationStatus
+}
+
+input CreateChargeInput {
+  folioId: BigInt!
+  chargeType: ChargeType!
+  description: String!
+  quantity: Int!
+  unitPrice: Decimal!
+  department: String!
+  reference: String
+}
+
+input ProcessPaymentInput {
+  folioId: BigInt!
+  paymentMethod: PaymentMethod!
+  amount: Decimal!
+  referenceNumber: String
+  authorizationCode: String
+  cardLastFour: String
+}
+
+input CreateHousekeepingTaskInput {
+  roomId: Int!
+  taskType: String!
+  priority: Priority!
+  scheduledDate: Date!
+  scheduledTime: String
+  notes: String
+}
+
+input CreateMaintenanceRequestInput {
+  roomId: Int
+  propertyId: Int!
+  issueType: String!
+  description: String!
+  priority: Priority!
+  estimatedCost: Decimal
+}
+
+input CreateGuestRequestInput {
+  guestId: BigInt!
+  reservationId: BigInt
+  requestType: String!
+  requestDetails: String!
+  priority: Priority!
+}
+
+input CreateRatePlanInput {
+  propertyId: Int!
+  roomTypeId: Int!
+  planName: String!
+  planCode: String!
+  description: String
+  baseRate: Decimal!
+  weekendRate: Decimal
+  minimumStay: Int
+  maximumStay: Int
+  cancellationPolicy: String!
+  validFrom: Date!
+  validTo: Date!
+}
+
+input CreateRateOverrideInput {
+  propertyId: Int!
+  roomTypeId: Int!
+  overrideDate: Date!
+  overrideRate: Decimal!
+  reason: String!
+  minimumStay: Int
+  closedToArrival: Boolean
+  closedToDeparture: Boolean
+}
+
+# ============================================================================
+# REPORT TYPES
+# ============================================================================
+
+type OccupancyReport {
+  propertyId: Int!
+  period: String!
+  totalRooms: Int!
+  roomsSold: Int!
+  occupancyRate: Float!
+  adr: Decimal!
+  revpar: Decimal!
+  dailyStats: [DailyOccupancy!]
+}
+
+type DailyOccupancy {
+  date: Date!
+  roomsSold: Int!
+  occupancyRate: Float!
+  adr: Decimal!
+  revpar: Decimal!
+}
+
+type RevenueReport {
+  propertyId: Int!
+  period: String!
+  roomRevenue: Decimal!
+  fbRevenue: Decimal!
+  otherRevenue: Decimal!
+  totalRevenue: Decimal!
+  departmentBreakdown: [DepartmentRevenue!]
+}
+
+type DepartmentRevenue {
+  department: String!
+  revenue: Decimal!
+  transactionCount: Int!
+  averageTransaction: Decimal!
+}

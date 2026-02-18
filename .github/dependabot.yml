@@ -11,34 +11,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-    reviewers:
-      - "diogoribeiro7"
-
-  - package-ecosystem: "pip"
-    directory: "/web_interface"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "diogoribeiro7"
-
-  - package-ecosystem: "pip"
-    directory: "/generators/education"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "diogoribeiro7"
-
-  - package-ecosystem: "pip"
-    directory: "/generators/event_ticketing"
-    schedule:
-      interval: "weekly"
-    reviewers:
-      - "diogoribeiro7"
-
-  - package-ecosystem: "pip"
-    directory: "/generators/real_estate"
-    schedule:
-      interval: "weekly"
+    versioning-strategy: "lockfile-only"
     reviewers:
       - "diogoribeiro7"
 
