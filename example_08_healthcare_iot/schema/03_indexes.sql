@@ -17,8 +17,7 @@ CREATE INDEX idx_patient_mrn
 
 -- Active admissions lookup
 CREATE INDEX idx_active_admissions
-    ON admissions(status, hospital_id, department_id)
-    WHERE status = 'Active';
+    ON admissions(status, hospital_id, department_id);
 
 -- Admission history by patient
 CREATE INDEX idx_admission_history
@@ -26,8 +25,7 @@ CREATE INDEX idx_admission_history
 
 -- Emergency admissions
 CREATE INDEX idx_emergency_admissions
-    ON admissions(admission_type, admission_date DESC)
-    WHERE admission_type = 'Emergency';
+    ON admissions(admission_type, admission_date DESC);
 
 -- ============================================================================
 -- Vital Signs Monitoring Indexes
@@ -39,24 +37,19 @@ CREATE INDEX idx_vitals_realtime
 
 -- High risk patients (EWS >= 5)
 CREATE INDEX idx_high_risk_patients
-    ON vital_signs(early_warning_score DESC, recorded_at DESC)
-    WHERE early_warning_score >= 5;
+    ON vital_signs(early_warning_score DESC, recorded_at DESC);
 
 -- Critical vital signs
 CREATE INDEX idx_critical_vitals
-    ON vital_signs(recorded_at DESC)
-    WHERE oxygen_saturation < 88 OR systolic_bp < 90 OR systolic_bp > 180
-       OR heart_rate < 40 OR heart_rate > 150;
+    ON vital_signs(recorded_at DESC);
 
 -- Device-based vital signs
 CREATE INDEX idx_vitals_by_device
-    ON vital_signs(device_id, recorded_at DESC)
-    WHERE device_id IS NOT NULL;
+    ON vital_signs(device_id, recorded_at DESC);
 
 -- Manual vital signs entries
 CREATE INDEX idx_manual_vitals
-    ON vital_signs(recorded_by, recorded_at DESC)
-    WHERE is_manual_entry = TRUE;
+    ON vital_signs(recorded_by, recorded_at DESC);
 
 -- ============================================================================
 -- Device Management Indexes
@@ -64,23 +57,19 @@ CREATE INDEX idx_manual_vitals
 
 -- Active devices by location
 CREATE INDEX idx_device_location
-    ON devices(hospital_id, department_id, room_id, is_active)
-    WHERE is_active = TRUE;
+    ON devices(hospital_id, department_id, room_id, is_active);
 
 -- Devices needing maintenance
 CREATE INDEX idx_device_maintenance
-    ON devices(next_maintenance_date, device_type)
-    WHERE is_active = TRUE;
+    ON devices(next_maintenance_date, device_type);
 
 -- Offline devices
 CREATE INDEX idx_offline_devices
-    ON devices(connectivity_status, last_seen)
-    WHERE connectivity_status = 'Offline';
+    ON devices(connectivity_status, last_seen);
 
 -- Device assignments
 CREATE INDEX idx_device_assignment_active
-    ON device_assignments(patient_id, device_id, is_active)
-    WHERE is_active = TRUE;
+    ON device_assignments(patient_id, device_id, is_active);
 
 -- Device readings by metric
 CREATE INDEX idx_device_readings_metric
@@ -96,13 +85,11 @@ CREATE INDEX idx_device_readings_recent
 
 -- Unacknowledged critical alerts
 CREATE INDEX idx_unack_critical_alerts
-    ON alerts(alert_type, triggered_at DESC, acknowledged_at)
-    WHERE acknowledged_at IS NULL AND alert_type = 'Critical';
+    ON alerts(alert_type, triggered_at DESC, acknowledged_at);
 
 -- All unacknowledged alerts
 CREATE INDEX idx_unack_alerts
-    ON alerts(acknowledged_at, alert_type, triggered_at DESC)
-    WHERE acknowledged_at IS NULL;
+    ON alerts(acknowledged_at, alert_type, triggered_at DESC);
 
 -- Patient alert history
 CREATE INDEX idx_patient_alerts
@@ -110,18 +97,15 @@ CREATE INDEX idx_patient_alerts
 
 -- Alert response metrics
 CREATE INDEX idx_alert_response
-    ON alerts(alert_type, response_time_seconds, triggered_at DESC)
-    WHERE acknowledged_at IS NOT NULL;
+    ON alerts(alert_type, response_time_seconds, triggered_at DESC);
 
 -- Escalated alerts
 CREATE INDEX idx_escalated_alerts
-    ON alerts(escalated, triggered_at DESC)
-    WHERE escalated = TRUE;
+    ON alerts(escalated, triggered_at DESC);
 
 -- Alert rules by metric
 CREATE INDEX idx_alert_rules_metric
-    ON alert_rules(metric_type, is_active, severity)
-    WHERE is_active = TRUE;
+    ON alert_rules(metric_type, is_active, severity);
 
 -- ============================================================================
 -- Medication Management Indexes
@@ -129,13 +113,11 @@ CREATE INDEX idx_alert_rules_metric
 
 -- Active prescriptions by patient
 CREATE INDEX idx_active_prescriptions
-    ON prescriptions(patient_id, is_active, start_date)
-    WHERE is_active = TRUE;
+    ON prescriptions(patient_id, is_active, start_date);
 
 -- PRN medications
 CREATE INDEX idx_prn_medications
-    ON prescriptions(patient_id, is_prn, is_active)
-    WHERE is_prn = TRUE AND is_active = TRUE;
+    ON prescriptions(patient_id, is_prn, is_active);
 
 -- Medication administration schedule
 CREATE INDEX idx_mar_schedule
@@ -143,8 +125,7 @@ CREATE INDEX idx_mar_schedule
 
 -- Missed medications
 CREATE INDEX idx_missed_medications
-    ON medication_administration(scheduled_time DESC, patient_id)
-    WHERE missed = TRUE;
+    ON medication_administration(scheduled_time DESC, patient_id);
 
 -- Medication search
 CREATE FULLTEXT INDEX ft_medication_search
@@ -152,8 +133,7 @@ CREATE FULLTEXT INDEX ft_medication_search
 
 -- Controlled substances
 CREATE INDEX idx_controlled_substances
-    ON medications(controlled_substance_schedule)
-    WHERE controlled_substance_schedule IS NOT NULL;
+    ON medications(controlled_substance_schedule);
 
 -- ============================================================================
 -- Laboratory Indexes
@@ -161,13 +141,11 @@ CREATE INDEX idx_controlled_substances
 
 -- Pending lab orders
 CREATE INDEX idx_pending_labs
-    ON lab_orders(status, priority, order_date)
-    WHERE status IN ('Ordered', 'Collected', 'Processing');
+    ON lab_orders(status, priority, order_date);
 
 -- STAT lab orders
 CREATE INDEX idx_stat_labs
-    ON lab_orders(priority, order_date DESC)
-    WHERE priority = 'STAT';
+    ON lab_orders(priority, order_date DESC);
 
 -- Lab results by patient
 CREATE INDEX idx_lab_results_patient
@@ -175,8 +153,7 @@ CREATE INDEX idx_lab_results_patient
 
 -- Abnormal lab results
 CREATE INDEX idx_abnormal_labs
-    ON lab_results(abnormal_flag, resulted_at DESC)
-    WHERE abnormal_flag IN ('Critical Low', 'Critical High', 'Low', 'High');
+    ON lab_results(abnormal_flag, resulted_at DESC);
 
 -- ============================================================================
 -- Staff Management Indexes
@@ -184,13 +161,11 @@ CREATE INDEX idx_abnormal_labs
 
 -- Active staff by department
 CREATE INDEX idx_staff_department
-    ON staff(department_id, role, is_active)
-    WHERE is_active = TRUE;
+    ON staff(department_id, role, is_active);
 
 -- Staff license expiry
 CREATE INDEX idx_staff_license_expiry
-    ON staff(license_expiry, is_active)
-    WHERE is_active = TRUE AND license_expiry IS NOT NULL;
+    ON staff(license_expiry, is_active);
 
 -- Staff schedule lookup
 CREATE INDEX idx_staff_schedule_lookup
@@ -198,8 +173,7 @@ CREATE INDEX idx_staff_schedule_lookup
 
 -- On-call staff
 CREATE INDEX idx_oncall_staff
-    ON staff_schedules(shift_date, is_on_call, department_id)
-    WHERE is_on_call = TRUE;
+    ON staff_schedules(shift_date, is_on_call, department_id);
 
 -- ============================================================================
 -- Clinical Documentation Indexes
@@ -211,13 +185,11 @@ CREATE INDEX idx_notes_patient
 
 -- Unsigned notes
 CREATE INDEX idx_unsigned_notes
-    ON clinical_notes(is_signed, author_id, note_date)
-    WHERE is_signed = FALSE;
+    ON clinical_notes(is_signed, author_id, note_date);
 
 -- Notes requiring cosignature
 CREATE INDEX idx_notes_cosign
-    ON clinical_notes(cosigner_id, cosigned_at)
-    WHERE cosigner_id IS NOT NULL AND cosigned_at IS NULL;
+    ON clinical_notes(cosigner_id, cosigned_at);
 
 -- ============================================================================
 -- Emergency Response Indexes
@@ -225,8 +197,7 @@ CREATE INDEX idx_notes_cosign
 
 -- Active emergency events
 CREATE INDEX idx_active_emergencies
-    ON emergency_events(resolved_at, event_type, initiated_at DESC)
-    WHERE resolved_at IS NULL;
+    ON emergency_events(resolved_at, event_type, initiated_at DESC);
 
 -- Emergency event history
 CREATE INDEX idx_emergency_history
@@ -234,8 +205,7 @@ CREATE INDEX idx_emergency_history
 
 -- Code blue events
 CREATE INDEX idx_code_blue
-    ON emergency_events(event_type, initiated_at DESC)
-    WHERE event_type = 'Code Blue';
+    ON emergency_events(event_type, initiated_at DESC);
 
 -- ============================================================================
 -- Room and Bed Management Indexes
@@ -243,18 +213,15 @@ CREATE INDEX idx_code_blue
 
 -- Available rooms
 CREATE INDEX idx_available_rooms
-    ON rooms(department_id, room_type, is_occupied)
-    WHERE is_occupied = FALSE;
+    ON rooms(department_id, room_type, is_occupied);
 
 -- ICU beds
 CREATE INDEX idx_icu_beds
-    ON rooms(is_occupied, room_type)
-    WHERE room_type = 'ICU';
+    ON rooms(is_occupied, room_type);
 
 -- Isolation rooms
 CREATE INDEX idx_isolation_rooms
-    ON rooms(is_isolation, is_occupied, department_id)
-    WHERE is_isolation = TRUE;
+    ON rooms(is_isolation, is_occupied, department_id);
 
 -- ============================================================================
 -- Analytics and Reporting Indexes
@@ -266,8 +233,7 @@ CREATE INDEX idx_daily_summary
 
 -- High risk summary
 CREATE INDEX idx_high_risk_summary
-    ON patient_daily_summary(summary_date, max_early_warning_score DESC)
-    WHERE max_early_warning_score >= 5;
+    ON patient_daily_summary(summary_date, max_early_warning_score DESC);
 
 -- Department metrics
 CREATE INDEX idx_dept_metrics
@@ -275,8 +241,7 @@ CREATE INDEX idx_dept_metrics
 
 -- Length of stay analysis
 CREATE INDEX idx_los_analysis
-    ON admissions(admission_date, discharge_date, department_id)
-    WHERE discharge_date IS NOT NULL;
+    ON admissions(admission_date, discharge_date, department_id);
 
 -- ============================================================================
 -- HIPAA Audit Indexes
@@ -292,8 +257,7 @@ CREATE INDEX idx_audit_user
 
 -- PHI access audit
 CREATE INDEX idx_phi_audit
-    ON audit_log(table_name, operation, timestamp DESC)
-    WHERE table_name IN ('patients', 'vital_signs', 'prescriptions', 'lab_results');
+    ON audit_log(table_name, operation, timestamp DESC);
 
 -- ============================================================================
 -- Full-Text Search Indexes
@@ -345,18 +309,15 @@ CREATE INDEX idx_patient_monitor_dashboard
 
 -- Department census
 CREATE INDEX idx_department_census
-    ON admissions(department_id, status, admission_date, patient_id)
-    WHERE status = 'Active';
+    ON admissions(department_id, status, admission_date, patient_id);
 
 -- Medication due list
 CREATE INDEX idx_medication_due
-    ON medication_administration(scheduled_time, taken, patient_id, prescription_id)
-    WHERE taken = FALSE AND scheduled_time >= CURRENT_DATE;
+    ON medication_administration(scheduled_time, taken, patient_id, prescription_id);
 
 -- Device status dashboard
 CREATE INDEX idx_device_dashboard
-    ON devices(hospital_id, connectivity_status, device_type, last_seen, battery_level)
-    WHERE is_active = TRUE;
+    ON devices(hospital_id, connectivity_status, device_type, last_seen, battery_level);
 
 -- ============================================================================
 -- Partitioned Table Optimization

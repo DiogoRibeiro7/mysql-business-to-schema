@@ -14,18 +14,15 @@ CREATE INDEX idx_gps_vehicle_tracking
 
 -- Index for driver location history
 CREATE INDEX idx_gps_driver_tracking
-    ON gps_positions(driver_id, timestamp DESC)
-    WHERE driver_id IS NOT NULL;
+    ON gps_positions(driver_id, timestamp DESC);
 
 -- Index for speed violations
 CREATE INDEX idx_gps_speeding
-    ON gps_positions(speed_mph, timestamp DESC)
-    WHERE speed_mph > 70;
+    ON gps_positions(speed_mph, timestamp DESC);
 
 -- Index for idle detection
 CREATE INDEX idx_gps_idle
-    ON gps_positions(vehicle_id, timestamp, speed_mph)
-    WHERE ignition_on = TRUE AND speed_mph < 5;
+    ON gps_positions(vehicle_id, timestamp, speed_mph);
 
 -- Spatial index for location-based queries (if using spatial extensions)
 -- CREATE SPATIAL INDEX idx_gps_spatial ON gps_positions(POINT(latitude, longitude));
@@ -36,8 +33,7 @@ CREATE INDEX idx_gps_idle
 
 -- Active trips lookup
 CREATE INDEX idx_active_trips
-    ON trips(status, vehicle_id, driver_id)
-    WHERE status = 'in_progress';
+    ON trips(status, vehicle_id, driver_id);
 
 -- Trip history by vehicle
 CREATE INDEX idx_trip_history_vehicle
@@ -49,8 +45,7 @@ CREATE INDEX idx_trip_history_driver
 
 -- Long trips detection
 CREATE INDEX idx_long_trips
-    ON trips(distance_miles DESC, duration_minutes DESC)
-    WHERE distance_miles > 500;
+    ON trips(distance_miles DESC, duration_minutes DESC);
 
 -- Stop analysis
 CREATE INDEX idx_stop_analysis
@@ -66,13 +61,11 @@ CREATE INDEX idx_driver_event_analysis
 
 -- High severity events
 CREATE INDEX idx_severe_events
-    ON driver_events(severity, timestamp DESC)
-    WHERE severity = 'high';
+    ON driver_events(severity, timestamp DESC);
 
 -- Speeding events
 CREATE INDEX idx_speeding_events
-    ON driver_events(event_type, timestamp DESC, speed_mph)
-    WHERE event_type = 'speeding';
+    ON driver_events(event_type, timestamp DESC, speed_mph);
 
 -- Driver performance tracking
 CREATE INDEX idx_driver_performance
@@ -80,8 +73,7 @@ CREATE INDEX idx_driver_performance
 
 -- Low performing drivers
 CREATE INDEX idx_low_scores
-    ON driver_scores(overall_score, score_date DESC)
-    WHERE overall_score < 70;
+    ON driver_scores(overall_score, score_date DESC);
 
 -- ============================================================================
 -- Vehicle Management Indexes
@@ -89,18 +81,15 @@ CREATE INDEX idx_low_scores
 
 -- Active vehicles by depot
 CREATE INDEX idx_active_vehicles_depot
-    ON vehicles(depot_id, status, vehicle_type)
-    WHERE status = 'active';
+    ON vehicles(depot_id, status, vehicle_type);
 
 -- Maintenance due
 CREATE INDEX idx_maintenance_due
-    ON vehicles(next_service_miles, last_service_date)
-    WHERE status = 'active';
+    ON vehicles(next_service_miles, last_service_date);
 
 -- Vehicle diagnostics alerts
 CREATE INDEX idx_diagnostic_alerts
-    ON vehicle_diagnostics(vehicle_id, timestamp DESC, check_engine_light)
-    WHERE check_engine_light = TRUE;
+    ON vehicle_diagnostics(vehicle_id, timestamp DESC, check_engine_light);
 
 -- Maintenance history
 CREATE INDEX idx_maintenance_history
@@ -120,8 +109,7 @@ CREATE INDEX idx_fuel_efficiency
 
 -- Fuel card usage
 CREATE INDEX idx_fuel_card_usage
-    ON fuel_transactions(payment_method, driver_id, transaction_date)
-    WHERE payment_method = 'fuel_card';
+    ON fuel_transactions(payment_method, driver_id, transaction_date);
 
 -- ============================================================================
 -- Compliance Indexes
@@ -133,8 +121,7 @@ CREATE INDEX idx_driver_log_lookup
 
 -- Active duty status
 CREATE INDEX idx_active_duty
-    ON driver_logs(duty_status, start_time DESC)
-    WHERE end_time IS NULL;
+    ON driver_logs(duty_status, start_time DESC);
 
 -- HOS violation tracking
 CREATE INDEX idx_hos_violations
@@ -142,18 +129,15 @@ CREATE INDEX idx_hos_violations
 
 -- Unresolved violations
 CREATE INDEX idx_unresolved_violations
-    ON hos_violations(resolved, severity, violation_date)
-    WHERE resolved = FALSE;
+    ON hos_violations(resolved, severity, violation_date);
 
 -- DVIR with defects
 CREATE INDEX idx_dvir_defects
-    ON dvir_reports(defects_found, vehicle_id, inspection_date)
-    WHERE defects_found = TRUE;
+    ON dvir_reports(defects_found, vehicle_id, inspection_date);
 
 -- Unrepaired defects
 CREATE INDEX idx_unrepaired_defects
-    ON dvir_reports(repaired, inspection_date)
-    WHERE defects_found = TRUE AND repaired = FALSE;
+    ON dvir_reports(repaired, inspection_date);
 
 -- ============================================================================
 -- Geofencing Indexes
@@ -161,8 +145,7 @@ CREATE INDEX idx_unrepaired_defects
 
 -- Active geofences
 CREATE INDEX idx_active_geofences_lookup
-    ON geofences(company_id, geofence_type, is_active)
-    WHERE is_active = TRUE;
+    ON geofences(company_id, geofence_type, is_active);
 
 -- Geofence event history
 CREATE INDEX idx_geofence_event_history
@@ -178,8 +161,7 @@ CREATE INDEX idx_vehicle_geofence_activity
 
 -- Active routes by depot
 CREATE INDEX idx_active_routes_depot
-    ON routes(depot_id, is_active)
-    WHERE is_active = TRUE;
+    ON routes(depot_id, is_active);
 
 -- ============================================================================
 -- Communication Indexes
@@ -187,13 +169,11 @@ CREATE INDEX idx_active_routes_depot
 
 -- Unread messages
 CREATE INDEX idx_unread_messages
-    ON messages(recipient_type, recipient_id, read_status, sent_at DESC)
-    WHERE read_status = FALSE;
+    ON messages(recipient_type, recipient_id, read_status, sent_at DESC);
 
 -- High priority messages
 CREATE INDEX idx_priority_messages
-    ON messages(priority, sent_at DESC)
-    WHERE priority IN ('high', 'urgent');
+    ON messages(priority, sent_at DESC);
 
 -- ============================================================================
 -- Analytics and Reporting Indexes
@@ -209,13 +189,11 @@ CREATE INDEX idx_high_mileage
 
 -- License expiry tracking
 CREATE INDEX idx_license_expiry
-    ON drivers(license_expiry, status)
-    WHERE status = 'active';
+    ON drivers(license_expiry, status);
 
 -- Medical cert expiry
 CREATE INDEX idx_medical_expiry
-    ON drivers(medical_cert_expiry, status)
-    WHERE status = 'active' AND medical_cert_expiry IS NOT NULL;
+    ON drivers(medical_cert_expiry, status);
 
 -- ============================================================================
 -- Full-Text Search Indexes
@@ -260,13 +238,11 @@ ALTER TABLE dvir_reports ADD INDEX idx_defect_types
 
 -- Fleet dashboard query
 CREATE INDEX idx_fleet_dashboard
-    ON vehicles(company_id, status, vehicle_type, depot_id, odometer_miles)
-    WHERE status = 'active';
+    ON vehicles(company_id, status, vehicle_type, depot_id, odometer_miles);
 
 -- Driver dashboard query
 CREATE INDEX idx_driver_dashboard
-    ON drivers(company_id, status, license_class, license_expiry)
-    WHERE status = 'active';
+    ON drivers(company_id, status, license_class, license_expiry);
 
 -- Real-time tracking query
 CREATE INDEX idx_realtime_tracking

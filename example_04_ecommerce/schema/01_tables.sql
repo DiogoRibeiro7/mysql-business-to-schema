@@ -739,7 +739,7 @@ CREATE TABLE IF NOT EXISTS return_items (
     return_id INT UNSIGNED NOT NULL,
     order_item_id INT UNSIGNED NOT NULL,
     quantity INT UNSIGNED NOT NULL,
-    condition ENUM('unopened', 'opened', 'used', 'damaged', 'defective') NOT NULL,
+    item_condition ENUM('unopened', 'opened', 'used', 'damaged', 'defective') NOT NULL,
     refund_amount DECIMAL(10, 2),
     replacement_sent BOOLEAN DEFAULT FALSE,
     notes TEXT,
@@ -789,5 +789,4 @@ CREATE TABLE IF NOT EXISTS email_queue (
 
 -- Display confirmation
 SELECT 'All e-commerce tables created successfully' AS Status;
-SELECT COUNT(*) AS table_count FROM information_schema.tables
-WHERE table_schema = 'ecommerce';
+SELECT COUNT(*) AS table_count FROM information_schema.tables,

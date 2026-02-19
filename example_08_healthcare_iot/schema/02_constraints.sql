@@ -261,7 +261,7 @@ ALTER TABLE vital_signs
 
 -- Ensure valid patient data
 ALTER TABLE patients
-    ADD CONSTRAINT chk_patient_age CHECK (date_of_birth <= CURDATE()),
+    ADD CONSTRAINT chk_patient_age CHECK (date_of_birth <= '2100-01-01'),
     ADD CONSTRAINT chk_height CHECK (height_cm BETWEEN 0 AND 300),
     ADD CONSTRAINT chk_weight CHECK (weight_kg BETWEEN 0 AND 500);
 

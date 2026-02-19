@@ -89,7 +89,6 @@ CREATE TABLE customer_addresses (
     PRIMARY KEY (address_id),
     INDEX idx_customer (customer_id),
     INDEX idx_location (latitude, longitude),
-    SPATIAL INDEX idx_spatial_location (POINT(latitude, longitude)),
     FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
 ) ENGINE=InnoDB;
 
@@ -162,7 +161,6 @@ CREATE TABLE restaurants (
     INDEX idx_status (status),
     INDEX idx_location (latitude, longitude),
     INDEX idx_rating (average_rating DESC),
-    SPATIAL INDEX idx_spatial_location (POINT(latitude, longitude)),
     FULLTEXT INDEX ft_name_cuisine (name, cuisine_types)
 ) ENGINE=InnoDB;
 
@@ -374,7 +372,6 @@ CREATE TABLE drivers (
     INDEX idx_available (is_available, status),
     INDEX idx_location (current_latitude, current_longitude),
     INDEX idx_rating (average_rating DESC),
-    SPATIAL INDEX idx_spatial_location (POINT(current_latitude, current_longitude))
 ) ENGINE=InnoDB;
 
 -- Driver shift schedule
@@ -571,14 +568,7 @@ CREATE TABLE delivery_tracking (
     INDEX idx_location (latitude, longitude),
     FOREIGN KEY (order_id) REFERENCES orders(order_id),
     FOREIGN KEY (driver_id) REFERENCES drivers(driver_id)
-) ENGINE=InnoDB
-PARTITION BY RANGE (UNIX_TIMESTAMP(recorded_at)) (
-    PARTITION p_2024_q1 VALUES LESS THAN (UNIX_TIMESTAMP('2024-04-01')),
-    PARTITION p_2024_q2 VALUES LESS THAN (UNIX_TIMESTAMP('2024-07-01')),
-    PARTITION p_2024_q3 VALUES LESS THAN (UNIX_TIMESTAMP('2024-10-01')),
-    PARTITION p_2024_q4 VALUES LESS THAN (UNIX_TIMESTAMP('2025-01-01')),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- ZONES AND SURGE PRICING
@@ -615,7 +605,6 @@ CREATE TABLE delivery_zones (
 
     PRIMARY KEY (zone_id),
     UNIQUE KEY uk_name (name),
-    SPATIAL INDEX idx_boundary (boundary)
 ) ENGINE=InnoDB;
 
 -- ============================================================================

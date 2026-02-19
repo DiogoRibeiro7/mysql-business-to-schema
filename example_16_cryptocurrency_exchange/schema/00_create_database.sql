@@ -15,18 +15,18 @@
 -- =====================================================
 
 -- Drop database if exists (for development only)
-DROP DATABASE IF EXISTS crypto_exchange;
+DROP DATABASE IF EXISTS cryptocurrency_exchange;
 
 -- Create database with UTF-8 support for international users
-CREATE DATABASE crypto_exchange
+CREATE DATABASE cryptocurrency_exchange
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_unicode_ci;
 
 -- Use the database
-USE crypto_exchange;
+USE cryptocurrency_exchange;
 
 -- Set timezone to UTC for consistency
 SET time_zone = '+00:00';
 
 -- Display creation confirmation
-SELECT 'Database crypto_exchange created successfully' AS status;
+SELECT 'Database cryptocurrency_exchange created successfully' AS status;

@@ -128,7 +128,7 @@ CREATE TABLE patients (
     blood_type ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'),
     height_cm DECIMAL(5,2),
     weight_kg DECIMAL(5,2),
-    bmi DECIMAL(5,2) GENERATED ALWAYS AS (calculate_bmi(height_cm, weight_kg)) STORED,
+    bmi DECIMAL(5,2) GENERATED ALWAYS AS (weight_kg / NULLIF(POW(height_cm / 100, 2), 0)) STORED,
     address TEXT,
     city VARCHAR(100),
     state VARCHAR(50),
@@ -265,15 +265,7 @@ CREATE TABLE vital_signs (
     INDEX idx_vitals_admission (admission_id, recorded_at DESC),
     INDEX idx_vitals_warning (early_warning_score, recorded_at DESC),
     INDEX idx_vitals_device (device_id, recorded_at DESC)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(recorded_at)) (
-    PARTITION p202401 VALUES LESS THAN (TO_DAYS('2024-02-01')),
-    PARTITION p202402 VALUES LESS THAN (TO_DAYS('2024-03-01')),
-    PARTITION p202403 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p202404 VALUES LESS THAN (TO_DAYS('2024-05-01')),
-    PARTITION p202405 VALUES LESS THAN (TO_DAYS('2024-06-01')),
-    PARTITION p202406 VALUES LESS THAN (TO_DAYS('2024-07-01'))
-);
+) ENGINE=InnoDB;
 
 -- Continuous device readings (high-frequency data)
 CREATE TABLE device_readings (
@@ -290,15 +282,7 @@ CREATE TABLE device_readings (
     INDEX idx_readings_device (device_id, timestamp DESC),
     INDEX idx_readings_patient (patient_id, timestamp DESC),
     INDEX idx_readings_metric (metric_type, timestamp DESC)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(timestamp)) (
-    PARTITION p202401 VALUES LESS THAN (TO_DAYS('2024-02-01')),
-    PARTITION p202402 VALUES LESS THAN (TO_DAYS('2024-03-01')),
-    PARTITION p202403 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p202404 VALUES LESS THAN (TO_DAYS('2024-05-01')),
-    PARTITION p202405 VALUES LESS THAN (TO_DAYS('2024-06-01')),
-    PARTITION p202406 VALUES LESS THAN (TO_DAYS('2024-07-01'))
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- Alerts and Notifications

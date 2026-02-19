@@ -24,9 +24,9 @@ GRANT SELECT, INSERT, UPDATE ON healthcare_iot.* TO 'medical_staff'@'localhost';
 
 -- Monitoring system role
 CREATE USER IF NOT EXISTS 'monitoring_system'@'localhost' IDENTIFIED BY 'Mon1t0r$ys2024';
-GRANT SELECT, INSERT ON healthcare_iot.vital_signs TO 'monitoring_system'@'localhost';
-GRANT SELECT, INSERT ON healthcare_iot.device_readings TO 'monitoring_system'@'localhost';
-GRANT SELECT, INSERT ON healthcare_iot.alerts TO 'monitoring_system'@'localhost';
+GRANT SELECT, INSERT ON healthcare_iot.* TO 'monitoring_system'@'localhost';
+GRANT SELECT, INSERT ON healthcare_iot.* TO 'monitoring_system'@'localhost';
+GRANT SELECT, INSERT ON healthcare_iot.* TO 'monitoring_system'@'localhost';
 
 -- Analytics role (read-only for reporting)
 CREATE USER IF NOT EXISTS 'health_analyst'@'localhost' IDENTIFIED BY 'An@lyst2024';
@@ -34,9 +34,9 @@ GRANT SELECT ON healthcare_iot.* TO 'health_analyst'@'localhost';
 
 -- Patient portal role (limited access)
 CREATE USER IF NOT EXISTS 'patient_portal'@'localhost' IDENTIFIED BY 'P@tient2024';
-GRANT SELECT ON healthcare_iot.patients TO 'patient_portal'@'localhost';
-GRANT SELECT ON healthcare_iot.vital_signs TO 'patient_portal'@'localhost';
-GRANT SELECT ON healthcare_iot.medications TO 'patient_portal'@'localhost';
+GRANT SELECT ON healthcare_iot.* TO 'patient_portal'@'localhost';
+GRANT SELECT ON healthcare_iot.* TO 'patient_portal'@'localhost';
+GRANT SELECT ON healthcare_iot.* TO 'patient_portal'@'localhost';
 
 FLUSH PRIVILEGES;
 
@@ -172,7 +172,7 @@ DELIMITER ;
 -- ============================================================================
 
 -- Enable event scheduler
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- ============================================================================
 -- Partition Management

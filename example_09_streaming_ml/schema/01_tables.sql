@@ -95,15 +95,7 @@ CREATE TABLE stream_events (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_events_stream (stream_id, event_timestamp DESC),
     INDEX idx_events_status (processing_status, event_timestamp)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(event_timestamp)) (
-    PARTITION p202401 VALUES LESS THAN (TO_DAYS('2024-02-01')),
-    PARTITION p202402 VALUES LESS THAN (TO_DAYS('2024-03-01')),
-    PARTITION p202403 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p202404 VALUES LESS THAN (TO_DAYS('2024-05-01')),
-    PARTITION p202405 VALUES LESS THAN (TO_DAYS('2024-06-01')),
-    PARTITION p202406 VALUES LESS THAN (TO_DAYS('2024-07-01'))
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- Feature Store
@@ -141,15 +133,7 @@ CREATE TABLE raw_features (
     ingestion_timestamp DATETIME(3) DEFAULT CURRENT_TIMESTAMP(3),
     INDEX idx_raw_feature_lookup (feature_id, entity_id, event_timestamp DESC),
     INDEX idx_raw_feature_entity (entity_id, event_timestamp DESC)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(event_timestamp)) (
-    PARTITION p202401 VALUES LESS THAN (TO_DAYS('2024-02-01')),
-    PARTITION p202402 VALUES LESS THAN (TO_DAYS('2024-03-01')),
-    PARTITION p202403 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p202404 VALUES LESS THAN (TO_DAYS('2024-05-01')),
-    PARTITION p202405 VALUES LESS THAN (TO_DAYS('2024-06-01')),
-    PARTITION p202406 VALUES LESS THAN (TO_DAYS('2024-07-01'))
-);
+) ENGINE=InnoDB;
 
 -- Computed features (aggregated/transformed)
 CREATE TABLE feature_computations (
@@ -366,15 +350,7 @@ CREATE TABLE predictions (
     INDEX idx_prediction_deployment (deployment_id, prediction_timestamp DESC),
     INDEX idx_prediction_request (request_id),
     INDEX idx_prediction_time (prediction_timestamp)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(prediction_timestamp)) (
-    PARTITION p202401 VALUES LESS THAN (TO_DAYS('2024-02-01')),
-    PARTITION p202402 VALUES LESS THAN (TO_DAYS('2024-03-01')),
-    PARTITION p202403 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p202404 VALUES LESS THAN (TO_DAYS('2024-05-01')),
-    PARTITION p202405 VALUES LESS THAN (TO_DAYS('2024-06-01')),
-    PARTITION p202406 VALUES LESS THAN (TO_DAYS('2024-07-01'))
-);
+) ENGINE=InnoDB;
 
 -- Ground truth labels for predictions
 CREATE TABLE ground_truth (
@@ -456,8 +432,7 @@ CREATE TABLE model_alerts (
     resolution_notes TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_alert_deployment (deployment_id, triggered_at DESC),
-    INDEX idx_alert_unresolved (severity, acknowledged_at)
-        WHERE resolved_at IS NULL,
+    INDEX idx_alert_unresolved (severity, acknowledged_at),
     INDEX idx_alert_type (alert_type, triggered_at DESC)
 ) ENGINE=InnoDB;
 
@@ -497,8 +472,7 @@ CREATE TABLE resource_allocations (
     actual_cost DECIMAL(10,2),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_allocation_resource (resource_id, allocation_start),
-    INDEX idx_allocation_active (allocation_end)
-        WHERE allocation_end IS NULL
+    INDEX idx_allocation_active (allocation_end),
 ) ENGINE=InnoDB;
 
 -- ============================================================================
@@ -547,8 +521,7 @@ CREATE TABLE data_quality_violations (
     resolved_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_violation_rule (rule_id, violation_timestamp DESC),
-    INDEX idx_violation_unresolved (resolved, severity)
-        WHERE resolved = FALSE
+    INDEX idx_violation_unresolved (resolved, severity),
 ) ENGINE=InnoDB;
 
 -- ============================================================================

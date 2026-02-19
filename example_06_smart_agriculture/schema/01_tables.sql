@@ -164,12 +164,7 @@ CREATE TABLE sensor_readings (
     PRIMARY KEY (reading_id, timestamp),
     INDEX idx_sensor_time (sensor_id, timestamp),
     INDEX idx_timestamp (timestamp)
-) ENGINE=InnoDB
-PARTITION BY RANGE (TO_DAYS(timestamp)) (
-    PARTITION p202501 VALUES LESS THAN (TO_DAYS('2025-02-01')),
-    PARTITION p202502 VALUES LESS THAN (TO_DAYS('2025-03-01')),
-    PARTITION pmax VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- Weather Data Tables

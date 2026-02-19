@@ -18,8 +18,7 @@ CREATE INDEX idx_sensor_latest
 
 -- Index for quality filtering
 CREATE INDEX idx_sensor_quality
-    ON sensor_readings(quality_flag, timestamp DESC)
-    WHERE quality_flag != 'good';
+    ON sensor_readings(quality_flag, timestamp DESC);
 
 -- ============================================================================
 -- Weather Data Indexes
@@ -39,13 +38,11 @@ CREATE INDEX idx_weather_extremes
 
 -- Active plantings by field
 CREATE INDEX idx_active_plantings
-    ON planting_records(field_id, status, planting_date)
-    WHERE status IN ('planted', 'growing');
+    ON planting_records(field_id, status, planting_date);
 
 -- Harvest planning
 CREATE INDEX idx_harvest_planning
-    ON planting_records(expected_harvest_date, status)
-    WHERE status = 'growing';
+    ON planting_records(expected_harvest_date, status);
 
 -- Growth stage tracking
 CREATE INDEX idx_growth_tracking
@@ -61,8 +58,7 @@ CREATE INDEX idx_crop_rotation
 
 -- Active irrigation events
 CREATE INDEX idx_active_irrigation
-    ON irrigation_events(end_time, system_id)
-    WHERE end_time IS NULL;
+    ON irrigation_events(end_time, system_id);
 
 -- Irrigation history by zone
 CREATE INDEX idx_irrigation_history
@@ -74,8 +70,7 @@ CREATE INDEX idx_water_usage
 
 -- Scheduled irrigation lookup
 CREATE INDEX idx_scheduled_irrigation
-    ON irrigation_schedules(is_active, system_id)
-    WHERE is_active = TRUE;
+    ON irrigation_schedules(is_active, system_id);
 
 -- ============================================================================
 -- Treatment Application Indexes
@@ -102,8 +97,7 @@ CREATE INDEX idx_zone_treatments_pest
 
 -- Active animals by type
 CREATE INDEX idx_active_animals
-    ON animals(farm_id, animal_type, health_status)
-    WHERE health_status != 'deceased';
+    ON animals(farm_id, animal_type, health_status);
 
 -- Health monitoring
 CREATE INDEX idx_health_monitoring
@@ -111,8 +105,7 @@ CREATE INDEX idx_health_monitoring
 
 -- Vaccination tracking
 CREATE INDEX idx_vaccination_due
-    ON health_records(next_followup_date, record_type)
-    WHERE record_type = 'vaccination' AND next_followup_date IS NOT NULL;
+    ON health_records(next_followup_date, record_type);
 
 -- Milk production analysis
 CREATE INDEX idx_milk_production
@@ -184,20 +177,15 @@ ALTER TABLE fields ADD INDEX idx_field_bounds
 
 -- Dashboard - current field status
 CREATE INDEX idx_dashboard_fields
-    ON planting_records(field_id, status, crop_id, planting_date, expected_harvest_date)
-    WHERE status IN ('planted', 'growing');
+    ON planting_records(field_id, status, crop_id, planting_date, expected_harvest_date);
 
 -- Irrigation decision support
 CREATE INDEX idx_irrigation_decision
-    ON sensor_readings(sensor_id, timestamp DESC, value)
-    WHERE sensor_id IN (
-        SELECT sensor_id FROM sensors WHERE sensor_type = 'soil_moisture'
-    );
+    ON sensor_readings(sensor_id, timestamp DESC, value);
 
 -- Livestock dashboard
 CREATE INDEX idx_livestock_dashboard
-    ON animals(farm_id, animal_type, health_status, weight_kg)
-    WHERE health_status = 'healthy';
+    ON animals(farm_id, animal_type, health_status, weight_kg);
 
 -- Cost analysis
 CREATE INDEX idx_cost_analysis_fert

@@ -9,7 +9,7 @@ USE hotel_chain;
 -- ============================================================================
 
 -- Properties table - optimize for chain management
-CREATE INDEX idx_properties_brand ON properties(brand_name, status);
+CREATE INDEX idx_properties_brand ON properties(brand, status);
 CREATE INDEX idx_properties_location ON properties(country, state_province, city);
 CREATE INDEX idx_properties_rating ON properties(star_rating, status);
 CREATE INDEX idx_properties_manager ON properties(general_manager_id);
@@ -21,30 +21,24 @@ CREATE INDEX idx_room_types_category ON room_types(category, is_active);
 -- Rooms table - optimize for availability searches
 CREATE INDEX idx_rooms_property_status ON rooms(property_id, status);
 CREATE INDEX idx_rooms_housekeeping ON rooms(housekeeping_status, last_cleaned);
-CREATE INDEX idx_rooms_maintenance ON rooms(maintenance_status)
-    WHERE maintenance_status != 'none';
+CREATE INDEX idx_rooms_maintenance ON rooms(maintenance_status);
 CREATE INDEX idx_rooms_floor ON rooms(property_id, floor_number, status);
 
 -- Guests table - optimize for guest lookups
 CREATE INDEX idx_guests_email ON guests(email);
 CREATE INDEX idx_guests_phone ON guests(phone_number);
-CREATE INDEX idx_guests_loyalty ON guests(loyalty_member_id)
-    WHERE loyalty_member_id IS NOT NULL;
+CREATE INDEX idx_guests_loyalty ON guests(loyalty_member_id);
 CREATE INDEX idx_guests_created ON guests(created_at DESC);
-CREATE INDEX idx_guests_vip ON guests(vip_status)
-    WHERE vip_status != 'none';
+CREATE INDEX idx_guests_vip ON guests(vip_status);
 
 -- Reservations table - optimize for booking operations
 CREATE INDEX idx_reservations_property_dates ON reservations(property_id, check_in_date, check_out_date);
 CREATE INDEX idx_reservations_guest ON reservations(guest_id, status);
-CREATE INDEX idx_reservations_status_dates ON reservations(status, check_in_date)
-    WHERE status IN ('confirmed', 'checked_in');
+CREATE INDEX idx_reservations_status_dates ON reservations(status, check_in_date);
 CREATE INDEX idx_reservations_confirmation ON reservations(confirmation_number);
 CREATE INDEX idx_reservations_channel ON reservations(booking_channel, created_at);
-CREATE INDEX idx_reservations_group ON reservations(group_booking_id)
-    WHERE group_booking_id IS NOT NULL;
-CREATE INDEX idx_reservations_arrival ON reservations(check_in_date, status)
-    WHERE status = 'confirmed' AND check_in_date >= CURDATE();
+CREATE INDEX idx_reservations_group ON reservations(group_booking_id);
+CREATE INDEX idx_reservations_arrival ON reservations(check_in_date, status);
 
 -- Room assignments - optimize for room allocation
 CREATE INDEX idx_room_assignments_reservation ON room_assignments(reservation_id, status);
@@ -54,10 +48,8 @@ CREATE INDEX idx_room_assignments_dates ON room_assignments(check_in_date, check
 -- Folios table - optimize for billing operations
 CREATE INDEX idx_folios_reservation ON folios(reservation_id, status);
 CREATE INDEX idx_folios_guest ON folios(guest_id, status);
-CREATE INDEX idx_folios_outstanding ON folios(status, balance_due)
-    WHERE status = 'open' AND balance_due > 0;
-CREATE INDEX idx_folios_checkout ON folios(status, created_at)
-    WHERE status IN ('open', 'pending_payment');
+CREATE INDEX idx_folios_outstanding ON folios(status, balance_due);
+CREATE INDEX idx_folios_checkout ON folios(status, created_at);
 
 -- Folio charges - optimize for charge lookups
 CREATE INDEX idx_folio_charges_folio ON folio_charges(folio_id, posted_date);
@@ -67,80 +59,66 @@ CREATE INDEX idx_folio_charges_department ON folio_charges(department, posted_da
 -- Payments table - optimize for payment processing
 CREATE INDEX idx_payments_folio ON payments(folio_id, payment_date);
 CREATE INDEX idx_payments_method_date ON payments(payment_method, payment_date);
-CREATE INDEX idx_payments_processed ON payments(is_processed, payment_date)
-    WHERE is_processed = FALSE;
+CREATE INDEX idx_payments_processed ON payments(is_processed, payment_date);
 
 -- Loyalty members - optimize for loyalty program
 CREATE INDEX idx_loyalty_tier ON loyalty_members(tier_level, status);
 CREATE INDEX idx_loyalty_points ON loyalty_members(lifetime_points DESC);
-CREATE INDEX idx_loyalty_expiry ON loyalty_members(points_expiry_date)
-    WHERE points_expiry_date IS NOT NULL;
+CREATE INDEX idx_loyalty_expiry ON loyalty_members(points_expiry_date);
 
 -- Loyalty transactions - optimize for points management
 CREATE INDEX idx_loyalty_trans_member ON loyalty_transactions(member_id, transaction_date DESC);
 CREATE INDEX idx_loyalty_trans_type ON loyalty_transactions(transaction_type, transaction_date);
-CREATE INDEX idx_loyalty_trans_folio ON loyalty_transactions(folio_id)
-    WHERE folio_id IS NOT NULL;
+CREATE INDEX idx_loyalty_trans_folio ON loyalty_transactions(folio_id);
 
 -- Staff table - optimize for workforce management
 CREATE INDEX idx_staff_property_dept ON staff(property_id, department);
-CREATE INDEX idx_staff_manager ON staff(manager_id)
-    WHERE manager_id IS NOT NULL;
+CREATE INDEX idx_staff_manager ON staff(manager_id);
 CREATE INDEX idx_staff_active ON staff(employment_status, hire_date);
 CREATE INDEX idx_staff_position ON staff(position_title, employment_status);
 
 -- Staff schedules - optimize for scheduling
 CREATE INDEX idx_schedules_staff_date ON staff_schedules(staff_id, shift_date);
 CREATE INDEX idx_schedules_property_date ON staff_schedules(property_id, shift_date, department);
-CREATE INDEX idx_schedules_upcoming ON staff_schedules(shift_date, shift_start)
-    WHERE shift_date >= CURDATE();
+CREATE INDEX idx_schedules_upcoming ON staff_schedules(shift_date, shift_start);
 
 -- Housekeeping tasks - optimize for task management
 CREATE INDEX idx_housekeeping_room ON housekeeping_tasks(room_id, status, scheduled_date);
 CREATE INDEX idx_housekeeping_assigned ON housekeeping_tasks(assigned_to, status, priority);
-CREATE INDEX idx_housekeeping_pending ON housekeeping_tasks(status, priority DESC, scheduled_date)
-    WHERE status IN ('pending', 'in_progress');
+CREATE INDEX idx_housekeeping_pending ON housekeeping_tasks(status, priority DESC, scheduled_date);
 
 -- Maintenance requests - optimize for maintenance tracking
 CREATE INDEX idx_maintenance_room ON maintenance_requests(room_id, status);
-CREATE INDEX idx_maintenance_priority ON maintenance_requests(priority DESC, status, reported_date)
-    WHERE status IN ('open', 'in_progress');
-CREATE INDEX idx_maintenance_assigned ON maintenance_requests(assigned_to, status)
-    WHERE assigned_to IS NOT NULL;
+CREATE INDEX idx_maintenance_priority ON maintenance_requests(priority DESC, status, reported_date);
+CREATE INDEX idx_maintenance_assigned ON maintenance_requests(assigned_to, status);
 
 -- Restaurant reservations - optimize for dining management
 CREATE INDEX idx_dining_outlet_date ON restaurant_reservations(outlet_id, reservation_date, time_slot);
 CREATE INDEX idx_dining_guest ON restaurant_reservations(guest_id, status);
-CREATE INDEX idx_dining_upcoming ON restaurant_reservations(reservation_date, time_slot, status)
-    WHERE status = 'confirmed' AND reservation_date >= CURDATE();
+CREATE INDEX idx_dining_upcoming ON restaurant_reservations(reservation_date, time_slot, status);
 
 -- Event bookings - optimize for event management
 CREATE INDEX idx_events_property_dates ON event_bookings(property_id, event_date, status);
 CREATE INDEX idx_events_space ON event_bookings(event_space_id, event_date);
-CREATE INDEX idx_events_upcoming ON event_bookings(event_date, status)
-    WHERE status IN ('tentative', 'confirmed') AND event_date >= CURDATE();
+CREATE INDEX idx_events_upcoming ON event_bookings(event_date, status);
 
 -- Spa appointments - optimize for spa scheduling
 CREATE INDEX idx_spa_therapist_date ON spa_appointments(therapist_id, appointment_date);
 CREATE INDEX idx_spa_guest ON spa_appointments(guest_id, status);
-CREATE INDEX idx_spa_upcoming ON spa_appointments(appointment_date, start_time, status)
-    WHERE status = 'confirmed' AND appointment_date >= CURDATE();
+CREATE INDEX idx_spa_upcoming ON spa_appointments(appointment_date, start_time, status);
 
 -- Guest requests - optimize for service management
 CREATE INDEX idx_requests_guest ON guest_requests(guest_id, status);
 CREATE INDEX idx_requests_assigned ON guest_requests(assigned_to, status, priority);
-CREATE INDEX idx_requests_pending ON guest_requests(status, priority DESC, requested_at)
-    WHERE status IN ('pending', 'in_progress');
+CREATE INDEX idx_requests_pending ON guest_requests(status, priority DESC, requested_at);
 
 -- Rate plans - optimize for revenue management
 CREATE INDEX idx_rate_plans_property ON rate_plans(property_id, is_active);
-CREATE INDEX idx_rate_plans_dates ON rate_plans(valid_from, valid_to, is_active)
-    WHERE is_active = TRUE;
+CREATE INDEX idx_rate_plans_dates ON rate_plans(valid_from, valid_to, is_active);
 
 -- Rate overrides - optimize for dynamic pricing
 CREATE INDEX idx_rate_overrides_room ON rate_overrides(room_type_id, override_date);
-CREATE INDEX idx_rate_overrides_dates ON rate_overrides(property_id, override_date)
-    WHERE override_date >= CURDATE();
+CREATE INDEX idx_rate_overrides_dates ON rate_overrides(property_id, override_date);
 
 -- ============================================================================
 -- COMPOSITE INDEXES FOR COMPLEX QUERIES
@@ -149,22 +127,16 @@ CREATE INDEX idx_rate_overrides_dates ON rate_overrides(property_id, override_da
 -- Room availability search (most critical query)
 CREATE INDEX idx_room_availability ON rooms r
     JOIN room_assignments ra ON r.room_id = ra.room_id
-    (r.property_id, r.room_type_id, r.status, ra.check_in_date, ra.check_out_date)
-    WHERE r.status = 'available';
+    (r.property_id, r.room_type_id, r.status, ra.check_in_date, ra.check_out_date);
 
 -- Arrival report
-CREATE INDEX idx_arrivals_today ON reservations(property_id, check_in_date, status, arrival_time)
-    WHERE status IN ('confirmed', 'guaranteed')
-    AND check_in_date = CURDATE();
+CREATE INDEX idx_arrivals_today ON reservations(property_id, check_in_date, status, arrival_time);
 
 -- Departure report
-CREATE INDEX idx_departures_today ON reservations(property_id, check_out_date, status)
-    WHERE status = 'checked_in'
-    AND check_out_date = CURDATE();
+CREATE INDEX idx_departures_today ON reservations(property_id, check_out_date, status);
 
 -- Occupancy calculation
-CREATE INDEX idx_occupancy ON room_assignments(property_id, check_in_date, check_out_date, status)
-    WHERE status = 'occupied';
+CREATE INDEX idx_occupancy ON room_assignments(property_id, check_in_date, check_out_date, status);
 
 -- Revenue reporting
 CREATE INDEX idx_revenue_reporting ON folio_charges(property_id, posted_date, department, charge_type);
@@ -173,30 +145,23 @@ CREATE INDEX idx_revenue_reporting ON folio_charges(property_id, posted_date, de
 CREATE INDEX idx_guest_history ON reservations(guest_id, check_in_date DESC, property_id);
 
 -- Housekeeping workload
-CREATE INDEX idx_housekeeping_workload ON housekeeping_tasks(property_id, scheduled_date, status, assigned_to)
-    WHERE status != 'completed';
+CREATE INDEX idx_housekeeping_workload ON housekeeping_tasks(property_id, scheduled_date, status, assigned_to);
 
 -- Loyalty points expiration
-CREATE INDEX idx_loyalty_expiration ON loyalty_members(points_expiry_date, current_points)
-    WHERE points_expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 30 DAY)
-    AND current_points > 0;
+CREATE INDEX idx_loyalty_expiration ON loyalty_members(points_expiry_date, current_points);
 
 -- Group bookings
-CREATE INDEX idx_group_bookings ON reservations(group_booking_id, property_id, check_in_date)
-    WHERE group_booking_id IS NOT NULL;
+CREATE INDEX idx_group_bookings ON reservations(group_booking_id, property_id, check_in_date);
 
 -- VIP guests
 CREATE INDEX idx_vip_arrivals ON reservations r
     JOIN guests g ON r.guest_id = g.guest_id
-    (r.check_in_date, g.vip_status, r.property_id)
-    WHERE g.vip_status != 'none' AND r.status = 'confirmed';
+    (r.check_in_date, g.vip_status, r.property_id);
 
 -- ============================================================================
--- SPATIAL INDEXES
 -- ============================================================================
 
 -- Property location searches
-ALTER TABLE properties ADD SPATIAL INDEX idx_properties_location_point(location_coordinates);
 
 -- ============================================================================
 -- FULL-TEXT INDEXES

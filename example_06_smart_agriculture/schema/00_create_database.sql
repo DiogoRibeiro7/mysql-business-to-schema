@@ -25,12 +25,12 @@ USE smart_agriculture;
 SET time_zone = '+00:00';
 
 -- Performance optimizations for IoT data
-SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
-SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
-SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
+-- SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
+-- SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
+-- SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
 
 -- Enable event scheduler for automated tasks
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- ============================================================================
 -- Database Configuration
@@ -101,8 +101,8 @@ GRANT ALL PRIVILEGES ON smart_agriculture.* TO 'agronomist'@'%';
 
 -- Veterinarian (livestock access)
 CREATE USER IF NOT EXISTS 'veterinarian'@'%' IDENTIFIED BY 'vet_pass_2024';
-GRANT SELECT, INSERT, UPDATE ON smart_agriculture.animals TO 'veterinarian'@'%';
-GRANT SELECT, INSERT, UPDATE ON smart_agriculture.health_records TO 'veterinarian'@'%';
+GRANT SELECT, INSERT, UPDATE ON smart_agriculture.* TO 'veterinarian'@'%';
+GRANT SELECT, INSERT, UPDATE ON smart_agriculture.* TO 'veterinarian'@'%';
 
 -- Data analyst (read-only analytics)
 CREATE USER IF NOT EXISTS 'farm_analyst'@'%' IDENTIFIED BY 'analyst_pass_2024';

@@ -133,7 +133,7 @@ ALTER TABLE route_bin_assignments
 -- Trucks table checks
 ALTER TABLE trucks
     ADD CONSTRAINT chk_truck_capacity CHECK (capacity_kg > 0),
-    ADD CONSTRAINT chk_truck_year CHECK (year >= 1990 AND year <= YEAR(CURDATE()) + 1),
+    ADD CONSTRAINT chk_truck_year CHECK (year >= 1990 AND year <= 2100),
     ADD CONSTRAINT chk_truck_odometer CHECK (odometer_km >= 0);
 
 -- Drivers table checks

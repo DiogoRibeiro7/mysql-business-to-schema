@@ -205,7 +205,7 @@ ALTER TABLE driver_scores
 -- Ensure valid vehicle year
 ALTER TABLE vehicles
     ADD CONSTRAINT chk_vehicle_year
-    CHECK (year BETWEEN 1990 AND YEAR(CURDATE()) + 1);
+    CHECK (year BETWEEN 1990 AND 2100);
 
 -- Ensure positive values
 ALTER TABLE vehicles
@@ -221,7 +221,7 @@ ALTER TABLE fuel_transactions
 -- Ensure license expiry is future dated when active
 ALTER TABLE drivers
     ADD CONSTRAINT chk_driver_license
-    CHECK (status != 'active' OR license_expiry > CURDATE());
+    CHECK (status != 'active' OR license_expiry > '2100-01-01');
 
 -- ============================================================================
 -- Triggers for Business Logic

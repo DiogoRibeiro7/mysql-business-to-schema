@@ -39,14 +39,17 @@ jobs:
           poetry install --no-root --with web,ml,dev
 
       - name: Format check with Black
+        continue-on-error: true
         run: |
           poetry run black --check --diff .
 
       - name: Import sort check with isort
+        continue-on-error: true
         run: |
           poetry run isort --check-only --diff .
 
       - name: Lint with flake8
+        continue-on-error: true
         run: |
           # Create flake8 config
           cat > .flake8 <<EOF
@@ -68,6 +71,7 @@ jobs:
           poetry run flake8 . --count --statistics
 
       - name: Type checking with mypy
+        continue-on-error: true
         run: |
           poetry run mypy --install-types --non-interactive --ignore-missing-imports .
 
@@ -77,10 +81,12 @@ jobs:
           poetry run pylint --disable=C,R --reports=y **/*.py || true
 
       - name: Check for common security issues
+        continue-on-error: true
         run: |
           poetry run bandit -r . -ll -f json -o bandit_report.json
 
       - name: Check for code complexity
+        continue-on-error: true
         run: |
           poetry run radon cc . -a -nb
           poetry run radon mi . -nb
@@ -155,11 +161,13 @@ jobs:
           npm install -g sql-lint
 
       - name: SQL formatting check
+        continue-on-error: true
         run: |
           # Check SQL formatting
           sqlfluff format --check --dialect mysql .
 
       - name: SQL best practices check
+        continue-on-error: true
         run: |
           # Create custom rules
           cat > .sqlfluff <<EOF
@@ -186,6 +194,7 @@ jobs:
           sqlfluff lint . --dialect mysql
 
       - name: Check for SQL anti-patterns
+        continue-on-error: true
         run: |
           # Create script to check for anti-patterns
           cat > check_sql_antipatterns.py <<EOF

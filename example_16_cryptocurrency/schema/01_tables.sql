@@ -2,7 +2,7 @@
 -- CORE TABLES FOR CRYPTOCURRENCY EXCHANGE
 -- ============================================================================
 
-USE crypto_exchange;
+USE cryptocurrency;
 
 -- ============================================================================
 -- USER MANAGEMENT
@@ -390,14 +390,7 @@ CREATE TABLE price_history (
     INDEX idx_pair (pair_id),
     INDEX idx_time (open_time),
     FOREIGN KEY (pair_id) REFERENCES trading_pairs(pair_id)
-) ENGINE=InnoDB
-PARTITION BY RANGE (UNIX_TIMESTAMP(open_time)) (
-    PARTITION p_2024_q1 VALUES LESS THAN (UNIX_TIMESTAMP('2024-04-01')),
-    PARTITION p_2024_q2 VALUES LESS THAN (UNIX_TIMESTAMP('2024-07-01')),
-    PARTITION p_2024_q3 VALUES LESS THAN (UNIX_TIMESTAMP('2024-10-01')),
-    PARTITION p_2024_q4 VALUES LESS THAN (UNIX_TIMESTAMP('2025-01-01')),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- SECURITY & API MANAGEMENT
@@ -508,12 +501,7 @@ CREATE TABLE audit_logs (
     INDEX idx_entity (entity_type, entity_id),
     INDEX idx_created (created_at),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
-) ENGINE=InnoDB
-PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- FEE STRUCTURES

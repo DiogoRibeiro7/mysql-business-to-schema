@@ -111,8 +111,8 @@ GRANT SELECT, INSERT, UPDATE ON fleet_management.* TO 'dispatcher'@'%';
 -- Driver (limited access to own data)
 CREATE USER IF NOT EXISTS 'driver_app'@'%' IDENTIFIED BY 'driver_pass_2024';
 GRANT SELECT ON fleet_management.* TO 'driver_app'@'%';
-GRANT INSERT ON fleet_management.gps_positions TO 'driver_app'@'%';
-GRANT INSERT ON fleet_management.driver_logs TO 'driver_app'@'%';
+GRANT INSERT ON fleet_management.* TO 'driver_app'@'%';
+GRANT INSERT ON fleet_management.* TO 'driver_app'@'%';
 
 -- Compliance officer (read-only for audits)
 CREATE USER IF NOT EXISTS 'compliance'@'%' IDENTIFIED BY 'compliance_pass_2024';

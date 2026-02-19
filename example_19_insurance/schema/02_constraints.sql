@@ -71,7 +71,7 @@ ALTER TABLE policy_items
     CHECK ((estimated_value IS NULL OR estimated_value > 0) AND
            (insured_value IS NULL OR insured_value > 0)),
     ADD CONSTRAINT chk_policy_items_year
-    CHECK ((year IS NULL OR year >= 1900 AND year <= YEAR(CURDATE()) + 1) AND
+    CHECK ((year IS NULL OR year >= 1900 AND year <= 2100) AND
            (year_built IS NULL OR year_built >= 1800 AND year_built <= YEAR(CURDATE()))),
     ADD CONSTRAINT chk_policy_items_sqft
     CHECK (square_footage IS NULL OR square_footage > 0);

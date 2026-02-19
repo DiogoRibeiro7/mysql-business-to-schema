@@ -3,7 +3,7 @@
 
 -- Create database
 CREATE DATABASE IF NOT EXISTS logistics_db;
-USE logistics_db;
+USE logistics;
 
 -- ========================================
 -- WAREHOUSE MANAGEMENT
@@ -36,7 +36,6 @@ CREATE TABLE warehouses (
     INDEX idx_warehouse_type (warehouse_type),
     INDEX idx_location (country_code, state_province, city),
     INDEX idx_active (is_active),
-    SPATIAL INDEX idx_coordinates (latitude, longitude)
 );
 
 -- Warehouse Zones
@@ -226,11 +225,6 @@ CREATE TABLE inventory_movements (
     INDEX idx_movement_type (movement_type, movement_date),
     INDEX idx_product_movements (product_id, movement_date),
     INDEX idx_warehouse_movements (from_warehouse_id, to_warehouse_id, movement_date)
-) PARTITION BY RANGE (YEAR(movement_date)) (
-    PARTITION p_2023 VALUES LESS THAN (2024),
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
 );
 
 -- ========================================
@@ -508,11 +502,6 @@ CREATE TABLE shipments (
     INDEX idx_shipment_status (status, delivery_date),
     INDEX idx_shipment_dates (pickup_date, delivery_date),
     INDEX idx_reference (reference_type, reference_id)
-) PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p_2023 VALUES LESS THAN (2024),
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
 );
 
 -- Shipment Tracking
@@ -536,11 +525,6 @@ CREATE TABLE shipment_tracking (
     FOREIGN KEY (shipment_id) REFERENCES shipments(shipment_id) ON DELETE CASCADE,
     INDEX idx_shipment_events (shipment_id, event_timestamp),
     INDEX idx_tracking_status (status_code, event_timestamp)
-) PARTITION BY RANGE (YEAR(event_timestamp)) (
-    PARTITION p_2023 VALUES LESS THAN (2024),
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
 );
 
 -- ========================================
@@ -727,9 +711,4 @@ CREATE TABLE audit_log (
     INDEX idx_audit_table (table_name, record_id),
     INDEX idx_audit_time (changed_at),
     INDEX idx_audit_user (changed_by)
-) PARTITION BY RANGE (YEAR(changed_at)) (
-    PARTITION p_2023 VALUES LESS THAN (2024),
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
 );

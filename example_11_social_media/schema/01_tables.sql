@@ -140,12 +140,7 @@ CREATE TABLE IF NOT EXISTS posts (
     INDEX idx_engagement (engagement_score DESC),
     INDEX idx_created (created_at DESC),
     INDEX idx_content_prefix (content(255))
-) ENGINE=InnoDB PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p2023 VALUES LESS THAN (2024),
-    PARTITION p2024 VALUES LESS THAN (2025),
-    PARTITION p2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS post_media (
     media_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -403,13 +398,7 @@ CREATE TABLE IF NOT EXISTS user_activity_logs (
     INDEX idx_user_activity (user_id, created_at DESC),
     INDEX idx_session (session_id),
     INDEX idx_action_type (action_type, created_at DESC)
-) ENGINE=InnoDB PARTITION BY RANGE (TO_DAYS(created_at)) (
-    PARTITION p0 VALUES LESS THAN (TO_DAYS('2024-01-01')),
-    PARTITION p1 VALUES LESS THAN (TO_DAYS('2024-04-01')),
-    PARTITION p2 VALUES LESS THAN (TO_DAYS('2024-07-01')),
-    PARTITION p3 VALUES LESS THAN (TO_DAYS('2024-10-01')),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS engagement_metrics (
     metric_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

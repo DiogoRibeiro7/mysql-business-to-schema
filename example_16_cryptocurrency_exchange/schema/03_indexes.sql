@@ -4,7 +4,7 @@
 -- Performance optimization indexes
 -- =====================================================
 
-USE crypto_exchange;
+USE cryptocurrency_exchange;
 
 -- =====================================================
 -- Composite Indexes for Common Queries
@@ -15,27 +15,21 @@ CREATE INDEX idx_users_auth ON users(email, password_hash, status);
 CREATE INDEX idx_users_login ON users(username, password_hash, status);
 
 -- KYC verification queries
-CREATE INDEX idx_kyc_pending ON kyc_documents(verification_status, submitted_at)
-    WHERE verification_status = 'pending';
+CREATE INDEX idx_kyc_pending ON kyc_documents(verification_status, submitted_at);
 
 -- Wallet balance lookups
-CREATE INDEX idx_wallet_user_balance ON wallets(user_id, available_balance)
-    WHERE is_active = TRUE;
+CREATE INDEX idx_wallet_user_balance ON wallets(user_id, available_balance);
 
 -- Active orders by user
-CREATE INDEX idx_orders_user_active ON orders(user_id, status, created_at)
-    WHERE status IN ('open', 'partially_filled');
+CREATE INDEX idx_orders_user_active ON orders(user_id, status, created_at);
 
 -- Orders for matching engine
-CREATE INDEX idx_orders_matching ON orders(pair_id, side, price, created_at)
-    WHERE status = 'open';
+CREATE INDEX idx_orders_matching ON orders(pair_id, side, price, created_at);
 
 -- Best bid/ask prices
-CREATE INDEX idx_orders_best_bid ON orders(pair_id, price DESC)
-    WHERE side = 'buy' AND status = 'open';
+CREATE INDEX idx_orders_best_bid ON orders(pair_id, price DESC);
 
-CREATE INDEX idx_orders_best_ask ON orders(pair_id, price ASC)
-    WHERE side = 'sell' AND status = 'open';
+CREATE INDEX idx_orders_best_ask ON orders(pair_id, price ASC);
 
 -- Recent trades for price ticker
 CREATE INDEX idx_trades_recent ON trades(pair_id, executed_at DESC);
@@ -45,23 +39,19 @@ CREATE INDEX idx_trades_user_history ON trades(buyer_id, executed_at DESC);
 CREATE INDEX idx_trades_seller_history ON trades(seller_id, executed_at DESC);
 
 -- Transaction processing
-CREATE INDEX idx_transactions_pending ON transactions(status, created_at)
-    WHERE status IN ('pending', 'processing');
+CREATE INDEX idx_transactions_pending ON transactions(status, created_at);
 
 -- Price history queries
 CREATE INDEX idx_price_latest ON price_history(pair_id, timeframe, timestamp DESC);
 
 -- Staking positions
-CREATE INDEX idx_staking_active ON staking_positions(user_id, status, unlock_date)
-    WHERE status = 'active';
+CREATE INDEX idx_staking_active ON staking_positions(user_id, status, unlock_date);
 
 -- API key lookups
-CREATE INDEX idx_api_keys_lookup ON api_keys(api_key, is_active)
-    WHERE is_active = TRUE;
+CREATE INDEX idx_api_keys_lookup ON api_keys(api_key, is_active);
 
 -- Session management
-CREATE INDEX idx_sessions_cleanup ON user_sessions(expires_at, is_active)
-    WHERE is_active = TRUE;
+CREATE INDEX idx_sessions_cleanup ON user_sessions(expires_at, is_active);
 
 -- Audit log queries
 CREATE INDEX idx_audit_user_time ON audit_logs(user_id, created_at DESC);
@@ -106,8 +96,7 @@ CREATE INDEX idx_orderbook_covering ON orders(
     status,
     price,
     quantity,
-    user_id
-) WHERE status = 'open';
+    user_id;
 
 -- Portfolio overview
 CREATE INDEX idx_portfolio_covering ON wallets(
@@ -115,8 +104,7 @@ CREATE INDEX idx_portfolio_covering ON wallets(
     currency_id,
     available_balance,
     locked_balance,
-    staked_balance
-) WHERE is_active = TRUE;
+    staked_balance;
 
 -- Trade history export
 CREATE INDEX idx_trade_export ON trades(
@@ -135,16 +123,13 @@ CREATE INDEX idx_trade_export ON trades(
 -- =====================================================
 
 -- High-value transactions
-CREATE INDEX idx_transactions_high_value ON transactions(user_id, amount, created_at)
-    WHERE amount > 10000 AND status = 'completed';
+CREATE INDEX idx_transactions_high_value ON transactions(user_id, amount, created_at);
 
 -- VIP users
-CREATE INDEX idx_users_vip ON users(user_id, email, kyc_level)
-    WHERE kyc_level IN ('premium', 'institutional');
+CREATE INDEX idx_users_vip ON users(user_id, email, kyc_level);
 
 -- Failed login attempts
-CREATE INDEX idx_security_failed_logins ON security_events(user_id, created_at)
-    WHERE event_type = 'login_failed';
+CREATE INDEX idx_security_failed_logins ON security_events(user_id, created_at);
 
 -- =====================================================
 -- Hash Indexes for Exact Lookups (if using MEMORY engine)

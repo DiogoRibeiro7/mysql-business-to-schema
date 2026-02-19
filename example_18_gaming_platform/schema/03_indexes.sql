@@ -12,116 +12,87 @@ USE gaming_platform;
 CREATE INDEX idx_players_username_status ON players(username, status);
 CREATE INDEX idx_players_email_status ON players(email, status);
 CREATE INDEX idx_players_level_xp ON players(player_level DESC, total_xp DESC);
-CREATE INDEX idx_players_premium ON players(is_premium, premium_until)
-    WHERE is_premium = TRUE;
+CREATE INDEX idx_players_premium ON players(is_premium, premium_until);
 CREATE INDEX idx_players_trust ON players(trust_score, vac_banned);
-CREATE INDEX idx_players_online ON players(last_activity_at DESC, status)
-    WHERE status = 'active';
+CREATE INDEX idx_players_online ON players(last_activity_at DESC, status);
 
 -- Player sessions - optimize for session management
-CREATE INDEX idx_sessions_player_active ON player_sessions(player_id, is_active, last_activity_at DESC)
-    WHERE is_active = TRUE;
-CREATE INDEX idx_sessions_expiry ON player_sessions(expires_at, is_active)
-    WHERE is_active = TRUE;
+CREATE INDEX idx_sessions_player_active ON player_sessions(player_id, is_active, last_activity_at DESC);
+CREATE INDEX idx_sessions_expiry ON player_sessions(expires_at, is_active);
 
 -- Games table - optimize for discovery and filtering
 CREATE INDEX idx_games_status_featured ON games(status, is_featured, user_score DESC);
 CREATE INDEX idx_games_price ON games(current_price, discount_percentage);
 CREATE INDEX idx_games_release ON games(release_date DESC, status);
-CREATE INDEX idx_games_multiplayer ON games(has_multiplayer, current_online DESC)
-    WHERE has_multiplayer = TRUE;
-CREATE INDEX idx_games_f2p ON games(is_free_to_play, total_players DESC)
-    WHERE is_free_to_play = TRUE;
+CREATE INDEX idx_games_multiplayer ON games(has_multiplayer, current_online DESC);
+CREATE INDEX idx_games_f2p ON games(is_free_to_play, total_players DESC);
 
 -- Player games - optimize for library queries
 CREATE INDEX idx_player_games_library ON player_games(player_id, is_hidden, last_played_at DESC);
-CREATE INDEX idx_player_games_installed ON player_games(player_id, is_installed)
-    WHERE is_installed = TRUE;
-CREATE INDEX idx_player_games_favorites ON player_games(player_id, is_favorite)
-    WHERE is_favorite = TRUE;
+CREATE INDEX idx_player_games_installed ON player_games(player_id, is_installed);
+CREATE INDEX idx_player_games_favorites ON player_games(player_id, is_favorite);
 CREATE INDEX idx_player_games_recent ON player_games(last_played_at DESC);
 
 -- Game servers - optimize for matchmaking
-CREATE INDEX idx_servers_available ON game_servers(game_id, status, server_region, current_players, max_players)
-    WHERE status = 'online' AND is_private = FALSE;
+CREATE INDEX idx_servers_available ON game_servers(game_id, status, server_region, current_players, max_players);
 CREATE INDEX idx_servers_region_status ON game_servers(server_region, status, current_players);
-CREATE INDEX idx_servers_ranked ON game_servers(game_id, is_ranked, status)
-    WHERE is_ranked = TRUE AND status = 'online';
+CREATE INDEX idx_servers_ranked ON game_servers(game_id, is_ranked, status);
 
 -- Match sessions - optimize for history and active matches
 CREATE INDEX idx_matches_game_status ON match_sessions(game_id, status, started_at DESC);
-CREATE INDEX idx_matches_active ON match_sessions(status, started_at)
-    WHERE status IN ('waiting', 'starting', 'in_progress');
-CREATE INDEX idx_matches_completed ON match_sessions(game_id, ended_at DESC)
-    WHERE status = 'completed';
-CREATE INDEX idx_matches_tournament ON match_sessions(match_type, game_id, started_at DESC)
-    WHERE match_type = 'tournament';
+CREATE INDEX idx_matches_active ON match_sessions(status, started_at);
+CREATE INDEX idx_matches_completed ON match_sessions(game_id, ended_at DESC);
+CREATE INDEX idx_matches_tournament ON match_sessions(match_type, game_id, started_at DESC);
 
 -- Match participants - optimize for player history
 CREATE INDEX idx_participants_player_recent ON match_participants(player_id, joined_at DESC);
 CREATE INDEX idx_participants_winner ON match_participants(match_id, is_winner);
 CREATE INDEX idx_participants_performance ON match_participants(match_id, score DESC);
-CREATE INDEX idx_participants_left_early ON match_participants(match_id, left_early)
-    WHERE left_early = TRUE;
+CREATE INDEX idx_participants_left_early ON match_participants(match_id, left_early);
 
 -- Matchmaking queue - optimize for matching algorithm
-CREATE INDEX idx_matchmaking_active ON matchmaking_queue(game_id, game_mode, skill_rating, queued_at)
-    WHERE status = 'searching';
-CREATE INDEX idx_matchmaking_party ON matchmaking_queue(party_id, status)
-    WHERE party_id IS NOT NULL;
-CREATE INDEX idx_matchmaking_region ON matchmaking_queue(game_id, preferred_region, status)
-    WHERE status = 'searching';
+CREATE INDEX idx_matchmaking_active ON matchmaking_queue(game_id, game_mode, skill_rating, queued_at);
+CREATE INDEX idx_matchmaking_party ON matchmaking_queue(party_id, status);
+CREATE INDEX idx_matchmaking_region ON matchmaking_queue(game_id, preferred_region, status);
 
 -- Friendships - optimize for friend lists
-CREATE INDEX idx_friendships_accepted ON friendships(player_id, status, is_favorite DESC)
-    WHERE status = 'accepted';
-CREATE INDEX idx_friendships_pending ON friendships(friend_id, status, requested_at DESC)
-    WHERE status = 'pending';
-CREATE INDEX idx_friendships_blocked ON friendships(player_id, status)
-    WHERE status = 'blocked';
+CREATE INDEX idx_friendships_accepted ON friendships(player_id, status, is_favorite DESC);
+CREATE INDEX idx_friendships_pending ON friendships(friend_id, status, requested_at DESC);
+CREATE INDEX idx_friendships_blocked ON friendships(player_id, status);
 
 -- Clans - optimize for search and ranking
-CREATE INDEX idx_clans_public ON clans(is_public, status, clan_level DESC, total_wins DESC)
-    WHERE is_public = TRUE AND status = 'active';
-CREATE INDEX idx_clans_recruiting ON clans(is_public, current_members, max_members, min_level_required)
-    WHERE is_public = TRUE AND status = 'active';
+CREATE INDEX idx_clans_public ON clans(is_public, status, clan_level DESC, total_wins DESC);
+CREATE INDEX idx_clans_recruiting ON clans(is_public, current_members, max_members, min_level_required);
 
 -- Clan members - optimize for roster queries
 CREATE INDEX idx_clan_members_roster ON clan_members(clan_id, role, contribution_points DESC);
 CREATE INDEX idx_clan_members_player ON clan_members(player_id, joined_at DESC);
 
 -- Chat messages - optimize for retrieval
-CREATE INDEX idx_chat_channel_recent ON chat_messages(channel_type, channel_id, created_at DESC, is_deleted)
-    WHERE is_deleted = FALSE;
+CREATE INDEX idx_chat_channel_recent ON chat_messages(channel_type, channel_id, created_at DESC, is_deleted);
 CREATE INDEX idx_chat_sender ON chat_messages(sender_id, created_at DESC);
 
 -- Player wallets - optimize for balance checks
 CREATE INDEX idx_wallets_player_currency ON player_wallets(player_id, currency_id, balance);
 
 -- Store items - optimize for shop browsing
-CREATE INDEX idx_store_available ON store_items(game_id, item_type, is_available, available_from, available_until)
-    WHERE is_available = TRUE;
-CREATE INDEX idx_store_discounted ON store_items(discount_percentage DESC, is_available)
-    WHERE discount_percentage > 0 AND is_available = TRUE;
+CREATE INDEX idx_store_available ON store_items(game_id, item_type, is_available, available_from, available_until);
+CREATE INDEX idx_store_discounted ON store_items(discount_percentage DESC, is_available);
 
 -- Transactions - optimize for history and analytics
 CREATE INDEX idx_transactions_player_recent ON transactions(player_id, created_at DESC);
 CREATE INDEX idx_transactions_type ON transactions(transaction_type, currency_id, created_at DESC);
-CREATE INDEX idx_transactions_pending ON transactions(payment_status, created_at)
-    WHERE payment_status = 'pending';
+CREATE INDEX idx_transactions_pending ON transactions(payment_status, created_at);
 
 -- Achievements - optimize for progress tracking
 CREATE INDEX idx_achievements_game_tier ON achievements(game_id, tier, is_hidden);
-CREATE INDEX idx_achievements_seasonal ON achievements(is_seasonal, game_id)
-    WHERE is_seasonal = TRUE;
+CREATE INDEX idx_achievements_seasonal ON achievements(is_seasonal, game_id);
 CREATE INDEX idx_achievements_rarity ON achievements(rarity_percentage, tier);
 
 -- Player achievements - optimize for profile display
 CREATE INDEX idx_player_achievements_profile ON player_achievements(player_id, is_completed, completed_at DESC);
-CREATE INDEX idx_player_achievements_progress ON player_achievements(player_id, is_completed, progress)
-    WHERE is_completed = FALSE;
-CREATE INDEX idx_player_achievements_recent ON player_achievements(completed_at DESC)
-    WHERE is_completed = TRUE;
+CREATE INDEX idx_player_achievements_progress ON player_achievements(player_id, is_completed, progress);
+CREATE INDEX idx_player_achievements_recent ON player_achievements(completed_at DESC);
 
 -- Player stats - optimize for leaderboards and matchmaking
 CREATE INDEX idx_stats_game_rating ON player_stats(game_id, current_rating DESC);
@@ -130,51 +101,41 @@ CREATE INDEX idx_stats_player_games ON player_stats(player_id, playtime_hours DE
 CREATE INDEX idx_stats_kd_ratio ON player_stats(game_id, kd_ratio DESC);
 
 -- Tournaments - optimize for discovery
-CREATE INDEX idx_tournaments_upcoming ON tournaments(status, tournament_start, game_id)
-    WHERE status IN ('upcoming', 'registration');
-CREATE INDEX idx_tournaments_active ON tournaments(status, tournament_start)
-    WHERE status = 'in_progress';
-CREATE INDEX idx_tournaments_registration ON tournaments(status, registration_end, current_participants, max_participants)
-    WHERE status = 'registration';
+CREATE INDEX idx_tournaments_upcoming ON tournaments(status, tournament_start, game_id);
+CREATE INDEX idx_tournaments_active ON tournaments(status, tournament_start);
+CREATE INDEX idx_tournaments_registration ON tournaments(status, registration_end, current_participants, max_participants);
 
 -- Tournament participants - optimize for brackets
 CREATE INDEX idx_tournament_participants_bracket ON tournament_participants(tournament_id, current_round, seed_number);
 CREATE INDEX idx_tournament_participants_player ON tournament_participants(player_id, is_eliminated);
 
 -- Leaderboards - optimize for display
-CREATE INDEX idx_leaderboards_game_active ON leaderboards(game_id, leaderboard_type, is_active)
-    WHERE is_active = TRUE;
-CREATE INDEX idx_leaderboards_reset ON leaderboards(reset_frequency, next_reset)
-    WHERE reset_frequency != 'never';
+CREATE INDEX idx_leaderboards_game_active ON leaderboards(game_id, leaderboard_type, is_active);
+CREATE INDEX idx_leaderboards_reset ON leaderboards(reset_frequency, next_reset);
 
 -- Leaderboard entries - optimize for ranking
 CREATE INDEX idx_leaderboard_entries_top ON leaderboard_entries(leaderboard_id, score DESC, rank);
 CREATE INDEX idx_leaderboard_entries_player ON leaderboard_entries(player_id, achieved_at DESC);
 
 -- Player reports - optimize for moderation
-CREATE INDEX idx_reports_pending ON player_reports(status, created_at)
-    WHERE status = 'pending';
+CREATE INDEX idx_reports_pending ON player_reports(status, created_at);
 CREATE INDEX idx_reports_player ON player_reports(reported_id, status, created_at DESC);
 CREATE INDEX idx_reports_match ON player_reports(match_id, status);
 
 -- Ban history - optimize for enforcement
-CREATE INDEX idx_bans_active ON ban_history(player_id, ban_type, is_active, expires_at)
-    WHERE is_active = TRUE;
-CREATE INDEX idx_bans_expiring ON ban_history(expires_at, is_active)
-    WHERE is_active = TRUE AND expires_at IS NOT NULL;
+CREATE INDEX idx_bans_active ON ban_history(player_id, ban_type, is_active, expires_at);
+CREATE INDEX idx_bans_expiring ON ban_history(expires_at, is_active);
 
 -- ============================================================================
 -- COMPOSITE INDEXES FOR COMPLEX QUERIES
 -- ============================================================================
 
 -- Find friends who are online and playing same game
-CREATE INDEX idx_friends_online_game ON friendships(player_id, status)
-    WHERE status = 'accepted';
+CREATE INDEX idx_friends_online_game ON friendships(player_id, status);
 
 -- Matchmaking with skill and region
 CREATE INDEX idx_matchmaking_composite ON matchmaking_queue(
-    game_id, game_mode, preferred_region, skill_rating, party_size, queued_at
-) WHERE status = 'searching';
+    game_id, game_mode, preferred_region, skill_rating, party_size, queued_at;
 
 -- Tournament standings
 CREATE INDEX idx_tournament_standings ON tournament_participants(
@@ -183,13 +144,11 @@ CREATE INDEX idx_tournament_standings ON tournament_participants(
 
 -- Active game sessions per player
 CREATE INDEX idx_active_game_sessions ON match_participants(
-    player_id, joined_at DESC
-) WHERE left_at IS NULL;
+    player_id, joined_at DESC;
 
 -- Store recommendations based on owned games
 CREATE INDEX idx_store_recommendations ON store_items(
-    game_id, item_type, is_available, times_purchased DESC
-) WHERE is_available = TRUE;
+    game_id, item_type, is_available, times_purchased DESC;
 
 -- Clan war participants
 CREATE INDEX idx_clan_war_performance ON match_participants mp

@@ -368,8 +368,7 @@ CREATE TABLE matchmaking_queue (
     search_time_seconds INT,
 
     PRIMARY KEY (queue_id),
-    INDEX idx_searching (game_id, status, skill_rating)
-        WHERE status = 'searching',
+    INDEX idx_searching (game_id, status, skill_rating),
     INDEX idx_player (player_id),
     INDEX idx_party (party_id),
     INDEX idx_queued (queued_at),
@@ -508,12 +507,7 @@ CREATE TABLE chat_messages (
     INDEX idx_channel (channel_type, channel_id, created_at DESC),
     INDEX idx_sender (sender_id),
     FOREIGN KEY (sender_id) REFERENCES players(player_id)
-) ENGINE=InnoDB
-PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- ============================================================================
 -- ECONOMY & PURCHASES

@@ -4,7 +4,7 @@
 -- Additional constraints and business rules
 -- =====================================================
 
-USE crypto_exchange;
+USE cryptocurrency_exchange;
 
 -- =====================================================
 -- Check Constraints

@@ -326,7 +326,7 @@ FOR EACH ROW
 BEGIN
     IF OLD.status = 'occupied' AND NEW.status = 'available' THEN
         INSERT INTO housekeeping_tasks (property_id, room_id, task_type, priority, scheduled_date, status)
-        VALUES (NEW.property_id, NEW.room_id, 'checkout_clean', 'high', CURDATE(), 'pending');
+        VALUES (NEW.property_id, NEW.room_id, 'checkout_clean', 'high', '2100-01-01', 'pending');
     END IF;
 END//
 
@@ -391,7 +391,7 @@ BEGIN
     FROM rooms r
     JOIN stays s ON r.room_id = s.room_id
     WHERE r.status = 'occupied'
-      AND s.actual_check_in < CURDATE()
+      AND s.actual_check_in < '2100-01-01'
       AND s.actual_check_out IS NULL
       AND NOT EXISTS (
           SELECT 1 FROM housekeeping_tasks ht
@@ -410,7 +410,7 @@ BEGIN
     UPDATE reservations
     SET status = 'no_show'
     WHERE status = 'confirmed'
-      AND check_in_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY)
+      AND check_in_date = DATE_SUB('2100-01-01', INTERVAL 1 DAY)
       AND reservation_id NOT IN (SELECT reservation_id FROM stays);
 END//
 
@@ -432,16 +432,16 @@ BEGIN
         COALESCE(SUM(res.room_rate), 0) as room_revenue,
         AVG(res.room_rate) as adr,
         COALESCE(SUM(res.room_rate), 0) / p.total_rooms as revpar,
-        COUNT(DISTINCT CASE WHEN res.check_in_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN res.reservation_id END) as arrivals,
-        COUNT(DISTINCT CASE WHEN res.check_out_date = DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN res.reservation_id END) as departures,
-        COUNT(DISTINCT CASE WHEN res.check_in_date < DATE_SUB(CURDATE(), INTERVAL 1 DAY)
-                             AND res.check_out_date > DATE_SUB(CURDATE(), INTERVAL 1 DAY) THEN res.reservation_id END) as stay_overs,
+        COUNT(DISTINCT CASE WHEN res.check_in_date = DATE_SUB('2100-01-01', INTERVAL 1 DAY) THEN res.reservation_id END) as arrivals,
+        COUNT(DISTINCT CASE WHEN res.check_out_date = DATE_SUB('2100-01-01', INTERVAL 1 DAY) THEN res.reservation_id END) as departures,
+        COUNT(DISTINCT CASE WHEN res.check_in_date < DATE_SUB('2100-01-01', INTERVAL 1 DAY)
+                             AND res.check_out_date > DATE_SUB('2100-01-01', INTERVAL 1 DAY) THEN res.reservation_id END) as stay_overs,
         SUM(res.adults + res.children) as total_guests
     FROM properties p
     LEFT JOIN rooms r ON p.property_id = r.property_id
     LEFT JOIN reservations res ON r.room_id = res.room_id
         AND res.status IN ('checked_in', 'checked_out')
-        AND DATE_SUB(CURDATE(), INTERVAL 1 DAY) BETWEEN res.check_in_date AND DATE_SUB(res.check_out_date, INTERVAL 1 DAY)
+        AND DATE_SUB('2100-01-01', INTERVAL 1 DAY) BETWEEN res.check_in_date AND DATE_SUB(res.check_out_date, INTERVAL 1 DAY)
     WHERE p.status = 'active'
     GROUP BY p.property_id
     ON DUPLICATE KEY UPDATE

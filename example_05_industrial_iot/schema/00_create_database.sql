@@ -24,13 +24,13 @@ USE industrial_iot;
 SET time_zone = '+00:00';
 
 -- Performance optimizations
-SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
-SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
-SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
-SET GLOBAL innodb_flush_method = O_DIRECT;       -- Avoid double buffering
+-- SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
+-- SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
+-- SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
+-- SET GLOBAL innodb_flush_method = O_DIRECT;       -- Avoid double buffering
 
 -- Enable event scheduler for automated tasks
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- ============================================================================
 -- Database Configuration

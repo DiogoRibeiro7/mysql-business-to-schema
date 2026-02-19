@@ -976,10 +976,4 @@ CREATE TABLE daily_statistics (
     UNIQUE KEY uk_property_date (property_id, stat_date),
     INDEX idx_date (stat_date),
     FOREIGN KEY (property_id) REFERENCES properties(property_id)
-) ENGINE=InnoDB
-PARTITION BY RANGE (YEAR(stat_date)) (
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_2026 VALUES LESS THAN (2027),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;

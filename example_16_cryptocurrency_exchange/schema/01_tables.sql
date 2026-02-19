@@ -4,7 +4,7 @@
 -- Core tables for cryptocurrency exchange operations
 -- =====================================================
 
-USE crypto_exchange;
+USE cryptocurrency_exchange;
 
 -- =====================================================
 -- User Management Tables

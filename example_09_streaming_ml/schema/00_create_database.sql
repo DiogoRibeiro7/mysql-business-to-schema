@@ -159,7 +159,7 @@ DELIMITER ;
 -- ============================================================================
 
 -- Enable event scheduler
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- ============================================================================
 -- Partition Management
@@ -267,7 +267,7 @@ CREATE TABLE schema_version (
     version VARCHAR(20) NOT NULL,
     description TEXT,
     applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    applied_by VARCHAR(100) DEFAULT USER()
+    applied_by VARCHAR(100) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- Insert initial version
@@ -279,11 +279,11 @@ VALUES ('1.0.0', 'Initial Streaming ML Platform database schema');
 -- ============================================================================
 
 -- Configure for high-throughput streaming workloads
-SET GLOBAL max_connections = 500;
-SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
-SET GLOBAL innodb_log_file_size = 536870912; -- 512MB
-SET GLOBAL innodb_flush_log_at_trx_commit = 2; -- Better performance, slight durability trade-off
-SET GLOBAL innodb_flush_method = O_DIRECT;
+-- SET GLOBAL max_connections = 500;
+-- SET GLOBAL innodb_buffer_pool_size = 2147483648; -- 2GB
+-- SET GLOBAL innodb_log_file_size = 536870912; -- 512MB
+-- SET GLOBAL innodb_flush_log_at_trx_commit = 2; -- Better performance, slight durability trade-off
+-- SET GLOBAL innodb_flush_method = O_DIRECT;
 
 -- ============================================================================
 -- Monitoring Tables

@@ -113,7 +113,7 @@ SELECT
     SUM(b.capacity_liters) / 1000 AS total_capacity_m3,
     COUNT(DISTINCT s.sensor_id) AS total_sensors,
     COUNT(DISTINCT CASE WHEN s.status = 'active' THEN s.sensor_id END) AS active_sensors,
-    AVG(
+    (
         SELECT AVG(sr.reading_value)
         FROM sensor_readings sr
         INNER JOIN sensors sen ON sr.sensor_id = sen.sensor_id

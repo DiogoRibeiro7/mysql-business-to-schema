@@ -2,7 +2,7 @@
 -- CONSTRAINTS FOR CRYPTOCURRENCY EXCHANGE
 -- ============================================================================
 
-USE crypto_exchange;
+USE cryptocurrency;
 
 -- ============================================================================
 -- ADDITIONAL FOREIGN KEY CONSTRAINTS

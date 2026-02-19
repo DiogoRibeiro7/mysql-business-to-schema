@@ -14,8 +14,7 @@ CREATE INDEX idx_sensor_readings_lookup
 
 -- Index for anomaly detection queries
 CREATE INDEX idx_sensor_quality
-    ON sensor_readings(quality, timestamp DESC)
-    WHERE quality != 'good';
+    ON sensor_readings(quality, timestamp DESC);
 
 -- Index for latest readings per sensor
 CREATE INDEX idx_sensor_latest
@@ -31,8 +30,7 @@ CREATE INDEX idx_order_schedule
 
 -- Active work orders by line
 CREATE INDEX idx_active_orders
-    ON work_orders(line_id, status, planned_start_time)
-    WHERE status IN ('planned', 'in_progress');
+    ON work_orders(line_id, status, planned_start_time);
 
 -- Production run performance analysis
 CREATE INDEX idx_run_performance
@@ -61,8 +59,7 @@ CREATE INDEX idx_oee_line_dashboard
 
 -- Low OEE detection
 CREATE INDEX idx_low_oee
-    ON oee_metrics(oee_percentage, metric_timestamp DESC)
-    WHERE oee_percentage < 60;
+    ON oee_metrics(oee_percentage, metric_timestamp DESC);
 
 -- ============================================================================
 -- Maintenance Management Indexes
@@ -70,8 +67,7 @@ CREATE INDEX idx_low_oee
 
 -- Upcoming maintenance
 CREATE INDEX idx_maintenance_due
-    ON maintenance_schedules(next_due, machine_id)
-    WHERE is_active = TRUE;
+    ON maintenance_schedules(next_due, machine_id);
 
 -- Maintenance history by machine
 CREATE INDEX idx_maintenance_history
@@ -79,8 +75,7 @@ CREATE INDEX idx_maintenance_history
 
 -- Active maintenance work
 CREATE INDEX idx_active_maintenance
-    ON maintenance_records(status, start_time)
-    WHERE status IN ('scheduled', 'in_progress');
+    ON maintenance_records(status, start_time);
 
 -- ============================================================================
 -- Downtime Analysis Indexes
@@ -92,8 +87,7 @@ CREATE INDEX idx_downtime_reason
 
 -- Active downtime events
 CREATE INDEX idx_active_downtime
-    ON downtime_events(end_time, machine_id)
-    WHERE end_time IS NULL;
+    ON downtime_events(end_time, machine_id);
 
 -- Downtime impact analysis
 CREATE INDEX idx_downtime_impact
@@ -105,13 +99,11 @@ CREATE INDEX idx_downtime_impact
 
 -- Unacknowledged alerts
 CREATE INDEX idx_unacked_alerts
-    ON alerts(severity, triggered_at DESC)
-    WHERE acknowledged_at IS NULL;
+    ON alerts(severity, triggered_at DESC);
 
 -- Unresolved alerts
 CREATE INDEX idx_unresolved_alerts
-    ON alerts(source_type, source_id, triggered_at DESC)
-    WHERE resolved_at IS NULL;
+    ON alerts(source_type, source_id, triggered_at DESC);
 
 -- Alert history by source
 CREATE INDEX idx_alert_source
@@ -127,13 +119,11 @@ CREATE INDEX idx_shift_performance
 
 -- Active operators by shift
 CREATE INDEX idx_operator_shift
-    ON operators(shift, factory_id, is_active)
-    WHERE is_active = TRUE;
+    ON operators(shift, factory_id, is_active);
 
 -- Operator skill search
 CREATE INDEX idx_operator_skills
-    ON operators(skill_level, factory_id)
-    WHERE is_active = TRUE;
+    ON operators(skill_level, factory_id);
 
 -- ============================================================================
 -- Machine Status Indexes
@@ -141,8 +131,7 @@ CREATE INDEX idx_operator_skills
 
 -- Current machine status
 CREATE INDEX idx_machine_current_status
-    ON machines(status, line_id)
-    WHERE status != 'offline';
+    ON machines(status, line_id);
 
 -- Machines by type and status
 CREATE INDEX idx_machine_type_status
@@ -191,8 +180,7 @@ ALTER TABLE operators ADD INDEX idx_certifications
 -- Dashboard query - current production status
 CREATE INDEX idx_dashboard_production
     ON work_orders(status, line_id, product_id, planned_start_time,
-                  planned_quantity, produced_quantity)
-    WHERE status IN ('planned', 'in_progress');
+                  planned_quantity, produced_quantity);
 
 -- Machine availability calculation
 CREATE INDEX idx_machine_availability
@@ -204,8 +192,7 @@ CREATE INDEX idx_quality_trend
 
 -- Sensor alert correlation
 CREATE INDEX idx_sensor_alert_correlation
-    ON sensor_readings(sensor_id, timestamp, value)
-    WHERE value NOT BETWEEN -1000 AND 1000;  -- Likely anomalous values
+    ON sensor_readings(sensor_id, timestamp, value);
 
 -- ============================================================================
 -- Partitioned Table Optimization

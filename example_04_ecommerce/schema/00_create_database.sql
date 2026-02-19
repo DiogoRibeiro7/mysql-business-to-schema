@@ -21,7 +21,7 @@ USE ecommerce;
 SET time_zone = '+00:00';
 
 -- Enable event scheduler for automated tasks
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- Create user for the application (optional - uncomment if needed)
 -- CREATE USER IF NOT EXISTS 'shop_app'@'localhost' IDENTIFIED BY 'secure_password_here';

@@ -426,12 +426,7 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     INDEX idx_entity (entity_type, entity_id),
     INDEX idx_created (created_at DESC),
     INDEX idx_action (action_type)
-) ENGINE=InnoDB PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p2024 VALUES LESS THAN (2025),
-    PARTITION p2025 VALUES LESS THAN (2026),
-    PARTITION p2026 VALUES LESS THAN (2027),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
-);
+) ENGINE=InnoDB;
 
 -- =========================================
 -- 8. LOANS & CREDIT

@@ -17,7 +17,7 @@ CREATE DATABASE real_estate
 USE real_estate;
 
 -- Enable spatial extensions
-SET GLOBAL log_bin_trust_function_creators = 1;
+-- SET GLOBAL log_bin_trust_function_creators = 1;
 
 -- Set session parameters
 SET sql_mode = 'STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO';

@@ -10,13 +10,11 @@ USE fintech;
 
 -- For transaction history queries
 CREATE INDEX idx_transactions_date_range
-ON transactions(account_id, initiated_at DESC, status)
-INCLUDE (amount, currency, balance_after, description);
+ON transactions(account_id, initiated_at DESC, status);
 
 -- For pending transaction monitoring
 CREATE INDEX idx_pending_transactions
-ON transactions(status, initiated_at)
-WHERE status IN ('pending', 'processing');
+ON transactions(status, initiated_at);
 
 -- For daily transaction reports
 CREATE INDEX idx_daily_transactions
@@ -24,8 +22,7 @@ ON transactions(DATE(initiated_at), transaction_type, status);
 
 -- For fraud detection velocity checks
 CREATE INDEX idx_transaction_velocity
-ON transactions(account_id, initiated_at, amount)
-WHERE initiated_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR);
+ON transactions(account_id, initiated_at, amount);
 
 -- =========================================
 -- Account Query Indexes
@@ -33,19 +30,15 @@ WHERE initiated_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR);
 
 -- For account dashboard queries
 CREATE INDEX idx_account_dashboard
-ON accounts(status, account_type, currency)
-INCLUDE (balance, available_balance, last_transaction_date);
+ON accounts(status, account_type, currency);
 
 -- For customer account lookup
 CREATE INDEX idx_customer_accounts
-ON account_holders(customer_id, relationship_type)
-INCLUDE (account_id, ownership_percentage);
+ON account_holders(customer_id, relationship_type);
 
 -- For interest calculation batches
 CREATE INDEX idx_interest_calculation
-ON accounts(account_type, last_interest_date, status)
-WHERE account_type IN ('savings', 'loan')
-AND status = 'active';
+ON accounts(account_type, last_interest_date, status);
 
 -- =========================================
 -- Customer Search Indexes
@@ -60,14 +53,11 @@ ON business_customers(business_name);
 
 -- For KYC status monitoring
 CREATE INDEX idx_kyc_pending
-ON customers(status, risk_level, created_at)
-WHERE status = 'pending_kyc';
+ON customers(status, risk_level, created_at);
 
 -- For document expiry monitoring
 CREATE INDEX idx_document_expiry
-ON kyc_documents(expiry_date, verification_status, customer_id)
-WHERE verification_status = 'verified'
-AND expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 90 DAY);
+ON kyc_documents(expiry_date, verification_status, customer_id);
 
 -- =========================================
 -- Payment Processing Indexes
@@ -75,13 +65,11 @@ AND expiry_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 90 DAY);
 
 -- For payment method retrieval
 CREATE INDEX idx_active_payment_methods
-ON payment_methods(customer_id, is_active, is_default)
-WHERE is_active = TRUE;
+ON payment_methods(customer_id, is_active, is_default);
 
 -- For card expiry monitoring
 CREATE INDEX idx_card_expiry
-ON cards(expiry_year, expiry_month)
-WHERE expiry_year >= YEAR(CURDATE());
+ON cards(expiry_year, expiry_month);
 
 -- =========================================
 -- Ledger & Accounting Indexes
@@ -89,13 +77,11 @@ WHERE expiry_year >= YEAR(CURDATE());
 
 -- For trial balance generation
 CREATE INDEX idx_journal_period
-ON journal_entries(entry_date, status)
-INCLUDE (total_debits, total_credits);
+ON journal_entries(entry_date, status);
 
 -- For account reconciliation
 CREATE INDEX idx_journal_lines_period
-ON journal_lines(account_code, journal_id)
-INCLUDE (debit_amount, credit_amount);
+ON journal_lines(account_code, journal_id);
 
 -- For financial reporting
 CREATE INDEX idx_chart_accounts_reporting
@@ -107,18 +93,15 @@ ON chart_of_accounts(account_type, is_active, parent_account_code);
 
 -- For real-time fraud scoring
 CREATE INDEX idx_fraud_alerts_active
-ON fraud_alerts(customer_id, created_at DESC, status)
-WHERE status IN ('pending', 'investigating');
+ON fraud_alerts(customer_id, created_at DESC, status);
 
 -- For device trust scoring
 CREATE INDEX idx_device_trust
-ON device_fingerprints(customer_id, trust_score, is_blocked)
-INCLUDE (device_hash, last_seen);
+ON device_fingerprints(customer_id, trust_score, is_blocked);
 
 -- For risk rule evaluation
 CREATE INDEX idx_active_risk_rules
-ON risk_rules(is_active, rule_type)
-WHERE is_active = TRUE;
+ON risk_rules(is_active, rule_type);
 
 -- =========================================
 -- Compliance & Regulatory Indexes
@@ -126,14 +109,11 @@ WHERE is_active = TRUE;
 
 -- For AML monitoring
 CREATE INDEX idx_aml_review
-ON aml_checks(result, reviewed_at, customer_id)
-WHERE result IN ('potential_match', 'confirmed_match')
-AND reviewed_at IS NULL;
+ON aml_checks(result, reviewed_at, customer_id);
 
 -- For SAR reporting
 CREATE INDEX idx_sar_period
-ON sar_reports(filing_date, filing_status)
-WHERE filing_status != 'acknowledged';
+ON sar_reports(filing_date, filing_status);
 
 -- For audit trail queries
 CREATE INDEX idx_audit_user_actions
@@ -148,14 +128,11 @@ ON audit_logs(entity_type, entity_id, created_at DESC);
 
 -- For loan payment processing
 CREATE INDEX idx_loan_payments_due
-ON loan_accounts(next_payment_date, status)
-WHERE status = 'active'
-AND next_payment_date <= DATE_ADD(CURDATE(), INTERVAL 7 DAY);
+ON loan_accounts(next_payment_date, status);
 
 -- For loan application workflow
 CREATE INDEX idx_loan_applications_pending
-ON loan_applications(status, application_date)
-WHERE status IN ('submitted', 'under_review');
+ON loan_applications(status, application_date);
 
 -- =========================================
 -- Currency & Exchange Indexes
@@ -175,10 +152,7 @@ ON exchange_rates(from_currency, to_currency, rate_date DESC);
 
 -- For notification preference lookup
 CREATE INDEX idx_notification_active
-ON notification_preferences(customer_id, notification_type)
-WHERE email_enabled = TRUE
-OR sms_enabled = TRUE
-OR push_enabled = TRUE;
+ON notification_preferences(customer_id, notification_type);
 
 -- =========================================
 -- Composite Indexes for Complex Queries
@@ -186,8 +160,7 @@ OR push_enabled = TRUE;
 
 -- For monthly statements
 CREATE INDEX idx_monthly_statement
-ON transactions(account_id, initiated_at, status, transaction_type)
-INCLUDE (amount, currency, balance_after, description, reference_number);
+ON transactions(account_id, initiated_at, status, transaction_type);
 
 -- For transaction search
 CREATE INDEX idx_transaction_search
@@ -195,8 +168,7 @@ ON transactions(reference_number, created_at DESC);
 
 -- For customer 360 view
 CREATE INDEX idx_customer_360
-ON customers(customer_id, status, risk_level)
-INCLUDE (email, phone_number, onboarding_date, last_activity);
+ON customers(customer_id, status, risk_level);
 
 -- =========================================
 -- Partial Indexes for Specific Workflows
@@ -204,15 +176,11 @@ INCLUDE (email, phone_number, onboarding_date, last_activity);
 
 -- For daily settlement batch
 CREATE INDEX idx_settlement_batch
-ON transactions(DATE(completed_at), status, transaction_type)
-WHERE status = 'completed'
-AND completed_at >= CURDATE();
+ON transactions(DATE(completed_at), status, transaction_type);
 
 -- For suspicious transaction monitoring
 CREATE INDEX idx_suspicious_monitoring
-ON transactions(amount, account_id, initiated_at)
-WHERE amount > 10000
-AND status = 'completed';
+ON transactions(amount, account_id, initiated_at);
 
 -- =========================================
 -- Statistics Update
@@ -233,7 +201,4 @@ SELECT
     index_name,
     cardinality,
     ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb
-FROM information_schema.statistics
-WHERE table_schema = 'fintech'
-GROUP BY table_name, index_name
-ORDER BY table_name, index_name;
+FROM information_schema.statistics;

@@ -1,7 +1,7 @@
 -- Additional Indexes for Logistics & Supply Chain System
 -- Performance optimization for common query patterns
 
-USE logistics_db;
+USE logistics;
 
 -- ========================================
 -- INVENTORY SEARCH INDEXES
@@ -56,9 +56,7 @@ CREATE INDEX idx_delivery_performance
 ON shipments(carrier_id, actual_delivery_date, delivery_date, status)
 WHERE status = 'DELIVERED';
 
--- Spatial index for location-based queries
 ALTER TABLE shipment_tracking
-ADD SPATIAL INDEX idx_tracking_location(latitude, longitude);
 
 -- ========================================
 -- WAREHOUSE OPTIMIZATION INDEXES

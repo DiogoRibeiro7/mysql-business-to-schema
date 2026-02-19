@@ -10,26 +10,21 @@ USE streaming_ml;
 
 -- Stream lookup and filtering
 CREATE INDEX idx_stream_active
-    ON data_streams(project_id, is_active, stream_type)
-    WHERE is_active = TRUE;
+    ON data_streams(project_id, is_active, stream_type);
 
 CREATE INDEX idx_stream_connection
-    ON data_streams(last_connected DESC, is_active)
-    WHERE is_active = TRUE;
+    ON data_streams(last_connected DESC, is_active);
 
 -- Pipeline processing
 CREATE INDEX idx_pipeline_active
-    ON stream_pipelines(stream_id, is_active, processing_type)
-    WHERE is_active = TRUE;
+    ON stream_pipelines(stream_id, is_active, processing_type);
 
 -- Event processing queue
 CREATE INDEX idx_events_pending
-    ON stream_events(stream_id, processing_status, event_timestamp)
-    WHERE processing_status = 'Pending';
+    ON stream_events(stream_id, processing_status, event_timestamp);
 
 CREATE INDEX idx_events_failed
-    ON stream_events(processing_status, event_timestamp DESC)
-    WHERE processing_status = 'Failed';
+    ON stream_events(processing_status, event_timestamp DESC);
 
 -- ============================================================================
 -- Feature Store Indexes
@@ -37,8 +32,7 @@ CREATE INDEX idx_events_failed
 
 -- Feature lookup
 CREATE INDEX idx_feature_lookup
-    ON feature_definitions(project_id, feature_group, computation_type, is_online)
-    WHERE is_online = TRUE;
+    ON feature_definitions(project_id, feature_group, computation_type, is_online);
 
 CREATE INDEX idx_feature_version
     ON feature_definitions(project_id, feature_name, version DESC);
@@ -67,16 +61,14 @@ CREATE INDEX idx_feature_set_version
 
 -- Experiment search
 CREATE INDEX idx_experiment_status
-    ON experiments(project_id, status, start_time DESC)
-    WHERE status IN ('Running', 'Completed');
+    ON experiments(project_id, status, start_time DESC);
 
 -- Run tracking
 CREATE INDEX idx_run_status
     ON experiment_runs(experiment_id, status, start_time DESC);
 
 CREATE INDEX idx_run_active
-    ON experiment_runs(status, start_time DESC)
-    WHERE status IN ('Started', 'Running');
+    ON experiment_runs(status, start_time DESC);
 
 -- Metrics search
 CREATE INDEX idx_metrics_lookup
@@ -94,8 +86,7 @@ CREATE INDEX idx_model_search
     ON models(project_id, model_type, status, created_at DESC);
 
 CREATE INDEX idx_model_active
-    ON models(project_id, status, model_version DESC)
-    WHERE status IN ('Validated', 'Staged', 'Deployed');
+    ON models(project_id, status, model_version DESC);
 
 CREATE INDEX idx_model_framework
     ON models(framework, model_type, created_at DESC);
@@ -114,21 +105,18 @@ CREATE INDEX idx_comparison_models
 
 -- Active deployments
 CREATE INDEX idx_deployment_active
-    ON model_deployments(environment, status, health_status)
-    WHERE status = 'Active';
+    ON model_deployments(environment, status, health_status);
 
 CREATE INDEX idx_deployment_model
     ON model_deployments(model_id, status, deployed_at DESC);
 
 -- Deployment health monitoring
 CREATE INDEX idx_deployment_health
-    ON model_deployments(health_status, status)
-    WHERE status = 'Active' AND health_status != 'Healthy';
+    ON model_deployments(health_status, status);
 
 -- A/B test management
 CREATE INDEX idx_ab_test_active
-    ON ab_tests(project_id, status, start_time DESC)
-    WHERE status = 'Running';
+    ON ab_tests(project_id, status, start_time DESC);
 
 CREATE INDEX idx_ab_test_deployment
     ON ab_tests(control_deployment_id, treatment_deployment_id, status);
@@ -146,8 +134,7 @@ CREATE INDEX idx_prediction_request
 
 -- Prediction performance
 CREATE INDEX idx_prediction_latency
-    ON predictions(deployment_id, response_time_ms DESC)
-    WHERE response_time_ms > 100;
+    ON predictions(deployment_id, response_time_ms DESC);
 
 -- Ground truth matching
 CREATE INDEX idx_ground_truth_lookup
@@ -162,8 +149,7 @@ CREATE INDEX idx_ground_truth_feedback
 
 -- Drift detection
 CREATE INDEX idx_drift_significant
-    ON drift_detection(deployment_id, detected_at DESC, is_significant)
-    WHERE is_significant = TRUE;
+    ON drift_detection(deployment_id, detected_at DESC, is_significant);
 
 CREATE INDEX idx_drift_type
     ON drift_detection(drift_type, detected_at DESC, drift_score DESC);
@@ -173,17 +159,14 @@ CREATE INDEX idx_performance_deployment
     ON performance_metrics(deployment_id, metric_window_end DESC);
 
 CREATE INDEX idx_performance_accuracy
-    ON performance_metrics(accuracy DESC, metric_window_end DESC)
-    WHERE accuracy IS NOT NULL;
+    ON performance_metrics(accuracy DESC, metric_window_end DESC);
 
 -- Alert management
 CREATE INDEX idx_alert_unresolved
-    ON model_alerts(deployment_id, severity, triggered_at DESC)
-    WHERE resolved_at IS NULL;
+    ON model_alerts(deployment_id, severity, triggered_at DESC);
 
 CREATE INDEX idx_alert_critical
-    ON model_alerts(severity, triggered_at DESC)
-    WHERE severity = 'Critical' AND resolved_at IS NULL;
+    ON model_alerts(severity, triggered_at DESC);
 
 CREATE INDEX idx_alert_type_time
     ON model_alerts(alert_type, triggered_at DESC);
@@ -194,16 +177,14 @@ CREATE INDEX idx_alert_type_time
 
 -- Resource availability
 CREATE INDEX idx_resource_available
-    ON compute_resources(resource_type, status, available_capacity DESC)
-    WHERE status = 'Available';
+    ON compute_resources(resource_type, status, available_capacity DESC);
 
 CREATE INDEX idx_resource_provider
     ON compute_resources(provider, resource_type, status);
 
 -- Active allocations
 CREATE INDEX idx_allocation_active
-    ON resource_allocations(resource_id, allocation_start, allocation_end)
-    WHERE allocation_end IS NULL;
+    ON resource_allocations(resource_id, allocation_start, allocation_end);
 
 CREATE INDEX idx_allocation_type
     ON resource_allocations(allocated_to_type, allocated_to_id, allocation_start DESC);
@@ -221,17 +202,14 @@ CREATE INDEX idx_lineage_backward
 
 -- Data quality monitoring
 CREATE INDEX idx_quality_rule_active
-    ON data_quality_rules(applies_to_type, applies_to_id, is_active)
-    WHERE is_active = TRUE;
+    ON data_quality_rules(applies_to_type, applies_to_id, is_active);
 
 CREATE INDEX idx_quality_rule_type
-    ON data_quality_rules(rule_type, severity, is_active)
-    WHERE is_active = TRUE;
+    ON data_quality_rules(rule_type, severity, is_active);
 
 -- Quality violations
 CREATE INDEX idx_violation_unresolved
-    ON data_quality_violations(rule_id, resolved, severity)
-    WHERE resolved = FALSE;
+    ON data_quality_violations(rule_id, resolved, severity);
 
 CREATE INDEX idx_violation_time
     ON data_quality_violations(violation_timestamp DESC, severity);
@@ -258,8 +236,7 @@ CREATE INDEX idx_api_endpoint_time
     ON api_usage(endpoint, request_timestamp DESC);
 
 CREATE INDEX idx_api_errors
-    ON api_usage(response_status, request_timestamp DESC)
-    WHERE response_status >= 400;
+    ON api_usage(response_status, request_timestamp DESC);
 
 -- ============================================================================
 -- Full-Text Search Indexes
@@ -312,8 +289,7 @@ ALTER TABLE models ADD INDEX idx_model_f1
 CREATE INDEX idx_deployment_dashboard
     ON model_deployments(
         deployment_id, model_id, environment, status,
-        health_status, traffic_percentage, deployed_at
-    ) WHERE status = 'Active';
+        health_status, traffic_percentage, deployed_at;
 
 -- Experiment leaderboard
 CREATE INDEX idx_experiment_leaderboard
@@ -321,8 +297,7 @@ CREATE INDEX idx_experiment_leaderboard
         experiment_id, model_name, model_version,
         JSON_EXTRACT(metrics, '$.accuracy'),
         JSON_EXTRACT(metrics, '$.f1_score'),
-        created_at
-    ) WHERE status IN ('Validated', 'Deployed');
+        created_at;
 
 -- Stream health monitoring
 CREATE INDEX idx_stream_health

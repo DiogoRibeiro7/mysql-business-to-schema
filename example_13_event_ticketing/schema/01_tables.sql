@@ -56,13 +56,13 @@ CREATE TABLE IF NOT EXISTS venue_sections (
 CREATE TABLE IF NOT EXISTS venue_rows (
     row_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     section_id INT UNSIGNED NOT NULL,
-    row_number VARCHAR(10) NOT NULL,
+    row_label VARCHAR(10) NOT NULL,
     seats_count INT UNSIGNED NOT NULL,
     is_accessible BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (section_id) REFERENCES venue_sections(section_id) ON DELETE CASCADE,
     INDEX idx_section_rows (section_id),
-    UNIQUE INDEX idx_section_row_number (section_id, row_number)
+    UNIQUE INDEX idx_section_row_number (section_id, row_label)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS venue_seats (

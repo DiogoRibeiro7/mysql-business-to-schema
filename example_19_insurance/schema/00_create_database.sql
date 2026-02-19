@@ -30,14 +30,14 @@ USE insurance_platform;
 SET time_zone = '+00:00';
 
 -- Performance optimizations for insurance workloads
-SET GLOBAL innodb_buffer_pool_size = 4294967296; -- 4GB
-SET GLOBAL innodb_flush_log_at_trx_commit = 2;
-SET GLOBAL innodb_file_per_table = ON;
-SET GLOBAL innodb_log_file_size = 1073741824; -- 1GB
+-- SET GLOBAL innodb_buffer_pool_size = 4294967296; -- 4GB
+-- SET GLOBAL innodb_flush_log_at_trx_commit = 2;
+-- SET GLOBAL innodb_file_per_table = ON;
+-- SET GLOBAL innodb_log_file_size = 1073741824; -- 1GB
 
 -- Enable event scheduler for automated tasks
-SET GLOBAL event_scheduler = ON;
+-- SET GLOBAL event_scheduler = ON;
 
 -- Optimize for financial calculations
-SET GLOBAL max_connections = 1000;
-SET GLOBAL group_concat_max_len = 100000;
+-- SET GLOBAL max_connections = 1000;
+-- SET GLOBAL group_concat_max_len = 100000;

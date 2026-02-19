@@ -1,0 +1,8 @@
+#!/bin/bash
+# Migration CLI Wrapper Script for Unix/Linux/Mac
+
+# Get the directory of this script
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Run the migration CLI with Python
+python "$DIR/migration_system/migration_cli.py" "$@"

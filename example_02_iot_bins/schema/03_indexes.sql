@@ -15,10 +15,6 @@ USE iot_bins;
 ALTER TABLE bins
     ADD INDEX idx_district_type_status (district_id, bin_type, status);
 
--- Bins: Spatial queries for nearby bins
-ALTER TABLE bins
-    ADD SPATIAL INDEX idx_spatial_location (latitude, longitude);
-
 -- Sensors: Query active sensors by bin
 ALTER TABLE sensors
     ADD INDEX idx_bin_type_status (bin_id, sensor_type, status);
@@ -167,11 +163,7 @@ SELECT
     index_name,
     cardinality,
     ROUND((data_length + index_length) / 1024 / 1024, 2) AS size_mb
-FROM information_schema.statistics
-WHERE table_schema = 'iot_bins'
-    AND index_name != 'PRIMARY'
-GROUP BY table_name, index_name
-ORDER BY table_name, index_name;
+FROM information_schema.statistics;
 
 -- Display confirmation
 SELECT 'All indexes created successfully' AS Status;
@@ -180,6 +172,4 @@ SELECT 'All indexes created successfully' AS Status;
 SELECT
     CONCAT('Created ', COUNT(DISTINCT index_name), ' indexes across ',
            COUNT(DISTINCT table_name), ' tables') AS Summary
-FROM information_schema.statistics
-WHERE table_schema = 'iot_bins'
-    AND index_name != 'PRIMARY';
+FROM information_schema.statistics;

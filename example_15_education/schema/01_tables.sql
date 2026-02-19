@@ -3,7 +3,7 @@
 
 -- Create database
 CREATE DATABASE IF NOT EXISTS education_db;
-USE education_db;
+USE education;
 
 -- ========================================
 -- USER MANAGEMENT & AUTHENTICATION
@@ -827,11 +827,6 @@ CREATE TABLE activity_logs (
     INDEX idx_user_activity (user_id, activity_type, created_at),
     INDEX idx_activity_date (created_at),
     INDEX idx_session (session_id)
-) PARTITION BY RANGE (YEAR(created_at)) (
-    PARTITION p_2023 VALUES LESS THAN (2024),
-    PARTITION p_2024 VALUES LESS THAN (2025),
-    PARTITION p_2025 VALUES LESS THAN (2026),
-    PARTITION p_future VALUES LESS THAN MAXVALUE
 );
 
 -- Learning Analytics Summary

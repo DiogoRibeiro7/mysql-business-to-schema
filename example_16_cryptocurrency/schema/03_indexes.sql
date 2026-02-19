@@ -2,7 +2,7 @@
 -- INDEXES FOR CRYPTOCURRENCY EXCHANGE
 -- ============================================================================
 
-USE crypto_exchange;
+USE cryptocurrency;
 
 -- ============================================================================
 -- PERFORMANCE INDEXES
@@ -20,13 +20,10 @@ CREATE INDEX idx_wallets_user_total ON wallets(user_id, total_balance);
 
 -- Orders table - optimize for order book and matching
 CREATE INDEX idx_orders_pair_status_side ON orders(pair_id, status, side);
-CREATE INDEX idx_orders_pair_open_buy ON orders(pair_id, status, side, price DESC)
-    WHERE status = 'open' AND side = 'buy';
-CREATE INDEX idx_orders_pair_open_sell ON orders(pair_id, status, side, price ASC)
-    WHERE status = 'open' AND side = 'sell';
+CREATE INDEX idx_orders_pair_open_buy ON orders(pair_id, status, side, price DESC);
+CREATE INDEX idx_orders_pair_open_sell ON orders(pair_id, status, side, price ASC);
 CREATE INDEX idx_orders_user_recent ON orders(user_id, created_at DESC);
-CREATE INDEX idx_orders_filled_quantity ON orders(filled_quantity)
-    WHERE status IN ('open', 'partially_filled');
+CREATE INDEX idx_orders_filled_quantity ON orders(filled_quantity);
 
 -- Trades table - optimize for history and analytics
 CREATE INDEX idx_trades_pair_time ON trades(pair_id, executed_at DESC);
@@ -36,10 +33,8 @@ CREATE INDEX idx_trades_price_volume ON trades(pair_id, price, quantity);
 
 -- Transactions table - optimize for user history and admin monitoring
 CREATE INDEX idx_transactions_user_type_status ON transactions(user_id, type, status);
-CREATE INDEX idx_transactions_status_review ON transactions(status, requires_manual_review)
-    WHERE requires_manual_review = TRUE;
-CREATE INDEX idx_transactions_blockchain ON transactions(blockchain_txid, status)
-    WHERE blockchain_txid IS NOT NULL;
+CREATE INDEX idx_transactions_status_review ON transactions(status, requires_manual_review);
+CREATE INDEX idx_transactions_blockchain ON transactions(blockchain_txid, status);
 CREATE INDEX idx_transactions_recent ON transactions(created_at DESC);
 
 -- Price history table - optimize for chart queries
@@ -77,27 +72,22 @@ ALTER TABLE audit_logs ADD FULLTEXT ft_audit_search (event_type, event_subtype, 
 -- ============================================================================
 
 -- Order book depth query optimization
-CREATE INDEX idx_orderbook_depth ON orders(pair_id, side, status, price, quantity)
-    WHERE status IN ('open', 'partially_filled');
+CREATE INDEX idx_orderbook_depth ON orders(pair_id, side, status, price, quantity);
 
 -- User portfolio value calculation
-CREATE INDEX idx_portfolio_value ON wallets(user_id, currency_id, total_balance)
-    WHERE total_balance > 0;
+CREATE INDEX idx_portfolio_value ON wallets(user_id, currency_id, total_balance);
 
 -- 24h volume calculation per pair
-CREATE INDEX idx_24h_volume ON trades(pair_id, executed_at, quantity, value)
-    WHERE executed_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR);
+CREATE INDEX idx_24h_volume ON trades(pair_id, executed_at, quantity, value);
 
 -- User transaction history with pagination
 CREATE INDEX idx_user_tx_history ON transactions(user_id, status, created_at DESC, transaction_id);
 
 -- KYC document verification queue
-CREATE INDEX idx_kyc_queue ON kyc_documents(verification_status, uploaded_at)
-    WHERE verification_status = 'pending';
+CREATE INDEX idx_kyc_queue ON kyc_documents(verification_status, uploaded_at);
 
 -- High-value transaction monitoring
-CREATE INDEX idx_high_value_tx ON transactions(amount, status, created_at)
-    WHERE amount > 10000 AND status = 'pending';
+CREATE INDEX idx_high_value_tx ON transactions(amount, status, created_at);
 
 -- ============================================================================
 -- STATISTICS UPDATE
