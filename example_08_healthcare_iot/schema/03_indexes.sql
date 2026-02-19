@@ -53,12 +53,8 @@ CREATE INDEX idx_manual_vitals
 -- ============================================================================
 
 -- Active devices by location
-CREATE INDEX idx_device_location
-    ON devices(hospital_id, department_id, room_id, is_active);
 
 -- Devices needing maintenance
-CREATE INDEX idx_device_maintenance
-    ON devices(next_maintenance_date, device_type);
 
 -- Offline devices
 CREATE INDEX idx_offline_devices
@@ -117,8 +113,6 @@ CREATE INDEX idx_prn_medications
     ON prescriptions(patient_id, is_prn, is_active);
 
 -- Medication administration schedule
-CREATE INDEX idx_mar_schedule
-    ON medication_administration(scheduled_time, taken, patient_id);
 
 -- Missed medications
 CREATE INDEX idx_missed_medications

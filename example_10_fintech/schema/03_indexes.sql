@@ -33,8 +33,6 @@ CREATE INDEX idx_account_dashboard
 ON accounts(status, account_type, currency);
 
 -- For customer account lookup
-CREATE INDEX idx_customer_accounts
-ON account_holders(customer_id, relationship_type);
 
 -- For interest calculation batches
 CREATE INDEX idx_interest_calculation

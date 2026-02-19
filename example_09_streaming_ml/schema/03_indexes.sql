@@ -35,8 +35,6 @@ CREATE INDEX idx_feature_version
     ON feature_definitions(project_id, feature_name, version DESC);
 
 -- Raw feature retrieval
-CREATE INDEX idx_raw_feature_entity
-    ON raw_features(entity_id, feature_id, event_timestamp DESC);
 
 CREATE INDEX idx_raw_feature_time
     ON raw_features(feature_id, event_timestamp DESC);
@@ -104,12 +102,8 @@ CREATE INDEX idx_comparison_models
 CREATE INDEX idx_deployment_active
     ON model_deployments(environment, status, health_status);
 
-CREATE INDEX idx_deployment_model
-    ON model_deployments(model_id, status, deployed_at DESC);
 
 -- Deployment health monitoring
-CREATE INDEX idx_deployment_health
-    ON model_deployments(health_status, status);
 
 -- A/B test management
 CREATE INDEX idx_ab_test_active
@@ -126,8 +120,6 @@ CREATE INDEX idx_ab_test_deployment
 CREATE INDEX idx_prediction_lookup
     ON predictions(deployment_id, prediction_timestamp DESC);
 
-CREATE INDEX idx_prediction_request
-    ON predictions(request_id);
 
 -- Prediction performance
 CREATE INDEX idx_prediction_latency
@@ -148,19 +140,13 @@ CREATE INDEX idx_ground_truth_feedback
 CREATE INDEX idx_drift_significant
     ON drift_detection(deployment_id, detected_at DESC, is_significant);
 
-CREATE INDEX idx_drift_type
-    ON drift_detection(drift_type, detected_at DESC, drift_score DESC);
 
 -- Performance monitoring
-CREATE INDEX idx_performance_deployment
-    ON performance_metrics(deployment_id, metric_window_end DESC);
 
 CREATE INDEX idx_performance_accuracy
     ON performance_metrics(accuracy DESC, metric_window_end DESC);
 
 -- Alert management
-CREATE INDEX idx_alert_unresolved
-    ON model_alerts(deployment_id, severity, triggered_at DESC);
 
 CREATE INDEX idx_alert_critical
     ON model_alerts(severity, triggered_at DESC);
@@ -176,12 +162,8 @@ CREATE INDEX idx_alert_type_time
 CREATE INDEX idx_resource_available
     ON compute_resources(resource_type, status, available_capacity DESC);
 
-CREATE INDEX idx_resource_provider
-    ON compute_resources(provider, resource_type, status);
 
 -- Active allocations
-CREATE INDEX idx_allocation_active
-    ON resource_allocations(resource_id, allocation_start, allocation_end);
 
 CREATE INDEX idx_allocation_type
     ON resource_allocations(allocated_to_type, allocated_to_id, allocation_start DESC);
@@ -201,12 +183,8 @@ CREATE INDEX idx_lineage_backward
 CREATE INDEX idx_quality_rule_active
     ON data_quality_rules(applies_to_type, applies_to_id, is_active);
 
-CREATE INDEX idx_quality_rule_type
-    ON data_quality_rules(rule_type, severity, is_active);
 
 -- Quality violations
-CREATE INDEX idx_violation_unresolved
-    ON data_quality_violations(rule_id, resolved, severity);
 
 CREATE INDEX idx_violation_time
     ON data_quality_violations(violation_timestamp DESC, severity);
