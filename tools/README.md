@@ -15,7 +15,7 @@ A comprehensive tool for analyzing query performance across all database example
 ### Installation
 
 ```bash
-pip install mysql-connector-python tabulate pyyaml
+poetry install --no-root
 ```
 
 ### Usage

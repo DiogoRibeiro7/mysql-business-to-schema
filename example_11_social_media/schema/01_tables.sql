@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     INDEX idx_user_profile (user_id),
-    FULLTEXT INDEX ft_bio (bio),
-    FULLTEXT INDEX ft_display_name (display_name)
+    INDEX idx_bio (bio(255)),
+    INDEX idx_display_name (display_name)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS user_settings (
@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS posts (
     INDEX idx_parent_post (parent_post_id),
     INDEX idx_engagement (engagement_score DESC),
     INDEX idx_created (created_at DESC),
-    FULLTEXT INDEX ft_content (content)
+    INDEX idx_content_prefix (content(255))
 ) ENGINE=InnoDB PARTITION BY RANGE (YEAR(created_at)) (
     PARTITION p2023 VALUES LESS THAN (2024),
     PARTITION p2024 VALUES LESS THAN (2025),
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS comments (
     INDEX idx_post_comments (post_id, created_at),
     INDEX idx_parent_comment (parent_comment_id),
     INDEX idx_user_comments (user_id, created_at DESC),
-    FULLTEXT INDEX ft_comment_content (content)
+    INDEX idx_comment_content_prefix (content(255))
 ) ENGINE=InnoDB;
 
 -- =========================================

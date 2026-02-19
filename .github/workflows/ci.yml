@@ -262,6 +262,8 @@ jobs:
       - name: Test Flask app
         run: |
           cd web_interface
+          echo "Checking analytics.py snippet:"
+          sed -n '560,570p' analytics.py
           # Create test file
           cat > test_app.py <<EOF
           import pytest
