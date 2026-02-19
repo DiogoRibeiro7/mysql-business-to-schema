@@ -561,7 +561,8 @@ class DataExporter:
                                 elif isinstance(val, (int, float)):
                                     values.append(str(val))
                                 else:
-                                    values.append(f"'{str(val).replace('\'', '\\\'')}'")
+                                    escaped = str(val).replace("'", "''")
+                                    values.append(f"'{escaped}'")
 
                             output.append(f"INSERT INTO `{table}` ({', '.join(columns)}) VALUES ({', '.join(values)});")
 

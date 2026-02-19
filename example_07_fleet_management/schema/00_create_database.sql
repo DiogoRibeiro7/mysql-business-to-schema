@@ -25,13 +25,15 @@ USE fleet_management;
 SET time_zone = '+00:00';
 
 -- Performance optimizations for high-frequency GPS data
-SET GLOBAL innodb_buffer_pool_size = 3221225472; -- 3GB for GPS data
-SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
-SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
-SET GLOBAL innodb_file_per_table = ON;           -- Separate files for large tables
+-- Note: These are server-level settings and may be read-only in managed/CI environments.
+-- Apply manually in MySQL config when appropriate.
+-- SET GLOBAL innodb_buffer_pool_size = 3221225472; -- 3GB for GPS data
+-- SET GLOBAL innodb_log_file_size = 536870912;     -- 512MB
+-- SET GLOBAL innodb_flush_log_at_trx_commit = 2;   -- Balance performance/safety
+-- SET GLOBAL innodb_file_per_table = ON;           -- Separate files for large tables
 
--- Enable event scheduler for automated compliance checks
-SET GLOBAL event_scheduler = ON;
+-- Enable event scheduler for automated compliance checks (optional)
+-- SET GLOBAL event_scheduler = ON;
 
 -- ============================================================================
 -- Stored Procedures and Functions

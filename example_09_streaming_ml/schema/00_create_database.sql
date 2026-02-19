@@ -24,15 +24,11 @@ GRANT SELECT, INSERT, UPDATE ON streaming_ml.* TO 'data_scientist'@'localhost';
 
 -- ML engineer role (deployment and operations)
 CREATE USER IF NOT EXISTS 'ml_engineer'@'localhost' IDENTIFIED BY 'MLEng!neer2024';
-GRANT SELECT, INSERT, UPDATE, DELETE ON streaming_ml.models TO 'ml_engineer'@'localhost';
-GRANT SELECT, INSERT, UPDATE ON streaming_ml.model_deployments TO 'ml_engineer'@'localhost';
-GRANT SELECT, INSERT ON streaming_ml.predictions TO 'ml_engineer'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE ON streaming_ml.* TO 'ml_engineer'@'localhost';
 
 -- Streaming service role (data ingestion)
 CREATE USER IF NOT EXISTS 'stream_service'@'localhost' IDENTIFIED BY 'Str3am!ng2024';
-GRANT SELECT, INSERT ON streaming_ml.data_streams TO 'stream_service'@'localhost';
-GRANT SELECT, INSERT ON streaming_ml.stream_events TO 'stream_service'@'localhost';
-GRANT SELECT, INSERT ON streaming_ml.raw_features TO 'stream_service'@'localhost';
+GRANT SELECT, INSERT ON streaming_ml.* TO 'stream_service'@'localhost';
 
 -- Analytics role (read-only for reporting)
 CREATE USER IF NOT EXISTS 'ml_analyst'@'localhost' IDENTIFIED BY 'An@lyst2024';
