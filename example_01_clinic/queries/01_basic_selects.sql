@@ -1,4 +1,4 @@
-/* Basic selects and filters */
+/* Basic queries and filters */
 
 /* 1) List all active patients (expect: active rows only) */
 SELECT patient_id, first_name, last_name, status

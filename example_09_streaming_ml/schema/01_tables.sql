@@ -466,7 +466,7 @@ CREATE TABLE resource_allocations (
     actual_cost DECIMAL(10,2),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_allocation_resource (resource_id, allocation_start),
-    INDEX idx_allocation_active (allocation_end),
+    INDEX idx_allocation_active (allocation_end)
 ) ENGINE=InnoDB;
 
 -- ============================================================================
@@ -515,7 +515,7 @@ CREATE TABLE data_quality_violations (
     resolved_at DATETIME,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_violation_rule (rule_id, violation_timestamp DESC),
-    INDEX idx_violation_unresolved (resolved, severity),
+    INDEX idx_violation_unresolved (resolved, severity)
 ) ENGINE=InnoDB;
 
 -- ============================================================================

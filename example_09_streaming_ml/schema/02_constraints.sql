@@ -270,8 +270,10 @@ ALTER TABLE model_deployments
     ) STORED,
     ADD COLUMN active_environment VARCHAR(50) GENERATED ALWAYS AS (
         CASE WHEN status = 'Active' THEN environment ELSE NULL END
-    ) STORED,
-    ADD UNIQUE INDEX uk_active_deployment (active_model_id, active_environment);
+    ) STORED;
+
+CREATE UNIQUE INDEX uk_active_deployment
+    ON model_deployments(active_model_id, active_environment);
 
 -- Ensure unique request ID for predictions
 ALTER TABLE predictions

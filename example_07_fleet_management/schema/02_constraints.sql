@@ -241,8 +241,10 @@ ALTER TABLE stops
 ALTER TABLE trips
     ADD COLUMN active_vehicle_id INT GENERATED ALWAYS AS (
         CASE WHEN status = 'in_progress' THEN vehicle_id ELSE NULL END
-    ) STORED,
-    ADD UNIQUE INDEX uk_active_trip_vehicle (active_vehicle_id);
+    ) STORED;
+
+CREATE UNIQUE INDEX uk_active_trip_vehicle
+    ON trips(active_vehicle_id);
 
 -- ============================================================================
 -- Default Value Constraints

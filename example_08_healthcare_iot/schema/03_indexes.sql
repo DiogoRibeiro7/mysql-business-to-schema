@@ -241,22 +241,6 @@ CREATE INDEX idx_los_analysis
     ON admissions(admission_date, discharge_date, department_id);
 
 -- ============================================================================
--- HIPAA Audit Indexes
--- ============================================================================
-
--- Audit log by table and time
-CREATE INDEX idx_audit_table_time
-    ON audit_log(table_name, timestamp DESC);
-
--- Audit log by user
-CREATE INDEX idx_audit_user
-    ON audit_log(user, timestamp DESC);
-
--- PHI access audit
-CREATE INDEX idx_phi_audit
-    ON audit_log(table_name, operation, timestamp DESC);
-
--- ============================================================================
 -- Full-Text Search Indexes
 -- ============================================================================
 

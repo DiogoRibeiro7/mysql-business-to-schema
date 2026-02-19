@@ -294,15 +294,19 @@ ALTER TABLE staff_schedules
 ALTER TABLE admissions
     ADD COLUMN active_patient_id INT GENERATED ALWAYS AS (
         CASE WHEN status = 'Active' THEN patient_id ELSE NULL END
-    ) STORED,
-    ADD UNIQUE INDEX uk_active_admission (active_patient_id);
+    ) STORED;
+
+CREATE UNIQUE INDEX uk_active_admission
+    ON admissions(active_patient_id);
 
 -- Ensure unique device assignment
 ALTER TABLE device_assignments
     ADD COLUMN active_device_id INT GENERATED ALWAYS AS (
         CASE WHEN is_active = TRUE THEN device_id ELSE NULL END
-    ) STORED,
-    ADD UNIQUE INDEX uk_active_device_assignment (active_device_id);
+    ) STORED;
+
+CREATE UNIQUE INDEX uk_active_device_assignment
+    ON device_assignments(active_device_id);
 
 -- Ensure unique staff schedule
 ALTER TABLE staff_schedules

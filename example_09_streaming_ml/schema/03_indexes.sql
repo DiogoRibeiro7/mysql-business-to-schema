@@ -314,16 +314,6 @@ CREATE TABLE IF NOT EXISTS stream_events_daily (
 ) ENGINE=InnoDB;
 
 -- ============================================================================
--- System Monitoring Indexes
--- ============================================================================
-
-CREATE INDEX idx_system_metrics_lookup
-    ON system_metrics(metric_name, component, timestamp DESC);
-
-CREATE INDEX idx_system_metrics_component
-    ON system_metrics(component, timestamp DESC);
-
--- ============================================================================
 -- Statistics Update
 -- ============================================================================
 

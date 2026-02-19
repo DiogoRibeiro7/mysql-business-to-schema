@@ -371,7 +371,7 @@ CREATE TABLE drivers (
     INDEX idx_status (status),
     INDEX idx_available (is_available, status),
     INDEX idx_location (current_latitude, current_longitude),
-    INDEX idx_rating (average_rating DESC),
+    INDEX idx_rating (average_rating DESC)
 ) ENGINE=InnoDB;
 
 -- Driver shift schedule
@@ -604,7 +604,7 @@ CREATE TABLE delivery_zones (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     PRIMARY KEY (zone_id),
-    UNIQUE KEY uk_name (name),
+    UNIQUE KEY uk_name (name)
 ) ENGINE=InnoDB;
 
 -- ============================================================================
