@@ -1,0 +1,153 @@
+version: '3.8'
+
+# Insurance Company Management System Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3329 (user: root, password: insurance_root)
+#   - phpMyAdmin: http://localhost:8103
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: insurance_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: insurance_root
+      MYSQL_DATABASE: insurance_company
+      MYSQL_USER: insurance_user
+      MYSQL_PASSWORD: insurance_secure_pass
+    ports:
+      - "3329:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - insurance_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - insurance_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=200
+      - --innodb_buffer_pool_size=2G
+      - --innodb_log_file_size=256M
+      - --slow_query_log=ON
+      - --slow_query_log_file=/var/log/mysql/slow.log
+      - --long_query_time=2
+      - --event_scheduler=ON
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: insurance_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: insurance_root
+      UPLOAD_LIMIT: 50M
+    ports:
+      - "8103:80"
+    networks:
+      - insurance_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: insurance_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: insurance_company
+      MYSQL_USER: insurance_user
+      MYSQL_PASSWORD: insurance_secure_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Insurance-specific generation parameters
+      CUSTOMERS_COUNT: ${CUSTOMERS_COUNT:-2000}
+      POLICIES_COUNT: ${POLICIES_COUNT:-5000}
+      CLAIMS_COUNT: ${CLAIMS_COUNT:-500}
+      AGENTS_COUNT: ${AGENTS_COUNT:-50}
+      ENABLE_RISK_ASSESSMENT: ${ENABLE_RISK_ASSESSMENT:-true}
+      ENABLE_FRAUD_DETECTION: ${ENABLE_FRAUD_DETECTION:-true}
+    volumes:
+      - ../generators/insurance:/app
+      - insurance_generator_output:/app/output
+    networks:
+      - insurance_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 15 &&
+        echo 'Generating insurance company data...' &&
+        echo 'Creating customers: ${CUSTOMERS_COUNT:-2000}' &&
+        echo 'Creating policies: ${POLICIES_COUNT:-5000}' &&
+        echo 'Processing claims: ${CLAIMS_COUNT:-500}' &&
+        echo 'Setting up agents: ${AGENTS_COUNT:-50}' &&
+        python insurance_generator.py &&
+        echo 'Insurance data generation complete!'
+      "
+
+  # Redis for caching policy calculations and risk assessments
+  redis:
+    image: redis:7-alpine
+    container_name: insurance_redis
+    restart: unless-stopped
+    ports:
+      - "6385:6379"
+    volumes:
+      - insurance_redis_data:/data
+    networks:
+      - insurance_network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+  # PostgreSQL for reporting and analytics (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: insurance_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: insurance_analyst
+      POSTGRES_PASSWORD: analytics_pass
+      POSTGRES_DB: insurance_analytics
+    ports:
+      - "5434:5432"
+    volumes:
+      - insurance_postgres_data:/var/lib/postgresql/data
+    networks:
+      - insurance_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U insurance_analyst"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  insurance_mysql_data:
+    name: insurance_mysql_data
+  insurance_generator_output:
+    name: insurance_generator_output
+  insurance_redis_data:
+    name: insurance_redis_data
+  insurance_postgres_data:
+    name: insurance_postgres_data
+
+networks:
+  insurance_network:
+    name: insurance_network
+    driver: bridge

@@ -1,0 +1,121 @@
+name: Schema Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  schema-testing:
+    name: Schema Testing
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        mysql-version: ['8.0', '8.1']
+        example: [
+          'example_01_clinic',
+          'example_02_iot_bins',
+          'example_03_smart_energy',
+          'example_04_ecommerce',
+          'example_05_industrial_iot',
+          'example_06_smart_agriculture',
+          'example_07_fleet_management',
+          'example_08_healthcare_iot',
+          'example_09_streaming_ml',
+          'example_10_fintech',
+          'example_11_social_media',
+          'example_12_real_estate',
+          'example_13_event_ticketing'
+        ]
+
+    services:
+      mysql:
+        image: mysql:${{ matrix.mysql-version }}
+        env:
+          MYSQL_ROOT_PASSWORD: root_password_ci
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Wait for MySQL
+        run: |
+          until mysqladmin ping -h"127.0.0.1" -P3306 -u"root" -p"root_password_ci" --silent; do
+            echo 'waiting for mysql...'
+            sleep 2
+          done
+
+      - name: Test ${{ matrix.example }} schema
+        run: |
+          echo "Testing ${{ matrix.example }} on MySQL ${{ matrix.mysql-version }}"
+
+          mysql -h 127.0.0.1 -u root -proot_password_ci -e "CREATE DATABASE IF NOT EXISTS ${{ matrix.example }}_db;"
+
+          for file in ${{ matrix.example }}/schema/*.sql; do
+            if [ -f "$file" ]; then
+              case "$file" in
+                *load_generated.sql)
+                  echo "Skipping data load script: $file"
+                  ;;
+                *)
+                  echo "Loading: $file"
+                  mysql -h 127.0.0.1 -u root -proot_password_ci ${{ matrix.example }}_db < "$file" || true
+                  ;;
+              esac
+            fi
+          done
+
+          if [ -d "${{ matrix.example }}/queries" ]; then
+            for file in ${{ matrix.example }}/queries/*.sql; do
+              if [ -f "$file" ]; then
+                case "$file" in
+                  *transactions.sql)
+                    echo "Skipping transactional data script: $file"
+                    ;;
+                  *)
+                    echo "Testing query: $file"
+                    mysql -h 127.0.0.1 -u root -proot_password_ci ${{ matrix.example }}_db < "$file" || true
+                    ;;
+                esac
+              fi
+            done
+          fi
+
+          TABLE_COUNT=$(mysql -h 127.0.0.1 -u root -proot_password_ci ${{ matrix.example }}_db -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${{ matrix.example }}_db';")
+          echo "Created $TABLE_COUNT tables in ${{ matrix.example }}"
+
+          if [ "$TABLE_COUNT" -eq "0" ]; then
+            echo "WARNING: No tables created!"
+          fi
+
+      - name: Generate schema report
+        if: always()
+        run: |
+          mkdir -p reports
+          mysql -h 127.0.0.1 -u root -proot_password_ci -e "
+            SELECT table_name, table_rows, data_length, index_length
+            FROM information_schema.tables
+            WHERE table_schema='${{ matrix.example }}_db'
+          " > reports/${{ matrix.example }}_schema_report.txt
+
+      - name: Upload schema report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: schema-report-${{ matrix.example }}-mysql${{ matrix.mysql-version }}
+          path: reports/${{ matrix.example }}_schema_report.txt

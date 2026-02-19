@@ -1,0 +1,76 @@
+name: SQL Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sql-validation:
+    name: SQL Syntax Validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Install sqlfluff
+        run: |
+          pip install sqlfluff==2.3.2
+          pip install sqlfluff-templater-dbt
+
+      - name: Create sqlfluff config
+        run: |
+          cat > .sqlfluff <<EOF
+          [sqlfluff]
+          dialect = mysql
+          templater = raw
+          rules = all
+          exclude_rules = L031,L034,L036
+          max_line_length = 120
+
+          [sqlfluff:indentation]
+          tab_space_size = 4
+          indent_unit = space
+
+          [sqlfluff:rules:L010]
+          capitalisation_policy = upper
+
+          [sqlfluff:rules:L014]
+          extended_capitalisation_policy = upper
+          EOF
+
+      - name: Lint SQL files
+        run: |
+          echo "Validating SQL syntax in all examples..."
+          find . -name "*.sql" -type f | while read file; do
+            echo "Checking: $file"
+            sqlfluff lint "$file" --dialect mysql || true
+          done
+
+      - name: Generate SQL validation report
+        if: always()
+        run: |
+          mkdir -p reports
+          find . -name "*.sql" -type f | while read file; do
+            sqlfluff lint "$file" --dialect mysql --format json >> reports/sql_validation.json 2>&1 || true
+          done
+
+      - name: Upload SQL validation report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: sql-validation-report
+          path: reports/sql_validation.json

@@ -1,0 +1,150 @@
+version: '3.8'
+
+# Gaming Platform Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3328 (user: root, password: gaming_root)
+#   - phpMyAdmin: http://localhost:8102
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: gaming_platform_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: gaming_root
+      MYSQL_DATABASE: gaming_platform
+      MYSQL_USER: gaming_user
+      MYSQL_PASSWORD: gaming_secure_pass
+    ports:
+      - "3328:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - gaming_platform_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - gaming_platform_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=1000
+      - --innodb_buffer_pool_size=4G
+      - --innodb_log_file_size=512M
+      - --slow_query_log=ON
+      - --slow_query_log_file=/var/log/mysql/slow.log
+      - --long_query_time=1
+      - --max_allowed_packet=64M
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: gaming_platform_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: gaming_root
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "8102:80"
+    networks:
+      - gaming_platform_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: gaming_platform_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: gaming_platform
+      MYSQL_USER: gaming_user
+      MYSQL_PASSWORD: gaming_secure_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Gaming-specific generation parameters
+      PLAYERS_COUNT: ${PLAYERS_COUNT:-5000}
+      GAMES_COUNT: ${GAMES_COUNT:-100}
+      MATCHES_PER_DAY: ${MATCHES_PER_DAY:-1000}
+      TOURNAMENTS_COUNT: ${TOURNAMENTS_COUNT:-10}
+      ENABLE_LEADERBOARDS: ${ENABLE_LEADERBOARDS:-true}
+      ENABLE_ACHIEVEMENTS: ${ENABLE_ACHIEVEMENTS:-true}
+    volumes:
+      - ../generators/gaming_platform:/app
+      - gaming_platform_generator_output:/app/output
+    networks:
+      - gaming_platform_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 15 &&
+        echo 'Generating gaming platform data...' &&
+        echo 'Creating players: ${PLAYERS_COUNT:-5000}' &&
+        echo 'Creating games: ${GAMES_COUNT:-100}' &&
+        echo 'Generating matches: ${MATCHES_PER_DAY:-1000} per day' &&
+        echo 'Setting up tournaments: ${TOURNAMENTS_COUNT:-10}' &&
+        python gaming_platform_generator.py &&
+        echo 'Gaming data generation complete!'
+      "
+
+  # Redis for session management and real-time leaderboards
+  redis:
+    image: redis:7-alpine
+    container_name: gaming_platform_redis
+    restart: unless-stopped
+    ports:
+      - "6384:6379"
+    volumes:
+      - gaming_platform_redis_data:/data
+    networks:
+      - gaming_platform_network
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+
+  # Elasticsearch for game analytics and search
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: gaming_platform_elasticsearch
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    volumes:
+      - gaming_platform_es_data:/usr/share/elasticsearch/data
+    networks:
+      - gaming_platform_network
+    mem_limit: 1g
+
+volumes:
+  gaming_platform_mysql_data:
+    name: gaming_platform_mysql_data
+  gaming_platform_generator_output:
+    name: gaming_platform_generator_output
+  gaming_platform_redis_data:
+    name: gaming_platform_redis_data
+  gaming_platform_es_data:
+    name: gaming_platform_es_data
+
+networks:
+  gaming_platform_network:
+    name: gaming_platform_network
+    driver: bridge

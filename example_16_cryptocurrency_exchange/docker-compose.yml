@@ -1,0 +1,126 @@
+version: '3.8'
+
+# Cryptocurrency Exchange Platform Docker Compose
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# Access:
+#   - MySQL: localhost:3326 (user: root, password: crypto_root)
+#   - phpMyAdmin: http://localhost:8100
+#
+# Generate test data:
+#   docker-compose run data_generator
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: crypto_exchange_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: crypto_root
+      MYSQL_DATABASE: crypto_exchange
+      MYSQL_USER: crypto_user
+      MYSQL_PASSWORD: crypto_secure_pass
+    ports:
+      - "3326:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - crypto_exchange_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
+      interval: 5s
+    networks:
+      - crypto_exchange_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=500
+      - --innodb_buffer_pool_size=2G
+      - --innodb_log_file_size=256M
+      - --slow_query_log=ON
+      - --slow_query_log_file=/var/log/mysql/slow.log
+      - --long_query_time=2
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: crypto_exchange_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: crypto_root
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "8100:80"
+    networks:
+      - crypto_exchange_network
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: crypto_exchange_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: crypto_exchange
+      MYSQL_USER: crypto_user
+      MYSQL_PASSWORD: crypto_secure_pass
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      # Crypto-specific generation parameters
+      USERS_COUNT: ${USERS_COUNT:-1000}
+      TRADING_PAIRS: ${TRADING_PAIRS:-20}
+      ORDERS_PER_DAY: ${ORDERS_PER_DAY:-5000}
+      ENABLE_MARKET_DATA: ${ENABLE_MARKET_DATA:-true}
+    volumes:
+      - ../generators/cryptocurrency_exchange:/app
+      - crypto_exchange_generator_output:/app/output
+    networks:
+      - crypto_exchange_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 15 &&
+        echo 'Generating cryptocurrency exchange data...' &&
+        echo 'Creating users: ${USERS_COUNT:-1000}' &&
+        echo 'Creating trading pairs: ${TRADING_PAIRS:-20}' &&
+        echo 'Generating orders: ${ORDERS_PER_DAY:-5000} per day' &&
+        python cryptocurrency_exchange_generator.py &&
+        echo 'Data generation complete!'
+      "
+
+  # Redis cache for real-time data
+  redis:
+    image: redis:7-alpine
+    container_name: crypto_exchange_redis
+    restart: unless-stopped
+    ports:
+      - "6382:6379"
+    volumes:
+      - crypto_exchange_redis_data:/data
+    networks:
+      - crypto_exchange_network
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+
+volumes:
+  crypto_exchange_mysql_data:
+    name: crypto_exchange_mysql_data
+  crypto_exchange_generator_output:
+    name: crypto_exchange_generator_output
+  crypto_exchange_redis_data:
+    name: crypto_exchange_redis_data
+
+networks:
+  crypto_exchange_network:
+    name: crypto_exchange_network
+    driver: bridge

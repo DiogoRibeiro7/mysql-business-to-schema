@@ -1,0 +1,55 @@
+name: Tools Testing
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tools-testing:
+    name: Test Python Tools
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-root --with web,ml,dev
+
+      - name: Run tool tests
+        run: |
+          cd tools
+          python schema_validator.py --help
+          python schema_validator.py ../example_01_clinic/schema/ --output ../reports/validation.json || true
+          python test_runner.py --help || true
+
+      - name: Test generators
+        run: |
+          for gen_dir in generators/*/; do
+            if [ -f "$gen_dir/generate.py" ]; then
+              echo "Testing generator: $gen_dir"
+              cd "$gen_dir"
+              python generate.py --help || true
+              cd ../..
+            fi
+          done

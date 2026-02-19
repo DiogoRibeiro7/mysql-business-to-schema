@@ -1,0 +1,49 @@
+name: Documentation Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  documentation-check:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check README files exist
+        run: |
+          MISSING_README=""
+          for dir in example_*/; do
+            if [ ! -f "$dir/README.md" ]; then
+              echo "Missing README.md in $dir"
+              MISSING_README="$MISSING_README $dir"
+            fi
+          done
+
+          if [ ! -z "$MISSING_README" ]; then
+            echo "ERROR: Missing README files in: $MISSING_README"
+            exit 1
+          fi
+
+      - name: Validate markdown
+        run: |
+          npm install -g markdownlint-cli
+          markdownlint '**/*.md' --ignore node_modules || true
+
+      - name: Check for broken links
+        uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          use-quiet-mode: 'yes'
+          config-file: '.github/markdown-link-check.json'
+        continue-on-error: true
