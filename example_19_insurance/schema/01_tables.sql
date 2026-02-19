@@ -2,7 +2,7 @@
 -- CORE TABLES FOR INSURANCE MANAGEMENT PLATFORM
 -- ============================================================================
 
-USE insurance_platform;
+USE insurance;
 
 -- ============================================================================
 -- CUSTOMER MANAGEMENT

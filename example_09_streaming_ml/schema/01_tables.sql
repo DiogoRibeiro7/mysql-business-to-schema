@@ -401,13 +401,7 @@ CREATE TABLE performance_metrics (
     accuracy DECIMAL(5,4),
     precision_score DECIMAL(5,4),
     recall_score DECIMAL(5,4),
-    f1_score DECIMAL(5,4) GENERATED ALWAYS AS (
-        calculate_f1_score(
-            JSON_EXTRACT(confusion_matrix, '$.true_positives'),
-            JSON_EXTRACT(confusion_matrix, '$.false_positives'),
-            JSON_EXTRACT(confusion_matrix, '$.false_negatives')
-        )
-    ) STORED,
+    f1_score DECIMAL(5,4),
     auc_roc DECIMAL(5,4),
     confusion_matrix JSON,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

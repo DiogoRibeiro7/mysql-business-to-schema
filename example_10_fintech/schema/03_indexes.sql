@@ -18,7 +18,7 @@ ON transactions(status, initiated_at);
 
 -- For daily transaction reports
 CREATE INDEX idx_daily_transactions
-ON transactions(DATE(initiated_at), transaction_type, status);
+ON transactions(initiated_at, transaction_type, status);
 
 -- For fraud detection velocity checks
 CREATE INDEX idx_transaction_velocity

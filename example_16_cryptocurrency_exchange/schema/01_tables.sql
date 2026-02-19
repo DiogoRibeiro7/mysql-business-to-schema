@@ -344,7 +344,7 @@ CREATE TABLE trades (
 CREATE TABLE price_history (
     price_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     pair_id INT UNSIGNED NOT NULL,
-    timeframe ENUM('1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1M') NOT NULL,
+    timeframe ENUM('1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1mo') NOT NULL,
 
     -- OHLCV data
     open_price DECIMAL(30, 18) NOT NULL,

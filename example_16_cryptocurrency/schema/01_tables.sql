@@ -370,7 +370,7 @@ CREATE TABLE transactions (
 CREATE TABLE price_history (
     candle_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     pair_id INT UNSIGNED NOT NULL,
-    interval_type ENUM('1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1M') NOT NULL,
+    interval_type ENUM('1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1mo') NOT NULL,
 
     -- OHLCV data
     open_time TIMESTAMP NOT NULL,

@@ -205,8 +205,8 @@ ALTER TABLE tournament_participants
 
 -- Leaderboard entries table
 ALTER TABLE leaderboard_entries
-    ADD CONSTRAINT chk_leaderboard_rank
-    CHECK (rank IS NULL OR rank > 0);
+    ADD CONSTRAINT chk_leaderboard_rank_position
+    CHECK (rank_position IS NULL OR rank_position > 0);
 
 -- Player reports table
 ALTER TABLE player_reports
@@ -370,7 +370,7 @@ BEGIN
     SET @rank := 0;
 
     UPDATE leaderboard_entries
-    SET rank = (@rank := @rank + 1)
+    SET rank_position = (@rank := @rank + 1)
     WHERE leaderboard_id = NEW.leaderboard_id
     ORDER BY score DESC;
 END//

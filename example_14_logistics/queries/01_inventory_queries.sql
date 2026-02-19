@@ -1,7 +1,7 @@
 -- Inventory Management Queries
 -- Complex queries for inventory optimization and analysis
 
-USE logistics_db;
+USE logistics;
 
 -- ========================================
 -- INVENTORY AVAILABILITY & ALLOCATION

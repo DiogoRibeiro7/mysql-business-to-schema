@@ -19,12 +19,12 @@
 -- ============================================================================
 
 -- Drop and recreate database
-DROP DATABASE IF EXISTS insurance_platform;
-CREATE DATABASE insurance_platform
+DROP DATABASE IF EXISTS insurance;
+CREATE DATABASE insurance
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_unicode_ci;
 
-USE insurance_platform;
+USE insurance;
 
 -- Set timezone to UTC for consistency
 SET time_zone = '+00:00';

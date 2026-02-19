@@ -12,9 +12,6 @@ USE healthcare_iot;
 CREATE INDEX idx_patient_search
     ON patients(last_name, first_name, date_of_birth);
 
-CREATE INDEX idx_patient_mrn
-    ON patients(medical_record_number);
-
 -- Active admissions lookup
 CREATE INDEX idx_active_admissions
     ON admissions(status, hospital_id, department_id);

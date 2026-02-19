@@ -9,9 +9,6 @@ USE streaming_ml;
 -- ============================================================================
 
 -- Stream lookup and filtering
-CREATE INDEX idx_stream_active
-    ON data_streams(project_id, is_active, stream_type);
-
 CREATE INDEX idx_stream_connection
     ON data_streams(last_connected DESC, is_active);
 

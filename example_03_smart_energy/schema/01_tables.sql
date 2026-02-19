@@ -581,4 +581,4 @@ CREATE TABLE IF NOT EXISTS performance_metrics (
 
 -- Display confirmation
 SELECT 'All smart energy tables created successfully' AS Status;
-SELECT COUNT(*) AS table_count FROM information_schema.tables,
+SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = 'smart_energy';

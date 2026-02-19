@@ -263,7 +263,7 @@ CREATE TABLE schema_version (
     version VARCHAR(20) NOT NULL,
     description TEXT,
     applied_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    applied_by VARCHAR(100) DEFAULT USER()
+    applied_by VARCHAR(100) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 -- Insert initial version

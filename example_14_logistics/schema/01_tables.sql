@@ -1,8 +1,6 @@
 -- Logistics & Supply Chain Management System
 -- Core tables for warehouse, inventory, and transportation management
 
--- Create database
-CREATE DATABASE IF NOT EXISTS logistics_db;
 USE logistics;
 
 -- ========================================
@@ -35,7 +33,7 @@ CREATE TABLE warehouses (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_warehouse_type (warehouse_type),
     INDEX idx_location (country_code, state_province, city),
-    INDEX idx_active (is_active),
+    INDEX idx_active (is_active)
 );
 
 -- Warehouse Zones

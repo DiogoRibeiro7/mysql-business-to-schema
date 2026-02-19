@@ -114,7 +114,7 @@ CREATE INDEX idx_leaderboards_game_active ON leaderboards(game_id, leaderboard_t
 CREATE INDEX idx_leaderboards_reset ON leaderboards(reset_frequency, next_reset);
 
 -- Leaderboard entries - optimize for ranking
-CREATE INDEX idx_leaderboard_entries_top ON leaderboard_entries(leaderboard_id, score DESC, rank);
+CREATE INDEX idx_leaderboard_entries_top ON leaderboard_entries(leaderboard_id, score DESC, rank_position);
 CREATE INDEX idx_leaderboard_entries_player ON leaderboard_entries(player_id, achieved_at DESC);
 
 -- Player reports - optimize for moderation

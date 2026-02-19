@@ -116,24 +116,21 @@ ALTER TABLE collection_events
 ALTER TABLE sensor_readings
     ADD INDEX idx_hour_aggregation (
         sensor_id,
-        DATE(reading_time),
-        HOUR(reading_time)
+        reading_time
     );
 
 -- Sensor Readings Daily: For monthly summaries
 ALTER TABLE sensor_readings_daily
     ADD INDEX idx_month_aggregation (
         sensor_id,
-        YEAR(date),
-        MONTH(date)
+        date
     );
 
 -- Collection Events: For collection statistics
 ALTER TABLE collection_events
     ADD INDEX idx_collection_stats (
         bin_id,
-        YEAR(collected_at),
-        MONTH(collected_at)
+        collected_at
     );
 
 -- ============================================================================

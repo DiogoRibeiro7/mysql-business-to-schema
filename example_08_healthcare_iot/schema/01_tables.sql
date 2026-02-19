@@ -251,12 +251,7 @@ CREATE TABLE vital_signs (
     blood_glucose DECIMAL(6,2),
     pain_level INT,
     consciousness_level ENUM('Alert', 'Verbal', 'Pain', 'Unresponsive'),
-    early_warning_score INT GENERATED ALWAYS AS (
-        calculate_early_warning_score(
-            respiratory_rate, oxygen_saturation, systolic_bp,
-            heart_rate, consciousness_level, temperature
-        )
-    ) STORED,
+    early_warning_score INT NULL,
     recorded_by INT,
     is_manual_entry BOOLEAN DEFAULT FALSE,
     notes TEXT,

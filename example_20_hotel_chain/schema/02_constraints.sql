@@ -190,11 +190,6 @@ ALTER TABLE daily_statistics
 -- UNIQUE CONSTRAINTS
 -- ============================================================================
 
--- Ensure unique active room connections
-ALTER TABLE rooms
-    ADD CONSTRAINT uk_connecting_rooms
-    CHECK (connecting_room_id != room_id);
-
 -- ============================================================================
 -- TRIGGERS FOR DATA INTEGRITY
 -- ============================================================================

@@ -12,8 +12,6 @@ USE hotel_chain;
 CREATE INDEX idx_properties_brand ON properties(brand, status);
 CREATE INDEX idx_properties_location ON properties(country, state_province, city);
 CREATE INDEX idx_properties_rating ON properties(star_rating, status);
-CREATE INDEX idx_properties_manager ON properties(general_manager_id);
-
 -- Room types - optimize for inventory management
 CREATE INDEX idx_room_types_property ON room_types(property_id, is_active);
 CREATE INDEX idx_room_types_category ON room_types(category, is_active);

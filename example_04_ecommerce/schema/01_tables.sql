@@ -789,4 +789,4 @@ CREATE TABLE IF NOT EXISTS email_queue (
 
 -- Display confirmation
 SELECT 'All e-commerce tables created successfully' AS Status;
-SELECT COUNT(*) AS table_count FROM information_schema.tables,
+SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = 'ecommerce';

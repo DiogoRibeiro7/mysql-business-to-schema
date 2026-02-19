@@ -882,7 +882,7 @@ CREATE TABLE leaderboard_entries (
 
     -- Score/Value
     score BIGINT NOT NULL,
-    rank INT,
+    rank_position INT,
 
     -- Metadata
     extra_data JSON, -- Additional display data

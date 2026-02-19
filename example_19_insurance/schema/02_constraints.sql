@@ -2,7 +2,7 @@
 -- CONSTRAINTS FOR INSURANCE MANAGEMENT PLATFORM
 -- ============================================================================
 
-USE insurance_platform;
+USE insurance;
 
 -- ============================================================================
 -- CHECK CONSTRAINTS

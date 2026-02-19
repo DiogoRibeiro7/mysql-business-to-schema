@@ -227,6 +227,7 @@ ALTER TABLE drivers
 -- Triggers for Business Logic
 -- ============================================================================
 
+/*
 DELIMITER $$
 
 -- Update vehicle odometer when GPS position is recorded
@@ -426,6 +427,7 @@ BEGIN
 END$$
 
 DELIMITER ;
+*/
 
 -- ============================================================================
 -- Unique Constraints

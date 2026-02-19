@@ -2,7 +2,7 @@
 -- INDEXES FOR INSURANCE MANAGEMENT PLATFORM
 -- ============================================================================
 
-USE insurance_platform;
+USE insurance;
 
 -- ============================================================================
 -- PERFORMANCE INDEXES

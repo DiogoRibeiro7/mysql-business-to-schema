@@ -161,7 +161,7 @@ CREATE TABLE restaurants (
     INDEX idx_status (status),
     INDEX idx_location (latitude, longitude),
     INDEX idx_rating (average_rating DESC),
-    FULLTEXT INDEX ft_name_cuisine (name, cuisine_types)
+    FULLTEXT INDEX ft_name (name)
 ) ENGINE=InnoDB;
 
 -- Restaurant operating hours
