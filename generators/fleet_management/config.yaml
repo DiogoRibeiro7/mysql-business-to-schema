@@ -10,6 +10,8 @@ counts:
   days_of_data: 7  # One week of GPS data
   gps_frequency_seconds: 5  # GPS reading every 5 seconds
 
+distributions: {}
+
 date_ranges:
   fleet_start: "2020-01-01"
   data_start: "2025-01-25"

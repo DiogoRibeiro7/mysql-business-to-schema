@@ -176,7 +176,7 @@ ON customers(customer_id, status, risk_level);
 
 -- For daily settlement batch
 CREATE INDEX idx_settlement_batch
-ON transactions(DATE(completed_at), status, transaction_type);
+ON transactions(completed_at, status, transaction_type);
 
 -- For suspicious transaction monitoring
 CREATE INDEX idx_suspicious_monitoring

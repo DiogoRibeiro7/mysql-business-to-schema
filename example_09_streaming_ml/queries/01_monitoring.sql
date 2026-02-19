@@ -4,6 +4,9 @@
 
 USE streaming_ml;
 
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
+
 -- ============================================================================
 -- Active Model Deployments Dashboard
 -- ============================================================================

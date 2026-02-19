@@ -1,7 +1,10 @@
 -- Student Analytics & Performance Queries
 -- Advanced analytics for student success and learning outcomes
 
-USE education_db;
+USE education;
+
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
 
 -- ========================================
 -- STUDENT PERFORMANCE ANALYTICS

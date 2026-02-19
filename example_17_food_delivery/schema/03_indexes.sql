@@ -21,7 +21,6 @@ CREATE INDEX idx_addresses_customer_default ON customer_addresses(customer_id, i
 -- Restaurants table - optimize for search and discovery
 CREATE INDEX idx_restaurants_status_rating ON restaurants(status, average_rating DESC);
 CREATE INDEX idx_restaurants_featured ON restaurants(is_featured, average_rating DESC);
-CREATE INDEX idx_restaurants_cuisine ON restaurants((CAST(cuisine_types AS CHAR)));
 
 -- Restaurant hours - optimize for "open now" queries
 CREATE INDEX idx_hours_restaurant_day ON restaurant_hours(restaurant_id, day_of_week);
@@ -131,23 +130,23 @@ ALTER TABLE restaurant_reviews ADD FULLTEXT ft_reviews_search (review_text);
 
 -- Restaurant location search
 ALTER TABLE restaurants
-    ADD COLUMN location POINT GENERATED ALWAYS AS (POINT(longitude, latitude)) STORED,
+    ADD COLUMN location POINT GENERATED ALWAYS AS (POINT(longitude, latitude)) STORED;
 
 -- Customer address locations
 ALTER TABLE customer_addresses
-    ADD COLUMN location POINT GENERATED ALWAYS AS (POINT(longitude, latitude)) STORED,
+    ADD COLUMN location POINT GENERATED ALWAYS AS (POINT(longitude, latitude)) STORED;
 
 -- Driver current location
 ALTER TABLE drivers
     ADD COLUMN current_location POINT GENERATED ALWAYS AS
         (IF(current_longitude IS NOT NULL AND current_latitude IS NOT NULL,
-            POINT(current_longitude, current_latitude), NULL)) STORED,
+            POINT(current_longitude, current_latitude), NULL)) STORED;
 
 -- Order delivery location
 ALTER TABLE orders
     ADD COLUMN delivery_location POINT GENERATED ALWAYS AS
         (IF(delivery_longitude IS NOT NULL AND delivery_latitude IS NOT NULL,
-            POINT(delivery_longitude, delivery_latitude), NULL)) STORED,
+            POINT(delivery_longitude, delivery_latitude), NULL)) STORED;
 
 -- ============================================================================
 -- STATISTICS UPDATE

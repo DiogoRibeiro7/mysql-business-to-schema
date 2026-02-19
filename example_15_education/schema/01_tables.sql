@@ -2,7 +2,7 @@
 -- Comprehensive schema for online and traditional education
 
 -- Create database
-CREATE DATABASE IF NOT EXISTS education_db;
+CREATE DATABASE IF NOT EXISTS education;
 USE education;
 
 -- ========================================

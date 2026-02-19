@@ -8,6 +8,7 @@
     "invoices": 120,
     "payments": 150
   },
+  "distributions": {},
   "date_ranges": {
     "appointments_start": "2025-02-01",
     "appointments_end": "2025-03-31",

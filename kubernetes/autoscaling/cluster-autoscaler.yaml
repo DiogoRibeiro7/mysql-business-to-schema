@@ -1,0 +1,293 @@
+# Cluster Autoscaler for dynamic node provisioning
+
+---
+# Cluster Autoscaler Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+  labels:
+    app: cluster-autoscaler
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cluster-autoscaler
+  template:
+    metadata:
+      labels:
+        app: cluster-autoscaler
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8085"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: cluster-autoscaler
+      containers:
+        - image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.0
+          name: cluster-autoscaler
+          command:
+            - ./cluster-autoscaler
+            - --v=4
+            - --stderrthreshold=info
+            - --cloud-provider=aws  # Change based on your cloud provider
+            - --skip-nodes-with-local-storage=false
+            - --expander=least-waste
+            - --node-group-auto-discovery=asg:tag=k8s.io/cluster-autoscaler/enabled,k8s.io/cluster-autoscaler/mysql-business-schema
+            - --balance-similar-node-groups
+            - --skip-nodes-with-system-pods=false
+            # Scaling parameters
+            - --scale-down-enabled=true
+            - --scale-down-delay-after-add=10m
+            - --scale-down-unneeded-time=10m
+            - --scale-down-utilization-threshold=0.5
+            - --max-node-provision-time=15m
+            - --max-total-unready-percentage=45
+            - --max-graceful-termination-sec=600
+            - --new-pod-scale-up-delay=0s
+            # Node group configuration
+            - --nodes=3:10:mysql-nodes
+            - --nodes=2:5:web-nodes
+            - --nodes=1:3:monitoring-nodes
+          volumeMounts:
+            - name: ssl-certs
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              readOnly: true
+          imagePullPolicy: Always
+          resources:
+            limits:
+              cpu: 100m
+              memory: 300Mi
+            requests:
+              cpu: 100m
+              memory: 300Mi
+          env:
+            - name: AWS_REGION
+              value: us-east-1  # Change to your region
+      volumes:
+        - name: ssl-certs
+          hostPath:
+            path: /etc/ssl/certs/ca-bundle.crt
+
+---
+# ServiceAccount for Cluster Autoscaler
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cluster-autoscaler
+  namespace: kube-system
+  annotations:
+    # For EKS with IRSA
+    eks.amazonaws.com/role-arn: arn:aws:iam::ACCOUNT_ID:role/cluster-autoscaler
+
+---
+# ClusterRole for Cluster Autoscaler
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: cluster-autoscaler
+rules:
+  - apiGroups: [""]
+    resources: ["events", "endpoints"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["pods/eviction"]
+    verbs: ["create"]
+  - apiGroups: [""]
+    resources: ["pods/status"]
+    verbs: ["update"]
+  - apiGroups: [""]
+    resources: ["endpoints"]
+    resourceNames: ["cluster-autoscaler"]
+    verbs: ["get", "update"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["watch", "list", "get", "update"]
+  - apiGroups: [""]
+    resources:
+      - "namespaces"
+      - "pods"
+      - "services"
+      - "replicationcontrollers"
+      - "persistentvolumeclaims"
+      - "persistentvolumes"
+    verbs: ["watch", "list", "get"]
+  - apiGroups: ["extensions"]
+    resources: ["replicasets", "daemonsets"]
+    verbs: ["watch", "list", "get"]
+  - apiGroups: ["policy"]
+    resources: ["poddisruptionbudgets"]
+    verbs: ["watch", "list"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets", "replicasets", "daemonsets"]
+    verbs: ["watch", "list", "get"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses", "csinodes", "csidrivers", "csistoragecapacities"]
+    verbs: ["watch", "list", "get"]
+  - apiGroups: ["batch", "extensions"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch", "patch"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["create"]
+  - apiGroups: ["coordination.k8s.io"]
+    resourceNames: ["cluster-autoscaler"]
+    resources: ["leases"]
+    verbs: ["get", "update"]
+
+---
+# ClusterRoleBinding for Cluster Autoscaler
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: cluster-autoscaler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-autoscaler
+subjects:
+  - kind: ServiceAccount
+    name: cluster-autoscaler
+    namespace: kube-system
+
+---
+# Priority Classes for pod scheduling
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: mysql-critical
+value: 1000000
+globalDefault: false
+description: "Critical MySQL database pods"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: monitoring-high
+value: 900000
+globalDefault: false
+description: "High priority monitoring pods"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: application-medium
+value: 500000
+globalDefault: false
+description: "Medium priority application pods"
+
+---
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: batch-low
+value: 100000
+globalDefault: false
+description: "Low priority batch job pods"
+
+---
+# ConfigMap for node labels and taints
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-labels-config
+  namespace: kube-system
+data:
+  mysql-nodes: |
+    labels:
+      workload-type: database
+      node-type: mysql
+      storage-type: ssd
+    taints:
+      - key: database
+        value: mysql
+        effect: NoSchedule
+  web-nodes: |
+    labels:
+      workload-type: application
+      node-type: web
+    taints: []
+  monitoring-nodes: |
+    labels:
+      workload-type: monitoring
+      node-type: monitoring
+    taints:
+      - key: monitoring
+        value: "true"
+        effect: PreferNoSchedule
+
+---
+# AWS Auto Scaling Group tags (example)
+# These should be applied to your ASGs in AWS
+# Tag: k8s.io/cluster-autoscaler/enabled = true
+# Tag: k8s.io/cluster-autoscaler/mysql-business-schema = owned
+# Tag: k8s.io/cluster-autoscaler/node-template/label/workload-type = database
+# Tag: k8s.io/cluster-autoscaler/node-template/taint/database = mysql:NoSchedule
+
+---
+# GKE node pool configuration (example)
+apiVersion: container.cnrm.cloud.google.com/v1beta1
+kind: ContainerNodePool
+metadata:
+  name: mysql-pool
+  namespace: kube-system
+spec:
+  location: us-central1
+  clusterRef:
+    name: mysql-business-schema
+  initialNodeCount: 3
+  autoscaling:
+    minNodeCount: 3
+    maxNodeCount: 10
+  nodeConfig:
+    machineType: n2-standard-8
+    diskSizeGb: 100
+    diskType: pd-ssd
+    labels:
+      workload-type: database
+      node-type: mysql
+    taints:
+      - key: database
+        value: mysql
+        effect: NO_SCHEDULE
+    oauthScopes:
+      - https://www.googleapis.com/auth/cloud-platform
+
+---
+# Azure AKS node pool configuration (example)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aks-nodepool-config
+  namespace: kube-system
+data:
+  mysql-nodepool.json: |
+    {
+      "name": "mysqlpool",
+      "count": 3,
+      "vmSize": "Standard_D8s_v3",
+      "osDiskSizeGB": 100,
+      "osDiskType": "Managed",
+      "kubeletDiskType": "OS",
+      "maxPods": 30,
+      "type": "VirtualMachineScaleSets",
+      "enableAutoScaling": true,
+      "minCount": 3,
+      "maxCount": 10,
+      "mode": "User",
+      "osType": "Linux",
+      "nodeLabels": {
+        "workload-type": "database",
+        "node-type": "mysql"
+      },
+      "nodeTaints": [
+        "database=mysql:NoSchedule"
+      ],
+      "tags": {
+        "Environment": "Production",
+        "Application": "MySQL-Business-Schema"
+      }
+    }

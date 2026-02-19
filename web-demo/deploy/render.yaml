@@ -1,0 +1,145 @@
+# Render Blueprint Configuration
+# Deploy: Connect GitHub repo and use this blueprint
+
+services:
+  # Web Demo Application
+  - type: web
+    name: mysql-demo-web
+    runtime: node
+    region: oregon
+    plan: standard
+    buildCommand: cd web-demo && npm install && npm run build:all
+    startCommand: cd web-demo && npm start
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: ALLOWED_ORIGINS
+        fromService:
+          type: web
+          name: mysql-demo-web
+          property: host
+
+      # Database connections
+      - key: CLINIC_DB_URL
+        fromDatabase:
+          name: mysql-clinic
+          property: connectionString
+      - key: ECOMMERCE_DB_URL
+        fromDatabase:
+          name: mysql-ecommerce
+          property: connectionString
+      - key: FINTECH_DB_URL
+        fromDatabase:
+          name: mysql-fintech
+          property: connectionString
+
+    # Auto-deploy on push to main branch
+    autoDeploy: true
+
+    # Pull request previews
+    pullRequestPreviewsEnabled: true
+
+  # Static Site for Frontend (if separated)
+  - type: static
+    name: mysql-demo-frontend
+    buildCommand: cd web-demo/frontend && npm install && npm run build
+    staticPublishPath: ./web-demo/frontend/build
+
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+# Databases
+databases:
+  - name: mysql-clinic
+    plan: standard
+    databaseName: clinic_db
+    user: clinic_user
+
+    # Initialize with schema
+    postgreSQL:
+      version: "15"
+
+  - name: mysql-ecommerce
+    plan: standard
+    databaseName: ecommerce_db
+    user: ecommerce_user
+
+  - name: mysql-fintech
+    plan: standard
+    databaseName: fintech_db
+    user: fintech_user
+
+  # Note: Render uses PostgreSQL, so we'll need migration scripts
+  # or use external MySQL service
+
+# Cron Jobs for Maintenance
+  - type: cron
+    name: database-backup
+    schedule: "0 2 * * *" # Daily at 2 AM
+    buildCommand: cd scripts && npm install
+    startCommand: node backup.js
+
+    envVars:
+      - key: BACKUP_BUCKET
+        value: mysql-demo-backups
+      - key: AWS_ACCESS_KEY_ID
+        fromSecret: AWS_ACCESS_KEY_ID
+      - key: AWS_SECRET_ACCESS_KEY
+        fromSecret: AWS_SECRET_ACCESS_KEY
+
+# Workers for Background Jobs
+  - type: worker
+    name: data-generator
+    runtime: node
+    buildCommand: cd generators && npm install
+    startCommand: node generate-sample-data.js
+
+    envVars:
+      - key: GENERATION_INTERVAL
+        value: "3600000" # 1 hour in milliseconds
+      - key: MAX_RECORDS
+        value: "10000"
+
+# Redis for Caching
+  - type: redis
+    name: mysql-demo-cache
+    plan: standard
+    maxMemoryPolicy: allkeys-lru
+
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all connections
+
+# Environment Groups
+envVarGroups:
+  - name: shared-secrets
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        generateValue: true
+      - key: API_KEY
+        generateValue: true
+
+  - name: monitoring
+    envVars:
+      - key: SENTRY_DSN
+        value: https://your-sentry-dsn
+      - key: LOG_LEVEL
+        value: info
+      - key: ENABLE_METRICS
+        value: true

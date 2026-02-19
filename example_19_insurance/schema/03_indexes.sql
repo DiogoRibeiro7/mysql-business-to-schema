@@ -23,7 +23,6 @@ CREATE INDEX idx_beneficiaries_primary ON beneficiaries(customer_id, is_primary)
 -- Products table - optimize for product search
 CREATE INDEX idx_products_type_active ON products(product_type, is_active);
 CREATE INDEX idx_products_eligibility ON products(min_age, max_age, is_active);
-CREATE INDEX idx_products_states ON products((CAST(states_available AS CHAR)));
 
 -- Policies table - optimize for policy management
 CREATE INDEX idx_policies_customer_status ON policies(customer_id, status);
@@ -85,7 +84,6 @@ CREATE INDEX idx_underwriting_risk ON underwriting_applications(risk_category, d
 
 -- Reinsurance treaties - optimize for treaty management
 CREATE INDEX idx_reinsurance_active ON reinsurance_treaties(status, effective_date, expiry_date);
-CREATE INDEX idx_reinsurance_products ON reinsurance_treaties((CAST(coverage_products AS CHAR)));
 
 -- Reinsurance cessions - optimize for cession tracking
 CREATE INDEX idx_cessions_treaty ON reinsurance_cessions(treaty_id, is_active);
@@ -122,9 +120,6 @@ CREATE INDEX idx_policy_renewal_due ON policies(expiry_date, status, customer_id
 CREATE INDEX idx_claims_queue ON claims(status, priority DESC, reported_date, assigned_adjuster_id);
 
 -- Premium collection
-CREATE INDEX idx_premium_collection ON policies p
-    JOIN billing_schedules bs ON p.policy_id = bs.policy_id
-    (p.status, bs.billing_day, bs.auto_pay_enabled);
 
 -- Agent performance dashboard
 CREATE INDEX idx_agent_performance ON agents(status, current_month_sales DESC, ytd_sales DESC);

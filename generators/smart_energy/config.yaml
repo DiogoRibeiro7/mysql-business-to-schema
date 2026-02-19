@@ -9,6 +9,8 @@ counts:
   demand_response_events: 10
   outages: 5
 
+distributions: {}
+
 date_ranges:
   days_of_data: 7  # One week of data for demo
   historical_start: "2025-01-25"

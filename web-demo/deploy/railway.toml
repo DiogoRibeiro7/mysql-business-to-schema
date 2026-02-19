@@ -1,0 +1,86 @@
+# Railway Deployment Configuration
+# Deploy to Railway: railway up
+
+[build]
+  builder = "nixpacks"
+  buildCommand = "cd web-demo && npm install && npm run build"
+
+[deploy]
+  startCommand = "cd web-demo && npm start"
+  restartPolicyType = "on-failure"
+  restartPolicyMaxRetries = 3
+
+[[services]]
+  name = "web-demo"
+  type = "web"
+
+  [[services.ports]]
+    port = 3000
+    targetPort = 3000
+
+  [[services.healthcheck]]
+    path = "/health"
+    interval = "30s"
+    timeout = "5s"
+    retries = 3
+
+# Environment Variables (set in Railway dashboard)
+# NODE_ENV = "production"
+# PORT = 3000
+# ALLOWED_ORIGINS = "https://your-app.railway.app"
+# DB_HOST = "mysql-instance.railway.internal"
+
+# Database Services
+[[services]]
+  name = "mysql-clinic"
+  type = "mysql"
+  version = "8.0"
+
+  [[services.volumes]]
+    name = "clinic-data"
+    mountPath = "/var/lib/mysql"
+    size = "10Gi"
+
+[[services]]
+  name = "mysql-ecommerce"
+  type = "mysql"
+  version = "8.0"
+
+  [[services.volumes]]
+    name = "ecommerce-data"
+    mountPath = "/var/lib/mysql"
+    size = "10Gi"
+
+# Add more database services as needed
+
+# Networking
+[network]
+  # Enable private networking between services
+  enablePrivateNetworking = true
+
+  # Configure custom domain
+  [[network.domains]]
+    domain = "demo.mysql-business-schema.com"
+    service = "web-demo"
+
+# Scaling
+[scaling]
+  minInstances = 1
+  maxInstances = 3
+
+  [[scaling.metrics]]
+    type = "cpu"
+    targetValue = 70
+
+  [[scaling.metrics]]
+    type = "memory"
+    targetValue = 80
+
+# Resources
+[resources]
+  cpuLimit = "1"
+  memoryLimit = "1Gi"
+
+  [[resources.requests]]
+    cpu = "100m"
+    memory = "256Mi"

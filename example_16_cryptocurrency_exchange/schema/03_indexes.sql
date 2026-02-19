@@ -96,7 +96,8 @@ CREATE INDEX idx_orderbook_covering ON orders(
     status,
     price,
     quantity,
-    user_id;
+    user_id
+);
 
 -- Portfolio overview
 CREATE INDEX idx_portfolio_covering ON wallets(
@@ -104,7 +105,8 @@ CREATE INDEX idx_portfolio_covering ON wallets(
     currency_id,
     available_balance,
     locked_balance,
-    staked_balance;
+    staked_balance
+);
 
 -- Trade history export
 CREATE INDEX idx_trade_export ON trades(

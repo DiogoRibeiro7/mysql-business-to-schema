@@ -9,6 +9,8 @@ counts:
   days_of_data: 30
   events_per_user_per_day: [10, 100]  # min, max
 
+distributions: {}
+
 date_ranges:
   platform_launch: "2023-01-01"
   data_start: "2025-01-01"

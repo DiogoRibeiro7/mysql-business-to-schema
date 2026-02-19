@@ -1,0 +1,358 @@
+# Prometheus Operator configuration for cloud-native monitoring
+
+---
+# Prometheus CRD instance
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: mysql-business-schema
+  namespace: mysql-business-schema
+  labels:
+    prometheus: mysql-business-schema
+spec:
+  replicas: 2
+  retention: 30d
+  retentionSize: 100GB
+
+  serviceAccountName: prometheus
+
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    fsGroup: 2000
+
+  resources:
+    requests:
+      memory: 2Gi
+      cpu: 1
+    limits:
+      memory: 4Gi
+      cpu: 2
+
+  # Storage configuration
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: fast-ssd
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 100Gi
+
+  # Service discovery configuration
+  serviceMonitorSelector:
+    matchLabels:
+      monitoring: "true"
+
+  podMonitorSelector:
+    matchLabels:
+      monitoring: "true"
+
+  ruleSelector:
+    matchLabels:
+      monitoring: "true"
+
+  # Additional scrape configurations
+  additionalScrapeConfigs:
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml
+
+  # Remote write for long-term storage
+  remoteWrite:
+    - url: "https://metrics.example.com/api/v1/write"
+      tlsConfig:
+        insecureSkipVerify: false
+      queueConfig:
+        capacity: 10000
+        maxShards: 20
+        minShards: 1
+        maxSamplesPerSend: 5000
+        batchSendDeadline: 5s
+        minBackoff: 30ms
+        maxBackoff: 100ms
+
+  # Alert manager configuration
+  alerting:
+    alertmanagers:
+      - namespace: mysql-business-schema
+        name: alertmanager
+        port: web
+
+  # Enable admin API for snapshot/restore
+  enableAdminAPI: true
+
+  # WAL compression
+  walCompression: true
+
+  # Query configuration
+  query:
+    timeout: 2m
+    maxConcurrency: 20
+    maxSamples: 50000000
+
+  # Thanos sidecar for HA and long-term storage
+  thanos:
+    image: quay.io/thanos/thanos:v0.30.0
+    version: v0.30.0
+    objectStorageConfig:
+      name: thanos-objstore-secret
+      key: objstore.yml
+
+---
+# ServiceMonitor for MySQL databases
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mysql-databases
+  namespace: mysql-business-schema
+  labels:
+    monitoring: "true"
+    app: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  endpoints:
+    - port: metrics
+      interval: 30s
+      scrapeTimeout: 10s
+      path: /metrics
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_label_database]
+          targetLabel: database
+        - sourceLabels: [__meta_kubernetes_pod_label_role]
+          targetLabel: role
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: mysql_.*
+          action: keep
+
+---
+# ServiceMonitor for Web Demo
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: web-demo
+  namespace: mysql-business-schema
+  labels:
+    monitoring: "true"
+    app: web-demo
+spec:
+  selector:
+    matchLabels:
+      app: web-demo
+  endpoints:
+    - port: http
+      interval: 30s
+      path: /metrics
+
+---
+# PodMonitor for Istio sidecars
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: istio-proxies
+  namespace: mysql-business-schema
+  labels:
+    monitoring: "true"
+spec:
+  selector:
+    matchLabels:
+      security.istio.io/tlsMode: istio
+  podMetricsEndpoints:
+    - path: /stats/prometheus
+      interval: 30s
+      relabelings:
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod
+        - sourceLabels: [__meta_kubernetes_pod_container_name]
+          targetLabel: container
+
+---
+# PrometheusRule for alerts
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mysql-business-schema-rules
+  namespace: mysql-business-schema
+  labels:
+    monitoring: "true"
+spec:
+  groups:
+    - name: mysql.rules
+      interval: 30s
+      rules:
+        - alert: MySQLDown
+          expr: up{job="mysql-databases"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            component: database
+          annotations:
+            summary: "MySQL instance {{ $labels.database }} is down"
+            description: "MySQL instance {{ $labels.database }} has been down for more than 5 minutes."
+
+        - alert: MySQLHighConnections
+          expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections > 0.8
+          for: 5m
+          labels:
+            severity: warning
+            component: database
+          annotations:
+            summary: "High connection usage on {{ $labels.database }}"
+            description: "Connection usage is {{ $value | humanizePercentage }} of max connections."
+
+        - alert: MySQLSlowQueries
+          expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+            component: database
+          annotations:
+            summary: "High rate of slow queries on {{ $labels.database }}"
+            description: "Slow query rate is {{ $value }} queries/sec."
+
+    - name: application.rules
+      interval: 30s
+      rules:
+        - alert: HighErrorRate
+          expr: |
+            sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+            /
+            sum(rate(http_requests_total[5m])) by (job)
+            > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            component: application
+          annotations:
+            summary: "High error rate in {{ $labels.job }}"
+            description: "Error rate is {{ $value | humanizePercentage }}."
+
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(http_request_duration_seconds_bucket[5m])) by (job, le)
+            ) > 1
+          for: 5m
+          labels:
+            severity: warning
+            component: application
+          annotations:
+            summary: "High latency in {{ $labels.job }}"
+            description: "P99 latency is {{ $value }}s."
+
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total[5m]) > 0.1
+          for: 5m
+          labels:
+            severity: critical
+            component: kubernetes
+          annotations:
+            summary: "Pod {{ $labels.pod }} is crash looping"
+            description: "Pod {{ $labels.pod }} has restarted {{ $value }} times in the last 5 minutes."
+
+---
+# Grafana instance
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: mysql-business-schema
+data:
+  prometheus.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus-operated:9090
+        isDefault: true
+        editable: false
+      - name: Thanos
+        type: prometheus
+        access: proxy
+        url: http://thanos-query:9090
+        editable: false
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+        editable: false
+
+---
+# Thanos configuration for long-term storage
+apiVersion: v1
+kind: Secret
+metadata:
+  name: thanos-objstore-secret
+  namespace: mysql-business-schema
+stringData:
+  objstore.yml: |
+    type: S3
+    config:
+      bucket: mysql-metrics-thanos
+      endpoint: s3.amazonaws.com
+      region: us-east-1
+      access_key: YOUR_ACCESS_KEY
+      secret_key: YOUR_SECRET_KEY
+      insecure: false
+      signature_version2: false
+      encrypt_sse: true
+      put_user_metadata: {}
+      http_config:
+        idle_conn_timeout: 90s
+        response_header_timeout: 2m
+        insecure_skip_verify: false
+      trace:
+        enable: true
+      list_objects_version: v2
+
+---
+# Loki for log aggregation
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: mysql-business-schema
+data:
+  loki.yaml: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9096
+
+    common:
+      path_prefix: /tmp/loki
+      storage:
+        filesystem:
+          chunks_directory: /tmp/loki/chunks
+          rules_directory: /tmp/loki/rules
+      replication_factor: 1
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: inmemory
+
+    query_range:
+      results_cache:
+        cache:
+          embedded_cache:
+            enabled: true
+            max_size_mb: 100
+
+    schema_config:
+      configs:
+        - from: 2020-10-24
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
+    ruler:
+      alertmanager_url: http://alertmanager:9093
+
+    analytics:
+      reporting_enabled: false

@@ -1,0 +1,223 @@
+# PeerAuthentication for mTLS
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-mtls
+  namespace: mysql-business-schema
+spec:
+  mtls:
+    mode: STRICT # Enforce mTLS for all traffic
+
+---
+# PeerAuthentication for MySQL services (allow both mTLS and plain text)
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: mysql-mtls
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  mtls:
+    mode: PERMISSIVE # Allow both mTLS and plain text for MySQL
+  portLevelMtls:
+    3306:
+      mode: DISABLE # Disable mTLS for MySQL port to allow legacy clients
+
+---
+# Authorization Policy - Default deny all
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: mysql-business-schema
+spec:
+  {} # Empty spec means deny all
+
+---
+# Allow traffic from Istio ingress gateway
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-ingress-gateway
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: web-demo
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/istio-system/sa/istio-ingressgateway-service-account"]
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE"]
+            ports: ["3001", "80"]
+
+---
+# Allow web-demo to access MySQL databases
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-web-demo-to-mysql
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/mysql-business-schema/sa/web-demo"]
+      to:
+        - operation:
+            ports: ["3306"]
+      when:
+        - key: source.namespace
+          values: ["mysql-business-schema"]
+
+---
+# Allow Prometheus to scrape metrics
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-prometheus-scraping
+  namespace: mysql-business-schema
+spec:
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            namespaces: ["monitoring", "mysql-business-schema"]
+            principals: ["cluster.local/ns/monitoring/sa/prometheus"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/metrics", "/metrics/*"]
+            ports: ["9104", "9090", "3001"]
+
+---
+# Allow Grafana to access data sources
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-grafana-datasources
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: prometheus
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/mysql-business-schema/sa/grafana"]
+      to:
+        - operation:
+            methods: ["GET", "POST"]
+            ports: ["9090"]
+
+---
+# Allow MySQL replication between instances
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-mysql-replication
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            principals: ["cluster.local/ns/mysql-business-schema/sa/mysql"]
+      to:
+        - operation:
+            ports: ["3306", "3307"]
+      when:
+        - key: source.workload
+          values: ["mysql-*"]
+
+---
+# RequestAuthentication for JWT validation (optional)
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: jwt-auth
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: web-demo
+  jwtRules:
+    - issuer: "https://auth.mysql-demo.example.com"
+      jwksUri: "https://auth.mysql-demo.example.com/.well-known/jwks.json"
+      audiences:
+        - "mysql-demo-api"
+      forwardOriginalToken: true
+
+---
+# AuthorizationPolicy for JWT-based access (optional)
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-jwt
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: web-demo
+  action: ALLOW
+  rules:
+    - from:
+        - source:
+            requestPrincipals: ["*"]
+      to:
+        - operation:
+            methods: ["GET"]
+            paths: ["/api/public/*"]
+    - from:
+        - source:
+            requestPrincipals: ["https://auth.mysql-demo.example.com/*"]
+      to:
+        - operation:
+            methods: ["GET", "POST", "PUT", "DELETE"]
+            paths: ["/api/*"]
+      when:
+        - key: request.auth.claims[role]
+          values: ["admin", "user"]
+
+---
+# Service Account for web-demo
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: web-demo
+  namespace: mysql-business-schema
+  labels:
+    app: web-demo
+
+---
+# Service Account for MySQL
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mysql
+  namespace: mysql-business-schema
+  labels:
+    app: mysql
+
+---
+# Service Account for Grafana
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: grafana
+  namespace: mysql-business-schema
+  labels:
+    app: grafana

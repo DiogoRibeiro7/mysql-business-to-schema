@@ -2,7 +2,10 @@
 -- ANALYTICS QUERIES FOR CRYPTOCURRENCY EXCHANGE
 -- ============================================================================
 
-USE crypto_exchange;
+USE cryptocurrency;
+
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
 
 -- ============================================================================
 -- TRADING ANALYTICS

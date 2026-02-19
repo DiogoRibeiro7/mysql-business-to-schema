@@ -1,0 +1,150 @@
+# Fly.io Configuration
+# Deploy: fly launch --config fly.toml
+
+app = "mysql-business-demo"
+primary_region = "iad"
+kill_signal = "SIGINT"
+kill_timeout = 5
+
+[build]
+  dockerfile = "../Dockerfile.web"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+# Process groups
+[processes]
+  web = "node dist/server.js"
+  worker = "node dist/worker.js"
+
+# Services
+[[services]]
+  http_checks = []
+  internal_port = 3000
+  processes = ["web"]
+  protocol = "tcp"
+  script_checks = []
+
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    grace_period = "1s"
+    interval = "15s"
+    restart_limit = 0
+    timeout = "2s"
+
+  [[services.http_checks]]
+    interval = "30s"
+    grace_period = "5s"
+    method = "get"
+    path = "/health"
+    protocol = "http"
+    restart_limit = 0
+    timeout = "2s"
+    tls_skip_verify = false
+
+    [services.http_checks.headers]
+      X-Health-Check = "fly"
+
+# Persistent Storage for SQLite demos
+[[mounts]]
+  source = "data"
+  destination = "/data"
+
+# Statics for frontend assets
+[[statics]]
+  guest_path = "/app/public"
+  url_prefix = "/static"
+
+# Scaling Configuration
+[metrics]
+  port = 9091
+  path = "/metrics"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512
+
+# Auto-scaling
+[autoscaling]
+  enabled = true
+  min_machines = 1
+  max_machines = 5
+
+  [[autoscaling.metrics]]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[autoscaling.metrics]]
+    type = "response_time"
+    threshold = 500 # milliseconds
+
+# Secrets (set via fly secrets set)
+# DATABASE_URL
+# REDIS_URL
+# JWT_SECRET
+# ENCRYPTION_KEY
+
+# Deploy hooks
+[deploy]
+  release_command = "npm run migrate"
+  strategy = "rolling"
+
+# Regions for global deployment
+regions = ["iad", "lhr", "syd", "nrt"]
+
+# Health checks
+[checks]
+  [checks.alive]
+    type = "tcp"
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
+
+  [checks.ready]
+    type = "http"
+    interval = "30s"
+    timeout = "3s"
+    grace_period = "5s"
+    method = "GET"
+    path = "/ready"
+    protocol = "http"
+    tls_skip_verify = false
+
+# Machine configuration
+[[machine]]
+  region = "iad"
+  cpu_kind = "performance"
+  cpus = 2
+  memory_mb = 1024
+
+  [[machine.mounts]]
+    source = "mysql_data_iad"
+    destination = "/var/lib/mysql"
+    size = "10gb"
+
+[[machine]]
+  region = "lhr"
+  cpu_kind = "performance"
+  cpus = 2
+  memory_mb = 1024
+
+  [[machine.mounts]]
+    source = "mysql_data_lhr"
+    destination = "/var/lib/mysql"
+    size = "10gb"

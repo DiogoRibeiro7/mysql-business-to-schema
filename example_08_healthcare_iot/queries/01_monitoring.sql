@@ -4,6 +4,9 @@
 
 USE healthcare_iot;
 
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
+
 -- ============================================================================
 -- Patient Vital Signs Monitoring Dashboard
 -- ============================================================================

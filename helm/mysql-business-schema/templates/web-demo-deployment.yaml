@@ -1,0 +1,219 @@
+{{- if .Values.webDemo.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "mysql-business-schema.fullname" . }}-web-demo
+  namespace: {{ include "mysql-business-schema.namespace" . }}
+  labels:
+    {{- include "mysql-business-schema.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web-demo
+spec:
+  {{- if not .Values.webDemo.autoscaling.enabled }}
+  replicas: {{ .Values.webDemo.replicaCount }}
+  {{- end }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "mysql-business-schema.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web-demo
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/web-demo-configmap.yaml") . | sha256sum }}
+        {{- with .Values.webDemo.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "mysql-business-schema.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web-demo
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mysql-business-schema.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.global.securityContext | nindent 8 }}
+      containers:
+        - name: web-demo
+          image: "{{ .Values.webDemo.image.repository }}:{{ .Values.webDemo.image.tag }}"
+          imagePullPolicy: {{ .Values.webDemo.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.webDemo.service.targetPort }}
+              protocol: TCP
+          env:
+            {{- range $key, $value := .Values.webDemo.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $dbName, $db := .Values.databases }}
+            {{- if $db.enabled }}
+            - name: {{ upper $dbName }}_DB_HOST
+              value: "mysql-{{ $dbName }}.{{ include "mysql-business-schema.namespace" $ }}.svc.cluster.local"
+            - name: {{ upper $dbName }}_DB_PORT
+              value: "3306"
+            - name: {{ upper $dbName }}_DB_USER
+              value: {{ $db.auth.username | quote }}
+            - name: {{ upper $dbName }}_DB_PASSWORD
+              {{- if $db.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $db.auth.existingSecret }}
+                  key: mysql-password
+              {{- else }}
+              value: {{ $db.auth.password | quote }}
+              {{- end }}
+            - name: {{ upper $dbName }}_DB_NAME
+              value: {{ $db.auth.database | quote }}
+            {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.webDemo.resources | nindent 12 }}
+          {{- if .Values.webDemo.volumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.webDemo.volumeMounts | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.webDemo.volumes }}
+      volumes:
+        {{- toYaml .Values.webDemo.volumes | nindent 8 }}
+      {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mysql-business-schema.fullname" . }}-web-demo
+  namespace: {{ include "mysql-business-schema.namespace" . }}
+  labels:
+    {{- include "mysql-business-schema.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web-demo
+  {{- with .Values.webDemo.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.webDemo.service.type }}
+  ports:
+    - port: {{ .Values.webDemo.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "mysql-business-schema.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: web-demo
+
+{{- if .Values.webDemo.autoscaling.enabled }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "mysql-business-schema.fullname" . }}-web-demo
+  namespace: {{ include "mysql-business-schema.namespace" . }}
+  labels:
+    {{- include "mysql-business-schema.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web-demo
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "mysql-business-schema.fullname" . }}-web-demo
+  minReplicas: {{ .Values.webDemo.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.webDemo.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.webDemo.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webDemo.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.webDemo.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.webDemo.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
+
+{{- if .Values.webDemo.ingress.enabled }}
+---
+apiVersion: {{ include "mysql-business-schema.ingress.apiVersion" . }}
+kind: Ingress
+metadata:
+  name: {{ include "mysql-business-schema.fullname" . }}-web-demo
+  namespace: {{ include "mysql-business-schema.namespace" . }}
+  labels:
+    {{- include "mysql-business-schema.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web-demo
+  {{- with .Values.webDemo.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.webDemo.ingress.className }}
+  ingressClassName: {{ .Values.webDemo.ingress.className }}
+  {{- end }}
+  {{- if .Values.webDemo.ingress.tls }}
+  tls:
+    {{- range .Values.webDemo.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.webDemo.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "mysql-business-schema.fullname" $ }}-web-demo
+                port:
+                  number: {{ $.Values.webDemo.service.port }}
+          {{- end }}
+    {{- end }}
+{{- end }}
+{{- end }}

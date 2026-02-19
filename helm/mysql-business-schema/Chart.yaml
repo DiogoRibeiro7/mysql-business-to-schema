@@ -1,0 +1,94 @@
+apiVersion: v2
+name: mysql-business-schema
+description: A comprehensive Helm chart for deploying MySQL Business-to-Schema examples on Kubernetes
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - mysql
+  - database
+  - business-examples
+  - monitoring
+  - grafana
+  - prometheus
+
+home: https://github.com/yourusername/mysql-business-to-schema
+sources:
+  - https://github.com/yourusername/mysql-business-to-schema
+
+maintainers:
+  - name: Development Team
+    email: dev@example.com
+
+dependencies:
+  # MySQL Operator for managing MySQL clusters
+  - name: mysql-operator
+    version: "2.0.10"
+    repository: https://mysql.github.io/mysql-operator/
+    condition: mysql-operator.enabled
+
+  # Prometheus for monitoring
+  - name: kube-prometheus-stack
+    version: "45.0.0"
+    repository: https://prometheus-community.github.io/helm-charts
+    condition: monitoring.prometheus.enabled
+    alias: prometheus
+
+  # Grafana for visualization (if not using kube-prometheus-stack's Grafana)
+  - name: grafana
+    version: "6.50.0"
+    repository: https://grafana.github.io/helm-charts
+    condition: monitoring.grafana.standalone
+    alias: grafana-standalone
+
+  # Redis for caching
+  - name: redis
+    version: "17.0.0"
+    repository: https://charts.bitnami.com/bitnami
+    condition: redis.enabled
+
+  # Elasticsearch for logging
+  - name: elasticsearch
+    version: "8.5.1"
+    repository: https://helm.elastic.co
+    condition: logging.elasticsearch.enabled
+
+  # Kibana for log visualization
+  - name: kibana
+    version: "8.5.1"
+    repository: https://helm.elastic.co
+    condition: logging.kibana.enabled
+
+  # Fluentd for log collection
+  - name: fluentd
+    version: "5.5.0"
+    repository: https://fluent.github.io/helm-charts
+    condition: logging.fluentd.enabled
+
+annotations:
+  # Chart documentation
+  artifacthub.io/changes: |
+    - Added support for multiple MySQL databases
+    - Integrated monitoring stack with Prometheus and Grafana
+    - Added auto-scaling capabilities
+    - Implemented backup and restore functionality
+    - Added Istio service mesh support
+
+  # Security scanning
+  artifacthub.io/containsSecurityUpdates: "false"
+
+  # License
+  artifacthub.io/license: MIT
+
+  # Operator support
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: "Full Lifecycle"
+
+  # Prerequisites
+  artifacthub.io/prerelease: "false"
+  artifacthub.io/recommendations: |
+    - title: Kubernetes version
+      url: https://kubernetes.io
+    - title: Helm version
+      url: https://helm.sh

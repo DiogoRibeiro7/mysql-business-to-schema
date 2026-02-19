@@ -1,0 +1,213 @@
+# Horizontal Pod Autoscaler configurations for all components
+
+---
+# HPA for Web Demo with multiple metrics
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: web-demo-hpa
+  namespace: mysql-business-schema
+  labels:
+    app: web-demo
+    component: autoscaling
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: web-demo
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+    # CPU utilization
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+    # Memory utilization
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+    # Custom metrics from Prometheus
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "1000"
+
+    - type: Pods
+      pods:
+        metric:
+          name: response_latency_p95
+        target:
+          type: AverageValue
+          averageValue: "500m"  # 500ms
+
+    # External metrics (e.g., queue depth)
+    - type: External
+      external:
+        metric:
+          name: mysql_connections_active
+          selector:
+            matchLabels:
+              database: clinic
+        target:
+          type: AverageValue
+          averageValue: "50"
+
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 10
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+      selectPolicy: Max
+
+---
+# HPA for Grafana
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: grafana-hpa
+  namespace: mysql-business-schema
+  labels:
+    app: grafana
+    component: monitoring
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: grafana
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 85
+
+---
+# HPA for Query Analytics Service
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: query-analytics-hpa
+  namespace: mysql-business-schema
+  labels:
+    app: query-analytics
+    component: analytics
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: query-analytics
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Pods
+      pods:
+        metric:
+          name: query_analysis_queue_depth
+        target:
+          type: AverageValue
+          averageValue: "100"
+
+---
+# HPA for Data Generator Jobs
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: data-generator-hpa
+  namespace: mysql-business-schema
+  labels:
+    app: data-generator
+    component: jobs
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: data-generator
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+    - type: External
+      external:
+        metric:
+          name: pending_generation_tasks
+        target:
+          type: Value
+          value: "10"
+
+---
+# Custom Metrics API Service (for Prometheus Adapter)
+apiVersion: v1
+kind: Service
+metadata:
+  name: custom-metrics-apiserver
+  namespace: monitoring
+spec:
+  ports:
+    - port: 443
+      targetPort: 6443
+  selector:
+    app: prometheus-adapter
+
+---
+# ServiceMonitor for HPA metrics
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: hpa-metrics
+  namespace: mysql-business-schema
+  labels:
+    app: hpa
+spec:
+  selector:
+    matchLabels:
+      app: kube-state-metrics
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+      path: /metrics

@@ -1,0 +1,211 @@
+# Alert Rules for MySQL Performance Monitoring
+groups:
+  - name: mysql_performance_alerts
+    interval: 30s
+    rules:
+      # High query rate alert
+      - alert: HighQueryRate
+        expr: mysql:queries:rate5m > 1000
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High query rate on {{ $labels.instance }}"
+          description: "Query rate is {{ $value | humanize }} queries/sec (threshold: 1000)"
+
+      # Critical query rate alert
+      - alert: CriticalQueryRate
+        expr: mysql:queries:rate5m > 5000
+        for: 2m
+        labels:
+          severity: critical
+          category: performance
+        annotations:
+          summary: "Critical query rate on {{ $labels.instance }}"
+          description: "Query rate is {{ $value | humanize }} queries/sec (threshold: 5000)"
+
+      # Slow query alert
+      - alert: HighSlowQueryRate
+        expr: mysql:slow_queries:rate5m > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High slow query rate on {{ $labels.instance }}"
+          description: "Slow query rate is {{ $value | humanize }} queries/sec"
+
+      # Connection pool exhaustion
+      - alert: ConnectionPoolExhaustion
+        expr: mysql:connections:usage > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: connections
+        annotations:
+          summary: "Connection pool near exhaustion on {{ $labels.instance }}"
+          description: "Connection usage is {{ $value | humanizePercentage }} of max connections"
+
+      - alert: ConnectionPoolCritical
+        expr: mysql:connections:usage > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: connections
+        annotations:
+          summary: "Connection pool critical on {{ $labels.instance }}"
+          description: "Connection usage is {{ $value | humanizePercentage }} of max connections"
+
+      # Buffer pool efficiency
+      - alert: LowBufferPoolHitRatio
+        expr: mysql:buffer_pool:hit_ratio < 0.9
+        for: 10m
+        labels:
+          severity: warning
+          category: memory
+        annotations:
+          summary: "Low buffer pool hit ratio on {{ $labels.instance }}"
+          description: "Buffer pool hit ratio is {{ $value | humanizePercentage }} (threshold: 90%)"
+
+      # Table lock contention
+      - alert: HighTableLockWaits
+        expr: mysql:table_locks:wait_ratio > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: locks
+        annotations:
+          summary: "High table lock wait ratio on {{ $labels.instance }}"
+          description: "Table lock wait ratio is {{ $value | humanizePercentage }}"
+
+      # Query latency alerts
+      - alert: HighQueryLatencyP99
+        expr: mysql:query_time:p99 > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: latency
+        annotations:
+          summary: "High P99 query latency on {{ $labels.instance }}"
+          description: "P99 query time is {{ $value | humanizeDuration }} (threshold: 1s)"
+
+      - alert: CriticalQueryLatencyP99
+        expr: mysql:query_time:p99 > 5
+        for: 2m
+        labels:
+          severity: critical
+          category: latency
+        annotations:
+          summary: "Critical P99 query latency on {{ $labels.instance }}"
+          description: "P99 query time is {{ $value | humanizeDuration }} (threshold: 5s)"
+
+      # MySQL down
+      - alert: MySQLDown
+        expr: up{job=~"mysql-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: availability
+        annotations:
+          summary: "MySQL instance down: {{ $labels.instance }}"
+          description: "MySQL instance {{ $labels.instance }} has been down for more than 1 minute"
+
+      # Replication lag (if applicable)
+      - alert: ReplicationLag
+        expr: mysql_slave_lag_seconds > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: replication
+        annotations:
+          summary: "Replication lag on {{ $labels.instance }}"
+          description: "Replication lag is {{ $value | humanizeDuration }}"
+
+  - name: mysql_resource_alerts
+    interval: 30s
+    rules:
+      # Disk space alerts
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.2
+        for: 5m
+        labels:
+          severity: warning
+          category: disk
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Available disk space is {{ $value | humanizePercentage }}"
+
+      - alert: CriticalDiskSpace
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 2m
+        labels:
+          severity: critical
+          category: disk
+        annotations:
+          summary: "Critical disk space on {{ $labels.instance }}"
+          description: "Available disk space is {{ $value | humanizePercentage }}"
+
+      # Memory alerts
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          category: memory
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}"
+
+      # CPU alerts
+      - alert: HighCPUUsage
+        expr: (1 - avg(rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: cpu
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+
+  - name: mysql_query_analytics_alerts
+    interval: 30s
+    rules:
+      # Query pattern changes
+      - alert: QueryPatternAnomaly
+        expr: |
+          abs(
+            (mysql_global_status_com_select - mysql_global_status_com_select offset 1h) /
+            mysql_global_status_com_select offset 1h
+          ) > 0.5
+        for: 10m
+        labels:
+          severity: info
+          category: analytics
+        annotations:
+          summary: "Query pattern anomaly detected on {{ $labels.instance }}"
+          description: "SELECT query volume changed by {{ $value | humanizePercentage }} compared to 1 hour ago"
+
+      # Index efficiency
+      - alert: PoorIndexEfficiency
+        expr: |
+          rate(mysql_global_status_handler_read_rnd_next[5m]) /
+          rate(mysql_global_status_handler_read_key[5m]) > 10
+        for: 10m
+        labels:
+          severity: warning
+          category: indexes
+        annotations:
+          summary: "Poor index efficiency on {{ $labels.instance }}"
+          description: "Random reads are {{ $value }}x higher than index reads"
+
+      # Temporary table creation
+      - alert: HighTempTableCreation
+        expr: rate(mysql_global_status_created_tmp_disk_tables[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: performance
+        annotations:
+          summary: "High temporary disk table creation on {{ $labels.instance }}"
+          description: "Creating {{ $value | humanize }} temp disk tables/sec"

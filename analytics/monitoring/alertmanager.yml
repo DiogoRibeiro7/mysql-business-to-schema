@@ -1,0 +1,140 @@
+# Alert Manager Configuration
+global:
+  resolve_timeout: 5m
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_from: 'mysql-monitoring@example.com'
+  smtp_auth_username: 'your-email@example.com'
+  smtp_auth_password: 'your-app-password'
+
+# Templates for alert messages
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route tree for alert routing
+route:
+  group_by: ['alertname', 'cluster', 'service']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 1h
+  receiver: 'default'
+
+  routes:
+    # Critical alerts - immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical'
+      group_wait: 1s
+      group_interval: 5s
+      repeat_interval: 15m
+      continue: true
+
+    # Performance alerts
+    - match:
+        category: performance
+      receiver: 'performance-team'
+      group_wait: 30s
+      repeat_interval: 2h
+
+    # Disk/Resource alerts
+    - match_re:
+        category: (disk|memory|cpu)
+      receiver: 'infrastructure-team'
+      group_wait: 1m
+      repeat_interval: 4h
+
+    # Database availability
+    - match:
+        category: availability
+      receiver: 'dba-team'
+      group_wait: 1s
+      repeat_interval: 5m
+
+# Notification receivers
+receivers:
+  # Default receiver
+  - name: 'default'
+    email_configs:
+      - to: 'alerts@example.com'
+        send_resolved: true
+        headers:
+          Subject: '[MySQL Monitor] {{ .GroupLabels.alertname }} - {{ .Status }}'
+        html: |
+          <h2>🚨 Alert: {{ .GroupLabels.alertname }}</h2>
+          <p><strong>Status:</strong> {{ .Status }}</p>
+          <p><strong>Instance:</strong> {{ .GroupLabels.instance }}</p>
+          <h3>Details:</h3>
+          <ul>
+          {{ range .Alerts }}
+            <li>
+              <strong>{{ .Labels.severity | toUpper }}:</strong> {{ .Annotations.summary }}<br>
+              {{ .Annotations.description }}<br>
+              <small>Started at: {{ .StartsAt.Format "2006-01-02 15:04:05 MST" }}</small>
+            </li>
+          {{ end }}
+          </ul>
+
+  # Critical alerts receiver
+  - name: 'critical'
+    email_configs:
+      - to: 'oncall@example.com'
+        send_resolved: true
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#mysql-critical'
+        title: '🔴 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          *Instance:* {{ .GroupLabels.instance }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+        send_resolved: true
+    pagerduty_configs:
+      - service_key: 'YOUR_PAGERDUTY_SERVICE_KEY'
+        description: '{{ .GroupLabels.alertname }} on {{ .GroupLabels.instance }}'
+
+  # Performance team receiver
+  - name: 'performance-team'
+    email_configs:
+      - to: 'performance@example.com'
+        send_resolved: true
+    webhook_configs:
+      - url: 'http://query_analytics:8080/webhook/alerts'
+        send_resolved: true
+
+  # Infrastructure team receiver
+  - name: 'infrastructure-team'
+    email_configs:
+      - to: 'infrastructure@example.com'
+        send_resolved: true
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#infrastructure'
+        title: '⚠️ Infrastructure Alert: {{ .GroupLabels.alertname }}'
+
+  # DBA team receiver
+  - name: 'dba-team'
+    email_configs:
+      - to: 'dba-team@example.com'
+        send_resolved: true
+    slack_configs:
+      - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+        channel: '#dba-oncall'
+        title: '🗄️ Database Alert: {{ .GroupLabels.alertname }}'
+    pagerduty_configs:
+      - service_key: 'YOUR_DBA_PAGERDUTY_KEY'
+
+# Inhibition rules to suppress certain alerts
+inhibit_rules:
+  # If MySQL is down, inhibit other MySQL-related alerts
+  - source_match:
+      alertname: 'MySQLDown'
+    target_match_re:
+      alertname: '(HighQueryRate|SlowQueries|ConnectionPool.*|BufferPool.*)'
+    equal: ['instance']
+
+  # If disk is critical, inhibit warning
+  - source_match:
+      severity: 'critical'
+      category: 'disk'
+    target_match:
+      severity: 'warning'
+      category: 'disk'
+    equal: ['instance']

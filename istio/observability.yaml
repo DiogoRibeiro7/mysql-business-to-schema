@@ -1,0 +1,231 @@
+# Telemetry configuration for metrics, logs, and traces
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: mysql-business-schema-telemetry
+  namespace: mysql-business-schema
+spec:
+  # Metrics configuration
+  metrics:
+    - providers:
+        - name: prometheus
+      dimensions:
+        request_protocol: request.protocol | "unknown"
+        response_code: response.code | 200
+        database_name: request.headers["x-database-name"] | "unknown"
+      overrides:
+        - match:
+            metric: REQUEST_COUNT
+          tagOverrides:
+            method:
+              operation: REMOVE
+        - match:
+            metric: REQUEST_DURATION
+          tagOverrides:
+            response_code:
+              value: response.code | 200
+
+    # Custom metrics for MySQL
+    - providers:
+        - name: prometheus
+      dimensions:
+        query_type: request.headers["x-query-type"] | "unknown"
+        table_name: request.headers["x-table-name"] | "unknown"
+      overrides:
+        - match:
+            metric: TCP_OPENED_CONNECTIONS
+          disabled: false
+
+  # Access logging configuration
+  accessLogging:
+    - providers:
+        - name: otel
+      filter:
+        expression: 'response.code >= 400 || response.duration >= 1000'
+
+---
+# Telemetry for MySQL specific metrics
+apiVersion: telemetry.istio.io/v1alpha1
+kind: Telemetry
+metadata:
+  name: mysql-metrics
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  metrics:
+    - providers:
+        - name: prometheus
+      dimensions:
+        database: destination.labels["database"] | "unknown"
+        operation: request.headers["x-mysql-operation"] | "unknown"
+      overrides:
+        - match:
+            metric: TCP_OPENED_CONNECTIONS
+          tagOverrides:
+            destination_service_name:
+              value: destination.labels["database"] | "mysql"
+
+---
+# ServiceMonitor for Prometheus Operator
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: istio-mesh-metrics
+  namespace: mysql-business-schema
+  labels:
+    app: istio
+spec:
+  selector:
+    matchLabels:
+      app: istio-proxy
+  endpoints:
+    - port: http-metrics
+      interval: 30s
+      path: /stats/prometheus
+
+---
+# ServiceMonitor for MySQL exporters
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: mysql-exporter-metrics
+  namespace: mysql-business-schema
+  labels:
+    app: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
+
+---
+# ServiceEntry for external observability services
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-observability
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - jaeger.observability.example.com
+    - zipkin.observability.example.com
+    - datadog.observability.example.com
+  ports:
+    - number: 443
+      name: https
+      protocol: HTTPS
+    - number: 9411
+      name: zipkin
+      protocol: HTTP
+    - number: 14250
+      name: jaeger-grpc
+      protocol: GRPC
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# Configure distributed tracing
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: istio-custom-bootstrap-config
+  namespace: istio-system
+data:
+  custom_bootstrap.json: |
+    {
+      "tracing": {
+        "http": {
+          "name": "envoy.tracers.zipkin",
+          "typed_config": {
+            "@type": "type.googleapis.com/envoy.config.trace.v3.ZipkinConfig",
+            "collector_cluster": "zipkin",
+            "collector_endpoint": "/api/v2/spans",
+            "collector_endpoint_version": "HTTP_JSON",
+            "trace_id_128bit": true,
+            "shared_span_context": false
+          }
+        }
+      },
+      "stats_config": {
+        "stats_matches": [
+          {
+            "name": "mysql_stats",
+            "actions": [
+              {
+                "name": "mysql_operations",
+                "action": {
+                  "@type": "type.googleapis.com/envoy.config.core.v3.HeaderValueOption",
+                  "header": {
+                    "key": "x-mysql-stats",
+                    "value": "enabled"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+
+---
+# WasmPlugin for custom metrics and logging
+apiVersion: extensions.istio.io/v1alpha1
+kind: WasmPlugin
+metadata:
+  name: mysql-observability
+  namespace: mysql-business-schema
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  url: oci://ghcr.io/istio-ecosystem/wasm-extensions/mysql-stats:latest
+  phase: STATS
+  pluginConfig:
+    metric_name: "mysql_custom_metrics"
+    dimensions:
+      - name: "query_type"
+        value_source: "request.headers['x-query-type']"
+      - name: "database"
+        value_source: "request.headers['x-database']"
+      - name: "table"
+        value_source: "request.headers['x-table']"
+    log_level: "info"
+
+---
+# EnvoyFilter for custom access logs
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: mysql-access-logging
+  namespace: mysql-business-schema
+spec:
+  configPatches:
+    - applyTo: NETWORK_FILTER
+      match:
+        context: INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: envoy.filters.network.tcp_proxy
+      patch:
+        operation: MERGE
+        value:
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+            access_log:
+              - name: envoy.access_loggers.file
+                typed_config:
+                  "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+                  path: "/dev/stdout"
+                  format: |
+                    [%START_TIME%] "%REQ(:METHOD)% %REQ(X-ENVOY-ORIGINAL-PATH?:PATH)% %PROTOCOL%"
+                    %RESPONSE_CODE% %RESPONSE_FLAGS% %BYTES_RECEIVED% %BYTES_SENT%
+                    "%DOWNSTREAM_REMOTE_ADDRESS%" "%REQ(X-FORWARDED-FOR)%" "%REQ(USER-AGENT)%"
+                    "%REQ(X-REQUEST-ID)%" "%REQ(:AUTHORITY)%" "%UPSTREAM_HOST%"
+                    %DURATION% %RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%
+                    "database=%REQ(X-DATABASE)%" "query_type=%REQ(X-QUERY-TYPE)%"

@@ -4,6 +4,9 @@
 
 USE fintech;
 
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
+
 -- =========================================
 -- 1. Real-Time Fraud Score Calculation
 -- =========================================

@@ -2,7 +2,7 @@
 -- BASIC QUERIES FOR CRYPTOCURRENCY EXCHANGE
 -- ============================================================================
 
-USE crypto_exchange;
+USE cryptocurrency;
 
 -- ============================================================================
 -- USER QUERIES

@@ -1,0 +1,177 @@
+# Istio Gateway Configuration
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: mysql-business-schema-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway # Use Istio default ingress gateway
+  servers:
+    # HTTP server configuration
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - "*.mysql-demo.example.com"
+        - "mysql-demo.example.com"
+      # Redirect HTTP to HTTPS
+      tls:
+        httpsRedirect: true
+
+    # HTTPS server configuration
+    - port:
+        number: 443
+        name: https
+        protocol: HTTPS
+      tls:
+        mode: SIMPLE
+        credentialName: mysql-demo-tls # Secret in istio-system namespace
+      hosts:
+        - "*.mysql-demo.example.com"
+        - "mysql-demo.example.com"
+
+    # MySQL port for external access (optional)
+    - port:
+        number: 3306
+        name: mysql
+        protocol: TCP
+      hosts:
+        - "*"
+
+---
+# Virtual Service for routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mysql-business-schema-routes
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - "demo.mysql-demo.example.com"
+    - "grafana.mysql-demo.example.com"
+    - "kibana.mysql-demo.example.com"
+  gateways:
+    - istio-system/mysql-business-schema-gateway
+    - mesh # Apply to internal mesh traffic as well
+  http:
+    # Web Demo routing
+    - match:
+        - uri:
+            prefix: "/"
+          headers:
+            host:
+              exact: "demo.mysql-demo.example.com"
+      route:
+        - destination:
+            host: web-demo
+            port:
+              number: 80
+          weight: 100
+      timeout: 30s
+      retries:
+        attempts: 3
+        perTryTimeout: 10s
+        retryOn: 5xx,reset,connect-failure,refused-stream
+
+    # Grafana routing
+    - match:
+        - uri:
+            prefix: "/"
+          headers:
+            host:
+              exact: "grafana.mysql-demo.example.com"
+      route:
+        - destination:
+            host: grafana
+            port:
+              number: 3000
+          weight: 100
+
+    # Kibana routing
+    - match:
+        - uri:
+            prefix: "/"
+          headers:
+            host:
+              exact: "kibana.mysql-demo.example.com"
+      route:
+        - destination:
+            host: kibana
+            port:
+              number: 5601
+          weight: 100
+
+---
+# Destination Rules for load balancing and circuit breaking
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: mysql-business-schema-destinations
+  namespace: mysql-business-schema
+spec:
+  host: "*.mysql-business-schema.svc.cluster.local"
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 2
+    loadBalancer:
+      simple: LEAST_REQUEST
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+  subsets:
+    # Define subsets for different versions or regions
+    - name: v1
+      labels:
+        version: v1
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 50
+
+---
+# MySQL-specific Destination Rule
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: mysql-destinations
+  namespace: mysql-business-schema
+spec:
+  host: "mysql-*.mysql-business-schema.svc.cluster.local"
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 50
+        connectTimeout: 30s
+    loadBalancer:
+      consistentHash:
+        useSourceIp: true # Sticky sessions for MySQL connections
+  subsets:
+    # Primary (master) instances
+    - name: primary
+      labels:
+        role: primary
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 100
+
+    # Read replicas
+    - name: replica
+      labels:
+        role: replica
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 200
+        loadBalancer:
+          simple: ROUND_ROBIN

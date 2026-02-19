@@ -276,26 +276,6 @@ CREATE FULLTEXT INDEX ft_alert_search
     ON alerts(alert_message);
 
 -- ============================================================================
--- JSON Field Indexes (MySQL 5.7+)
--- ============================================================================
-
--- Patient allergies
-ALTER TABLE patients ADD INDEX idx_patient_allergies
-    ((CAST(allergies->'$[*]' AS CHAR(100) ARRAY)));
-
--- Chronic conditions
-ALTER TABLE patients ADD INDEX idx_chronic_conditions
-    ((CAST(chronic_conditions->'$[*]' AS CHAR(100) ARRAY)));
-
--- Diagnosis codes in admissions
-ALTER TABLE admissions ADD INDEX idx_diagnosis_codes
-    ((CAST(diagnosis_codes->'$[*]' AS CHAR(20) ARRAY)));
-
--- Device settings
-ALTER TABLE devices ADD INDEX idx_device_settings
-    ((CAST(settings->'$.alert_enabled' AS UNSIGNED)));
-
--- ============================================================================
 -- Covering Indexes for Common Queries
 -- ============================================================================
 

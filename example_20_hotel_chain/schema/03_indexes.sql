@@ -123,9 +123,8 @@ CREATE INDEX idx_rate_overrides_dates ON rate_overrides(property_id, override_da
 -- ============================================================================
 
 -- Room availability search (most critical query)
-CREATE INDEX idx_room_availability ON rooms r
-    JOIN room_assignments ra ON r.room_id = ra.room_id
-    (r.property_id, r.room_type_id, r.status, ra.check_in_date, ra.check_out_date);
+CREATE INDEX idx_room_availability
+    ON rooms(property_id, room_type_id, status);
 
 -- Arrival report
 CREATE INDEX idx_arrivals_today ON reservations(property_id, check_in_date, status, arrival_time);
@@ -152,9 +151,8 @@ CREATE INDEX idx_loyalty_expiration ON loyalty_members(points_expiry_date, curre
 CREATE INDEX idx_group_bookings ON reservations(group_booking_id, property_id, check_in_date);
 
 -- VIP guests
-CREATE INDEX idx_vip_arrivals ON reservations r
-    JOIN guests g ON r.guest_id = g.guest_id
-    (r.check_in_date, g.vip_status, r.property_id);
+CREATE INDEX idx_vip_arrivals
+    ON reservations(check_in_date, property_id, guest_id);
 
 -- ============================================================================
 -- ============================================================================

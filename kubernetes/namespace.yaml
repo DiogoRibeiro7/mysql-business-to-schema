@@ -1,0 +1,29 @@
+# Namespace for MySQL Business-to-Schema deployment
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql-business-schema
+  labels:
+    name: mysql-business-schema
+    environment: production
+    istio-injection: enabled  # Enable Istio sidecar injection
+---
+# Development namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql-business-schema-dev
+  labels:
+    name: mysql-business-schema-dev
+    environment: development
+    istio-injection: enabled
+---
+# Staging namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mysql-business-schema-staging
+  labels:
+    name: mysql-business-schema-staging
+    environment: staging
+    istio-injection: enabled

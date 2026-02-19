@@ -1,0 +1,133 @@
+# Prometheus Configuration for MySQL Monitoring
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'mysql-business-schema'
+    environment: 'production'
+
+# Alerting configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alert_rules.yml"
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus-server'
+
+  # Node Exporter for host metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node_exporter:9100']
+        labels:
+          instance: 'host-machine'
+
+  # MySQL Clinic Database
+  - job_name: 'mysql-clinic'
+    static_configs:
+      - targets: ['mysql_exporter_clinic:9104']
+        labels:
+          instance: 'mysql-clinic'
+          database: 'clinic_db'
+          environment: 'production'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: mysql_exporter_clinic:9104
+
+  # MySQL IoT Bins Database
+  - job_name: 'mysql-iot'
+    static_configs:
+      - targets: ['mysql_exporter_iot:9104']
+        labels:
+          instance: 'mysql-iot'
+          database: 'iot_bins'
+          environment: 'production'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: mysql_exporter_iot:9104
+
+  # MySQL E-Commerce Database
+  - job_name: 'mysql-ecommerce'
+    static_configs:
+      - targets: ['mysql_exporter_ecommerce:9104']
+        labels:
+          instance: 'mysql-ecommerce'
+          database: 'ecommerce_db'
+          environment: 'production'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: mysql_exporter_ecommerce:9104
+
+  # Query Analytics Service
+  - job_name: 'query-analytics'
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['query_analytics:8080']
+        labels:
+          instance: 'query-analytics'
+          service: 'analytics'
+
+# Recording rules for performance optimization
+# These pre-compute frequently used queries
+recording_rules:
+  - name: mysql_performance
+    interval: 30s
+    rules:
+      # Query rate calculation
+      - record: mysql:queries:rate5m
+        expr: rate(mysql_global_status_queries[5m])
+
+      # Slow query rate
+      - record: mysql:slow_queries:rate5m
+        expr: rate(mysql_global_status_slow_queries[5m])
+
+      # Connection usage ratio
+      - record: mysql:connections:usage
+        expr: mysql_global_status_threads_connected / mysql_global_variables_max_connections
+
+      # Buffer pool hit ratio
+      - record: mysql:buffer_pool:hit_ratio
+        expr: |
+          (
+            rate(mysql_global_status_innodb_buffer_pool_read_requests[5m]) -
+            rate(mysql_global_status_innodb_buffer_pool_reads[5m])
+          ) / rate(mysql_global_status_innodb_buffer_pool_read_requests[5m])
+
+      # Table lock wait ratio
+      - record: mysql:table_locks:wait_ratio
+        expr: |
+          rate(mysql_global_status_table_locks_waited[5m]) /
+          (rate(mysql_global_status_table_locks_waited[5m]) + rate(mysql_global_status_table_locks_immediate[5m]))
+
+      # Query response time percentiles
+      - record: mysql:query_time:p99
+        expr: histogram_quantile(0.99, rate(mysql_perf_schema_events_statements_duration_bucket[5m]))
+
+      - record: mysql:query_time:p95
+        expr: histogram_quantile(0.95, rate(mysql_perf_schema_events_statements_duration_bucket[5m]))
+
+      - record: mysql:query_time:p50
+        expr: histogram_quantile(0.50, rate(mysql_perf_schema_events_statements_duration_bucket[5m]))

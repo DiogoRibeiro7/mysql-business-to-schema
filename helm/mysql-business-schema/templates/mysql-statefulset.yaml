@@ -1,0 +1,186 @@
+{{- range $dbName, $db := .Values.databases }}
+{{- if $db.enabled }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql-{{ $dbName }}
+  namespace: {{ $.Values.global.namespace | default $.Release.Namespace }}
+  labels:
+    {{- include "mysql-business-schema.labels" $ | nindent 4 }}
+    database: {{ $dbName }}
+    component: database
+spec:
+  serviceName: mysql-{{ $dbName }}-headless
+  replicas: {{ $db.replicas | default 3 }}
+  selector:
+    matchLabels:
+      {{- include "mysql-business-schema.selectorLabels" $ | nindent 6 }}
+      database: {{ $dbName }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/mysql-configmap.yaml") $ | sha256sum }}
+        {{- if $db.metrics.enabled }}
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9104"
+        prometheus.io/path: "/metrics"
+        {{- end }}
+      labels:
+        {{- include "mysql-business-schema.selectorLabels" $ | nindent 8 }}
+        database: {{ $dbName }}
+        component: database
+    spec:
+      {{- with $.Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "mysql-business-schema.serviceAccountName" $ }}
+      securityContext:
+        {{- toYaml $.Values.global.securityContext | nindent 8 }}
+
+      initContainers:
+        - name: init-mysql
+          image: "{{ $db.image.repository }}:{{ $db.image.tag }}"
+          imagePullPolicy: {{ $db.image.pullPolicy }}
+          command:
+            - bash
+            - "-c"
+            - |
+              set -ex
+              # Generate server-id from Pod ordinal index
+              [[ `hostname` =~ -([0-9]+)$ ]] || exit 1
+              ordinal=${BASH_REMATCH[1]}
+              echo [mysqld] > /mnt/conf.d/server-id.cnf
+              echo server-id=$((100 + $ordinal)) >> /mnt/conf.d/server-id.cnf
+              # Copy configuration
+              cp /mnt/config-map/my.cnf /mnt/conf.d/
+              # Configure read-only for replicas
+              if [[ $ordinal -gt 0 ]]; then
+                echo "read_only = ON" >> /mnt/conf.d/server-id.cnf
+              fi
+          volumeMounts:
+            - name: conf
+              mountPath: /mnt/conf.d
+            - name: config-map
+              mountPath: /mnt/config-map
+
+      containers:
+        - name: mysql
+          image: "{{ $db.image.repository }}:{{ $db.image.tag }}"
+          imagePullPolicy: {{ $db.image.pullPolicy }}
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              {{- if $db.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $db.auth.existingSecret }}
+                  key: mysql-root-password
+              {{- else }}
+              value: {{ $db.auth.rootPassword | quote }}
+              {{- end }}
+            - name: MYSQL_DATABASE
+              value: {{ $db.auth.database | quote }}
+            - name: MYSQL_USER
+              value: {{ $db.auth.username | quote }}
+            - name: MYSQL_PASSWORD
+              {{- if $db.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $db.auth.existingSecret }}
+                  key: mysql-password
+              {{- else }}
+              value: {{ $db.auth.password | quote }}
+              {{- end }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - mysql
+                - -h
+                - localhost
+                - -e
+                - "SELECT 1"
+            initialDelaySeconds: 30
+            periodSeconds: 5
+            timeoutSeconds: 1
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            {{- toYaml $db.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+              subPath: mysql
+            - name: conf
+              mountPath: /etc/mysql/conf.d
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+
+        {{- if $db.metrics.enabled }}
+        - name: mysqld-exporter
+          image: "{{ $db.metrics.image.repository }}:{{ $db.metrics.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DATA_SOURCE_NAME
+              value: "exporter:exporter_password@(localhost:3306)/{{ $db.auth.database }}"
+          ports:
+            - name: metrics
+              containerPort: 9104
+              protocol: TCP
+          resources:
+            {{- toYaml $db.metrics.resources | nindent 12 }}
+        {{- end }}
+
+      {{- with $.Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+      volumes:
+        - name: conf
+          emptyDir: {}
+        - name: config-map
+          configMap:
+            name: mysql-{{ $dbName }}-config
+        - name: initdb
+          configMap:
+            name: mysql-{{ $dbName }}-initdb
+
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "mysql-business-schema.labels" $ | nindent 10 }}
+          database: {{ $dbName }}
+      spec:
+        accessModes:
+          - {{ $db.persistence.accessMode | default "ReadWriteOnce" }}
+        storageClassName: {{ $db.persistence.storageClass | default $.Values.global.storageClass }}
+        resources:
+          requests:
+            storage: {{ $db.persistence.size }}
+{{- end }}
+{{- end }}

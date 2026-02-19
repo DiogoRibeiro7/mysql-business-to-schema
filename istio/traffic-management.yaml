@@ -1,0 +1,327 @@
+# Virtual Service for Canary Deployment
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-demo-canary
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - web-demo
+  http:
+    - match:
+        - headers:
+            x-canary:
+              exact: "true"
+      route:
+        - destination:
+            host: web-demo
+            subset: canary
+          weight: 100
+
+    - route:
+        - destination:
+            host: web-demo
+            subset: stable
+          weight: 90
+        - destination:
+            host: web-demo
+            subset: canary
+          weight: 10
+
+---
+# Destination Rule for Canary Deployment
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: web-demo-canary
+  namespace: mysql-business-schema
+spec:
+  host: web-demo
+  subsets:
+    - name: stable
+      labels:
+        version: stable
+    - name: canary
+      labels:
+        version: canary
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 10
+          http:
+            http1MaxPendingRequests: 10
+
+---
+# Virtual Service for A/B Testing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-demo-ab-testing
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - web-demo
+  http:
+    # Route based on user cookie
+    - match:
+        - headers:
+            cookie:
+              regex: "^(.*?;)?(user_segment=premium)(;.*)?$"
+      route:
+        - destination:
+            host: web-demo
+            subset: version-b
+
+    # Default route
+    - route:
+        - destination:
+            host: web-demo
+            subset: version-a
+
+---
+# Traffic Mirroring for Shadow Testing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-demo-mirroring
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - web-demo
+  http:
+    - route:
+        - destination:
+            host: web-demo
+            subset: production
+          weight: 100
+      mirror:
+        host: web-demo
+        subset: shadow
+      mirrorPercentage:
+        value: 10.0
+
+---
+# Fault Injection for Chaos Testing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-demo-fault-injection
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - web-demo
+  http:
+    - match:
+        - headers:
+            x-test-fault:
+              exact: "true"
+      fault:
+        delay:
+          percentage:
+            value: 10.0
+          fixedDelay: 5s
+        abort:
+          percentage:
+            value: 5.0
+          httpStatus: 503
+      route:
+        - destination:
+            host: web-demo
+            subset: stable
+
+---
+# Circuit Breaker Configuration
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: web-demo-circuit-breaker
+  namespace: mysql-business-schema
+spec:
+  host: web-demo
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http1MaxPendingRequests: 100
+        http2MaxRequests: 1000
+        maxRequestsPerConnection: 2
+    loadBalancer:
+      simple: LEAST_REQUEST
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50
+      minHealthPercent: 30
+      splitExternalLocalOriginErrors: true
+
+---
+# Retry Policy
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: web-demo-retry
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - web-demo
+  http:
+    - route:
+        - destination:
+            host: web-demo
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: 5xx,reset,connect-failure,refused-stream
+        retryRemoteLocalities: true
+
+---
+# Rate Limiting with Envoy Filter
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: rate-limit-filter
+  namespace: mysql-business-schema
+spec:
+  workloadSelector:
+    labels:
+      app: web-demo
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: INBOUND
+        listener:
+          filterChain:
+            filter:
+              name: envoy.filters.network.http_connection_manager
+              subFilter:
+                name: envoy.filters.http.router
+      patch:
+        operation: INSERT_BEFORE
+        value:
+          name: envoy.filters.http.local_ratelimit
+          typed_config:
+            "@type": type.googleapis.com/udpa.type.v1.TypedStruct
+            type_url: type.googleapis.com/envoy.extensions.filters.http.local_ratelimit.v3.LocalRateLimit
+            value:
+              stat_prefix: http_local_rate_limiter
+              token_bucket:
+                max_tokens: 100
+                tokens_per_fill: 100
+                fill_interval: 60s
+              filter_enabled:
+                runtime_key: local_rate_limit_enabled
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+              filter_enforced:
+                runtime_key: local_rate_limit_enforced
+                default_value:
+                  numerator: 100
+                  denominator: HUNDRED
+
+---
+# Header-based Routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: mysql-header-routing
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - mysql-clinic
+    - mysql-iot
+    - mysql-ecommerce
+  tcp:
+    - match:
+        - sourceLabels:
+            app: web-demo
+            env: production
+      route:
+        - destination:
+            host: mysql-clinic
+            subset: primary
+            port:
+              number: 3306
+
+    - match:
+        - sourceLabels:
+            app: web-demo
+            operation: read
+      route:
+        - destination:
+            host: mysql-clinic
+            subset: replica
+            port:
+              number: 3306
+
+---
+# Locality Load Balancing
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: locality-load-balancing
+  namespace: mysql-business-schema
+spec:
+  host: "*.mysql-business-schema.svc.cluster.local"
+  trafficPolicy:
+    outlierDetection:
+      consecutiveErrors: 5
+      interval: 30s
+      baseEjectionTime: 30s
+    connectionPool:
+      tcp:
+        maxConnections: 100
+      http:
+        http2MaxRequests: 1000
+    loadBalancer:
+      localityLbSetting:
+        distribute:
+          - from: region1/zone1/*
+            to:
+              "region1/zone1/*": 80
+              "region1/zone2/*": 20
+          - from: region1/zone2/*
+            to:
+              "region1/zone2/*": 80
+              "region1/zone1/*": 20
+        failover:
+          - from: region1
+            to: region2
+        enabled: true
+
+---
+# Service Entry for External Database
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-mysql
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - external-mysql.database.example.com
+  ports:
+    - number: 3306
+      name: mysql
+      protocol: TCP
+  location: MESH_EXTERNAL
+  resolution: DNS
+
+---
+# Virtual Service for External Database
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: external-mysql-routing
+  namespace: mysql-business-schema
+spec:
+  hosts:
+    - external-mysql.database.example.com
+  tcp:
+    - timeout: 30s
+      route:
+        - destination:
+            host: external-mysql.database.example.com
+            port:
+              number: 3306

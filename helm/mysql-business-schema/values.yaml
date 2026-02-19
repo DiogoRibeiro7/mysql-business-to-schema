@@ -1,0 +1,471 @@
+# Default values for mysql-business-schema Helm chart
+
+# Global settings
+global:
+  # Namespace to deploy resources
+  namespace: mysql-business-schema
+
+  # Environment: development, staging, production
+  environment: production
+
+  # Domain for ingress
+  domain: mysql-demo.example.com
+
+  # Storage class for persistent volumes
+  storageClass: fast-ssd
+
+  # Image pull secrets
+  imagePullSecrets: []
+
+  # Security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    fsGroup: 1000
+
+# MySQL Databases configuration
+databases:
+  # Clinic Database
+  clinic:
+    enabled: true
+    name: clinic_db
+    replicas: 3
+    image:
+      repository: mysql
+      tag: "8.0"
+      pullPolicy: IfNotPresent
+
+    auth:
+      rootPassword: "change-me-in-production"  # Use existingSecret in production
+      database: clinic_db
+      username: clinic_user
+      password: "change-me-in-production"
+      existingSecret: ""  # Name of existing secret with passwords
+
+    persistence:
+      enabled: true
+      size: 50Gi
+      storageClass: ""  # Uses global.storageClass if not specified
+      accessMode: ReadWriteOnce
+
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1"
+      limits:
+        memory: "4Gi"
+        cpu: "2"
+
+    backup:
+      enabled: true
+      schedule: "0 2 * * *"  # Daily at 2 AM
+      retention: 7  # Days
+
+    metrics:
+      enabled: true
+      image:
+        repository: prom/mysqld-exporter
+        tag: latest
+      resources:
+        requests:
+          memory: "50Mi"
+          cpu: "50m"
+        limits:
+          memory: "100Mi"
+          cpu: "100m"
+
+  # IoT Bins Database
+  iot:
+    enabled: true
+    name: iot_bins
+    replicas: 3
+    image:
+      repository: mysql
+      tag: "8.0"
+      pullPolicy: IfNotPresent
+
+    auth:
+      rootPassword: "change-me-in-production"
+      database: iot_bins
+      username: iot_user
+      password: "change-me-in-production"
+      existingSecret: ""
+
+    persistence:
+      enabled: true
+      size: 100Gi
+      storageClass: ""
+      accessMode: ReadWriteOnce
+
+    # Partitioning configuration for time-series data
+    partitioning:
+      enabled: true
+      interval: "MONTHLY"
+      retention: 90  # Days
+
+    resources:
+      requests:
+        memory: "4Gi"
+        cpu: "2"
+      limits:
+        memory: "8Gi"
+        cpu: "4"
+
+    backup:
+      enabled: true
+      schedule: "0 2 * * *"
+      retention: 7
+
+    metrics:
+      enabled: true
+
+  # E-Commerce Database
+  ecommerce:
+    enabled: true
+    name: ecommerce_db
+    replicas: 3
+    image:
+      repository: mysql
+      tag: "8.0"
+      pullPolicy: IfNotPresent
+
+    auth:
+      rootPassword: "change-me-in-production"
+      database: ecommerce_db
+      username: ecommerce_user
+      password: "change-me-in-production"
+      existingSecret: ""
+
+    persistence:
+      enabled: true
+      size: 75Gi
+      storageClass: ""
+      accessMode: ReadWriteOnce
+
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1"
+      limits:
+        memory: "4Gi"
+        cpu: "2"
+
+    backup:
+      enabled: true
+      schedule: "0 2 * * *"
+      retention: 7
+
+    metrics:
+      enabled: true
+
+# Web Demo Application
+webDemo:
+  enabled: true
+
+  replicaCount: 3
+
+  image:
+    repository: mysql-business-schema/web-demo
+    tag: latest
+    pullPolicy: Always
+
+  service:
+    type: ClusterIP
+    port: 80
+    targetPort: 3001
+    annotations: {}
+
+  ingress:
+    enabled: true
+    className: nginx
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      nginx.ingress.kubernetes.io/rate-limit: "100"
+    hosts:
+      - host: demo.mysql-demo.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: web-demo-tls
+        hosts:
+          - demo.mysql-demo.example.com
+
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+  env:
+    NODE_ENV: production
+    ENABLE_QUERY_HISTORY: "true"
+    MAX_QUERY_RESULTS: "1000"
+    QUERY_TIMEOUT: "30000"
+    RATE_LIMIT_WINDOW: "900000"
+    RATE_LIMIT_MAX: "100"
+
+# Monitoring Stack
+monitoring:
+  prometheus:
+    enabled: true
+    retention: 30d
+    storage:
+      size: 100Gi
+
+    # Additional scrape configs
+    additionalScrapeConfigs: []
+
+    # Alert rules
+    rules:
+      enabled: true
+      additionalGroups: []
+
+  grafana:
+    enabled: true
+    standalone: false  # Use kube-prometheus-stack's Grafana
+
+    adminUser: admin
+    adminPassword: "change-me-in-production"
+    existingSecret: ""
+
+    dashboards:
+      enabled: true
+      defaultDashboard: mysql-performance
+
+    datasources:
+      enabled: true
+
+    plugins:
+      - grafana-piechart-panel
+      - grafana-worldmap-panel
+      - redis-app
+
+    persistence:
+      enabled: true
+      size: 10Gi
+
+    ingress:
+      enabled: true
+      hosts:
+        - grafana.mysql-demo.example.com
+      tls:
+        - secretName: grafana-tls
+          hosts:
+            - grafana.mysql-demo.example.com
+
+  alertmanager:
+    enabled: true
+
+    config:
+      global:
+        resolve_timeout: 5m
+
+      route:
+        group_by: ['alertname', 'cluster', 'service']
+        group_wait: 10s
+        group_interval: 10s
+        repeat_interval: 1h
+        receiver: 'default'
+
+      receivers:
+        - name: 'default'
+          email_configs:
+            - to: 'alerts@example.com'
+              send_resolved: true
+
+# Redis Cache
+redis:
+  enabled: true
+
+  architecture: standalone
+
+  auth:
+    enabled: true
+    password: "change-me-in-production"
+    existingSecret: ""
+
+  master:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+# Service Mesh (Istio)
+serviceMesh:
+  enabled: false
+
+  istio:
+    injection: enabled
+
+    virtualService:
+      enabled: true
+      gateways:
+        - istio-system/main-gateway
+
+    destinationRule:
+      enabled: true
+      trafficPolicy:
+        connectionPool:
+          tcp:
+            maxConnections: 100
+          http:
+            http1MaxPendingRequests: 10
+            http2MaxRequests: 100
+
+    peerAuthentication:
+      enabled: true
+      mode: STRICT
+
+    authorizationPolicy:
+      enabled: true
+      rules: []
+
+# Backup and Restore
+backup:
+  enabled: true
+
+  type: "s3"  # s3, gcs, azure
+
+  s3:
+    bucket: mysql-backups
+    region: us-east-1
+    accessKeyId: ""
+    secretAccessKey: ""
+    existingSecret: ""
+
+  schedule:
+    full: "0 2 * * 0"  # Weekly full backup
+    incremental: "0 2 * * 1-6"  # Daily incremental
+
+  retention:
+    full: 30  # Days
+    incremental: 7  # Days
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+
+# Logging
+logging:
+  enabled: true
+
+  elasticsearch:
+    enabled: true
+    replicas: 3
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1"
+      limits:
+        memory: "4Gi"
+        cpu: "2"
+
+  kibana:
+    enabled: true
+    ingress:
+      enabled: true
+      hosts:
+        - kibana.mysql-demo.example.com
+
+  fluentd:
+    enabled: true
+    resources:
+      requests:
+        memory: "200Mi"
+        cpu: "100m"
+      limits:
+        memory: "500Mi"
+        cpu: "200m"
+
+# Network Policies
+networkPolicies:
+  enabled: true
+
+  defaultDenyAll: true
+
+  allowDNS: true
+
+  customPolicies: []
+
+# Pod Security Policies
+podSecurityPolicy:
+  enabled: false  # Deprecated in K8s 1.25+, use Pod Security Standards
+
+# Pod Security Standards
+podSecurityStandards:
+  enforce: restricted
+  audit: restricted
+  warn: restricted
+
+# RBAC
+rbac:
+  create: true
+
+  serviceAccount:
+    create: true
+    name: ""
+    annotations: {}
+
+# Node Selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - mysql
+          topologyKey: kubernetes.io/hostname
+
+# Priority Class
+priorityClassName: ""
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Vertical Pod Autoscaler
+verticalPodAutoscaler:
+  enabled: false
+  updateMode: "Auto"
+
+# Testing
+tests:
+  enabled: true
+
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent

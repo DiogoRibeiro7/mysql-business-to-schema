@@ -72,15 +72,22 @@ LEFT JOIN (
     SELECT
         pl.factory_id,
         SUM(de.duration_minutes) / 60 AS total_downtime_hours,
-        FIRST_VALUE(de.reason_category) OVER (
-            PARTITION BY pl.factory_id
-            ORDER BY SUM(de.duration_minutes) DESC
+        (
+            SELECT de2.reason_category
+            FROM downtime_events de2
+            INNER JOIN machines m2 ON de2.machine_id = m2.machine_id
+            INNER JOIN production_lines pl2 ON m2.line_id = pl2.line_id
+            WHERE pl2.factory_id = pl.factory_id
+                AND de2.start_time >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
+            GROUP BY de2.reason_category
+            ORDER BY SUM(de2.duration_minutes) DESC
+            LIMIT 1
         ) AS primary_downtime_reason
     FROM downtime_events de
     INNER JOIN machines m ON de.machine_id = m.machine_id
     INNER JOIN production_lines pl ON m.line_id = pl.line_id
     WHERE de.start_time >= DATE_FORMAT(CURDATE(), '%Y-%m-01')
-    GROUP BY pl.factory_id, de.reason_category
+    GROUP BY pl.factory_id
 ) dt ON f.factory_id = dt.factory_id
 
 -- Quality summary
@@ -98,7 +105,7 @@ LEFT JOIN (
 ) quality ON f.factory_id = quality.factory_id
 
 WHERE f.is_active = TRUE
-GROUP BY f.factory_id
+GROUP BY f.factory_id, f.factory_name, f.factory_type
 ORDER BY f.factory_name;
 
 -- ============================================================================

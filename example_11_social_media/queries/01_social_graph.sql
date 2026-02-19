@@ -4,6 +4,9 @@
 
 USE social_media;
 
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
+
 -- =========================================
 -- 1. Find Mutual Friends/Followers
 -- =========================================

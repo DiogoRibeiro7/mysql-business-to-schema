@@ -13,6 +13,8 @@ counts:
   cart_abandonment_rate: 0.70  # 70% of carts are abandoned
   days_of_data: 90  # 3 months of data
 
+distributions: {}
+
 date_ranges:
   business_start: "2024-01-01"
   data_start: "2024-11-01"

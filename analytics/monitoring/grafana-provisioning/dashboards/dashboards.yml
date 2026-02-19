@@ -1,0 +1,15 @@
+# Grafana Dashboard Provisioning
+apiVersion: 1
+
+providers:
+  # MySQL Performance Dashboards
+  - name: 'MySQL Performance'
+    orgId: 1
+    folder: 'MySQL Monitoring'
+    folderUid: mysql-monitoring
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

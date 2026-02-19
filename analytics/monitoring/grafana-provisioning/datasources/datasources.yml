@@ -1,0 +1,74 @@
+# Grafana Datasource Provisioning
+apiVersion: 1
+
+# List of datasources to insert/update
+datasources:
+  # Prometheus datasource
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    isDefault: true
+    version: 1
+    editable: true
+    jsonData:
+      timeInterval: "15s"
+      queryTimeout: "60s"
+      httpMethod: POST
+
+  # MySQL datasources for direct queries
+  - name: MySQL-Clinic
+    type: mysql
+    access: proxy
+    orgId: 1
+    url: host.docker.internal:3308
+    database: clinic_db
+    user: grafana_read
+    secureJsonData:
+      password: grafana_pass
+    jsonData:
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 3600
+    editable: true
+
+  - name: MySQL-IoT
+    type: mysql
+    access: proxy
+    orgId: 1
+    url: host.docker.internal:3309
+    database: iot_bins
+    user: grafana_read
+    secureJsonData:
+      password: grafana_pass
+    jsonData:
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 3600
+    editable: true
+
+  - name: MySQL-Ecommerce
+    type: mysql
+    access: proxy
+    orgId: 1
+    url: host.docker.internal:3311
+    database: ecommerce_db
+    user: grafana_read
+    secureJsonData:
+      password: grafana_pass
+    jsonData:
+      maxOpenConns: 10
+      maxIdleConns: 5
+      connMaxLifetime: 3600
+    editable: true
+
+  # Alert Manager datasource
+  - name: AlertManager
+    type: alertmanager
+    access: proxy
+    orgId: 1
+    url: http://alertmanager:9093
+    jsonData:
+      implementation: prometheus
+    editable: true

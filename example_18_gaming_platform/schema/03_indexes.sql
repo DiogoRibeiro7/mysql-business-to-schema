@@ -135,7 +135,8 @@ CREATE INDEX idx_friends_online_game ON friendships(player_id, status);
 
 -- Matchmaking with skill and region
 CREATE INDEX idx_matchmaking_composite ON matchmaking_queue(
-    game_id, game_mode, preferred_region, skill_rating, party_size, queued_at;
+    game_id, game_mode, preferred_region, skill_rating, party_size, queued_at
+);
 
 -- Tournament standings
 CREATE INDEX idx_tournament_standings ON tournament_participants(
@@ -144,17 +145,17 @@ CREATE INDEX idx_tournament_standings ON tournament_participants(
 
 -- Active game sessions per player
 CREATE INDEX idx_active_game_sessions ON match_participants(
-    player_id, joined_at DESC;
+    player_id, joined_at DESC
+);
 
 -- Store recommendations based on owned games
 CREATE INDEX idx_store_recommendations ON store_items(
-    game_id, item_type, is_available, times_purchased DESC;
+    game_id, item_type, is_available, times_purchased DESC
+);
 
 -- Clan war participants
-CREATE INDEX idx_clan_war_performance ON match_participants mp
-    JOIN clan_members cm ON mp.player_id = cm.player_id (
-    cm.clan_id, mp.match_id, mp.score DESC
-);
+CREATE INDEX idx_clan_war_performance
+    ON match_participants(match_id, score DESC, player_id);
 
 -- ============================================================================
 -- FULL-TEXT INDEXES

@@ -4,6 +4,9 @@
 
 USE fleet_management;
 
+-- Smoke test for CI query runner
+SELECT 1 AS query_smoke_test;
+
 -- ============================================================================
 -- Live Vehicle Tracking Dashboard
 -- ============================================================================

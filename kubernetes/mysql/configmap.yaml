@@ -1,0 +1,181 @@
+# ConfigMap for MySQL configurations
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-config
+  namespace: mysql-business-schema
+  labels:
+    app: mysql
+    component: database
+data:
+  # MySQL configuration file
+  my.cnf: |
+    [mysqld]
+    # Basic Settings
+    port = 3306
+    socket = /var/run/mysqld/mysqld.sock
+    datadir = /var/lib/mysql
+    symbolic-links = 0
+
+    # Performance Settings
+    max_connections = 500
+    thread_cache_size = 50
+    key_buffer_size = 256M
+    max_allowed_packet = 64M
+    table_open_cache = 2000
+    sort_buffer_size = 2M
+    read_buffer_size = 2M
+    read_rnd_buffer_size = 8M
+    myisam_sort_buffer_size = 64M
+
+    # InnoDB Settings
+    innodb_buffer_pool_size = 2G
+    innodb_log_file_size = 256M
+    innodb_flush_log_at_trx_commit = 2
+    innodb_flush_method = O_DIRECT
+    innodb_file_per_table = 1
+    innodb_io_capacity = 2000
+    innodb_io_capacity_max = 3000
+    innodb_buffer_pool_instances = 4
+    innodb_thread_concurrency = 0
+    innodb_autoinc_lock_mode = 2
+
+    # Query Cache (disabled in MySQL 8.0+)
+    query_cache_type = 0
+    query_cache_size = 0
+
+    # Logging
+    general_log = 0
+    general_log_file = /var/log/mysql/general.log
+    slow_query_log = 1
+    slow_query_log_file = /var/log/mysql/slow.log
+    long_query_time = 2
+    log_queries_not_using_indexes = 1
+
+    # Replication
+    server-id = 1
+    log_bin = /var/log/mysql/mysql-bin.log
+    binlog_format = ROW
+    max_binlog_size = 100M
+    expire_logs_days = 7
+
+    # Character Set
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_unicode_ci
+
+    # Performance Schema
+    performance_schema = ON
+    performance_schema_consumer_events_statements_history_long = ON
+
+    [client]
+    port = 3306
+    socket = /var/run/mysqld/mysqld.sock
+    default-character-set = utf8mb4
+
+    [mysql]
+    default-character-set = utf8mb4
+
+  # Initialization script for creating monitoring user
+  init-monitoring.sql: |
+    -- Create monitoring user for exporters
+    CREATE USER IF NOT EXISTS 'exporter'@'%' IDENTIFIED BY 'exporter_password';
+    GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'%';
+    GRANT SELECT ON performance_schema.* TO 'exporter'@'%';
+
+    -- Create backup user
+    CREATE USER IF NOT EXISTS 'backup'@'%' IDENTIFIED BY 'backup_password';
+    GRANT SELECT, SHOW VIEW, TRIGGER, LOCK TABLES ON *.* TO 'backup'@'%';
+
+    -- Create replication user
+    CREATE USER IF NOT EXISTS 'replicator'@'%' IDENTIFIED BY 'replicator_password';
+    GRANT REPLICATION SLAVE ON *.* TO 'replicator'@'%';
+
+    FLUSH PRIVILEGES;
+
+---
+# ConfigMap for database-specific settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-databases-config
+  namespace: mysql-business-schema
+  labels:
+    app: mysql
+    component: database
+data:
+  # Database list for initialization
+  databases.json: |
+    {
+      "databases": [
+        {
+          "name": "clinic_db",
+          "schema_path": "/schemas/clinic",
+          "port": 3308,
+          "replicas": 3,
+          "storage": "50Gi",
+          "resources": {
+            "requests": {
+              "memory": "2Gi",
+              "cpu": "1"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2"
+            }
+          }
+        },
+        {
+          "name": "iot_bins",
+          "schema_path": "/schemas/iot",
+          "port": 3309,
+          "replicas": 3,
+          "storage": "100Gi",
+          "partitioned": true,
+          "resources": {
+            "requests": {
+              "memory": "4Gi",
+              "cpu": "2"
+            },
+            "limits": {
+              "memory": "8Gi",
+              "cpu": "4"
+            }
+          }
+        },
+        {
+          "name": "ecommerce_db",
+          "schema_path": "/schemas/ecommerce",
+          "port": 3311,
+          "replicas": 3,
+          "storage": "75Gi",
+          "resources": {
+            "requests": {
+              "memory": "2Gi",
+              "cpu": "1"
+            },
+            "limits": {
+              "memory": "4Gi",
+              "cpu": "2"
+            }
+          }
+        },
+        {
+          "name": "fintech_db",
+          "schema_path": "/schemas/fintech",
+          "port": 3317,
+          "replicas": 5,
+          "storage": "100Gi",
+          "high_availability": true,
+          "resources": {
+            "requests": {
+              "memory": "4Gi",
+              "cpu": "2"
+            },
+            "limits": {
+              "memory": "8Gi",
+              "cpu": "4"
+            }
+          }
+        }
+      ]
+    }

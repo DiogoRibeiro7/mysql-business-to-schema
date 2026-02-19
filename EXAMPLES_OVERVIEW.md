@@ -2,28 +2,38 @@
 
 ## 📚 Complete Database Examples Collection
 
-This repository contains 9 comprehensive database examples demonstrating various business domains, with a strong focus on IoT systems and real-world applications. Each example includes schemas, queries, and detailed documentation.
+This repository contains 21 comprehensive database examples across multiple industries. Each example includes schemas, queries, and detailed documentation.
 
-## 🎯 Examples Overview
+## 🎯 Examples Overview (with Table Counts)
 
-### IoT Systems (7 examples)
+Generator coverage legend:
+- ✅ `foldered` = `generators/<name>/generate.py` + `config.yaml`
+- 🟡 `script` = standalone script in `generators/`
+- ⚪ `none`
 
-| Example | Domain | Key Patterns | Data Volume | Use Cases |
-|---------|--------|--------------|-------------|-----------|
-| **02 - IoT Garbage Bins** | Smart City | Time series, Spatial queries | 500K readings/day | Route optimization, Fill monitoring |
-| **03 - Smart Energy** | Utilities | Multi-tenant, High-frequency | 1M+ readings/day | Consumption analysis, Demand forecasting |
-| **05 - Industrial IoT** | Manufacturing | OEE metrics, Predictive maintenance | 100K readings/day | Production optimization, Quality control |
-| **06 - Smart Agriculture** | Farming | GIS integration, Weather data | 200K readings/day | Irrigation, Yield prediction |
-| **07 - Fleet Management** | Transportation | GPS tracking, Telematics | 86K points/vehicle/day | Route planning, Driver scoring |
-| **08 - Healthcare IoT** | Medical | HIPAA compliance, Clinical data | 500K readings/day | Patient monitoring, Alert systems |
-| **09 - Streaming ML** | Analytics | Feature engineering, A/B testing | 10M+ events/day | Recommendations, Churn prediction |
-
-### Traditional Systems (2 examples)
-
-| Example | Domain | Key Patterns | Focus |
-|---------|--------|--------------|-------|
-| **01 - Medical Clinic** | Healthcare | Appointments, Billing | Transactional, Referential integrity |
-| **04 - E-commerce** | Retail | Orders, Inventory | ACID transactions, State machines |
+| Example | Domain | Tables | Generator |
+|---------|--------|--------|-----------|
+| **01 - Clinic Management** | Healthcare | 9 | ✅ foldered |
+| **02 - IoT Bins** | Smart City | 15 | ✅ foldered |
+| **03 - Smart Energy** | Utilities | 26 | ✅ foldered |
+| **04 - E-commerce** | Retail | 33 | ✅ foldered |
+| **05 - Industrial IoT** | Manufacturing | 18 | ✅ foldered |
+| **06 - Smart Agriculture** | Farming | 23 | ✅ foldered |
+| **07 - Fleet Management** | Transportation | 23 | ✅ foldered |
+| **08 - Healthcare IoT** | Medical | 25 | ✅ foldered |
+| **09 - Streaming ML** | Analytics | 33 | ✅ foldered |
+| **10 - FinTech Platform** | Financial | 26 | ✅ foldered |
+| **11 - Social Media Network** | Social | 25 | ✅ foldered |
+| **12 - Real Estate Marketplace** | Real Estate | 29 | ⚪ none |
+| **13 - Event Ticketing** | Entertainment | 26 | ⚪ none |
+| **14 - Logistics & Supply Chain** | Logistics | 24 | ✅ foldered |
+| **15 - Education & LMS** | Education | 33 | 🟡 script |
+| **16 - Cryptocurrency** | Finance | 14 | ⚪ none |
+| **16b - Crypto Exchange** | Finance | 17 | 🟡 script |
+| **17 - Food Delivery** | Delivery | 21 | 🟡 script |
+| **18 - Gaming Platform** | Gaming | 25 | 🟡 script |
+| **19 - Insurance** | Insurance | 20 | 🟡 script |
+| **20 - Hotel Chain** | Hospitality | 20 | 🟡 script |
 
 ## 📊 Technical Patterns Demonstrated
 

@@ -47,8 +47,6 @@ ON shipments(status, carrier_id, delivery_date);
 CREATE INDEX idx_delivery_performance
 ON shipments(carrier_id, actual_delivery_date, delivery_date, status);
 
-ALTER TABLE shipment_tracking
-
 -- ========================================
 -- WAREHOUSE OPTIMIZATION INDEXES
 -- ========================================
@@ -138,15 +136,15 @@ ON shipments(carrier_id, status, pickup_date, delivery_date, total_cost);
 -- ========================================
 
 -- Hash index for tracking number lookup
-CREATE INDEX idx_tracking_hash USING HASH
+CREATE INDEX idx_tracking_hash
 ON shipments(tracking_number);
 
 -- Hash index for order number lookup
-CREATE INDEX idx_order_hash USING HASH
+CREATE INDEX idx_order_hash
 ON sales_orders(so_number);
 
 -- Hash index for SKU lookup
-CREATE INDEX idx_sku_hash USING HASH
+CREATE INDEX idx_sku_hash
 ON products(sku);
 
 -- ========================================

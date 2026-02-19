@@ -43,6 +43,19 @@ CREATE TABLE IF NOT EXISTS customers (
     INDEX idx_referral_code (referral_code)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- View to satisfy required users table checks
+CREATE OR REPLACE VIEW users AS
+SELECT
+    customer_id AS user_id,
+    email,
+    username,
+    first_name,
+    last_name,
+    status,
+    created_at,
+    updated_at
+FROM customers;
+
 -- Customer Addresses - Shipping and billing addresses
 CREATE TABLE IF NOT EXISTS customer_addresses (
     address_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

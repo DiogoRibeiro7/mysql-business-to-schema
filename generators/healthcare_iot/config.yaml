@@ -11,6 +11,8 @@ counts:
   alerts_per_day: 20
   days_of_data: 7
 
+distributions: {}
+
 date_ranges:
   admission_start: "2025-01-01"
   admission_end: "2025-01-31"

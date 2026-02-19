@@ -1,0 +1,58 @@
+{
+  "name": "mysql-business-schema-web-demo",
+  "version": "1.0.0",
+  "description": "Interactive web demo for MySQL Business-to-Schema examples",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:frontend && npm run install:backend",
+    "install:frontend": "cd frontend && npm install",
+    "install:backend": "cd backend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd frontend && npm start",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "start:prod": "NODE_ENV=production npm start",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && npm test",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "cd frontend && npm run lint",
+    "lint:backend": "cd backend && npm run lint",
+    "deploy:railway": "railway up",
+    "deploy:render": "render blueprint sync",
+    "deploy:fly": "fly deploy",
+    "docker:build": "docker build -t mysql-demo-web .",
+    "docker:run": "docker run -p 3001:3001 mysql-demo-web",
+    "docker:compose": "docker-compose up"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "@types/node": "^20.5.0",
+    "typescript": "^5.1.6"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/mysql-business-to-schema"
+  },
+  "keywords": [
+    "mysql",
+    "database",
+    "schema",
+    "demo",
+    "interactive",
+    "web"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

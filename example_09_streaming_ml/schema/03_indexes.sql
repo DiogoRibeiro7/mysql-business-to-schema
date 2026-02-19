@@ -245,7 +245,7 @@ CREATE FULLTEXT INDEX ft_project_search
 
 -- Model search
 CREATE FULLTEXT INDEX ft_model_search
-    ON models(model_name, tags);
+    ON models(model_name);
 
 -- Experiment search
 CREATE FULLTEXT INDEX ft_experiment_search
@@ -256,29 +256,6 @@ CREATE FULLTEXT INDEX ft_alert_search
     ON model_alerts(alert_message);
 
 -- ============================================================================
--- JSON Field Indexes (MySQL 5.7+)
--- ============================================================================
-
--- Stream schema fields
-ALTER TABLE data_streams ADD INDEX idx_stream_schema
-    ((CAST(schema_definition->'$.fields[*].name' AS CHAR(100) ARRAY)));
-
--- Feature dependencies
-ALTER TABLE feature_definitions ADD INDEX idx_feature_deps
-    ((CAST(dependencies->'$[*]' AS UNSIGNED ARRAY)));
-
--- Experiment tags
-ALTER TABLE experiments ADD INDEX idx_experiment_tags
-    ((CAST(tags->'$[*]' AS CHAR(50) ARRAY)));
-
--- Model metrics
-ALTER TABLE models ADD INDEX idx_model_accuracy
-    ((CAST(metrics->'$.accuracy' AS DECIMAL(5,4))));
-
-ALTER TABLE models ADD INDEX idx_model_f1
-    ((CAST(metrics->'$.f1_score' AS DECIMAL(5,4))));
-
--- ============================================================================
 -- Covering Indexes for Common Queries
 -- ============================================================================
 
@@ -286,15 +263,14 @@ ALTER TABLE models ADD INDEX idx_model_f1
 CREATE INDEX idx_deployment_dashboard
     ON model_deployments(
         deployment_id, model_id, environment, status,
-        health_status, traffic_percentage, deployed_at;
+        health_status, traffic_percentage, deployed_at
+    );
 
 -- Experiment leaderboard
 CREATE INDEX idx_experiment_leaderboard
     ON models(
-        experiment_id, model_name, model_version,
-        JSON_EXTRACT(metrics, '$.accuracy'),
-        JSON_EXTRACT(metrics, '$.f1_score'),
-        created_at;
+        experiment_id, model_name, model_version, created_at
+    );
 
 -- Stream health monitoring
 CREATE INDEX idx_stream_health

@@ -11,6 +11,8 @@ counts:
   work_orders_per_day: 50
   days_of_data: 7
 
+distributions: {}
+
 date_ranges:
   factory_established: "2015-01-01"
   data_start: "2025-01-25"
