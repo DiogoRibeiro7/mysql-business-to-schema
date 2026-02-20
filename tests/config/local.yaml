@@ -1,0 +1,41 @@
+# Local test environment configuration
+
+mysql:
+  host: localhost
+  port: 3306
+  user: root
+  password: root
+  database: test_db
+  pool_size: 5
+  timeout: 30
+
+redis:
+  host: localhost
+  port: 6379
+  db: 0
+  decode_responses: true
+
+kafka:
+  bootstrap_servers: localhost:9092
+  group_id: test-consumer-group
+  auto_offset_reset: earliest
+
+graphql_endpoint: http://localhost:4000/graphql
+
+web_demo:
+  url: http://localhost:3001
+  timeout: 10
+
+performance:
+  max_query_time: 1.0  # seconds
+  max_memory_usage: 512  # MB
+  max_cpu_usage: 80  # percent
+
+chaos:
+  enabled: false
+  probability: 0.1
+  latency_ms: 100
+
+logging:
+  level: DEBUG
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

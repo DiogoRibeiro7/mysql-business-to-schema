@@ -1,0 +1,64 @@
+# Testing Dependencies
+
+# Core testing frameworks
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+pytest-timeout>=2.1.0
+pytest-mock>=3.11.1
+pytest-xdist>=3.3.1  # Parallel test execution
+
+# Database testing
+mysql-connector-python>=8.1.0
+sqlalchemy>=2.0.0
+testcontainers[mysql]>=3.7.1
+testcontainers[kafka]>=3.7.1
+testcontainers[redis]>=3.7.1
+
+# Web testing
+selenium>=4.11.0
+playwright>=1.37.0
+requests>=2.31.0
+websocket-client>=1.6.1
+
+# Load testing
+locust>=2.15.1
+
+# API testing
+httpx>=0.24.1
+gql>=3.4.1  # GraphQL client
+
+# Mocking and fixtures
+faker>=19.3.0
+factory-boy>=3.3.0
+responses>=0.23.3
+
+# Performance monitoring
+psutil>=5.9.5
+memory-profiler>=0.61.0
+py-spy>=0.3.14
+
+# Code quality
+black>=23.7.0
+flake8>=6.1.0
+mypy>=1.5.0
+pylint>=2.17.5
+
+# Reporting
+pytest-html>=3.2.0
+allure-pytest>=2.13.2
+coverage>=7.3.0
+
+# Chaos engineering
+chaostoolkit>=1.13.0
+chaostoolkit-kubernetes>=0.26.2
+
+# Data validation
+pydantic>=2.3.0
+marshmallow>=3.20.1
+jsonschema>=4.19.0
+
+# Utilities
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+click>=8.1.6

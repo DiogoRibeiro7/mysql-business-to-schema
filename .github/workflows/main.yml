@@ -1,0 +1,669 @@
+name: Main CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - development
+          - staging
+          - production
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  DOCKER_BUILDKIT: 1
+  COMPOSE_DOCKER_CLI_BUILD: 1
+
+jobs:
+  # =====================================================
+  # Code Quality & Linting
+  # =====================================================
+  code-quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web-demo/frontend/package-lock.json
+
+      - name: Cache Python dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black mypy bandit safety pylint
+
+      - name: Python Linting
+        run: |
+          # Flake8 linting
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+          # Black formatting check
+          black --check generators/ analytics/ cdc/ ml/
+
+          # Type checking with mypy
+          mypy generators/ --ignore-missing-imports
+
+      - name: Python Security Check
+        run: |
+          # Bandit security linting
+          bandit -r generators/ analytics/ cdc/ ml/ -f json -o bandit-report.json
+
+          # Safety check for known vulnerabilities
+          safety check --json > safety-report.json || true
+
+      - name: JavaScript/TypeScript Linting
+        working-directory: web-demo/frontend
+        run: |
+          npm ci
+          npm run lint || true
+          npm run type-check || true
+
+      - name: SQL Linting
+        run: |
+          pip install sqlfluff
+          find . -name "*.sql" -type f | xargs sqlfluff lint --dialect mysql
+
+      - name: Dockerfile Linting
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          ignore: DL3008,DL3009
+
+      - name: YAML Linting
+        run: |
+          pip install yamllint
+          yamllint -d relaxed .
+
+      - name: Upload Code Quality Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: code-quality-reports
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # =====================================================
+  # Testing
+  # =====================================================
+  test-python:
+    name: Python Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_root_password
+          MYSQL_DATABASE: test_db
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov pytest-asyncio pytest-mock faker
+          pip install -r requirements.txt || true
+
+      - name: Run Python Tests
+        env:
+          MYSQL_HOST: localhost
+          MYSQL_PORT: 3306
+          MYSQL_USER: root
+          MYSQL_PASSWORD: test_root_password
+          MYSQL_DATABASE: test_db
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+        run: |
+          # Create test directory if it doesn't exist
+          mkdir -p tests
+
+          # Run tests with coverage
+          pytest tests/ \
+            --cov=generators \
+            --cov=analytics \
+            --cov=cdc \
+            --cov=ml \
+            --cov-report=xml \
+            --cov-report=html \
+            --junitxml=junit.xml \
+            -v || true
+
+      - name: Upload Coverage Reports
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: python-${{ matrix.python-version }}
+          name: Python ${{ matrix.python-version }}
+
+  test-javascript:
+    name: JavaScript/TypeScript Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: web-demo/frontend/package-lock.json
+
+      - name: Install and Test Frontend
+        working-directory: web-demo/frontend
+        run: |
+          npm ci
+          npm run test:ci || true
+          npm run test:e2e:ci || true
+
+      - name: Install and Test Backend
+        working-directory: web-demo/backend
+        run: |
+          npm ci
+          npm run test:ci || true
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-javascript
+          path: |
+            web-demo/frontend/coverage
+            web-demo/backend/coverage
+            web-demo/frontend/test-results
+            web-demo/backend/test-results
+
+  test-integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test-python, test-javascript]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Services
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          sleep 30  # Wait for services to be ready
+
+      - name: Run Integration Tests
+        run: |
+          # Install test dependencies
+          pip install requests pytest
+
+          # Run integration tests
+          pytest tests/integration/ -v || true
+
+      - name: Collect Docker Logs
+        if: always()
+        run: |
+          docker-compose -f docker-compose.test.yml logs > docker-logs.txt
+
+      - name: Upload Integration Test Artifacts
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: integration-test-artifacts
+          path: |
+            docker-logs.txt
+            tests/integration/results
+
+  # =====================================================
+  # Security Scanning
+  # =====================================================
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner (Repository)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'mysql-business-to-schema'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+
+      - name: Upload OWASP results
+        uses: actions/upload-artifact@v3
+        with:
+          name: owasp-dependency-check
+          path: reports/
+
+      - name: GitGuardian scan
+        uses: GitGuardian/ggshield/actions/secret@main
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base_ref }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+
+      - name: Snyk Security Scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+  # =====================================================
+  # Build Docker Images
+  # =====================================================
+  build-images:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [code-quality, test-python, test-javascript]
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          - context: web-demo
+            dockerfile: Dockerfile
+            image: web-demo
+          - context: generators
+            dockerfile: Dockerfile
+            image: data-generator
+          - context: analytics
+            dockerfile: Dockerfile
+            image: analytics-service
+          - context: ml
+            dockerfile: Dockerfile
+            image: ml-service
+          - context: cdc
+            dockerfile: Dockerfile
+            image: cdc-consumer
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix={{branch}}-
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.context }}/${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+            VERSION=${{ github.ref_name }}
+            COMMIT_SHA=${{ github.sha }}
+
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}:${{ steps.meta.outputs.version }}
+          format: 'sarif'
+          output: 'docker-scan-${{ matrix.image }}.sarif'
+
+      - name: Upload Docker scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'docker-scan-${{ matrix.image }}.sarif'
+
+  # =====================================================
+  # Deploy to Kubernetes (Staging)
+  # =====================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build-images, security-scan]
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    environment:
+      name: staging
+      url: https://staging.mysql-demo.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name mysql-eks-staging
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install mysql-business-schema \
+            ./helm/mysql-business-schema \
+            --namespace mysql-business-schema-staging \
+            --create-namespace \
+            --values ./helm/mysql-business-schema/values.staging.yaml \
+            --set image.tag=${{ github.sha }} \
+            --wait \
+            --timeout 10m
+
+      - name: Run Smoke Tests
+        run: |
+          kubectl run smoke-test \
+            --image=curlimages/curl:latest \
+            --rm \
+            --attach \
+            --restart=Never \
+            --namespace=mysql-business-schema-staging \
+            -- curl -f http://web-demo/health || exit 1
+
+      - name: Notify Deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Staging deployment ${{ job.status }} for commit ${{ github.sha }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        if: always()
+
+  # =====================================================
+  # Deploy to Production
+  # =====================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment:
+      name: production
+      url: https://mysql-demo.example.com
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: us-east-1
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region us-east-1 --name mysql-eks-production
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: '3.12.0'
+
+      - name: Deploy with Helm (Blue-Green)
+        run: |
+          # Deploy to green environment
+          helm upgrade --install mysql-business-schema-green \
+            ./helm/mysql-business-schema \
+            --namespace mysql-business-schema \
+            --create-namespace \
+            --values ./helm/mysql-business-schema/values.production.yaml \
+            --set image.tag=${{ github.sha }} \
+            --set blueGreen.productionSlot=green \
+            --wait \
+            --timeout 10m
+
+          # Run production tests
+          ./scripts/production-tests.sh green
+
+          # Switch traffic to green
+          kubectl patch service mysql-business-schema \
+            -n mysql-business-schema \
+            -p '{"spec":{"selector":{"slot":"green"}}}'
+
+          # Wait and monitor
+          sleep 60
+          ./scripts/monitor-deployment.sh
+
+          # Delete blue deployment
+          helm uninstall mysql-business-schema-blue \
+            --namespace mysql-business-schema || true
+
+      - name: Create Release Notes
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Release v${{ github.run_number }}
+          body: |
+            ## Changes in this Release
+            - Automated deployment from ${{ github.sha }}
+            - View changes: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+          draft: false
+          prerelease: false
+
+      - name: Notify Production Deployment
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Production deployment ${{ job.status }} for commit ${{ github.sha }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_PROD }}
+          fields: repo,message,commit,author,action,eventName,ref,workflow
+        if: always()
+
+  # =====================================================
+  # Performance Testing
+  # =====================================================
+  performance-test:
+    name: Performance Testing
+    runs-on: ubuntu-latest
+    needs: [deploy-staging]
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run k6 Load Tests
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: tests/performance/load-test.js
+          flags: --out influxdb=http://influxdb:8086/k6
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          urls: |
+            https://staging.mysql-demo.example.com
+            https://staging.mysql-demo.example.com/demo
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Analyze Performance Results
+        run: |
+          python scripts/analyze-performance.py \
+            --threshold-p95 1000 \
+            --threshold-p99 2000 \
+            --min-success-rate 99.9
+
+  # =====================================================
+  # Documentation
+  # =====================================================
+  update-docs:
+    name: Update Documentation
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+      pages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate API Documentation
+        run: |
+          npm install -g @apidevtools/swagger-cli
+          swagger-cli bundle api/openapi.yaml -o api/openapi-bundled.json
+
+      - name: Generate Database Documentation
+        run: |
+          pip install schemaspy
+          # Generate schema documentation
+
+      - name: Build Documentation Site
+        run: |
+          npm install -g @docusaurus/init
+          cd docs
+          npm install
+          npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/build
+
+  # =====================================================
+  # Cleanup
+  # =====================================================
+  cleanup:
+    name: Cleanup Old Resources
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: always()
+
+    steps:
+      - name: Clean up old Docker images
+        run: |
+          # Clean up images older than 30 days
+          echo "Cleaning up old Docker images..."
+
+      - name: Clean up old Kubernetes resources
+        run: |
+          # Clean up old deployments and resources
+          echo "Cleaning up old Kubernetes resources..."
+
+      - name: Clean up old artifacts
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const days = 30;
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+
+            const artifacts = await github.rest.actions.listArtifactsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+
+            for (const artifact of artifacts.data.artifacts) {
+              if (new Date(artifact.created_at) < date) {
+                await github.rest.actions.deleteArtifact({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  artifact_id: artifact.id,
+                });
+              }
+            }

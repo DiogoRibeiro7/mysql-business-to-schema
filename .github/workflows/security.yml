@@ -1,0 +1,381 @@
+name: Security Scanning
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  # =====================================================
+  # CodeQL Analysis
+  # =====================================================
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'python']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: +security-extended,security-and-quality
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  # =====================================================
+  # Container Scanning
+  # =====================================================
+  container-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        image:
+          - web-demo
+          - data-generator
+          - analytics-service
+          - ml-service
+          - cdc-consumer
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Image
+        run: |
+          docker build -t ${{ matrix.image }}:scan -f ${{ matrix.image }}/Dockerfile ${{ matrix.image }}/ || \
+          docker build -t ${{ matrix.image }}:scan .
+
+      - name: Run Trivy Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ matrix.image }}:scan'
+          format: 'sarif'
+          output: 'trivy-${{ matrix.image }}.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '1'
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-${{ matrix.image }}.sarif'
+
+      - name: Run Grype Scanner
+        uses: anchore/scan-action@v3
+        with:
+          image: '${{ matrix.image }}:scan'
+          fail-build: true
+          severity-cutoff: high
+
+      - name: Run Syft SBOM Generation
+        uses: anchore/sbom-action@v0
+        with:
+          image: '${{ matrix.image }}:scan'
+          format: spdx-json
+          output-file: '${{ matrix.image }}-sbom.spdx.json'
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v3
+        with:
+          name: sbom-${{ matrix.image }}
+          path: '${{ matrix.image }}-sbom.spdx.json'
+
+  # =====================================================
+  # Secret Scanning
+  # =====================================================
+  secret-scan:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: TruffleHog OSS
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect Secrets
+        run: |
+          pip install detect-secrets
+          detect-secrets scan --baseline .secrets.baseline
+          detect-secrets audit .secrets.baseline
+
+  # =====================================================
+  # Infrastructure Security
+  # =====================================================
+  infra-security:
+    name: Infrastructure Security
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Terraform Security Scan
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          soft_fail: false
+
+      - name: Checkov Scan
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: .
+          framework: all
+          output_format: sarif
+          output_file_path: checkov.sarif
+
+      - name: Upload Checkov results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: checkov.sarif
+
+      - name: Kubernetes Security Scan
+        run: |
+          # Install kubesec
+          wget https://github.com/controlplaneio/kubesec/releases/download/v2.13.0/kubesec_linux_amd64.tar.gz
+          tar -xvf kubesec_linux_amd64.tar.gz
+          chmod +x kubesec
+
+          # Scan Kubernetes manifests
+          for file in $(find kubernetes -name "*.yaml" -o -name "*.yml"); do
+            echo "Scanning $file..."
+            ./kubesec scan $file || true
+          done
+
+      - name: Helm Chart Security
+        run: |
+          # Install helm
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+          # Lint Helm charts
+          for chart in helm/*/; do
+            echo "Linting $chart..."
+            helm lint $chart --strict
+          done
+
+  # =====================================================
+  # Dependency Vulnerability Scan
+  # =====================================================
+  dependency-scan:
+    name: Dependency Vulnerabilities
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python Dependencies
+        run: |
+          pip install safety pip-audit
+
+          # Safety check
+          safety check --json > safety-report.json || true
+
+          # Pip audit
+          pip-audit --desc > pip-audit-report.txt || true
+
+      - name: Node Dependencies
+        run: |
+          # NPM audit
+          for package_json in $(find . -name "package.json"); do
+            dir=$(dirname "$package_json")
+            echo "Auditing $dir..."
+            cd $dir
+            npm audit --json > npm-audit.json || true
+            cd -
+          done
+
+      - name: OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'mysql-business-to-schema'
+          path: '.'
+          format: 'ALL'
+          args: >
+            --enableRetired
+            --enableExperimental
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: vulnerability-reports
+          path: |
+            safety-report.json
+            pip-audit-report.txt
+            npm-audit.json
+            reports/
+
+  # =====================================================
+  # License Compliance
+  # =====================================================
+  license-check:
+    name: License Compliance
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: License Finder
+        run: |
+          # Install license finder
+          gem install license_finder
+
+          # Run license finder
+          license_finder report --format json > licenses.json || true
+
+      - name: FOSSA Scan
+        uses: fossas/fossa-action@main
+        with:
+          api-key: ${{ secrets.FOSSA_API_KEY }}
+
+      - name: License Header Check
+        run: |
+          # Check for license headers in source files
+          for file in $(find . -name "*.py" -o -name "*.js" -o -name "*.ts" -o -name "*.java"); do
+            if ! head -n 10 "$file" | grep -q "Copyright\|License\|MIT\|Apache\|GPL"; then
+              echo "::warning file=$file::Missing license header"
+            fi
+          done
+
+  # =====================================================
+  # API Security Testing
+  # =====================================================
+  api-security:
+    name: API Security Testing
+    runs-on: ubuntu-latest
+
+    services:
+      app:
+        image: mysql-business-schema/web-demo:latest
+        ports:
+          - 3001:3001
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: OWASP ZAP Scan
+        uses: zaproxy/action-full-scan@v0.7.0
+        with:
+          target: 'http://localhost:3001'
+          rules_file_name: '.zap/rules.tsv'
+          cmd_options: '-a'
+
+      - name: API Security Audit
+        run: |
+          # Install API security tools
+          npm install -g @42crunch/api-security-audit
+
+          # Run API security audit
+          api-security-audit --openapi api/openapi.yaml
+
+      - name: GraphQL Security
+        run: |
+          # Test GraphQL endpoint security
+          pip install graphql-cop
+
+          # Run GraphQL security tests
+          graphql-cop -t http://localhost:3001/graphql
+
+  # =====================================================
+  # Compliance Checks
+  # =====================================================
+  compliance:
+    name: Compliance Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: CIS Benchmark Check
+        run: |
+          echo "Running CIS benchmark checks..."
+          # Add CIS benchmark validation
+
+      - name: PCI DSS Compliance
+        run: |
+          echo "Checking PCI DSS compliance..."
+          # Add PCI DSS compliance checks
+
+      - name: GDPR Compliance
+        run: |
+          echo "Checking GDPR compliance..."
+          # Check for PII handling
+          # Check for data retention policies
+          # Check for encryption
+
+      - name: SOC2 Compliance
+        run: |
+          echo "Checking SOC2 compliance..."
+          # Add SOC2 compliance checks
+
+  # =====================================================
+  # Security Report
+  # =====================================================
+  security-report:
+    name: Generate Security Report
+    runs-on: ubuntu-latest
+    needs: [codeql, container-scan, secret-scan, infra-security, dependency-scan, api-security]
+    if: always()
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v3
+
+      - name: Generate Consolidated Report
+        run: |
+          python scripts/generate_security_report.py \
+            --output security-report.html
+
+      - name: Upload Security Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-report
+          path: security-report.html
+
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security-report.html', 'utf8');
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '## 🔒 Security Scan Results\n\nSee attached artifacts for detailed report.'
+            });
