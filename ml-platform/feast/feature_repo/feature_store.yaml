@@ -1,0 +1,11 @@
+project: mysql_schema_ml
+registry:
+  registry_type: sql
+  path: postgresql://feast:feast@feast-postgres:5432/feast
+provider: local
+online_store:
+  type: redis
+  connection_string: redis-feast:6379
+offline_store:
+  type: file
+entity_key_serialization_version: 2
