@@ -21,13 +21,14 @@ INSERT INTO dim_device (type)
 SELECT DISTINCT r.device_type
 FROM raw_social_events r;
 
-INSERT INTO fact_social_events (user_id, event_id, post_id, comment_id, device_id, target_handle, like_count)
+INSERT INTO fact_social_events (user_id, event_id, post_id, comment_id, device_id, source_row_id, target_handle, like_count)
 SELECT
     d_user.user_id,
     d_event.event_id,
     d_post.post_id,
     d_comment.comment_id,
     d_device.device_id,
+    r.row_id,
     r.target_handle,
     r.like_count
 FROM raw_social_events r

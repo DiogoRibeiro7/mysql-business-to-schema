@@ -13,11 +13,12 @@ INSERT INTO dim_sensor (type)
 SELECT DISTINCT r.sensor_type
 FROM raw_iot_bins r;
 
-INSERT INTO fact_iot_bins (device_id, bin_id, sensor_id, district_name, installed_at, reading_time, reading_value, reading_unit, battery_level, gps_lat, gps_lon, alert_type)
+INSERT INTO fact_iot_bins (device_id, bin_id, sensor_id, source_row_id, district_name, installed_at, reading_time, reading_value, reading_unit, battery_level, gps_lat, gps_lon, alert_type)
 SELECT
     d_device.device_id,
     d_bin.bin_id,
     d_sensor.sensor_id,
+    r.row_id,
     r.district_name,
     r.installed_at,
     r.reading_time,

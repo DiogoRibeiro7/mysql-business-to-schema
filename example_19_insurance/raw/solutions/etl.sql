@@ -17,12 +17,13 @@ INSERT INTO dim_agent (name)
 SELECT DISTINCT r.agent_name
 FROM raw_policy_feed r;
 
-INSERT INTO fact_policy_feed (policy_id, customer_id, product_id, agent_id, coverage_amount, premium_amount)
+INSERT INTO fact_policy_feed (policy_id, customer_id, product_id, agent_id, source_row_id, coverage_amount, premium_amount)
 SELECT
     d_policy.policy_id,
     d_customer.customer_id,
     d_product.product_id,
     d_agent.agent_id,
+    r.row_id,
     r.coverage_amount,
     r.premium_amount
 FROM raw_policy_feed r

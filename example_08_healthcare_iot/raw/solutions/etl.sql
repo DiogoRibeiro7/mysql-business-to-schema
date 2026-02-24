@@ -9,10 +9,11 @@ INSERT INTO dim_device (serial)
 SELECT DISTINCT r.device_serial
 FROM raw_vital_stream r;
 
-INSERT INTO fact_vital_stream (patient_id, device_id, reading_time, heart_rate, systolic_bp, diastolic_bp, oxygen_sat, alert_flag)
+INSERT INTO fact_vital_stream (patient_id, device_id, source_row_id, reading_time, heart_rate, systolic_bp, diastolic_bp, oxygen_sat, alert_flag)
 SELECT
     d_patient.patient_id,
     d_device.device_id,
+    r.row_id,
     r.reading_time,
     r.heart_rate,
     r.systolic_bp,

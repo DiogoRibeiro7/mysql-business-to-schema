@@ -21,13 +21,14 @@ INSERT INTO dim_trade (price, qty)
 SELECT DISTINCT r.trade_price, r.trade_qty
 FROM raw_exchange_feed r;
 
-INSERT INTO fact_exchange_feed (user_id, asset_id, wallet_id, order_id, trade_id)
+INSERT INTO fact_exchange_feed (user_id, asset_id, wallet_id, order_id, trade_id, source_row_id)
 SELECT
     d_user.user_id,
     d_asset.asset_id,
     d_wallet.wallet_id,
     d_order.order_id,
-    d_trade.trade_id
+    d_trade.trade_id,
+    r.row_id
 FROM raw_exchange_feed r
 LEFT JOIN dim_user d_user ON r.user_email <=> d_user.email
 LEFT JOIN dim_asset d_asset ON r.asset_symbol <=> d_asset.symbol

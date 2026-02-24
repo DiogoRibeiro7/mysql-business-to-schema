@@ -9,10 +9,11 @@ INSERT INTO dim_course (code, name)
 SELECT DISTINCT r.course_code, r.course_name
 FROM raw_student_activity r;
 
-INSERT INTO fact_student_activity (student_id, course_id, instructor_name, activity_time, activity_type, score)
+INSERT INTO fact_student_activity (student_id, course_id, source_row_id, instructor_name, activity_time, activity_type, score)
 SELECT
     d_student.student_id,
     d_course.course_id,
+    r.row_id,
     r.instructor_name,
     r.activity_time,
     r.activity_type,

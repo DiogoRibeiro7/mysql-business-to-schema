@@ -13,24 +13,28 @@ CREATE TABLE dim_order (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     number VARCHAR(50) NOT NULL,
     date DATETIME NOT NULL,
-    status VARCHAR(30)
+    status VARCHAR(30),
+    UNIQUE KEY uq_dim_order_natural (number, date, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_customer (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     name VARCHAR(200) NOT NULL,
-    phone VARCHAR(30)
+    phone VARCHAR(30),
+    UNIQUE KEY uq_dim_customer_natural (email, name, phone)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_shipping (
     shipping_id INT AUTO_INCREMENT PRIMARY KEY,
-    address VARCHAR(255)
+    address VARCHAR(255),
+    UNIQUE KEY uq_dim_shipping_natural (address)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_billing (
     billing_id INT AUTO_INCREMENT PRIMARY KEY,
-    address VARCHAR(255)
+    address VARCHAR(255),
+    UNIQUE KEY uq_dim_billing_natural (address)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_product (
@@ -38,13 +42,15 @@ CREATE TABLE dim_product (
     sku VARCHAR(50) NOT NULL,
     name VARCHAR(200) NOT NULL,
     category VARCHAR(100),
-    brand VARCHAR(100)
+    brand VARCHAR(100),
+    UNIQUE KEY uq_dim_product_natural (sku, name, category, brand)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     method VARCHAR(30),
-    status VARCHAR(30)
+    status VARCHAR(30),
+    UNIQUE KEY uq_dim_payment_natural (method, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_order_stream (
@@ -55,6 +61,8 @@ CREATE TABLE fact_order_stream (
     billing_id INT,
     product_id INT,
     payment_id INT,
+    source_row_id INT,
+    UNIQUE KEY uq_fact_order_stream_source (source_row_id),
     unit_price DECIMAL(10,2) NOT NULL,
     quantity INT NOT NULL,
     item_discount DECIMAL(10,2) DEFAULT 0
@@ -84,3 +92,10 @@ ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_payment FOREIGN KEY (payment_id)
     REFERENCES dim_payment (payment_id)
     ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX idx_fact_order_stream_order ON fact_order_stream (order_id);
+CREATE INDEX idx_fact_order_stream_customer ON fact_order_stream (customer_id);
+CREATE INDEX idx_fact_order_stream_shipping ON fact_order_stream (shipping_id);
+CREATE INDEX idx_fact_order_stream_billing ON fact_order_stream (billing_id);
+CREATE INDEX idx_fact_order_stream_product ON fact_order_stream (product_id);
+CREATE INDEX idx_fact_order_stream_payment ON fact_order_stream (payment_id);
+CREATE INDEX idx_fact_order_stream_source ON fact_order_stream (source_row_id);

@@ -17,12 +17,13 @@ INSERT INTO dim_model (name)
 SELECT DISTINCT r.model_name
 FROM raw_event_stream r;
 
-INSERT INTO fact_event_stream (stream_id, event_id, feature_id, model_id, org_name, project_name, prediction)
+INSERT INTO fact_event_stream (stream_id, event_id, feature_id, model_id, source_row_id, org_name, project_name, prediction)
 SELECT
     d_stream.stream_id,
     d_event.event_id,
     d_feature.feature_id,
     d_model.model_id,
+    r.row_id,
     r.org_name,
     r.project_name,
     r.prediction

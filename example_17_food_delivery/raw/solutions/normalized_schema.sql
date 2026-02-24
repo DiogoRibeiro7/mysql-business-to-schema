@@ -11,22 +11,26 @@ CREATE TABLE dim_order (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     number VARCHAR(255),
     time VARCHAR(255),
-    status VARCHAR(255)
+    status VARCHAR(255),
+    UNIQUE KEY uq_dim_order_natural (number, time, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_customer (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
-    email VARCHAR(255)
+    email VARCHAR(255),
+    UNIQUE KEY uq_dim_customer_natural (email)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_restaurant (
     restaurant_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255),
+    UNIQUE KEY uq_dim_restaurant_natural (name)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_driver (
     driver_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255)
+    name VARCHAR(255),
+    UNIQUE KEY uq_dim_driver_natural (name)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_food_orders (
@@ -35,6 +39,8 @@ CREATE TABLE fact_food_orders (
     customer_id INT,
     restaurant_id INT,
     driver_id INT,
+    source_row_id INT,
+    UNIQUE KEY uq_fact_food_orders_source (source_row_id),
     item_name VARCHAR(255),
     quantity VARCHAR(255),
     item_price VARCHAR(255)
@@ -56,3 +62,8 @@ ALTER TABLE fact_food_orders
     ADD CONSTRAINT fk_fact_food_orders_driver FOREIGN KEY (driver_id)
     REFERENCES dim_driver (driver_id)
     ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX idx_fact_food_orders_order ON fact_food_orders (order_id);
+CREATE INDEX idx_fact_food_orders_customer ON fact_food_orders (customer_id);
+CREATE INDEX idx_fact_food_orders_restaurant ON fact_food_orders (restaurant_id);
+CREATE INDEX idx_fact_food_orders_driver ON fact_food_orders (driver_id);
+CREATE INDEX idx_fact_food_orders_source ON fact_food_orders (source_row_id);

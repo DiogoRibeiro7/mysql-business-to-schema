@@ -21,13 +21,14 @@ INSERT INTO dim_payment (date, method, amount)
 SELECT DISTINCT r.payment_date, r.payment_method, r.payment_amount
 FROM raw_clinic_intake r;
 
-INSERT INTO fact_clinic_intake (patient_id, doctor_id, appointment_id, invoice_id, payment_id)
+INSERT INTO fact_clinic_intake (patient_id, doctor_id, appointment_id, invoice_id, payment_id, source_row_id)
 SELECT
     d_patient.patient_id,
     d_doctor.doctor_id,
     d_appointment.appointment_id,
     d_invoice.invoice_id,
-    d_payment.payment_id
+    d_payment.payment_id,
+    r.intake_id
 FROM raw_clinic_intake r
 LEFT JOIN dim_patient d_patient ON r.patient_full_name <=> d_patient.full_name AND r.patient_dob <=> d_patient.dob AND r.patient_phone <=> d_patient.phone AND r.patient_email <=> d_patient.email AND r.patient_address <=> d_patient.address AND r.patient_status <=> d_patient.status
 LEFT JOIN dim_doctor d_doctor ON r.doctor_full_name <=> d_doctor.full_name AND r.doctor_specialty <=> d_doctor.specialty

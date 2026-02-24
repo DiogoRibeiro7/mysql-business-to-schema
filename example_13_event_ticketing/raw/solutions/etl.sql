@@ -21,13 +21,14 @@ INSERT INTO dim_payment (method)
 SELECT DISTINCT r.payment_method
 FROM raw_ticket_sales r;
 
-INSERT INTO fact_ticket_sales (event_id, venue_id, ticket_id, seat_id, payment_id, buyer_email, price, purchase_time)
+INSERT INTO fact_ticket_sales (event_id, venue_id, ticket_id, seat_id, payment_id, source_row_id, buyer_email, price, purchase_time)
 SELECT
     d_event.event_id,
     d_venue.venue_id,
     d_ticket.ticket_id,
     d_seat.seat_id,
     d_payment.payment_id,
+    r.row_id,
     r.buyer_email,
     r.price,
     r.purchase_time

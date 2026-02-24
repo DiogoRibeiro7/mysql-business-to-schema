@@ -10,28 +10,33 @@ DROP TABLE IF EXISTS dim_device;
 
 CREATE TABLE dim_user (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
-    handle VARCHAR(255)
+    handle VARCHAR(255),
+    UNIQUE KEY uq_dim_user_natural (handle)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_event (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     time VARCHAR(255),
-    type VARCHAR(255)
+    type VARCHAR(255),
+    UNIQUE KEY uq_dim_event_natural (time, type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_post (
     post_id INT AUTO_INCREMENT PRIMARY KEY,
-    text VARCHAR(255)
+    text VARCHAR(255),
+    UNIQUE KEY uq_dim_post_natural (text)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_comment (
     comment_id INT AUTO_INCREMENT PRIMARY KEY,
-    count VARCHAR(255)
+    count VARCHAR(255),
+    UNIQUE KEY uq_dim_comment_natural (count)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_device (
     device_id INT AUTO_INCREMENT PRIMARY KEY,
-    type VARCHAR(255)
+    type VARCHAR(255),
+    UNIQUE KEY uq_dim_device_natural (type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_social_events (
@@ -41,6 +46,8 @@ CREATE TABLE fact_social_events (
     post_id INT,
     comment_id INT,
     device_id INT,
+    source_row_id INT,
+    UNIQUE KEY uq_fact_social_events_source (source_row_id),
     target_handle VARCHAR(255),
     like_count VARCHAR(255)
 ) ENGINE=InnoDB;
@@ -65,3 +72,9 @@ ALTER TABLE fact_social_events
     ADD CONSTRAINT fk_fact_social_events_device FOREIGN KEY (device_id)
     REFERENCES dim_device (device_id)
     ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX idx_fact_social_events_user ON fact_social_events (user_id);
+CREATE INDEX idx_fact_social_events_event ON fact_social_events (event_id);
+CREATE INDEX idx_fact_social_events_post ON fact_social_events (post_id);
+CREATE INDEX idx_fact_social_events_comment ON fact_social_events (comment_id);
+CREATE INDEX idx_fact_social_events_device ON fact_social_events (device_id);
+CREATE INDEX idx_fact_social_events_source ON fact_social_events (source_row_id);

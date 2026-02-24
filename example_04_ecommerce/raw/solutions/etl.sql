@@ -25,7 +25,7 @@ INSERT INTO dim_payment (method, status)
 SELECT DISTINCT r.payment_method, r.payment_status
 FROM raw_order_stream r;
 
-INSERT INTO fact_order_stream (order_id, customer_id, shipping_id, billing_id, product_id, payment_id, unit_price, quantity, item_discount)
+INSERT INTO fact_order_stream (order_id, customer_id, shipping_id, billing_id, product_id, payment_id, source_row_id, unit_price, quantity, item_discount)
 SELECT
     d_order.order_id,
     d_customer.customer_id,
@@ -33,6 +33,7 @@ SELECT
     d_billing.billing_id,
     d_product.product_id,
     d_payment.payment_id,
+    r.row_id,
     r.unit_price,
     r.quantity,
     r.item_discount

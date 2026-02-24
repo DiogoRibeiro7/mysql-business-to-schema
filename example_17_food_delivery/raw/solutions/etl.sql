@@ -17,12 +17,13 @@ INSERT INTO dim_driver (name)
 SELECT DISTINCT r.driver_name
 FROM raw_food_orders r;
 
-INSERT INTO fact_food_orders (order_id, customer_id, restaurant_id, driver_id, item_name, quantity, item_price)
+INSERT INTO fact_food_orders (order_id, customer_id, restaurant_id, driver_id, source_row_id, item_name, quantity, item_price)
 SELECT
     d_order.order_id,
     d_customer.customer_id,
     d_restaurant.restaurant_id,
     d_driver.driver_id,
+    r.row_id,
     r.item_name,
     r.quantity,
     r.item_price

@@ -21,13 +21,14 @@ INSERT INTO dim_device (fingerprint)
 SELECT DISTINCT r.device_fingerprint
 FROM raw_transaction_feed r;
 
-INSERT INTO fact_transaction_feed (customer_id, account_id, transaction_id, merchant_id, device_id, currency, amount, risk_score, kyc_status)
+INSERT INTO fact_transaction_feed (customer_id, account_id, transaction_id, merchant_id, device_id, source_row_id, currency, amount, risk_score, kyc_status)
 SELECT
     d_customer.customer_id,
     d_account.account_id,
     d_transaction.transaction_id,
     d_merchant.merchant_id,
     d_device.device_id,
+    r.row_id,
     r.currency,
     r.amount,
     r.risk_score,

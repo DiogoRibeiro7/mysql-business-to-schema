@@ -6,12 +6,15 @@ DROP TABLE IF EXISTS dim_meter;
 
 CREATE TABLE dim_meter (
     meter_id INT AUTO_INCREMENT PRIMARY KEY,
-    id VARCHAR(255)
+    id VARCHAR(255),
+    UNIQUE KEY uq_dim_meter_natural (id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_energy_feed (
     fact_id INT AUTO_INCREMENT PRIMARY KEY,
     meter_id INT,
+    source_row_id INT,
+    UNIQUE KEY uq_fact_energy_feed_source (source_row_id),
     utility_name VARCHAR(255),
     building_name VARCHAR(255),
     reading_time VARCHAR(255),
@@ -26,3 +29,5 @@ ALTER TABLE fact_energy_feed
     ADD CONSTRAINT fk_fact_energy_feed_meter FOREIGN KEY (meter_id)
     REFERENCES dim_meter (meter_id)
     ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX idx_fact_energy_feed_meter ON fact_energy_feed (meter_id);
+CREATE INDEX idx_fact_energy_feed_source ON fact_energy_feed (source_row_id);

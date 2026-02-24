@@ -13,11 +13,12 @@ INSERT INTO dim_match (time, result)
 SELECT DISTINCT r.match_time, r.match_result
 FROM raw_match_events r;
 
-INSERT INTO fact_match_events (player_id, game_id, match_id, score, kills, deaths, server_region)
+INSERT INTO fact_match_events (player_id, game_id, match_id, source_row_id, score, kills, deaths, server_region)
 SELECT
     d_player.player_id,
     d_game.game_id,
     d_match.match_id,
+    r.row_id,
     r.score,
     r.kills,
     r.deaths,

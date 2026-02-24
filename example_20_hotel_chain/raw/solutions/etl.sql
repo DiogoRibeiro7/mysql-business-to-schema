@@ -17,12 +17,13 @@ INSERT INTO dim_room (type)
 SELECT DISTINCT r.room_type
 FROM raw_reservation_feed r;
 
-INSERT INTO fact_reservation_feed (reservation_id, guest_id, property_id, room_id, check_in, check_out, rate, status)
+INSERT INTO fact_reservation_feed (reservation_id, guest_id, property_id, room_id, source_row_id, check_in, check_out, rate, status)
 SELECT
     d_reservation.reservation_id,
     d_guest.guest_id,
     d_property.property_id,
     d_room.room_id,
+    r.row_id,
     r.check_in,
     r.check_out,
     r.rate,

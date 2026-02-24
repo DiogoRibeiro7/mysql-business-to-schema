@@ -9,10 +9,11 @@ INSERT INTO dim_order (type)
 SELECT DISTINCT r.order_type
 FROM raw_trade_feed r;
 
-INSERT INTO fact_trade_feed (trade_id, order_id, pair_symbol, side, price, quantity, trader_email, fee_amount)
+INSERT INTO fact_trade_feed (trade_id, order_id, source_row_id, pair_symbol, side, price, quantity, trader_email, fee_amount)
 SELECT
     d_trade.trade_id,
     d_order.order_id,
+    r.row_id,
     r.pair_symbol,
     r.side,
     r.price,

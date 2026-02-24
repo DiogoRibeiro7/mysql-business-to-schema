@@ -9,10 +9,11 @@ INSERT INTO dim_agent (name)
 SELECT DISTINCT r.agent_name
 FROM raw_property_feed r;
 
-INSERT INTO fact_property_feed (listing_id, agent_id, address, city, state, price, beds, baths, agency_name)
+INSERT INTO fact_property_feed (listing_id, agent_id, source_row_id, address, city, state, price, beds, baths, agency_name)
 SELECT
     d_listing.listing_id,
     d_agent.agent_id,
+    r.row_id,
     r.address,
     r.city,
     r.state,

@@ -9,10 +9,11 @@ INSERT INTO dim_driver (name)
 SELECT DISTINCT r.driver_name
 FROM raw_trip_feed r;
 
-INSERT INTO fact_trip_feed (vehicle_id, driver_id, gps_time, latitude, longitude, speed_mph, trip_status, fuel_level, depot_name)
+INSERT INTO fact_trip_feed (vehicle_id, driver_id, source_row_id, gps_time, latitude, longitude, speed_mph, trip_status, fuel_level, depot_name)
 SELECT
     d_vehicle.vehicle_id,
     d_driver.driver_id,
+    r.row_id,
     r.gps_time,
     r.latitude,
     r.longitude,

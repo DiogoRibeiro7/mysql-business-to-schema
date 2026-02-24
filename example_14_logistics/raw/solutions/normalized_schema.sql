@@ -7,18 +7,22 @@ DROP TABLE IF EXISTS dim_delivery;
 
 CREATE TABLE dim_shipment (
     shipment_id INT AUTO_INCREMENT PRIMARY KEY,
-    number VARCHAR(255)
+    number VARCHAR(255),
+    UNIQUE KEY uq_dim_shipment_natural (number)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_delivery (
     delivery_id INT AUTO_INCREMENT PRIMARY KEY,
-    date VARCHAR(255)
+    date VARCHAR(255),
+    UNIQUE KEY uq_dim_delivery_natural (date)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_shipment_feed (
     fact_id INT AUTO_INCREMENT PRIMARY KEY,
     shipment_id INT,
     delivery_id INT,
+    source_row_id INT,
+    UNIQUE KEY uq_fact_shipment_feed_source (source_row_id),
     origin_warehouse VARCHAR(255),
     destination_city VARCHAR(255),
     carrier_name VARCHAR(255),
@@ -35,3 +39,6 @@ ALTER TABLE fact_shipment_feed
     ADD CONSTRAINT fk_fact_shipment_feed_delivery FOREIGN KEY (delivery_id)
     REFERENCES dim_delivery (delivery_id)
     ON DELETE SET NULL ON UPDATE CASCADE;
+CREATE INDEX idx_fact_shipment_feed_shipment ON fact_shipment_feed (shipment_id);
+CREATE INDEX idx_fact_shipment_feed_delivery ON fact_shipment_feed (delivery_id);
+CREATE INDEX idx_fact_shipment_feed_source ON fact_shipment_feed (source_row_id);
