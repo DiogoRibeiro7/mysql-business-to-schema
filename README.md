@@ -13,14 +13,13 @@
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
 </p>
 
-Production-oriented MySQL schemas that map real business domains to concrete, runnable databases. This repo includes 21 examples, a web interface for browsing and analysis, data generators, and CI workflows that validate schemas against MySQL 8.0 and 8.1.
+Production-oriented MySQL schemas that map real business domains to concrete, runnable databases. This repo includes 21 examples, a web interface for browsing and analysis, data generators, normalization exercises, and CI workflows that validate schemas against MySQL 8.0 and 8.1.
 
 ## Repo Snapshot (Current State)
 
-- **21 examples** under `example_*/`
-- **11 foldered generators** (with `generate.py` + `config.yaml`)
-- **6 standalone generator scripts** in `generators/`
-- **485 tables** across all examples (counted from `schema/*.sql`)
+- **21 examples** under `example_*/` (schemas, queries, and normalization exercises)
+- **Generator suite** in `generators/` (foldered generators + standalone scripts)
+- **Table counts & coverage** tracked via badges and `EXAMPLES_OVERVIEW.md`
 - **Poetry-based Python tooling** (`pyproject.toml`)
 - **CI split by concern** under `.github/workflows/`
 
@@ -54,6 +53,37 @@ Generator coverage legend:
 | 18 | [Gaming Platform](example_18_gaming_platform/) | Gaming | 25 | 🟡 script (`generators/gaming_platform_generator.py`) |
 | 19 | [Insurance](example_19_insurance/) | Insurance | 20 | 🟡 script (`generators/insurance_generator.py`) |
 | 20 | [Hotel Chain](example_20_hotel_chain/) | Hospitality | 20 | 🟡 script (`generators/hotel_chain_generator.py`) |
+
+## Normalization Exercises (Raw → Normalized)
+
+Every example includes a `raw/` package so students can normalize from denormalized inputs:
+
+- `raw/raw_schema.sql` defines a denormalized intake table.
+- `raw/raw_seed.csv` provides a small raw dataset.
+- `raw/normalization_tasks.md` describes the target entities.
+- `raw/solutions/normalized_schema.sql` and `raw/solutions/etl.sql` show one possible solution.
+
+Quick path:
+
+```bash
+# 1) Create the raw table
+mysql -u root -p < example_10_fintech/raw/raw_schema.sql
+
+# 2) Load the raw CSV (requires local_infile enabled)
+mysql --local-infile=1 -u root -p fintech -e "
+LOAD DATA LOCAL INFILE 'example_10_fintech/raw/raw_seed.csv'
+INTO TABLE raw_transaction_feed
+FIELDS TERMINATED BY ','
+OPTIONALLY ENCLOSED BY '\"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;"
+
+# 3) Apply normalized schema + ETL
+mysql -u root -p < example_10_fintech/raw/solutions/normalized_schema.sql
+mysql -u root -p < example_10_fintech/raw/solutions/etl.sql
+```
+
+The CI job `normalization-check.yml` verifies that every example ships the full raw exercise bundle.
 
 ## Quick Start
 
@@ -91,13 +121,18 @@ python generate.py --config config.yaml
 
 Workflows are split for faster feedback and smaller jobs:
 
-- `sql-validation.yml`
+- `main.yml` (umbrella checks)
+- `pr-checks.yml` (pull request gating)
 - `schema-testing.yml` (MySQL 8.0 + 8.1)
+- `sql-validation.yml`
 - `tools-testing.yml`
 - `web-interface.yml`
-- `security-scan.yml`
-- `docs-check.yml`
 - `code-quality.yml`
+- `docs-check.yml`
+- `security.yml` and `security-scan.yml`
+- `test-suite.yml`
+- `normalization-check.yml`
+- `badges.yml`
 
 Note: some examples still require MySQL 8.1 alignment. Check the latest `test_report_*.txt` in the repo root for current status.
 
@@ -127,6 +162,7 @@ mysql-business-to-schema/
 ├── example_*/           # 21 database examples
 │   ├── schema/          # SQL schemas
 │   ├── queries/         # Sample queries
+│   ├── raw/             # Normalization exercises (raw + solutions)
 │   └── README.md        # Example documentation
 ├── generators/          # Data generators and runner
 ├── web_interface/       # Flask app + analytics
