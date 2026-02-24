@@ -1,0 +1,200 @@
+# Prometheus Configuration for MySQL Business-to-Schema
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'mysql-schema-monitor'
+    environment: 'production'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "alerts.yml"
+
+# Scrape configurations
+scrape_configs:
+  # ============================================
+  # Prometheus Self-Monitoring
+  # ============================================
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: 'prometheus'
+
+  # ============================================
+  # Node Exporter - System Metrics
+  # ============================================
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels:
+          instance: 'main-node'
+
+  # ============================================
+  # MySQL Exporters - Database Metrics
+  # ============================================
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+        labels:
+          instance: 'mysql-main'
+          database: 'main'
+
+  # MySQL instances for each example
+  - job_name: 'mysql-examples'
+    static_configs:
+      - targets:
+          - 'mysql-clinic:9104'
+          - 'mysql-ecommerce:9104'
+          - 'mysql-iot:9104'
+          - 'mysql-social:9104'
+          - 'mysql-fintech:9104'
+          - 'mysql-realestate:9104'
+          - 'mysql-education:9104'
+          - 'mysql-logistics:9104'
+          - 'mysql-food:9104'
+          - 'mysql-gaming:9104'
+          - 'mysql-hotel:9104'
+          - 'mysql-insurance:9104'
+          - 'mysql-crypto:9104'
+        labels:
+          job: 'mysql-examples'
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: instance
+        regex: 'mysql-(.*):.*'
+        replacement: '${1}'
+
+  # ============================================
+  # Custom Schema Exporter
+  # ============================================
+  - job_name: 'schema-exporter'
+    static_configs:
+      - targets: ['schema-exporter:9105']
+        labels:
+          instance: 'schema-metrics'
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+
+  # ============================================
+  # Container Metrics - cAdvisor
+  # ============================================
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          instance: 'cadvisor'
+
+  # ============================================
+  # Grafana Metrics
+  # ============================================
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+        labels:
+          instance: 'grafana'
+    metrics_path: '/metrics'
+
+  # ============================================
+  # Admin Dashboard Backend
+  # ============================================
+  - job_name: 'admin-backend'
+    static_configs:
+      - targets: ['admin-backend:8000']
+        labels:
+          instance: 'admin-api'
+    metrics_path: '/api/metrics'
+
+  # ============================================
+  # Migration Service
+  # ============================================
+  - job_name: 'migration-service'
+    static_configs:
+      - targets: ['migration-service:8001']
+        labels:
+          instance: 'migration'
+    metrics_path: '/metrics'
+
+  # ============================================
+  # Elasticsearch Monitoring
+  # ============================================
+  - job_name: 'elasticsearch'
+    static_configs:
+      - targets: ['elasticsearch-exporter:9114']
+        labels:
+          instance: 'elasticsearch'
+
+  # ============================================
+  # Logstash Monitoring
+  # ============================================
+  - job_name: 'logstash'
+    static_configs:
+      - targets: ['logstash:9600']
+        labels:
+          instance: 'logstash'
+    metrics_path: '/_node/stats'
+
+  # ============================================
+  # Docker Daemon Metrics
+  # ============================================
+  - job_name: 'docker'
+    static_configs:
+      - targets: ['host.docker.internal:9323']
+        labels:
+          instance: 'docker-daemon'
+
+  # ============================================
+  # Blackbox Exporter - Endpoint Monitoring
+  # ============================================
+  - job_name: 'blackbox'
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    static_configs:
+      - targets:
+          - http://admin-backend:8000/health
+          - http://grafana:3000
+          - http://prometheus:9090/-/healthy
+          - http://kibana:5601/api/status
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox-exporter:9115
+
+  # ============================================
+  # Service Discovery for Kubernetes
+  # ============================================
+  - job_name: 'kubernetes-pods'
+    kubernetes_sd_configs:
+      - role: pod
+    relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        action: keep
+        regex: true
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        action: replace
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        action: replace
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+      - action: labelmap
+        regex: __meta_kubernetes_pod_label_(.+)
+      - source_labels: [__meta_kubernetes_namespace]
+        action: replace
+        target_label: kubernetes_namespace
+      - source_labels: [__meta_kubernetes_pod_name]
+        action: replace
+        target_label: kubernetes_pod_name

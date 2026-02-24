@@ -1,0 +1,57 @@
+apiVersion: 1
+
+providers:
+  # Main dashboards
+  - name: 'Main Dashboards'
+    orgId: 1
+    folder: 'MySQL Schema'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/main
+
+  # MySQL specific dashboards
+  - name: 'MySQL Dashboards'
+    orgId: 1
+    folder: 'MySQL'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/mysql
+
+  # System dashboards
+  - name: 'System Dashboards'
+    orgId: 1
+    folder: 'System'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/system
+
+  # Application dashboards
+  - name: 'Application Dashboards'
+    orgId: 1
+    folder: 'Applications'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/application
+
+  # Business dashboards for each schema example
+  - name: 'Business Dashboards'
+    orgId: 1
+    folder: 'Business Schemas'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards/business

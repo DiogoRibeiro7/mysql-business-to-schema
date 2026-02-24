@@ -1,11 +1,11 @@
 -- ETL from raw denormalized table into normalized tables
 USE smart_energy;
 
-INSERT INTO dim_meter (id)
-SELECT DISTINCT r.meter_id
+INSERT INTO dim_meter (id, created_at, updated_at)
+SELECT DISTINCT r.meter_id, NOW(), NOW()
 FROM raw_energy_feed r;
 
-INSERT INTO fact_energy_feed (meter_id, source_row_id, utility_name, building_name, reading_time, kwh, kw_demand, rate_plan, solar_kw, outage_flag)
+INSERT INTO fact_energy_feed (meter_id, source_row_id, utility_name, building_name, reading_time, kwh, kw_demand, rate_plan, solar_kw, outage_flag, created_at, updated_at)
 SELECT
     d_meter.meter_id,
     r.row_id,
@@ -16,7 +16,9 @@ SELECT
     r.kw_demand,
     r.rate_plan,
     r.solar_kw,
-    r.outage_flag
+    r.outage_flag,
+    NOW(),
+    NOW()
 FROM raw_energy_feed r
 LEFT JOIN dim_meter d_meter ON r.meter_id <=> d_meter.id
 ;

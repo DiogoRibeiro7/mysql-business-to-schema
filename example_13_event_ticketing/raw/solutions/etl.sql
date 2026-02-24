@@ -1,27 +1,27 @@
 -- ETL from raw denormalized table into normalized tables
 USE event_ticketing;
 
-INSERT INTO dim_event (name, date)
-SELECT DISTINCT r.event_name, r.event_date
+INSERT INTO dim_event (name, date, created_at, updated_at)
+SELECT DISTINCT r.event_name, r.event_date, NOW(), NOW()
 FROM raw_ticket_sales r;
 
-INSERT INTO dim_venue (name)
-SELECT DISTINCT r.venue_name
+INSERT INTO dim_venue (name, created_at, updated_at)
+SELECT DISTINCT r.venue_name, NOW(), NOW()
 FROM raw_ticket_sales r;
 
-INSERT INTO dim_ticket (type)
-SELECT DISTINCT r.ticket_type
+INSERT INTO dim_ticket (type, created_at, updated_at)
+SELECT DISTINCT r.ticket_type, NOW(), NOW()
 FROM raw_ticket_sales r;
 
-INSERT INTO dim_seat (label)
-SELECT DISTINCT r.seat_label
+INSERT INTO dim_seat (label, created_at, updated_at)
+SELECT DISTINCT r.seat_label, NOW(), NOW()
 FROM raw_ticket_sales r;
 
-INSERT INTO dim_payment (method)
-SELECT DISTINCT r.payment_method
+INSERT INTO dim_payment (method, created_at, updated_at)
+SELECT DISTINCT r.payment_method, NOW(), NOW()
 FROM raw_ticket_sales r;
 
-INSERT INTO fact_ticket_sales (event_id, venue_id, ticket_id, seat_id, payment_id, source_row_id, buyer_email, price, purchase_time)
+INSERT INTO fact_ticket_sales (event_id, venue_id, ticket_id, seat_id, payment_id, source_row_id, buyer_email, price, purchase_time, created_at, updated_at)
 SELECT
     d_event.event_id,
     d_venue.venue_id,
@@ -31,7 +31,9 @@ SELECT
     r.row_id,
     r.buyer_email,
     r.price,
-    r.purchase_time
+    r.purchase_time,
+    NOW(),
+    NOW()
 FROM raw_ticket_sales r
 LEFT JOIN dim_event d_event ON r.event_name <=> d_event.name AND r.event_date <=> d_event.date
 LEFT JOIN dim_venue d_venue ON r.venue_name <=> d_venue.name

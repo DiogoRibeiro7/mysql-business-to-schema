@@ -14,27 +14,50 @@ CREATE TABLE dim_order (
     number VARCHAR(50) NOT NULL,
     date DATETIME NOT NULL,
     status VARCHAR(30),
-    UNIQUE KEY uq_dim_order_natural (number, date, status)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_order_natural (number, date, status),
+    INDEX idx_dim_order_natural (number, date, status),
+    CHECK (date >= '1900-01-01')
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_customer (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    name VARCHAR(200) NOT NULL,
+    full_name VARCHAR(200) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
     phone VARCHAR(30),
-    UNIQUE KEY uq_dim_customer_natural (email, name, phone)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_customer_natural (email, full_name, first_name, last_name, phone),
+    INDEX idx_dim_customer_natural (email, full_name, first_name, last_name, phone)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_shipping (
     shipping_id INT AUTO_INCREMENT PRIMARY KEY,
-    address VARCHAR(255),
-    UNIQUE KEY uq_dim_shipping_natural (address)
+    address_line_1 VARCHAR(255),
+    address_city VARCHAR(100),
+    address_state VARCHAR(100),
+    address_postal_code VARCHAR(20),
+    address_country VARCHAR(100),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_shipping_natural (address_line_1),
+    INDEX idx_dim_shipping_natural (address_line_1)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_billing (
     billing_id INT AUTO_INCREMENT PRIMARY KEY,
-    address VARCHAR(255),
-    UNIQUE KEY uq_dim_billing_natural (address)
+    address_line_1 VARCHAR(255),
+    address_city VARCHAR(100),
+    address_state VARCHAR(100),
+    address_postal_code VARCHAR(20),
+    address_country VARCHAR(100),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_billing_natural (address_line_1),
+    INDEX idx_dim_billing_natural (address_line_1)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_product (
@@ -43,14 +66,20 @@ CREATE TABLE dim_product (
     name VARCHAR(200) NOT NULL,
     category VARCHAR(100),
     brand VARCHAR(100),
-    UNIQUE KEY uq_dim_product_natural (sku, name, category, brand)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_product_natural (sku, name, category, brand),
+    INDEX idx_dim_product_natural (sku, name, category, brand)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     method VARCHAR(30),
     status VARCHAR(30),
-    UNIQUE KEY uq_dim_payment_natural (method, status)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_payment_natural (method, status),
+    INDEX idx_dim_payment_natural (method, status)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_order_stream (
@@ -65,33 +94,38 @@ CREATE TABLE fact_order_stream (
     UNIQUE KEY uq_fact_order_stream_source (source_row_id),
     unit_price DECIMAL(10,2) NOT NULL,
     quantity INT NOT NULL,
-    item_discount DECIMAL(10,2) DEFAULT 0
+    item_discount DECIMAL(10,2) DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CHECK (unit_price >= 0),
+    CHECK (quantity >= 0),
+    CHECK (item_discount >= 0)
 ) ENGINE=InnoDB;
 
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_order FOREIGN KEY (order_id)
     REFERENCES dim_order (order_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_customer FOREIGN KEY (customer_id)
     REFERENCES dim_customer (customer_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_shipping FOREIGN KEY (shipping_id)
     REFERENCES dim_shipping (shipping_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_billing FOREIGN KEY (billing_id)
     REFERENCES dim_billing (billing_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_product FOREIGN KEY (product_id)
     REFERENCES dim_product (product_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_order_stream
     ADD CONSTRAINT fk_fact_order_stream_payment FOREIGN KEY (payment_id)
     REFERENCES dim_payment (payment_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE INDEX idx_fact_order_stream_order ON fact_order_stream (order_id);
 CREATE INDEX idx_fact_order_stream_customer ON fact_order_stream (customer_id);
 CREATE INDEX idx_fact_order_stream_shipping ON fact_order_stream (shipping_id);

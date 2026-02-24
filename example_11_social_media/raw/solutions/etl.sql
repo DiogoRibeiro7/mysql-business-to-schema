@@ -1,27 +1,27 @@
 -- ETL from raw denormalized table into normalized tables
 USE social_media;
 
-INSERT INTO dim_user (handle)
-SELECT DISTINCT r.user_handle
+INSERT INTO dim_user (handle, created_at, updated_at)
+SELECT DISTINCT r.user_handle, NOW(), NOW()
 FROM raw_social_events r;
 
-INSERT INTO dim_event (time, type)
-SELECT DISTINCT r.event_time, r.event_type
+INSERT INTO dim_event (time, type, created_at, updated_at)
+SELECT DISTINCT r.event_time, r.event_type, NOW(), NOW()
 FROM raw_social_events r;
 
-INSERT INTO dim_post (text)
-SELECT DISTINCT r.post_text
+INSERT INTO dim_post (text, created_at, updated_at)
+SELECT DISTINCT r.post_text, NOW(), NOW()
 FROM raw_social_events r;
 
-INSERT INTO dim_comment (count)
-SELECT DISTINCT r.comment_count
+INSERT INTO dim_comment (count, created_at, updated_at)
+SELECT DISTINCT r.comment_count, NOW(), NOW()
 FROM raw_social_events r;
 
-INSERT INTO dim_device (type)
-SELECT DISTINCT r.device_type
+INSERT INTO dim_device (type, created_at, updated_at)
+SELECT DISTINCT r.device_type, NOW(), NOW()
 FROM raw_social_events r;
 
-INSERT INTO fact_social_events (user_id, event_id, post_id, comment_id, device_id, source_row_id, target_handle, like_count)
+INSERT INTO fact_social_events (user_id, event_id, post_id, comment_id, device_id, source_row_id, target_handle, like_count, created_at, updated_at)
 SELECT
     d_user.user_id,
     d_event.event_id,
@@ -30,7 +30,9 @@ SELECT
     d_device.device_id,
     r.row_id,
     r.target_handle,
-    r.like_count
+    r.like_count,
+    NOW(),
+    NOW()
 FROM raw_social_events r
 LEFT JOIN dim_user d_user ON r.user_handle <=> d_user.handle
 LEFT JOIN dim_event d_event ON r.event_time <=> d_event.time AND r.event_type <=> d_event.type

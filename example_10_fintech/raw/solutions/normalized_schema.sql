@@ -11,16 +11,24 @@ DROP TABLE IF EXISTS dim_device;
 CREATE TABLE dim_customer (
     customer_id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    name VARCHAR(200) NOT NULL,
+    full_name VARCHAR(200) NOT NULL,
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
     type VARCHAR(20) NOT NULL,
-    UNIQUE KEY uq_dim_customer_natural (email, name, type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_customer_natural (email, full_name, first_name, last_name, type),
+    INDEX idx_dim_customer_natural (email, full_name, first_name, last_name, type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_account (
     account_id INT AUTO_INCREMENT PRIMARY KEY,
     number VARCHAR(30) NOT NULL,
     type VARCHAR(20) NOT NULL,
-    UNIQUE KEY uq_dim_account_natural (number, type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_account_natural (number, type),
+    INDEX idx_dim_account_natural (number, type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_transaction (
@@ -28,20 +36,30 @@ CREATE TABLE dim_transaction (
     id VARCHAR(50) NOT NULL,
     type VARCHAR(30) NOT NULL,
     date DATETIME NOT NULL,
-    UNIQUE KEY uq_dim_transaction_natural (id, type, date)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_transaction_natural (id, type, date),
+    INDEX idx_dim_transaction_natural (id, type, date),
+    CHECK (date >= '1900-01-01')
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_merchant (
     merchant_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(200),
     category VARCHAR(100),
-    UNIQUE KEY uq_dim_merchant_natural (name, category)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_merchant_natural (name, category),
+    INDEX idx_dim_merchant_natural (name, category)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_device (
     device_id INT AUTO_INCREMENT PRIMARY KEY,
     fingerprint VARCHAR(100),
-    UNIQUE KEY uq_dim_device_natural (fingerprint)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_device_natural (fingerprint),
+    INDEX idx_dim_device_natural (fingerprint)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_transaction_feed (
@@ -56,29 +74,33 @@ CREATE TABLE fact_transaction_feed (
     currency CHAR(3) NOT NULL,
     amount DECIMAL(12,2) NOT NULL,
     risk_score INT,
-    kyc_status VARCHAR(20)
+    kyc_status ENUM('approved', 'review'),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CHECK (amount >= 0),
+    CHECK (risk_score >= 0)
 ) ENGINE=InnoDB;
 
 ALTER TABLE fact_transaction_feed
     ADD CONSTRAINT fk_fact_transaction_feed_customer FOREIGN KEY (customer_id)
     REFERENCES dim_customer (customer_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_transaction_feed
     ADD CONSTRAINT fk_fact_transaction_feed_account FOREIGN KEY (account_id)
     REFERENCES dim_account (account_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_transaction_feed
     ADD CONSTRAINT fk_fact_transaction_feed_transaction FOREIGN KEY (transaction_id)
     REFERENCES dim_transaction (transaction_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_transaction_feed
     ADD CONSTRAINT fk_fact_transaction_feed_merchant FOREIGN KEY (merchant_id)
     REFERENCES dim_merchant (merchant_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_transaction_feed
     ADD CONSTRAINT fk_fact_transaction_feed_device FOREIGN KEY (device_id)
     REFERENCES dim_device (device_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE INDEX idx_fact_transaction_feed_customer ON fact_transaction_feed (customer_id);
 CREATE INDEX idx_fact_transaction_feed_account ON fact_transaction_feed (account_id);
 CREATE INDEX idx_fact_transaction_feed_transaction ON fact_transaction_feed (transaction_id);

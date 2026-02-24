@@ -1,15 +1,15 @@
 -- ETL from raw denormalized table into normalized tables
 USE cryptocurrency;
 
-INSERT INTO dim_trade (time)
-SELECT DISTINCT r.trade_time
+INSERT INTO dim_trade (time, created_at, updated_at)
+SELECT DISTINCT r.trade_time, NOW(), NOW()
 FROM raw_trade_feed r;
 
-INSERT INTO dim_order (type)
-SELECT DISTINCT r.order_type
+INSERT INTO dim_order (type, created_at, updated_at)
+SELECT DISTINCT r.order_type, NOW(), NOW()
 FROM raw_trade_feed r;
 
-INSERT INTO fact_trade_feed (trade_id, order_id, source_row_id, pair_symbol, side, price, quantity, trader_email, fee_amount)
+INSERT INTO fact_trade_feed (trade_id, order_id, source_row_id, pair_symbol, side, price, quantity, trader_email, fee_amount, created_at, updated_at)
 SELECT
     d_trade.trade_id,
     d_order.order_id,
@@ -19,7 +19,9 @@ SELECT
     r.price,
     r.quantity,
     r.trader_email,
-    r.fee_amount
+    r.fee_amount,
+    NOW(),
+    NOW()
 FROM raw_trade_feed r
 LEFT JOIN dim_trade d_trade ON r.trade_time <=> d_trade.time
 LEFT JOIN dim_order d_order ON r.order_type <=> d_order.type

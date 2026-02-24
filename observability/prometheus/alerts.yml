@@ -1,0 +1,336 @@
+groups:
+  # ============================================
+  # MySQL Database Alerts
+  # ============================================
+  - name: mysql_alerts
+    interval: 30s
+    rules:
+      - alert: MySQLDown
+        expr: up{job="mysql"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: mysql
+        annotations:
+          summary: "MySQL instance {{ $labels.instance }} is down"
+          description: "MySQL instance {{ $labels.instance }} has been down for more than 5 minutes."
+
+      - alert: MySQLTooManyConnections
+        expr: mysql_global_status_max_used_connections / mysql_global_variables_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "MySQL instance {{ $labels.instance }} has too many connections"
+          description: "MySQL instance {{ $labels.instance }} is using {{ $value | humanizePercentage }} of max connections."
+
+      - alert: MySQLSlowQueries
+        expr: rate(mysql_global_status_slow_queries[5m]) > 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "MySQL instance {{ $labels.instance }} has slow queries"
+          description: "MySQL instance {{ $labels.instance }} has {{ $value }} slow queries per second."
+
+      - alert: MySQLReplicationLag
+        expr: mysql_slave_lag_seconds > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "MySQL replication lag on {{ $labels.instance }}"
+          description: "MySQL slave {{ $labels.instance }} is {{ $value }} seconds behind master."
+
+      - alert: MySQLTableLockWaits
+        expr: rate(mysql_global_status_table_locks_waited[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "MySQL table lock waits on {{ $labels.instance }}"
+          description: "MySQL instance {{ $labels.instance }} has {{ $value }} table lock waits per second."
+
+      - alert: MySQLInnoDBLogWaits
+        expr: rate(mysql_global_status_innodb_log_waits[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "InnoDB log waits on {{ $labels.instance }}"
+          description: "MySQL instance {{ $labels.instance }} has {{ $value }} InnoDB log waits per second."
+
+      - alert: MySQLHighQPS
+        expr: rate(mysql_global_status_queries[1m]) > 10000
+        for: 5m
+        labels:
+          severity: warning
+          service: mysql
+        annotations:
+          summary: "High QPS on MySQL {{ $labels.instance }}"
+          description: "MySQL instance {{ $labels.instance }} has {{ $value }} queries per second."
+
+  # ============================================
+  # System Resource Alerts
+  # ============================================
+  - name: system_alerts
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is at {{ $value }}% on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is at {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+      - alert: DiskSpaceLow
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|fuse.lxcfs|squashfs|vfat"} / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Disk {{ $labels.device }} on {{ $labels.instance }} has only {{ $value | humanizePercentage }} free space."
+
+      - alert: HighDiskIO
+        expr: rate(node_disk_io_time_seconds_total[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High disk I/O on {{ $labels.instance }}"
+          description: "Disk I/O utilization is at {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+      - alert: HighNetworkTraffic
+        expr: rate(node_network_receive_bytes_total[5m]) + rate(node_network_transmit_bytes_total[5m]) > 100000000
+        for: 5m
+        labels:
+          severity: info
+          service: system
+        annotations:
+          summary: "High network traffic on {{ $labels.instance }}"
+          description: "Network traffic is at {{ $value | humanize }}B/s on {{ $labels.instance }}."
+
+  # ============================================
+  # Container Alerts
+  # ============================================
+  - name: container_alerts
+    interval: 30s
+    rules:
+      - alert: ContainerDown
+        expr: up{job="cadvisor"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: container
+        annotations:
+          summary: "Container monitoring is down"
+          description: "cAdvisor has been down for more than 5 minutes."
+
+      - alert: ContainerHighCPU
+        expr: rate(container_cpu_usage_seconds_total[5m]) > 0.8
+        for: 10m
+        labels:
+          severity: warning
+          service: container
+        annotations:
+          summary: "Container {{ $labels.name }} has high CPU usage"
+          description: "Container {{ $labels.name }} CPU usage is at {{ $value | humanizePercentage }}."
+
+      - alert: ContainerHighMemory
+        expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
+        for: 10m
+        labels:
+          severity: warning
+          service: container
+        annotations:
+          summary: "Container {{ $labels.name }} has high memory usage"
+          description: "Container {{ $labels.name }} memory usage is at {{ $value | humanizePercentage }}."
+
+      - alert: ContainerRestarting
+        expr: rate(container_restart_count[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          service: container
+        annotations:
+          summary: "Container {{ $labels.name }} is restarting"
+          description: "Container {{ $labels.name }} has restarted {{ $value }} times in the last 5 minutes."
+
+  # ============================================
+  # Application Alerts
+  # ============================================
+  - name: application_alerts
+    interval: 30s
+    rules:
+      - alert: AdminDashboardDown
+        expr: up{job="admin-backend"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "Admin Dashboard backend is down"
+          description: "Admin Dashboard backend has been down for more than 5 minutes."
+
+      - alert: MigrationServiceDown
+        expr: up{job="migration-service"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: application
+        annotations:
+          summary: "Migration service is down"
+          description: "Migration service has been down for more than 5 minutes."
+
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "High API latency on {{ $labels.instance }}"
+          description: "95th percentile API latency is {{ $value }}s on {{ $labels.instance }}."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: application
+        annotations:
+          summary: "High error rate on {{ $labels.instance }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.instance }}."
+
+      - alert: MigrationFailed
+        expr: migration_status{status="failed"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          service: migration
+        annotations:
+          summary: "Migration failed on {{ $labels.instance }}"
+          description: "Migration {{ $labels.migration_id }} failed on {{ $labels.instance }}."
+
+      - alert: BackupFailed
+        expr: backup_status{status="failed"} == 1
+        for: 1m
+        labels:
+          severity: critical
+          service: backup
+        annotations:
+          summary: "Backup failed for {{ $labels.database }}"
+          description: "Backup for database {{ $labels.database }} failed on {{ $labels.instance }}."
+
+  # ============================================
+  # Schema Metrics Alerts
+  # ============================================
+  - name: schema_alerts
+    interval: 30s
+    rules:
+      - alert: TableSizeExceedsLimit
+        expr: mysql_table_size_bytes > 10737418240
+        for: 5m
+        labels:
+          severity: warning
+          service: schema
+        annotations:
+          summary: "Table {{ $labels.table }} exceeds size limit"
+          description: "Table {{ $labels.table }} in database {{ $labels.database }} is {{ $value | humanize }}B."
+
+      - alert: TooManyTables
+        expr: mysql_database_table_count > 1000
+        for: 5m
+        labels:
+          severity: warning
+          service: schema
+        annotations:
+          summary: "Database {{ $labels.database }} has too many tables"
+          description: "Database {{ $labels.database }} has {{ $value }} tables."
+
+      - alert: MissingIndexes
+        expr: mysql_table_missing_indexes > 0
+        for: 1h
+        labels:
+          severity: info
+          service: schema
+        annotations:
+          summary: "Table {{ $labels.table }} is missing indexes"
+          description: "Table {{ $labels.table }} in database {{ $labels.database }} is missing {{ $value }} recommended indexes."
+
+      - alert: FragmentedTables
+        expr: mysql_table_fragmentation_ratio > 0.3
+        for: 1h
+        labels:
+          severity: info
+          service: schema
+        annotations:
+          summary: "Table {{ $labels.table }} is fragmented"
+          description: "Table {{ $labels.table }} in database {{ $labels.database }} has {{ $value | humanizePercentage }} fragmentation."
+
+  # ============================================
+  # ELK Stack Alerts
+  # ============================================
+  - name: elk_alerts
+    interval: 30s
+    rules:
+      - alert: ElasticsearchDown
+        expr: up{job="elasticsearch"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: elk
+        annotations:
+          summary: "Elasticsearch is down"
+          description: "Elasticsearch has been down for more than 5 minutes."
+
+      - alert: LogstashDown
+        expr: up{job="logstash"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          service: elk
+        annotations:
+          summary: "Logstash is down"
+          description: "Logstash has been down for more than 5 minutes."
+
+      - alert: ElasticsearchDiskSpaceLow
+        expr: elasticsearch_filesystem_data_available_bytes / elasticsearch_filesystem_data_size_bytes < 0.1
+        for: 5m
+        labels:
+          severity: critical
+          service: elk
+        annotations:
+          summary: "Elasticsearch low disk space"
+          description: "Elasticsearch has only {{ $value | humanizePercentage }} disk space available."
+
+      - alert: ElasticsearchHighCPU
+        expr: elasticsearch_process_cpu_percent > 80
+        for: 10m
+        labels:
+          severity: warning
+          service: elk
+        annotations:
+          summary: "Elasticsearch high CPU usage"
+          description: "Elasticsearch CPU usage is at {{ $value }}%."

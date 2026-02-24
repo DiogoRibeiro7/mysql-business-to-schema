@@ -12,31 +12,46 @@ CREATE TABLE dim_event (
     event_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
     date VARCHAR(255),
-    UNIQUE KEY uq_dim_event_natural (name, date)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_event_natural (name, date),
+    INDEX idx_dim_event_natural (name, date)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_venue (
     venue_id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255),
-    UNIQUE KEY uq_dim_venue_natural (name)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_venue_natural (name),
+    INDEX idx_dim_venue_natural (name)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_ticket (
     ticket_id INT AUTO_INCREMENT PRIMARY KEY,
     type VARCHAR(255),
-    UNIQUE KEY uq_dim_ticket_natural (type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_ticket_natural (type),
+    INDEX idx_dim_ticket_natural (type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_seat (
     seat_id INT AUTO_INCREMENT PRIMARY KEY,
     label VARCHAR(255),
-    UNIQUE KEY uq_dim_seat_natural (label)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_seat_natural (label),
+    INDEX idx_dim_seat_natural (label)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_payment (
     payment_id INT AUTO_INCREMENT PRIMARY KEY,
     method VARCHAR(255),
-    UNIQUE KEY uq_dim_payment_natural (method)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_payment_natural (method),
+    INDEX idx_dim_payment_natural (method)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_ticket_sales (
@@ -50,29 +65,31 @@ CREATE TABLE fact_ticket_sales (
     UNIQUE KEY uq_fact_ticket_sales_source (source_row_id),
     buyer_email VARCHAR(255),
     price VARCHAR(255),
-    purchase_time VARCHAR(255)
+    purchase_time VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 ALTER TABLE fact_ticket_sales
     ADD CONSTRAINT fk_fact_ticket_sales_event FOREIGN KEY (event_id)
     REFERENCES dim_event (event_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_ticket_sales
     ADD CONSTRAINT fk_fact_ticket_sales_venue FOREIGN KEY (venue_id)
     REFERENCES dim_venue (venue_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_ticket_sales
     ADD CONSTRAINT fk_fact_ticket_sales_ticket FOREIGN KEY (ticket_id)
     REFERENCES dim_ticket (ticket_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_ticket_sales
     ADD CONSTRAINT fk_fact_ticket_sales_seat FOREIGN KEY (seat_id)
     REFERENCES dim_seat (seat_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_ticket_sales
     ADD CONSTRAINT fk_fact_ticket_sales_payment FOREIGN KEY (payment_id)
     REFERENCES dim_payment (payment_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE INDEX idx_fact_ticket_sales_event ON fact_ticket_sales (event_id);
 CREATE INDEX idx_fact_ticket_sales_venue ON fact_ticket_sales (venue_id);
 CREATE INDEX idx_fact_ticket_sales_ticket ON fact_ticket_sales (ticket_id);

@@ -1,34 +1,36 @@
 -- ETL from raw denormalized table into normalized tables
 USE cryptocurrency_exchange;
 
-INSERT INTO dim_user (email)
-SELECT DISTINCT r.user_email
+INSERT INTO dim_user (email, created_at, updated_at)
+SELECT DISTINCT r.user_email, NOW(), NOW()
 FROM raw_exchange_feed r;
 
-INSERT INTO dim_asset (symbol)
-SELECT DISTINCT r.asset_symbol
+INSERT INTO dim_asset (symbol, created_at, updated_at)
+SELECT DISTINCT r.asset_symbol, NOW(), NOW()
 FROM raw_exchange_feed r;
 
-INSERT INTO dim_wallet (balance)
-SELECT DISTINCT r.wallet_balance
+INSERT INTO dim_wallet (balance, created_at, updated_at)
+SELECT DISTINCT r.wallet_balance, NOW(), NOW()
 FROM raw_exchange_feed r;
 
-INSERT INTO dim_order (id, status, time)
-SELECT DISTINCT r.order_id, r.order_status, r.order_time
+INSERT INTO dim_order (id, status, time, created_at, updated_at)
+SELECT DISTINCT r.order_id, r.order_status, r.order_time, NOW(), NOW()
 FROM raw_exchange_feed r;
 
-INSERT INTO dim_trade (price, qty)
-SELECT DISTINCT r.trade_price, r.trade_qty
+INSERT INTO dim_trade (price, qty, created_at, updated_at)
+SELECT DISTINCT r.trade_price, r.trade_qty, NOW(), NOW()
 FROM raw_exchange_feed r;
 
-INSERT INTO fact_exchange_feed (user_id, asset_id, wallet_id, order_id, trade_id, source_row_id)
+INSERT INTO fact_exchange_feed (user_id, asset_id, wallet_id, order_id, trade_id, source_row_id, created_at, updated_at)
 SELECT
     d_user.user_id,
     d_asset.asset_id,
     d_wallet.wallet_id,
     d_order.order_id,
     d_trade.trade_id,
-    r.row_id
+    r.row_id,
+    NOW(),
+    NOW()
 FROM raw_exchange_feed r
 LEFT JOIN dim_user d_user ON r.user_email <=> d_user.email
 LEFT JOIN dim_asset d_asset ON r.asset_symbol <=> d_asset.symbol

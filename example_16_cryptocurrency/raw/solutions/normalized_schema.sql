@@ -8,13 +8,19 @@ DROP TABLE IF EXISTS dim_order;
 CREATE TABLE dim_trade (
     trade_id INT AUTO_INCREMENT PRIMARY KEY,
     time VARCHAR(255),
-    UNIQUE KEY uq_dim_trade_natural (time)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_trade_natural (time),
+    INDEX idx_dim_trade_natural (time)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_order (
     order_id INT AUTO_INCREMENT PRIMARY KEY,
     type VARCHAR(255),
-    UNIQUE KEY uq_dim_order_natural (type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_order_natural (type),
+    INDEX idx_dim_order_natural (type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_trade_feed (
@@ -28,17 +34,19 @@ CREATE TABLE fact_trade_feed (
     price VARCHAR(255),
     quantity VARCHAR(255),
     trader_email VARCHAR(255),
-    fee_amount VARCHAR(255)
+    fee_amount VARCHAR(255),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 ALTER TABLE fact_trade_feed
     ADD CONSTRAINT fk_fact_trade_feed_trade FOREIGN KEY (trade_id)
     REFERENCES dim_trade (trade_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_trade_feed
     ADD CONSTRAINT fk_fact_trade_feed_order FOREIGN KEY (order_id)
     REFERENCES dim_order (order_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE INDEX idx_fact_trade_feed_trade ON fact_trade_feed (trade_id);
 CREATE INDEX idx_fact_trade_feed_order ON fact_trade_feed (order_id);
 CREATE INDEX idx_fact_trade_feed_source ON fact_trade_feed (source_row_id);

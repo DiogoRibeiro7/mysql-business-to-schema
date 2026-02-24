@@ -9,20 +9,29 @@ DROP TABLE IF EXISTS dim_sensor;
 CREATE TABLE dim_device (
     device_id INT AUTO_INCREMENT PRIMARY KEY,
     id VARCHAR(255),
-    UNIQUE KEY uq_dim_device_natural (id)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_device_natural (id),
+    INDEX idx_dim_device_natural (id)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_bin (
     bin_id INT AUTO_INCREMENT PRIMARY KEY,
     code VARCHAR(255),
     type VARCHAR(255),
-    UNIQUE KEY uq_dim_bin_natural (code, type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_bin_natural (code, type),
+    INDEX idx_dim_bin_natural (code, type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE dim_sensor (
     sensor_id INT AUTO_INCREMENT PRIMARY KEY,
     type VARCHAR(255),
-    UNIQUE KEY uq_dim_sensor_natural (type)
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_dim_sensor_natural (type),
+    INDEX idx_dim_sensor_natural (type)
 ) ENGINE=InnoDB;
 
 CREATE TABLE fact_iot_bins (
@@ -40,21 +49,23 @@ CREATE TABLE fact_iot_bins (
     battery_level VARCHAR(255),
     gps_lat VARCHAR(255),
     gps_lon VARCHAR(255),
-    alert_type VARCHAR(255)
+    alert_type ENUM('fill_critical', 'odor_high'),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 ALTER TABLE fact_iot_bins
     ADD CONSTRAINT fk_fact_iot_bins_device FOREIGN KEY (device_id)
     REFERENCES dim_device (device_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_iot_bins
     ADD CONSTRAINT fk_fact_iot_bins_bin FOREIGN KEY (bin_id)
     REFERENCES dim_bin (bin_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE fact_iot_bins
     ADD CONSTRAINT fk_fact_iot_bins_sensor FOREIGN KEY (sensor_id)
     REFERENCES dim_sensor (sensor_id)
-    ON DELETE SET NULL ON UPDATE CASCADE;
+    ON DELETE RESTRICT ON UPDATE CASCADE;
 CREATE INDEX idx_fact_iot_bins_device ON fact_iot_bins (device_id);
 CREATE INDEX idx_fact_iot_bins_bin ON fact_iot_bins (bin_id);
 CREATE INDEX idx_fact_iot_bins_sensor ON fact_iot_bins (sensor_id);
