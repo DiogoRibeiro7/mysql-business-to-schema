@@ -1,38 +1,36 @@
 -- Reports and views
 
--- 1) Create view for daily schedule (expect: appointment list by date)
-CREATE OR REPLACE VIEW v_daily_schedule AS
-SELECT a.appointment_id,
-       DATE(a.start_time) AS schedule_date,
-       a.start_time,
-       a.end_time,
-       a.status,
-       p.first_name AS patient_first_name,
-       p.last_name AS patient_last_name,
-       d.first_name AS doctor_first_name,
-       d.last_name AS doctor_last_name
-FROM appointments a
-JOIN patients p ON p.patient_id = a.patient_id
-JOIN doctors d ON d.doctor_id = a.doctor_id;
-
--- 2) Use v_daily_schedule for a specific date (expect: rows for that day)
+-- 1) Daily schedule by date (expect: appointment list for a day)
+WITH v_daily_schedule AS (
+    SELECT a.appointment_id,
+           DATE(a.start_time) AS schedule_date,
+           a.start_time,
+           a.end_time,
+           a.status,
+           p.first_name AS patient_first_name,
+           p.last_name AS patient_last_name,
+           d.first_name AS doctor_first_name,
+           d.last_name AS doctor_last_name
+    FROM appointments a
+    JOIN patients p ON p.patient_id = a.patient_id
+    JOIN doctors d ON d.doctor_id = a.doctor_id
+)
 SELECT *
 FROM v_daily_schedule
 WHERE schedule_date = '2025-02-10'
 ORDER BY start_time;
 
--- 3) Create view for patient balance (expect: invoice total vs paid)
-CREATE OR REPLACE VIEW v_patient_balance AS
-SELECT i.invoice_id,
-       i.patient_id,
-       i.total_amount,
-       COALESCE(SUM(pa.amount_applied), 0) AS total_paid,
-       i.total_amount - COALESCE(SUM(pa.amount_applied), 0) AS balance
-FROM invoices i
-LEFT JOIN payment_allocations pa ON pa.invoice_id = i.invoice_id
-GROUP BY i.invoice_id;
-
--- 4) Patient balance summary (expect: current balances)
+-- 2) Patient balance summary (expect: invoice total vs paid)
+WITH v_patient_balance AS (
+    SELECT i.invoice_id,
+           i.patient_id,
+           i.total_amount,
+           COALESCE(SUM(pa.amount_applied), 0) AS total_paid,
+           i.total_amount - COALESCE(SUM(pa.amount_applied), 0) AS balance
+    FROM invoices i
+    LEFT JOIN payment_allocations pa ON pa.invoice_id = i.invoice_id
+    GROUP BY i.invoice_id
+)
 SELECT vb.invoice_id, vb.patient_id, vb.total_amount, vb.total_paid, vb.balance
 FROM v_patient_balance vb
 ORDER BY vb.balance DESC;

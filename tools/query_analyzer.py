@@ -135,7 +135,10 @@ class QueryPerformanceAnalyzer:
                 analysis["temporary_tables"] = True
 
             # Sum rows examined
-            analysis["total_rows_examined"] += int(row.get('rows', 0))
+            rows_value = row.get('rows', 0)
+            if rows_value is None:
+                rows_value = 0
+            analysis["total_rows_examined"] += int(rows_value)
 
         return analysis
 

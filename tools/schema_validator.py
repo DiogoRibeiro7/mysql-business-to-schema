@@ -408,7 +408,14 @@ class SchemaValidator:
                   AND T.table_name = '{table_name}'
             """)
             charset = cursor.fetchone()
-            if charset and charset['character_set_name'] != 'utf8mb4':
+            charset_name = None
+            if charset:
+                if 'character_set_name' in charset:
+                    charset_name = charset['character_set_name']
+                else:
+                    # Fallback for drivers returning non-standard dict keys
+                    charset_name = next(iter(charset.values()), None)
+            if charset_name and charset_name != 'utf8mb4':
                 self.warnings.append({
                     'type': 'best_practice',
                     'object': table_name,
