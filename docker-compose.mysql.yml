@@ -1,0 +1,59 @@
+# MySQL-only Docker Compose for easy database setup
+# Use this for quick MySQL setup with auto-initialization
+
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-schema-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: admin_db
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      # Mount initialization scripts
+      - ./scripts/docker-init:/docker-entrypoint-initdb.d:ro
+      # Mount schema files
+      - ./example_01_clinic/schema:/schemas/clinic:ro
+      - ./example_02_iot_bins/schema:/schemas/iot_bins:ro
+      - ./example_03_smart_energy/schema:/schemas/smart_energy:ro
+      - ./example_04_ecommerce/schema:/schemas/ecommerce:ro
+      # Mount demo data
+      - ./demo_data:/demo_data:ro
+      # Persistent data
+      - mysql_data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_connections=1000
+      --max_allowed_packet=256M
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mysql-schema-phpmyadmin
+    restart: always
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "8080:80"
+
+volumes:
+  mysql_data:
+    name: mysql-schema-data

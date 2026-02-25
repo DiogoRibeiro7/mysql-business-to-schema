@@ -6,6 +6,11 @@ on:
   push:
     branches: [ develop ]
 
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -133,14 +138,14 @@ jobs:
           path: reports/
 
       - name: Comment PR with quality metrics
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: actions/github-script@v8
         with:
           script: |
             const fs = require('fs');
             const qualityReport = fs.readFileSync('reports/quality_summary.md', 'utf8');
 
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,

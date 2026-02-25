@@ -106,7 +106,7 @@ jobs:
           yamllint -d relaxed .
 
       - name: Upload Code Quality Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v6
         if: always()
         with:
           name: code-quality-reports
