@@ -789,8 +789,8 @@ This example demonstrates:
 - [Generator Documentation](../generators/event_ticketing/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [Performance Tuning Guide](../docs/performance.md)
-- [Integration Guide](../docs/integration.md)
+- [Performance Tuning Guide](../performance-testing/README.md)
+- [Integration Guide](../docs/API_DOCUMENTATION.md)
 
 ## 🤝 Contributing
 

@@ -778,8 +778,8 @@ This example demonstrates:
 - [Generator Documentation](../generators/fintech/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [Compliance Guide](../docs/compliance.md)
-- [Security Best Practices](../docs/security.md)
+- [Compliance Guide](../docs/ARCHITECTURE.md#compliance)
+- [Security Best Practices](../docs/ARCHITECTURE.md#security-architecture)
 
 ## 🤝 Contributing
 

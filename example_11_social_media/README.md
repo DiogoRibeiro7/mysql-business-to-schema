@@ -1012,11 +1012,11 @@ This example demonstrates:
 
 ## 📚 Additional Resources
 
-- [Generator Documentation](../generators/social_media/README.md)
+- [Generator Documentation](../generators/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [API Documentation](../docs/api.md)
-- [Scaling Guide](../docs/scaling.md)
+- [API Documentation](../docs/API_DOCUMENTATION.md)
+- [Scaling Guide](../docs/ARCHITECTURE.md#horizontal-scaling)
 
 ## 🤝 Contributing
 

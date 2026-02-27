@@ -102,7 +102,7 @@ export enum MigrationStatus {
 // Query Types
 export interface Query {
   id: string;
-  text: string;
+  query: string;  // Changed from 'text' to 'query' for consistency
   database: string;
   user: string;
   executionTime: number;
@@ -114,10 +114,33 @@ export interface Query {
 
 export interface QueryResult {
   columns: string[];
-  rows: any[][];
+  data: any[];  // Array of objects for easier Chart.js integration
+  rows?: any[][];  // Optional legacy format
   rowCount: number;
   executionTime: number;
-  queryId: string;
+  queryId?: string;
+  executionPlan?: QueryPlanStep[];  // For EXPLAIN results
+  cost?: QueryCost;  // Cost analysis
+  bufferHit?: number;  // Buffer pool hit percentage
+  indexUsage?: string;  // Index usage info
+}
+
+export interface QueryPlanStep {
+  id?: number;
+  type: string;
+  table: string;
+  rows: number;
+  key?: string;
+  extra?: string;
+  cost?: number;
+}
+
+export interface QueryCost {
+  read: number;
+  sort: number;
+  join: number;
+  filter: number;
+  total: number;
 }
 
 export interface SlowQuery {

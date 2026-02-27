@@ -1077,8 +1077,8 @@ This example demonstrates:
 - [Generator Documentation](../generators/education/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [API Documentation](../docs/api.md)
-- [Integration Guide](../docs/integration.md)
+- [API Documentation](../docs/API_DOCUMENTATION.md)
+- [Integration Guide](../docs/API_DOCUMENTATION.md)
 
 ## 🤝 Contributing
 

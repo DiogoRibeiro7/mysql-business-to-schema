@@ -895,7 +895,7 @@ This example demonstrates:
 - [Generator Documentation](../generators/real_estate/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [Performance Tuning Guide](../docs/performance.md)
+- [Performance Tuning Guide](../performance-testing/README.md)
 - [MLS Integration Guide](../docs/mls_integration.md)
 
 ## 🤝 Contributing

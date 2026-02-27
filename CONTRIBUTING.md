@@ -375,7 +375,7 @@ tot = calc(id)  # Bad
 ### Commit Message Format
 
 ```
-[type](scope): brief description
+`type(scope)`: brief description
 
 Detailed explanation of changes if needed.
 

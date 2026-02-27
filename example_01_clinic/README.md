@@ -323,7 +323,7 @@ Common extensions you might consider:
 - [Generator Documentation](../generators/clinic/README.md)
 - [Query Examples](queries/)
 - [Schema DDL](schema/)
-- [Performance Tuning Guide](../docs/performance.md)
+- [Performance Tuning Guide](../performance-testing/README.md)
 
 ## 🤝 Contributing
 

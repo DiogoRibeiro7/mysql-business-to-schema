@@ -467,9 +467,9 @@ pytest --junitxml=test-results.xml
 ## 🔗 Related Documentation
 
 - [Main README](../README.md)
-- [API Documentation](../docs/API.md)
-- [Performance Guide](../docs/PERFORMANCE.md)
-- [CI/CD Pipeline](.github/workflows/main.yml)
+- [API Documentation](../docs/API_DOCUMENTATION.md)
+- [Performance Guide](../performance-testing/README.md)
+- [CI/CD Pipeline](../.github/workflows/main.yml)
 
 ## 📝 License
 

@@ -19,6 +19,7 @@ from .monitoring import MetricsCollector, ConnectionManager
 from .schema_manager import SchemaManager
 from .migration_handler import MigrationHandler
 from .query_analyzer import QueryAnalyzer
+from .query_manager import QueryManager
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -46,6 +47,7 @@ auth_manager = AuthManager()
 schema_manager = SchemaManager()
 migration_handler = MigrationHandler()
 query_analyzer = QueryAnalyzer()
+query_manager = QueryManager()
 metrics_collector = MetricsCollector()
 ws_manager = ConnectionManager()
 
@@ -431,6 +433,224 @@ async def optimize_query(
         }
     except Exception as e:
         logger.error(f"Error optimizing query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# Query Management Endpoints (Save/Share)
+# ============================================
+
+@app.post("/api/query/save")
+async def save_query(
+    query_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Save or update a query."""
+    try:
+        result = query_manager.save_query(current_user.id, query_data)
+        # Record execution if just executed
+        if query_data.get('execution_time'):
+            query_manager.record_execution(result['query']['id'], {
+                'execution_time': query_data['execution_time'],
+                'rows_returned': query_data.get('rows_returned', 0),
+                'database': query_data.get('database'),
+                'success': True
+            })
+        return result
+    except Exception as e:
+        logger.error(f"Error saving query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/saved")
+async def get_saved_queries(
+    include_shared: bool = True,
+    current_user: User = Depends(get_current_user)
+):
+    """Get all saved queries for the current user."""
+    try:
+        queries = query_manager.get_user_queries(current_user.id, include_shared)
+        return {"queries": queries}
+    except Exception as e:
+        logger.error(f"Error getting saved queries: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/saved/{query_id}")
+async def get_saved_query(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get a specific saved query."""
+    try:
+        query = query_manager.get_query(query_id, current_user.id)
+        if not query:
+            raise HTTPException(status_code=404, detail="Query not found or access denied")
+        return {"query": query}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/query/saved/{query_id}")
+async def delete_saved_query(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Delete a saved query."""
+    try:
+        result = query_manager.delete_query(query_id, current_user.id)
+        if result['status'] == 'error':
+            raise HTTPException(status_code=403, detail=result['message'])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/query/collections")
+async def create_collection(
+    collection_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Create a new query collection."""
+    try:
+        result = query_manager.create_collection(current_user.id, collection_data)
+        return result
+    except Exception as e:
+        logger.error(f"Error creating collection: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/collections")
+async def get_collections(
+    current_user: User = Depends(get_current_user)
+):
+    """Get all collections for the current user."""
+    try:
+        collections = query_manager.get_user_collections(current_user.id)
+        return {"collections": collections}
+    except Exception as e:
+        logger.error(f"Error getting collections: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/query/share/{query_id}")
+async def share_query(
+    query_id: str,
+    share_data: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Share a query with other users."""
+    try:
+        result = query_manager.share_query(query_id, current_user.id, share_data)
+        if result['status'] == 'error':
+            raise HTTPException(status_code=403, detail=result['message'])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error sharing query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/query/duplicate/{query_id}")
+async def duplicate_query(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Duplicate an existing query."""
+    try:
+        result = query_manager.duplicate_query(query_id, current_user.id)
+        if result['status'] == 'error':
+            raise HTTPException(status_code=403, detail=result['message'])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error duplicating query: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/versions/{query_id}")
+async def get_query_versions(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get version history for a query."""
+    try:
+        versions = query_manager.get_query_versions(query_id, current_user.id)
+        return {"versions": versions}
+    except Exception as e:
+        logger.error(f"Error getting query versions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/query/versions/{query_id}/restore/{version_id}")
+async def restore_query_version(
+    query_id: str,
+    version_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Restore a previous version of a query."""
+    try:
+        result = query_manager.restore_version(query_id, version_id, current_user.id)
+        if result['status'] == 'error':
+            raise HTTPException(status_code=403, detail=result['message'])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error restoring query version: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/performance/{query_id}")
+async def get_query_performance(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get performance history for a query."""
+    try:
+        history = query_manager.get_performance_history(query_id, current_user.id)
+        return {"performance_history": history}
+    except Exception as e:
+        logger.error(f"Error getting performance history: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/search")
+async def search_queries(
+    q: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Search saved queries."""
+    try:
+        results = query_manager.search_queries(current_user.id, q)
+        return {"results": results}
+    except Exception as e:
+        logger.error(f"Error searching queries: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/query/favorites")
+async def get_favorite_queries(
+    current_user: User = Depends(get_current_user)
+):
+    """Get favorite queries."""
+    try:
+        favorites = query_manager.get_favorite_queries(current_user.id)
+        return {"favorites": favorites}
+    except Exception as e:
+        logger.error(f"Error getting favorite queries: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/query/favorites/{query_id}")
+async def toggle_favorite(
+    query_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Toggle favorite status of a query."""
+    try:
+        result = query_manager.toggle_favorite(query_id, current_user.id)
+        if result['status'] == 'error':
+            raise HTTPException(status_code=403, detail=result['message'])
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error toggling favorite: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================

@@ -248,11 +248,11 @@ ws.On("alert:triggered", func(data interface{}) {
 
 ## 📚 Documentation
 
-- [API Reference](../docs/API.md)
+- [API Reference](../docs/API_DOCUMENTATION.md)
 - [Python SDK Docs](./python/README.md)
 - [Node.js SDK Docs](./nodejs/README.md)
 - [Go SDK Docs](./go/README.md)
-- [Examples](../examples/)
+- [Examples](../EXAMPLES_OVERVIEW.md)
 
 ## 🤝 Contributing
 
