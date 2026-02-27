@@ -13,7 +13,8 @@ spec:
     kind: StatefulSet
     name: mysql-clinic
   updatePolicy:
-    updateMode: "Auto"  # Can be "Off", "Initial", or "Auto"
+    # Can be "Off", "Initial", or "Auto"
+    updateMode: "Auto"
   resourcePolicy:
     containerPolicies:
       - containerName: mysql
@@ -75,7 +76,8 @@ spec:
     kind: Deployment
     name: web-demo
   updatePolicy:
-    updateMode: "Off"  # Only provide recommendations, don't update automatically
+    # Only provide recommendations, don't update automatically
+    updateMode: "Off"
   resourcePolicy:
     containerPolicies:
       - containerName: web-demo
@@ -102,7 +104,8 @@ spec:
     kind: Deployment
     name: prometheus
   updatePolicy:
-    updateMode: "Initial"  # Only set resources on pod creation
+    # Only set resources on pod creation
+    updateMode: "Initial"
   resourcePolicy:
     containerPolicies:
       - containerName: prometheus
@@ -128,7 +131,6 @@ spec:
     name: grafana
   updatePolicy:
     updateMode: "Auto"
-    minReplicas: 2  # Don't update if less than 2 replicas
   resourcePolicy:
     containerPolicies:
       - containerName: grafana

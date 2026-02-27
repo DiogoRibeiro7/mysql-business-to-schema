@@ -7,7 +7,7 @@ WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
+RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 
 # Copy frontend source
 COPY frontend/ .
@@ -22,19 +22,16 @@ WORKDIR /app/backend
 
 # Copy backend package files
 COPY backend/package*.json ./
-RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
+RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 
 # Copy backend source
 COPY backend/ .
-
-# Install dev dependencies for build
-RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 
 # Build backend
 RUN npm run build
 
 # Remove dev dependencies
-RUN npm prune --production
+RUN npm prune --omit=dev
 
 # Stage 3: Production image
 FROM node:18-alpine

@@ -108,6 +108,11 @@ Parameters:
     Default: 10.0.12.0/24
     Description: CIDR for private subnet 2
 
+  AppIngressCidr:
+    Type: String
+    Default: 10.0.0.0/16
+    Description: CIDR allowed to access application ports (restrict as needed)
+
 # ==============================================================================
 # Conditions
 # ==============================================================================
@@ -274,10 +279,12 @@ Resources:
           FromPort: 3306
           ToPort: 3306
           SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Allow MySQL from application security group
         - IpProtocol: tcp
           FromPort: 5432
           ToPort: 5432
           SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Allow PostgreSQL from application security group
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-db-sg
@@ -291,15 +298,18 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref AppIngressCidr
+          Description: Allow HTTP from approved CIDR
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref AppIngressCidr
+          Description: Allow HTTPS from approved CIDR
         - IpProtocol: tcp
           FromPort: 8080
           ToPort: 8090
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref AppIngressCidr
+          Description: Allow app ports from approved CIDR
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-app-sg
@@ -315,14 +325,17 @@ Resources:
           FromPort: 9092
           ToPort: 9092
           SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Allow Kafka broker access from application SG
         - IpProtocol: tcp
           FromPort: 9094
           ToPort: 9094
           SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Allow Kafka TLS broker access from application SG
         - IpProtocol: tcp
           FromPort: 2181
           ToPort: 2181
           SourceSecurityGroupId: !Ref ApplicationSecurityGroup
+          Description: Allow Zookeeper access from application SG
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-kafka-sg
@@ -353,6 +366,10 @@ Resources:
       AllocatedStorage: !Ref DBAllocatedStorage
       StorageType: gp3
       StorageEncrypted: true
+      EnableIAMDatabaseAuthentication: true
+      MultiAZ: true
+      MonitoringInterval: 60
+      MonitoringRoleArn: !GetAtt RDSMonitoringRole.Arn
       MasterUsername: !Ref DBMasterUsername
       MasterUserPassword: !Ref DBMasterPassword
       VPCSecurityGroups:
@@ -388,6 +405,10 @@ Resources:
       AllocatedStorage: !Ref DBAllocatedStorage
       StorageType: gp3
       StorageEncrypted: true
+      EnableIAMDatabaseAuthentication: true
+      MultiAZ: true
+      MonitoringInterval: 60
+      MonitoringRoleArn: !GetAtt RDSMonitoringRole.Arn
       MasterUsername: !Ref DBMasterUsername
       MasterUserPassword: !Ref DBMasterPassword
       VPCSecurityGroups:
@@ -425,6 +446,8 @@ Resources:
       PreferredBackupWindow: 03:00-04:00
       PreferredMaintenanceWindow: mon:04:00-mon:05:00
       StorageEncrypted: true
+      EnableCloudwatchLogsExports:
+        - audit
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-docdb
@@ -470,7 +493,7 @@ Resources:
             Enabled: true
       EncryptionInfo:
         EncryptionInTransit:
-          ClientBroker: TLS_PLAINTEXT
+          ClientBroker: TLS
           InCluster: true
         EncryptionAtRest:
           DataVolumeKMSKeyId: alias/aws/kafka
@@ -492,6 +515,7 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/msk/${ProjectName}-${Environment}
       RetentionInDays: 7
+      KmsKeyId: !Ref LogsKmsKey
 
   # ------------------------------------------------------------------------------
   # ElastiCache (Redis)
@@ -530,6 +554,9 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub ${ProjectName}-${Environment}-data-${AWS::AccountId}
+      LoggingConfiguration:
+        DestinationBucketName: !Ref DataBucketLogs
+        LogFilePrefix: access-logs/
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -556,6 +583,33 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-data
+        - Key: Environment
+          Value: !Ref Environment
+
+  DataBucketLogs:
+    Type: AWS::S3::Bucket
+    Metadata:
+      checkov:
+        skip:
+          - id: CKV_AWS_18
+            comment: Access logs bucket serves as log target for DataBucket.
+    Properties:
+      BucketName: !Sub ${ProjectName}-${Environment}-data-logs-${AWS::AccountId}
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerPreferred
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Environment}-data-logs
         - Key: Environment
           Value: !Ref Environment
 
@@ -650,6 +704,7 @@ Resources:
     Properties:
       Name: !Sub ${ProjectName}-${Environment}-db-credentials
       Description: Database credentials for all databases
+      KmsKeyId: !Ref SecretsKmsKey
       SecretString: !Sub |
         {
           "mysql": {
@@ -676,6 +731,65 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-${Environment}-secrets
+
+  SecretsKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for Secrets Manager encryption
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableRootPermissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: 'kms:*'
+            Resource: '*'
+
+  SecretsKmsAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${ProjectName}-${Environment}-secrets
+      TargetKeyId: !Ref SecretsKmsKey
+
+  LogsKmsKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for CloudWatch Logs encryption
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: EnableRootPermissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: 'kms:*'
+            Resource: '*'
+
+  LogsKmsAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${ProjectName}-${Environment}-logs
+      TargetKeyId: !Ref LogsKmsKey
+
+  RDSMonitoringRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-${Environment}-rds-monitoring-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: monitoring.rds.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-${Environment}-rds-monitoring-role
 
 # ==============================================================================
 # Outputs

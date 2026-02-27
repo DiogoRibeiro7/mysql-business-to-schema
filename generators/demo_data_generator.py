@@ -144,9 +144,10 @@ class DemoDataGenerator:
         sensor_types = ['temperature', 'humidity', 'pressure', 'motion', 'light']
         values = []
         for i in range(count // 5):
+            sensor_location = fake.address().replace("'", "''")
             sensor = (
                 f"('SENSOR_{i+1:06d}', '{random.choice(sensor_types)}', "
-                f"'{fake.address().replace(\"'\", \"''\")}', 'active')"
+                f"'{sensor_location}', 'active')"
             )
             values.append(sensor)
 

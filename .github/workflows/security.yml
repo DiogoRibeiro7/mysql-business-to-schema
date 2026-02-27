@@ -263,6 +263,7 @@ jobs:
 
       - name: FOSSA Scan
         uses: fossas/fossa-action@main
+        if: ${{ secrets.FOSSA_API_KEY != '' }}
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
 
