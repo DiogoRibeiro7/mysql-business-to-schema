@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
+from dataclasses import asdict
 import asyncio
 import json
 import numpy as np

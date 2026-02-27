@@ -434,7 +434,23 @@ def train_with_ray_tune(**context):
         df = pd.read_parquet(features_path)
 
         # Prepare features and target
-        # ... (same as above)
+        if data_type == 'patient':
+            target_col = 'readmission'
+            id_col = 'patient_id'
+        elif data_type == 'customer':
+            target_col = 'churned'
+            id_col = 'customer_id'
+        else:
+            target_col = 'is_anomaly'
+            id_col = 'device_id'
+
+        feature_cols = [col for col in df.columns if col not in [id_col, target_col, 'event_timestamp']]
+        X = df[feature_cols]
+        y = df[target_col]
+
+        X_train, X_test, y_train, y_test = train_test_split(
+            X, y, test_size=0.2, random_state=42
+        )
 
         # Train model with config
         model = xgb.XGBClassifier(**config, use_label_encoder=False, eval_metric='logloss')

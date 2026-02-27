@@ -30,7 +30,8 @@
     "deploy:fly": "fly deploy",
     "docker:build": "docker build -t mysql-demo-web .",
     "docker:run": "docker run -p 3001:3001 mysql-demo-web",
-    "docker:compose": "docker-compose up"
+    "docker:compose": "docker-compose up",
+    "audit": "node ../scripts/audit.js"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",

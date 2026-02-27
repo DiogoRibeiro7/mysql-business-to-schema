@@ -1,8 +1,6 @@
 apiVersion: 1
 
-# List of datasources to insert/update
 datasources:
-  # Prometheus datasource
   - name: Prometheus
     type: prometheus
     access: proxy
@@ -10,60 +8,18 @@ datasources:
     isDefault: true
     editable: true
     jsonData:
-      timeInterval: "15s"
-      queryTimeout: "30s"
-      httpMethod: "POST"
+      timeInterval: '15s'
 
-  # Elasticsearch datasource for logs
-  - name: Elasticsearch
-    type: elasticsearch
-    access: proxy
-    url: http://elasticsearch:9200
-    database: "[logstash-]YYYY.MM.DD"
-    jsonData:
-      esVersion: "8.11.0"
-      timeField: "@timestamp"
-      logMessageField: message
-      logLevelField: level
-
-  # Loki datasource for log aggregation
-  - name: Loki
-    type: loki
-    access: proxy
-    url: http://loki:3100
-    jsonData:
-      maxLines: 1000
-
-  # Jaeger datasource for tracing
-  - name: Jaeger
-    type: jaeger
-    access: proxy
-    url: http://jaeger:16686
-    jsonData:
-      tracesToLogs:
-        datasourceUid: loki
-        tags:
-          - "cluster"
-          - "namespace"
-          - "pod"
-
-  # MySQL datasource for direct queries
   - name: MySQL
     type: mysql
+    access: proxy
     url: mysql:3306
     database: information_schema
-    user: ${MYSQL_USER}
+    user: root
     secureJsonData:
-      password: ${MYSQL_PASSWORD}
+      password: rootpassword
+    editable: true
     jsonData:
-      maxOpenConns: 0
-      maxIdleConns: 2
+      maxOpenConns: 10
+      maxIdleConns: 10
       connMaxLifetime: 14400
-
-  # AlertManager datasource
-  - name: AlertManager
-    type: alertmanager
-    access: proxy
-    url: http://alertmanager:9093
-    jsonData:
-      implementation: prometheus

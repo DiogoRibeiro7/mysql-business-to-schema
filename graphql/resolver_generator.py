@@ -91,7 +91,7 @@ export function create{type_name}Loader(db: DatabaseConnection): DataLoader<stri
   return new DataLoader(async (ids: readonly string[]) => {{
     const query = `
       SELECT * FROM {table_name}
-      WHERE id IN (${ids.map(() => '?').join(', ')})
+      WHERE id IN (${{ids.map(() => '?').join(', ')}})
     `;
 
     const rows = await db.query(query, [...ids]);
@@ -117,7 +117,7 @@ export function create{type_name}{ref_type}Loader(db: DatabaseConnection): DataL
   return new DataLoader(async (parentIds: readonly string[]) => {{
     const query = `
       SELECT * FROM {ref_table}
-      WHERE {fk['column']} IN (${parentIds.map(() => '?').join(', ')})
+      WHERE {fk['column']} IN (${{parentIds.map(() => '?').join(', ')}})
     `;
 
     const rows = await db.query(query, [...parentIds]);

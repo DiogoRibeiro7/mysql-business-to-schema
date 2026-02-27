@@ -48,7 +48,7 @@ class DemoDataGenerator:
                 f"('{fake.first_name()}', '{fake.last_name()}', "
                 f"'{fake.date_of_birth()}', '{random.choice(['M', 'F'])}', "
                 f"'{fake.email()}', '{fake.phone_number()[:20]}', "
-                f"'{fake.street_address().replace("'", "''")}', "
+                f"'{fake.street_address().replace(\"'\", \"''\")}', "
                 f"'{fake.city()}', '{fake.state_abbr()}', '{fake.zipcode()}')"
             )
             values.append(patient)
@@ -86,8 +86,8 @@ class DemoDataGenerator:
         categories = ['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports']
         for i in range(count):
             product = (
-                f"('{fake.catch_phrase().replace("'", "''")}', "
-                f"'{fake.text(max_nb_chars=200).replace("'", "''")}', "
+                f"('{fake.catch_phrase().replace(\"'\", \"''\")}', "
+                f"'{fake.text(max_nb_chars=200).replace(\"'\", \"''\")}', "
                 f"'{random.choice(categories)}', "
                 f"{round(random.uniform(9.99, 999.99), 2)}, "
                 f"{random.randint(0, 1000)})"
@@ -143,7 +143,7 @@ class DemoDataGenerator:
         for i in range(count // 5):
             sensor = (
                 f"('SENSOR_{i+1:06d}', '{random.choice(sensor_types)}', "
-                f"'{fake.address().replace("'", "''")}', 'active')"
+                f"'{fake.address().replace(\"'\", \"''\")}', 'active')"
             )
             values.append(sensor)
 

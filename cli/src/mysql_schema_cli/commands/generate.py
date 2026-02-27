@@ -5,6 +5,7 @@ Generate command - Test data and schema generation
 import click
 import json
 from pathlib import Path
+from typing import Any, Dict
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 from rich.prompt import Confirm, IntPrompt, Prompt

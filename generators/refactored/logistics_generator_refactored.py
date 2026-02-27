@@ -109,7 +109,7 @@ def main():
 
     args = parser.parse_args()
 
-    generator = {class_name}(
+    generator = LogisticsGenerator(
         config_path=args.config,
         host=args.host,
         port=args.port,

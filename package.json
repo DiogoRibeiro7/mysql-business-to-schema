@@ -1,0 +1,7 @@
+{
+  "name": "mysql-business-to-schema-root",
+  "private": true,
+  "scripts": {
+    "audit": "node scripts/audit.js"
+  }
+}

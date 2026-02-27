@@ -117,7 +117,7 @@ def main():
 
     args = parser.parse_args()
 
-    generator = {class_name}(
+    generator = ClinicDataGenerator(
         config_path=args.config,
         host=args.host,
         port=args.port,

@@ -62,11 +62,11 @@ class MigrationValidator:
         self.errors = []
 
         # Validate up script
-        self._validate_sql(up_script, "up", production_mode)
+        self._validate_sql(up_script, "up", production_mode, down_script)
 
         # Validate down script if provided
         if down_script:
-            self._validate_sql(down_script, "down", production_mode)
+            self._validate_sql(down_script, "down", production_mode, down_script=None)
             self._validate_reversibility(up_script, down_script)
 
         # Check for migration conflicts
@@ -75,7 +75,13 @@ class MigrationValidator:
         is_valid = len(self.errors) == 0
         return is_valid, self.errors, self.warnings
 
-    def _validate_sql(self, sql: str, direction: str, production_mode: bool):
+    def _validate_sql(
+        self,
+        sql: str,
+        direction: str,
+        production_mode: bool,
+        down_script: Optional[str] = None
+    ):
         """Validate SQL script."""
         # Parse SQL
         try:

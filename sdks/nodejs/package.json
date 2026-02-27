@@ -12,6 +12,7 @@
     "test:coverage": "jest --coverage",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
+    "audit": "node ../../scripts/audit.js",
     "prepublishOnly": "npm run clean && npm run build && npm run test",
     "docs": "typedoc --out docs src"
   },
