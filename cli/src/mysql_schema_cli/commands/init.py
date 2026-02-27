@@ -23,7 +23,7 @@ PROJECT_TEMPLATES = {
             ".mysql-schema.yaml": "config",
             "README.md": "readme",
             ".gitignore": "gitignore",
-        }
+        },
     },
     "microservice": {
         "description": "Microservice with Docker and K8s",
@@ -35,14 +35,20 @@ PROJECT_TEMPLATES = {
             "README.md": "readme-microservice",
             ".gitignore": "gitignore",
             ".dockerignore": "dockerignore",
-        }
+        },
     },
     "full": {
         "description": "Full project with CI/CD",
         "directories": [
-            "migrations", "schemas", "data", "backups",
-            "docker", "k8s", "tests", "scripts",
-            ".github/workflows"
+            "migrations",
+            "schemas",
+            "data",
+            "backups",
+            "docker",
+            "k8s",
+            "tests",
+            "scripts",
+            ".github/workflows",
         ],
         "files": {
             ".mysql-schema.yaml": "config",
@@ -54,29 +60,45 @@ PROJECT_TEMPLATES = {
             ".dockerignore": "dockerignore",
             ".github/workflows/ci.yml": "github-ci",
             "tests/test_migrations.py": "test-migrations",
-        }
-    }
+        },
+    },
 }
 
 
-@click.command(name='init')
-@click.argument('project_name', required=False)
-@click.option('--template', '-t',
-              type=click.Choice(['basic', 'microservice', 'full']),
-              help='Project template to use')
-@click.option('--path', '-p', type=click.Path(), help='Project directory path')
-@click.option('--host', help='MySQL Schema API host')
-@click.option('--port', type=int, help='MySQL Schema API port')
-@click.option('--username', '-u', help='Username for authentication')
-@click.option('--database', '-d', help='Default database name')
-@click.option('--git', is_flag=True, help='Initialize git repository')
-@click.option('--docker', is_flag=True, help='Include Docker configuration')
-@click.option('--k8s', is_flag=True, help='Include Kubernetes manifests')
-@click.option('--ci', is_flag=True, help='Include CI/CD configuration')
-@click.option('--force', is_flag=True, help='Overwrite existing files')
-@click.option('--interactive', '-i', is_flag=True, help='Interactive mode')
-def init_cmd(project_name, template, path, host, port, username, database,
-         git, docker, k8s, ci, force, interactive):
+@click.command(name="init")
+@click.argument("project_name", required=False)
+@click.option(
+    "--template",
+    "-t",
+    type=click.Choice(["basic", "microservice", "full"]),
+    help="Project template to use",
+)
+@click.option("--path", "-p", type=click.Path(), help="Project directory path")
+@click.option("--host", help="MySQL Schema API host")
+@click.option("--port", type=int, help="MySQL Schema API port")
+@click.option("--username", "-u", help="Username for authentication")
+@click.option("--database", "-d", help="Default database name")
+@click.option("--git", is_flag=True, help="Initialize git repository")
+@click.option("--docker", is_flag=True, help="Include Docker configuration")
+@click.option("--k8s", is_flag=True, help="Include Kubernetes manifests")
+@click.option("--ci", is_flag=True, help="Include CI/CD configuration")
+@click.option("--force", is_flag=True, help="Overwrite existing files")
+@click.option("--interactive", "-i", is_flag=True, help="Interactive mode")
+def init_cmd(
+    project_name,
+    template,
+    path,
+    host,
+    port,
+    username,
+    database,
+    git,
+    docker,
+    k8s,
+    ci,
+    force,
+    interactive,
+):
     """
     Initialize a new MySQL Schema project.
 
@@ -94,19 +116,19 @@ def init_cmd(project_name, template, path, host, port, username, database,
     # Interactive mode
     if interactive or not project_name:
         project_name, template, options = _interactive_init()
-        docker = options.get('docker', docker)
-        k8s = options.get('k8s', k8s)
-        ci = options.get('ci', ci)
-        git = options.get('git', git)
+        docker = options.get("docker", docker)
+        k8s = options.get("k8s", k8s)
+        ci = options.get("ci", ci)
+        git = options.get("git", git)
     else:
         # Determine template based on options
         if not template:
             if ci or (docker and k8s):
-                template = 'full'
+                template = "full"
             elif docker:
-                template = 'microservice'
+                template = "microservice"
             else:
-                template = 'basic'
+                template = "basic"
 
     # Set project path
     if path:
@@ -116,7 +138,9 @@ def init_cmd(project_name, template, path, host, port, username, database,
 
     # Check if path exists
     if project_path.exists() and not force:
-        if not Confirm.ask(f"[yellow]Directory {project_path} exists. Continue?[/yellow]"):
+        if not Confirm.ask(
+            f"[yellow]Directory {project_path} exists. Continue?[/yellow]"
+        ):
             console.print("[red]Aborted[/red]")
             raise click.Abort()
 
@@ -130,15 +154,15 @@ def init_cmd(project_name, template, path, host, port, username, database,
             template=template,
             project_name=project_name,
             config={
-                'host': host or 'localhost',
-                'port': port or 8000,
-                'username': username,
-                'default_database': database,
+                "host": host or "localhost",
+                "port": port or 8000,
+                "username": username,
+                "default_database": database,
             },
             docker=docker,
             k8s=k8s,
             ci=ci,
-            force=force
+            force=force,
         )
 
     # Initialize git
@@ -151,11 +175,13 @@ def init_cmd(project_name, template, path, host, port, username, database,
 
 def _interactive_init():
     """Interactive project initialization."""
-    console.print(Panel.fit(
-        "[bold cyan]MySQL Schema Project Initialization[/bold cyan]\n"
-        "[dim]Let's set up your new project![/dim]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit(
+            "[bold cyan]MySQL Schema Project Initialization[/bold cyan]\n"
+            "[dim]Let's set up your new project![/dim]",
+            border_style="cyan",
+        )
+    )
 
     # Get project name
     project_name = Prompt.ask("\n[bold]Project name[/bold]")
@@ -166,18 +192,18 @@ def _interactive_init():
         console.print(f"  • [cyan]{key}[/cyan]: {value['description']}")
 
     template = Prompt.ask(
-        "Select template",
-        choices=list(PROJECT_TEMPLATES.keys()),
-        default="basic"
+        "Select template", choices=list(PROJECT_TEMPLATES.keys()), default="basic"
     )
 
     # Additional options
     console.print("\n[bold]Additional options:[/bold]")
     options = {
-        'docker': Confirm.ask("Include Docker configuration?", default=template != 'basic'),
-        'k8s': Confirm.ask("Include Kubernetes manifests?", default=template == 'full'),
-        'ci': Confirm.ask("Include CI/CD configuration?", default=template == 'full'),
-        'git': Confirm.ask("Initialize git repository?", default=True),
+        "docker": Confirm.ask(
+            "Include Docker configuration?", default=template != "basic"
+        ),
+        "k8s": Confirm.ask("Include Kubernetes manifests?", default=template == "full"),
+        "ci": Confirm.ask("Include CI/CD configuration?", default=template == "full"),
+        "git": Confirm.ask("Initialize git repository?", default=True),
     }
 
     return project_name, template, options
@@ -190,8 +216,8 @@ def _show_init_plan(project_name: str, template: str, project_path: Path):
     template_config = PROJECT_TEMPLATES[template]
 
     # Add directories
-    for dir_name in template_config['directories']:
-        parts = dir_name.split('/')
+    for dir_name in template_config["directories"]:
+        parts = dir_name.split("/")
         current = tree
         for part in parts:
             # Find or create node
@@ -205,10 +231,10 @@ def _show_init_plan(project_name: str, template: str, project_path: Path):
                 current = current.add(f"[blue]{part}/[/blue]")
 
     # Add files
-    for file_name in template_config['files'].keys():
-        if '/' in file_name:
+    for file_name in template_config["files"].keys():
+        if "/" in file_name:
             # File in subdirectory
-            parts = file_name.split('/')
+            parts = file_name.split("/")
             current = tree
             for part in parts[:-1]:
                 # Find directory node
@@ -224,18 +250,26 @@ def _show_init_plan(project_name: str, template: str, project_path: Path):
     console.print(tree)
 
 
-def _create_project(project_path: Path, template: str, project_name: str,
-                   config: dict, docker: bool, k8s: bool, ci: bool, force: bool):
+def _create_project(
+    project_path: Path,
+    template: str,
+    project_name: str,
+    config: dict,
+    docker: bool,
+    k8s: bool,
+    ci: bool,
+    force: bool,
+):
     """Create project structure and files."""
     template_config = PROJECT_TEMPLATES[template]
 
     # Create directories
-    for dir_name in template_config['directories']:
+    for dir_name in template_config["directories"]:
         dir_path = project_path / dir_name
         dir_path.mkdir(parents=True, exist_ok=True)
 
     # Create files from templates
-    for file_name, template_name in template_config['files'].items():
+    for file_name, template_name in template_config["files"].items():
         file_path = project_path / file_name
 
         # Skip if exists and not force
@@ -254,15 +288,19 @@ def _create_project(project_path: Path, template: str, project_name: str,
     config_file = project_path / ".mysql-schema.yaml"
     if not config_file.exists() or force:
         cfg = Config(**config)
-        with open(config_file, 'w') as f:
-            yaml.dump({
-                'host': cfg.host,
-                'port': cfg.port,
-                'username': cfg.username,
-                'default_database': cfg.default_database,
-                'migrations_dir': './migrations',
-                'output_dir': './output',
-            }, f, default_flow_style=False)
+        with open(config_file, "w") as f:
+            yaml.dump(
+                {
+                    "host": cfg.host,
+                    "port": cfg.port,
+                    "username": cfg.username,
+                    "default_database": cfg.default_database,
+                    "migrations_dir": "./migrations",
+                    "output_dir": "./output",
+                },
+                f,
+                default_flow_style=False,
+            )
 
 
 def _get_template_content(template_name: str, project_name: str, config: dict) -> str:
@@ -495,12 +533,11 @@ def _init_git(project_path: Path):
     """Initialize git repository."""
     try:
         import subprocess
-        subprocess.run(['git', 'init'], cwd=project_path, check=True)
-        subprocess.run(['git', 'add', '.'], cwd=project_path, check=True)
+
+        subprocess.run(["git", "init"], cwd=project_path, check=True)
+        subprocess.run(["git", "add", "."], cwd=project_path, check=True)
         subprocess.run(
-            ['git', 'commit', '-m', 'Initial commit'],
-            cwd=project_path,
-            check=True
+            ["git", "commit", "-m", "Initial commit"], cwd=project_path, check=True
         )
         console.print("[green]✓[/green] Git repository initialized")
     except Exception as e:

@@ -14,6 +14,7 @@ from unittest.mock import patch, Mock
 import subprocess
 import socket
 
+
 @pytest.mark.chaos
 class TestDatabaseChaos:
     """Chaos tests for database layer."""
@@ -31,7 +32,7 @@ class TestDatabaseChaos:
                     port=mysql_container["port"],
                     user=mysql_container["user"],
                     password=mysql_container["password"],
-                    database=mysql_container["database"]
+                    database=mysql_container["database"],
                 )
                 connections.append(conn)
 
@@ -43,7 +44,7 @@ class TestDatabaseChaos:
                     user=mysql_container["user"],
                     password=mysql_container["password"],
                     database=mysql_container["database"],
-                    connection_timeout=1
+                    connection_timeout=1,
                 )
 
         finally:
@@ -56,6 +57,7 @@ class TestDatabaseChaos:
 
     def test_random_query_failures(self, mysql_cursor, mysql_connection):
         """Test system resilience to random query failures."""
+
         class ChaosCursor:
             def __init__(self, cursor, failure_rate=0.2):
                 self.cursor = cursor
@@ -94,12 +96,14 @@ class TestDatabaseChaos:
     def test_table_lock_simulation(self, mysql_cursor, mysql_connection):
         """Test behavior under table locks."""
         # Create test table
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS lock_test (
                 id INT PRIMARY KEY,
                 value VARCHAR(50)
             )
-        """)
+        """
+        )
         mysql_cursor.execute("INSERT INTO lock_test VALUES (1, 'initial')")
         mysql_connection.commit()
 
@@ -110,7 +114,7 @@ class TestDatabaseChaos:
                 port=mysql_connection.server_port,
                 user=mysql_connection.user,
                 password=mysql_connection._password,
-                database=mysql_connection.database
+                database=mysql_connection.database,
             )
             lock_cursor = lock_conn.cursor()
 
@@ -131,7 +135,9 @@ class TestDatabaseChaos:
         start = time.time()
 
         try:
-            mysql_cursor.execute("SELECT * FROM lock_test", )
+            mysql_cursor.execute(
+                "SELECT * FROM lock_test",
+            )
             # Query should block and timeout
             mysql_cursor.fetchall()
             query_time = time.time() - start
@@ -159,9 +165,9 @@ class TestDatabaseChaos:
                 chunk_size = 1024 * 1024  # 1MB chunks
                 chunks_to_write = min(100, int(available_mb * 0.1))  # 10% of available
 
-                with open(large_file, 'wb') as f:
+                with open(large_file, "wb") as f:
                     for i in range(chunks_to_write):
-                        f.write(b'0' * chunk_size)
+                        f.write(b"0" * chunk_size)
 
                 # Check system can still operate
                 remaining = psutil.disk_usage(str(tmp_path)).free / 1024 / 1024
@@ -175,12 +181,14 @@ class TestDatabaseChaos:
             if large_file.exists():
                 large_file.unlink()
 
+
 @pytest.mark.chaos
 class TestNetworkChaos:
     """Network-related chaos tests."""
 
     def test_network_latency(self, mysql_container):
         """Test system with simulated network latency."""
+
         class LatencyConnection:
             def __init__(self, connection, latency_ms=100):
                 self.connection = connection
@@ -203,7 +211,7 @@ class TestNetworkChaos:
             port=mysql_container["port"],
             user=mysql_container["user"],
             password=mysql_container["password"],
-            database=mysql_container["database"]
+            database=mysql_container["database"],
         )
 
         latency_conn = LatencyConnection(conn, latency_ms=200)
@@ -225,6 +233,7 @@ class TestNetworkChaos:
 
     def test_packet_loss_simulation(self):
         """Simulate packet loss in network communication."""
+
         class PacketLossSocket:
             def __init__(self, socket_obj, loss_rate=0.1):
                 self.socket = socket_obj
@@ -258,7 +267,9 @@ class TestNetworkChaos:
             except socket.error:
                 failed_operations += 1
 
-        print(f"Network operations - Success: {successful_operations}, Failed: {failed_operations}")
+        print(
+            f"Network operations - Success: {successful_operations}, Failed: {failed_operations}"
+        )
 
         # System should handle some packet loss
         assert successful_operations > failed_operations
@@ -273,7 +284,7 @@ class TestNetworkChaos:
                 user=mysql_container["user"],
                 password=mysql_container["password"],
                 database=mysql_container["database"],
-                connection_timeout=0.001  # 1ms timeout (will fail)
+                connection_timeout=0.001,  # 1ms timeout (will fail)
             )
 
         # Try with reasonable timeout
@@ -283,10 +294,11 @@ class TestNetworkChaos:
             user=mysql_container["user"],
             password=mysql_container["password"],
             database=mysql_container["database"],
-            connection_timeout=5  # 5 second timeout
+            connection_timeout=5,  # 5 second timeout
         )
         assert conn is not None
         conn.close()
+
 
 @pytest.mark.chaos
 class TestApplicationChaos:
@@ -314,6 +326,7 @@ class TestApplicationChaos:
         # Check if memory is released
         time.sleep(1)  # Give GC time to run
         import gc
+
         gc.collect()
 
         final_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -326,6 +339,7 @@ class TestApplicationChaos:
 
     def test_cpu_spike(self):
         """Test system under CPU spike."""
+
         def cpu_intensive_task(duration=2):
             """CPU intensive operation."""
             start = time.time()
@@ -349,7 +363,9 @@ class TestApplicationChaos:
         # Monitor CPU after spike
         cpu_after = psutil.cpu_percent(interval=1)
 
-        print(f"CPU - Before: {cpu_before}%, During: {cpu_during}%, After: {cpu_after}%")
+        print(
+            f"CPU - Before: {cpu_before}%, During: {cpu_during}%, After: {cpu_after}%"
+        )
 
         # CPU should spike during intensive task
         assert cpu_during > cpu_before
@@ -392,12 +408,14 @@ class TestApplicationChaos:
         tables = []
         for i in range(5):
             table_name = f"cascade_test_{i}"
-            mysql_cursor.execute(f"""
+            mysql_cursor.execute(
+                f"""
                 CREATE TABLE IF NOT EXISTS {table_name} (
                     id INT PRIMARY KEY,
                     value VARCHAR(50)
                 )
-            """)
+            """
+            )
             tables.append(table_name)
             mysql_cursor.execute(f"INSERT INTO {table_name} VALUES (1, 'test')")
 
@@ -433,12 +451,14 @@ class TestApplicationChaos:
         assert failed_queries == 1  # Only the dropped table should fail
         assert successful_queries == 4  # Others should succeed
 
+
 @pytest.mark.chaos
 class TestRecoveryChaos:
     """Test system recovery from chaos events."""
 
     def test_automatic_reconnection(self, mysql_container):
         """Test automatic reconnection after connection loss."""
+
         class ResilientConnection:
             def __init__(self, config, max_retries=3):
                 self.config = config
@@ -477,7 +497,7 @@ class TestRecoveryChaos:
             "port": mysql_container["port"],
             "user": mysql_container["user"],
             "password": mysql_container["password"],
-            "database": mysql_container["database"]
+            "database": mysql_container["database"],
         }
 
         resilient = ResilientConnection(config)
@@ -495,6 +515,7 @@ class TestRecoveryChaos:
 
     def test_circuit_breaker_pattern(self):
         """Test circuit breaker pattern implementation."""
+
         class CircuitBreaker:
             def __init__(self, failure_threshold=5, recovery_timeout=5):
                 self.failure_threshold = failure_threshold
@@ -549,7 +570,9 @@ class TestRecoveryChaos:
 
             time.sleep(0.2)
 
-        print(f"Circuit Breaker - Success: {successes}, Failed: {failures}, Circuit Open: {circuit_open}")
+        print(
+            f"Circuit Breaker - Success: {successes}, Failed: {failures}, Circuit Open: {circuit_open}"
+        )
 
         # Circuit breaker should have triggered
         assert circuit_open > 0
@@ -557,19 +580,23 @@ class TestRecoveryChaos:
     def test_graceful_degradation(self, mysql_cursor, mysql_connection):
         """Test graceful degradation under failure."""
         # Create primary and cache tables
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS primary_data (
                 id INT PRIMARY KEY,
                 value VARCHAR(50)
             )
-        """)
-        mysql_cursor.execute("""
+        """
+        )
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS cache_data (
                 id INT PRIMARY KEY,
                 value VARCHAR(50),
                 cached_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         # Insert data
         mysql_cursor.execute("INSERT INTO primary_data VALUES (1, 'primary_value')")
@@ -579,7 +606,9 @@ class TestRecoveryChaos:
         def get_data_with_fallback(data_id):
             try:
                 # Try primary source
-                mysql_cursor.execute(f"SELECT value FROM primary_data WHERE id = {data_id}")
+                mysql_cursor.execute(
+                    f"SELECT value FROM primary_data WHERE id = {data_id}"
+                )
                 result = mysql_cursor.fetchone()
                 if result:
                     return result["value"], "primary"
@@ -588,7 +617,9 @@ class TestRecoveryChaos:
 
             try:
                 # Fallback to cache
-                mysql_cursor.execute(f"SELECT value FROM cache_data WHERE id = {data_id}")
+                mysql_cursor.execute(
+                    f"SELECT value FROM cache_data WHERE id = {data_id}"
+                )
                 result = mysql_cursor.fetchone()
                 if result:
                     return result["value"], "cache"

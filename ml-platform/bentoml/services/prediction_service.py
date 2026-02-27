@@ -15,8 +15,10 @@ logger = logging.getLogger(__name__)
 
 # ==================== Request/Response Models ====================
 
+
 class PatientPredictionRequest(BaseModel):
     """Request model for patient predictions"""
+
     patient_id: int
     age: int
     gender: str
@@ -28,16 +30,20 @@ class PatientPredictionRequest(BaseModel):
     temperature: float
     oxygen_saturation: float
 
+
 class PatientPredictionResponse(BaseModel):
     """Response model for patient predictions"""
+
     patient_id: int
     readmission_probability: float
     readmission_risk: str
     health_score: float
     recommendations: List[str]
 
+
 class CustomerChurnRequest(BaseModel):
     """Request model for customer churn prediction"""
+
     customer_id: int
     registration_days: int
     total_orders: int
@@ -47,16 +53,20 @@ class CustomerChurnRequest(BaseModel):
     preferred_category: str
     customer_segment: str
 
+
 class CustomerChurnResponse(BaseModel):
     """Response model for customer churn prediction"""
+
     customer_id: int
     churn_probability: float
     churn_risk: str
     retention_score: float
     recommended_actions: List[str]
 
+
 class IoTAnomalyRequest(BaseModel):
     """Request model for IoT anomaly detection"""
+
     device_id: str
     sensor_type: str
     current_value: float
@@ -64,15 +74,19 @@ class IoTAnomalyRequest(BaseModel):
     rolling_std: float
     last_maintenance_days: int
 
+
 class IoTAnomalyResponse(BaseModel):
     """Response model for IoT anomaly detection"""
+
     device_id: str
     is_anomaly: bool
     anomaly_score: float
     maintenance_urgency: float
     recommended_action: str
 
+
 # ==================== Feature Engineering ====================
+
 
 class FeatureEngineer:
     """Feature engineering for model inputs"""
@@ -83,27 +97,27 @@ class FeatureEngineer:
         features = []
 
         # Basic demographics
-        features.append(data['age'] / 100.0)  # Normalize age
-        features.append(1 if data['gender'] == 'Male' else 0)
-        features.append(data['bmi'] / 50.0)  # Normalize BMI
-        features.append(data['chronic_conditions_count'] / 10.0)
+        features.append(data["age"] / 100.0)  # Normalize age
+        features.append(1 if data["gender"] == "Male" else 0)
+        features.append(data["bmi"] / 50.0)  # Normalize BMI
+        features.append(data["chronic_conditions_count"] / 10.0)
 
         # Vital signs
-        features.append((data['heart_rate'] - 70) / 30.0)  # Normalize around normal
-        features.append((data['blood_pressure_systolic'] - 120) / 40.0)
-        features.append((data['blood_pressure_diastolic'] - 80) / 20.0)
-        features.append((data['temperature'] - 37) / 2.0)
-        features.append(data['oxygen_saturation'] / 100.0)
+        features.append((data["heart_rate"] - 70) / 30.0)  # Normalize around normal
+        features.append((data["blood_pressure_systolic"] - 120) / 40.0)
+        features.append((data["blood_pressure_diastolic"] - 80) / 20.0)
+        features.append((data["temperature"] - 37) / 2.0)
+        features.append(data["oxygen_saturation"] / 100.0)
 
         # Risk indicators
         risk_score = 0
-        if data['age'] > 65:
+        if data["age"] > 65:
             risk_score += 0.2
-        if data['chronic_conditions_count'] > 2:
+        if data["chronic_conditions_count"] > 2:
             risk_score += 0.3
-        if data['oxygen_saturation'] < 95:
+        if data["oxygen_saturation"] < 95:
             risk_score += 0.3
-        if data['blood_pressure_systolic'] > 140:
+        if data["blood_pressure_systolic"] > 140:
             risk_score += 0.2
 
         features.append(risk_score)
@@ -116,35 +130,43 @@ class FeatureEngineer:
         features = []
 
         # Customer tenure and activity
-        features.append(data['registration_days'] / 365.0)
-        features.append(data['total_orders'] / 100.0)
-        features.append(data['total_spent'] / 10000.0)
-        features.append(data['avg_order_value'] / 1000.0)
+        features.append(data["registration_days"] / 365.0)
+        features.append(data["total_orders"] / 100.0)
+        features.append(data["total_spent"] / 10000.0)
+        features.append(data["avg_order_value"] / 1000.0)
 
         # Recency
-        features.append(data['days_since_last_order'] / 365.0)
+        features.append(data["days_since_last_order"] / 365.0)
 
         # Categorical encodings
-        category_map = {'Electronics': 0, 'Clothing': 1, 'Books': 2, 'Home': 3, 'Other': 4}
-        features.append(category_map.get(data['preferred_category'], 4) / 4.0)
+        category_map = {
+            "Electronics": 0,
+            "Clothing": 1,
+            "Books": 2,
+            "Home": 3,
+            "Other": 4,
+        }
+        features.append(category_map.get(data["preferred_category"], 4) / 4.0)
 
-        segment_map = {'Premium': 0, 'Regular': 1, 'New': 2}
-        features.append(segment_map.get(data['customer_segment'], 2) / 2.0)
+        segment_map = {"Premium": 0, "Regular": 1, "New": 2}
+        features.append(segment_map.get(data["customer_segment"], 2) / 2.0)
 
         # Derived features
-        if data['registration_days'] > 0:
-            purchase_frequency = data['total_orders'] / (data['registration_days'] / 30.0)
+        if data["registration_days"] > 0:
+            purchase_frequency = data["total_orders"] / (
+                data["registration_days"] / 30.0
+            )
         else:
             purchase_frequency = 0
         features.append(purchase_frequency)
 
         # Engagement score
         engagement_score = 0
-        if data['total_orders'] > 10:
+        if data["total_orders"] > 10:
             engagement_score += 0.3
-        if data['avg_order_value'] > 100:
+        if data["avg_order_value"] > 100:
             engagement_score += 0.3
-        if data['days_since_last_order'] < 30:
+        if data["days_since_last_order"] < 30:
             engagement_score += 0.4
 
         features.append(engagement_score)
@@ -157,36 +179,41 @@ class FeatureEngineer:
         features = []
 
         # Sensor readings
-        features.append(data['current_value'] / 1000.0)  # Normalize
-        features.append(data['rolling_avg'] / 1000.0)
-        features.append(data['rolling_std'] / 100.0)
+        features.append(data["current_value"] / 1000.0)  # Normalize
+        features.append(data["rolling_avg"] / 1000.0)
+        features.append(data["rolling_std"] / 100.0)
 
         # Deviation metrics
-        if data['rolling_avg'] > 0:
-            deviation = abs(data['current_value'] - data['rolling_avg']) / data['rolling_avg']
+        if data["rolling_avg"] > 0:
+            deviation = (
+                abs(data["current_value"] - data["rolling_avg"]) / data["rolling_avg"]
+            )
         else:
             deviation = 0
         features.append(deviation)
 
         # Z-score
-        if data['rolling_std'] > 0:
-            z_score = (data['current_value'] - data['rolling_avg']) / data['rolling_std']
+        if data["rolling_std"] > 0:
+            z_score = (data["current_value"] - data["rolling_avg"]) / data[
+                "rolling_std"
+            ]
         else:
             z_score = 0
         features.append(abs(z_score) / 3.0)  # Normalize by 3-sigma
 
         # Maintenance features
-        features.append(data['last_maintenance_days'] / 365.0)
+        features.append(data["last_maintenance_days"] / 365.0)
 
         # Sensor type encoding
-        sensor_type_map = {'temperature': 0, 'pressure': 1, 'flow': 2, 'vibration': 3}
-        features.append(sensor_type_map.get(data['sensor_type'], 0) / 3.0)
+        sensor_type_map = {"temperature": 0, "pressure": 1, "flow": 2, "vibration": 3}
+        features.append(sensor_type_map.get(data["sensor_type"], 0) / 3.0)
 
         # Risk factors
-        maintenance_risk = min(data['last_maintenance_days'] / 180.0, 1.0)
+        maintenance_risk = min(data["last_maintenance_days"] / 180.0, 1.0)
         features.append(maintenance_risk)
 
         return np.array(features).reshape(1, -1)
+
 
 # ==================== BentoML Service ====================
 
@@ -196,18 +223,26 @@ customer_model = bentoml.sklearn.get("customer_model:latest")
 iot_model = bentoml.sklearn.get("iot_model:latest")
 
 # Create service
-svc = bentoml.Service("ml_prediction_service", runners=[
-    patient_model.to_runner(name="patient_runner"),
-    customer_model.to_runner(name="customer_runner"),
-    iot_model.to_runner(name="iot_runner"),
-])
+svc = bentoml.Service(
+    "ml_prediction_service",
+    runners=[
+        patient_model.to_runner(name="patient_runner"),
+        customer_model.to_runner(name="customer_runner"),
+        iot_model.to_runner(name="iot_runner"),
+    ],
+)
 
 # Feature engineer instance
 feature_engineer = FeatureEngineer()
 
-@svc.api(input=JSON(pydantic_model=PatientPredictionRequest),
-         output=JSON(pydantic_model=PatientPredictionResponse))
-async def predict_patient_readmission(request: PatientPredictionRequest) -> PatientPredictionResponse:
+
+@svc.api(
+    input=JSON(pydantic_model=PatientPredictionRequest),
+    output=JSON(pydantic_model=PatientPredictionResponse),
+)
+async def predict_patient_readmission(
+    request: PatientPredictionRequest,
+) -> PatientPredictionResponse:
     """Predict patient readmission risk"""
     try:
         # Engineer features
@@ -234,17 +269,21 @@ async def predict_patient_readmission(request: PatientPredictionRequest) -> Pati
         # Generate recommendations
         recommendations = []
         if risk_level == "High":
-            recommendations.extend([
-                "Schedule follow-up appointment within 48 hours",
-                "Initiate care coordination protocol",
-                "Review medication compliance"
-            ])
+            recommendations.extend(
+                [
+                    "Schedule follow-up appointment within 48 hours",
+                    "Initiate care coordination protocol",
+                    "Review medication compliance",
+                ]
+            )
         elif risk_level == "Medium":
-            recommendations.extend([
-                "Schedule follow-up within 1 week",
-                "Monitor vital signs daily",
-                "Provide patient education materials"
-            ])
+            recommendations.extend(
+                [
+                    "Schedule follow-up within 1 week",
+                    "Monitor vital signs daily",
+                    "Provide patient education materials",
+                ]
+            )
         else:
             recommendations.append("Continue standard care protocol")
 
@@ -259,16 +298,21 @@ async def predict_patient_readmission(request: PatientPredictionRequest) -> Pati
             readmission_probability=readmission_prob,
             readmission_risk=risk_level,
             health_score=health_score,
-            recommendations=recommendations
+            recommendations=recommendations,
         )
 
     except Exception as e:
         logger.error(f"Error in patient prediction: {str(e)}")
         raise
 
-@svc.api(input=JSON(pydantic_model=CustomerChurnRequest),
-         output=JSON(pydantic_model=CustomerChurnResponse))
-async def predict_customer_churn(request: CustomerChurnRequest) -> CustomerChurnResponse:
+
+@svc.api(
+    input=JSON(pydantic_model=CustomerChurnRequest),
+    output=JSON(pydantic_model=CustomerChurnResponse),
+)
+async def predict_customer_churn(
+    request: CustomerChurnRequest,
+) -> CustomerChurnResponse:
     """Predict customer churn risk"""
     try:
         # Engineer features
@@ -295,17 +339,21 @@ async def predict_customer_churn(request: CustomerChurnRequest) -> CustomerChurn
         # Generate recommended actions
         actions = []
         if risk_level == "High":
-            actions.extend([
-                "Send personalized retention offer",
-                "Assign to customer success manager",
-                "Offer loyalty program enrollment"
-            ])
+            actions.extend(
+                [
+                    "Send personalized retention offer",
+                    "Assign to customer success manager",
+                    "Offer loyalty program enrollment",
+                ]
+            )
         elif risk_level == "Medium":
-            actions.extend([
-                "Send re-engagement email campaign",
-                "Provide product recommendations",
-                "Offer limited-time discount"
-            ])
+            actions.extend(
+                [
+                    "Send re-engagement email campaign",
+                    "Provide product recommendations",
+                    "Offer limited-time discount",
+                ]
+            )
         else:
             actions.append("Continue standard engagement")
 
@@ -320,15 +368,18 @@ async def predict_customer_churn(request: CustomerChurnRequest) -> CustomerChurn
             churn_probability=churn_prob,
             churn_risk=risk_level,
             retention_score=retention_score,
-            recommended_actions=actions
+            recommended_actions=actions,
         )
 
     except Exception as e:
         logger.error(f"Error in customer churn prediction: {str(e)}")
         raise
 
-@svc.api(input=JSON(pydantic_model=IoTAnomalyRequest),
-         output=JSON(pydantic_model=IoTAnomalyResponse))
+
+@svc.api(
+    input=JSON(pydantic_model=IoTAnomalyRequest),
+    output=JSON(pydantic_model=IoTAnomalyResponse),
+)
 async def detect_iot_anomaly(request: IoTAnomalyRequest) -> IoTAnomalyResponse:
     """Detect IoT sensor anomalies"""
     try:
@@ -348,9 +399,7 @@ async def detect_iot_anomaly(request: IoTAnomalyRequest) -> IoTAnomalyResponse:
 
         # Calculate maintenance urgency
         maintenance_urgency = min(
-            (request.last_maintenance_days / 180.0) * 0.5 +
-            anomaly_score * 0.5,
-            1.0
+            (request.last_maintenance_days / 180.0) * 0.5 + anomaly_score * 0.5, 1.0
         )
 
         # Determine recommended action
@@ -368,16 +417,16 @@ async def detect_iot_anomaly(request: IoTAnomalyRequest) -> IoTAnomalyResponse:
             is_anomaly=is_anomaly,
             anomaly_score=anomaly_score,
             maintenance_urgency=maintenance_urgency,
-            recommended_action=action
+            recommended_action=action,
         )
 
     except Exception as e:
         logger.error(f"Error in IoT anomaly detection: {str(e)}")
         raise
 
+
 # Batch prediction endpoints
-@svc.api(input=PandasDataFrame(),
-         output=PandasDataFrame())
+@svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_predict_patients(df: pd.DataFrame) -> pd.DataFrame:
     """Batch prediction for multiple patients"""
     results = []
@@ -389,8 +438,8 @@ async def batch_predict_patients(df: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(results)
 
-@svc.api(input=PandasDataFrame(),
-         output=PandasDataFrame())
+
+@svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_predict_customers(df: pd.DataFrame) -> pd.DataFrame:
     """Batch prediction for multiple customers"""
     results = []
@@ -402,8 +451,8 @@ async def batch_predict_customers(df: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(results)
 
-@svc.api(input=PandasDataFrame(),
-         output=PandasDataFrame())
+
+@svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
     """Batch anomaly detection for IoT devices"""
     results = []
@@ -415,6 +464,7 @@ async def batch_detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
 
     return pd.DataFrame(results)
 
+
 # Health check endpoint
 @svc.api(input=JSON(), output=JSON())
 async def health_check(request: Dict) -> Dict:
@@ -424,10 +474,11 @@ async def health_check(request: Dict) -> Dict:
         "models": {
             "patient_model": "loaded",
             "customer_model": "loaded",
-            "iot_model": "loaded"
+            "iot_model": "loaded",
         },
-        "timestamp": pd.Timestamp.now().isoformat()
+        "timestamp": pd.Timestamp.now().isoformat(),
     }
+
 
 # Model metadata endpoint
 @svc.api(input=JSON(), output=JSON())
@@ -438,18 +489,18 @@ async def model_info(request: Dict) -> Dict:
             "version": str(patient_model.tag),
             "framework": "sklearn",
             "features": 10,
-            "target": "readmission"
+            "target": "readmission",
         },
         "customer_model": {
             "version": str(customer_model.tag),
             "framework": "sklearn",
             "features": 9,
-            "target": "churn"
+            "target": "churn",
         },
         "iot_model": {
             "version": str(iot_model.tag),
             "framework": "sklearn",
             "features": 8,
-            "target": "anomaly"
-        }
+            "target": "anomaly",
+        },
     }

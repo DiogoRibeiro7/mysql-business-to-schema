@@ -25,22 +25,27 @@ from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger('chaos_monkey')
+logger = logging.getLogger("chaos_monkey")
 
 # Metrics
-chaos_events = Counter('chaos_monkey_events_total', 'Total chaos events triggered', ['type', 'target'])
-chaos_duration = Histogram('chaos_monkey_duration_seconds', 'Duration of chaos events', ['type'])
-active_chaos = Gauge('chaos_monkey_active_events', 'Currently active chaos events')
-system_health = Gauge('chaos_monkey_system_health', 'System health score (0-100)')
+chaos_events = Counter(
+    "chaos_monkey_events_total", "Total chaos events triggered", ["type", "target"]
+)
+chaos_duration = Histogram(
+    "chaos_monkey_duration_seconds", "Duration of chaos events", ["type"]
+)
+active_chaos = Gauge("chaos_monkey_active_events", "Currently active chaos events")
+system_health = Gauge("chaos_monkey_system_health", "System health score (0-100)")
 
 # Docker client
 docker_client = docker.from_env()
 
+
 class ChaosType(Enum):
     """Types of chaos events"""
+
     CONTAINER_KILL = "container_kill"
     CONTAINER_STOP = "container_stop"
     CONTAINER_PAUSE = "container_pause"
@@ -57,15 +62,18 @@ class ChaosType(Enum):
     API_ERROR = "api_error"
     CACHE_FLUSH = "cache_flush"
 
+
 @dataclass
 class ChaosEvent:
     """Chaos event configuration"""
+
     type: ChaosType
     target: str
     duration: int  # seconds
     intensity: float  # 0.0 to 1.0
     probability: float  # 0.0 to 1.0
     metadata: Dict[str, Any]
+
 
 class ChaosMonkey:
     """Main Chaos Monkey implementation"""
@@ -75,12 +83,12 @@ class ChaosMonkey:
         self.active_events = []
         self.docker_client = docker_client
         self.running = False
-        self.dry_run = self.config.get('dry_run', True)
+        self.dry_run = self.config.get("dry_run", True)
 
     def load_config(self, config_path: str) -> Dict:
         """Load configuration from YAML file"""
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f)
         except FileNotFoundError:
             logger.warning(f"Config file {config_path} not found, using defaults")
@@ -89,48 +97,36 @@ class ChaosMonkey:
     def get_default_config(self) -> Dict:
         """Get default chaos configuration"""
         return {
-            'enabled': True,
-            'dry_run': True,
-            'schedule': '*/5 * * * *',  # Every 5 minutes
-            'max_concurrent_events': 3,
-            'notification_webhook': None,
-            'targets': {
-                'containers': [
-                    'mysql-*',
-                    'kafka-*',
-                    'redis-*',
-                    'api-*'
-                ],
-                'excluded': [
-                    'chaos-monkey',
-                    'prometheus',
-                    'grafana'
-                ]
+            "enabled": True,
+            "dry_run": True,
+            "schedule": "*/5 * * * *",  # Every 5 minutes
+            "max_concurrent_events": 3,
+            "notification_webhook": None,
+            "targets": {
+                "containers": ["mysql-*", "kafka-*", "redis-*", "api-*"],
+                "excluded": ["chaos-monkey", "prometheus", "grafana"],
             },
-            'events': [
+            "events": [
                 {
-                    'type': 'container_kill',
-                    'probability': 0.1,
-                    'duration': 0,
-                    'intensity': 1.0
+                    "type": "container_kill",
+                    "probability": 0.1,
+                    "duration": 0,
+                    "intensity": 1.0,
                 },
                 {
-                    'type': 'network_delay',
-                    'probability': 0.3,
-                    'duration': 60,
-                    'intensity': 0.5,
-                    'metadata': {
-                        'delay': '100ms',
-                        'variance': '50ms'
-                    }
+                    "type": "network_delay",
+                    "probability": 0.3,
+                    "duration": 60,
+                    "intensity": 0.5,
+                    "metadata": {"delay": "100ms", "variance": "50ms"},
                 },
                 {
-                    'type': 'cpu_stress',
-                    'probability': 0.2,
-                    'duration': 30,
-                    'intensity': 0.7
-                }
-            ]
+                    "type": "cpu_stress",
+                    "probability": 0.2,
+                    "duration": 30,
+                    "intensity": 0.7,
+                },
+            ],
         }
 
     def get_target_containers(self) -> List[docker.models.containers.Container]:
@@ -140,14 +136,17 @@ class ChaosMonkey:
 
         for container in all_containers:
             # Check if container matches target patterns
-            for pattern in self.config['targets']['containers']:
-                if pattern.endswith('*'):
+            for pattern in self.config["targets"]["containers"]:
+                if pattern.endswith("*"):
                     if container.name.startswith(pattern[:-1]):
                         # Check if not excluded
-                        if not any(container.name.startswith(exc) for exc in self.config['targets']['excluded']):
+                        if not any(
+                            container.name.startswith(exc)
+                            for exc in self.config["targets"]["excluded"]
+                        ):
                             target_containers.append(container)
                 elif container.name == pattern:
-                    if container.name not in self.config['targets']['excluded']:
+                    if container.name not in self.config["targets"]["excluded"]:
                         target_containers.append(container)
 
         return target_containers
@@ -158,11 +157,13 @@ class ChaosMonkey:
             logger.debug(f"Skipping {event.type} (probability check failed)")
             return
 
-        if len(self.active_events) >= self.config.get('max_concurrent_events', 3):
+        if len(self.active_events) >= self.config.get("max_concurrent_events", 3):
             logger.warning("Max concurrent events reached, skipping")
             return
 
-        logger.info(f"{'[DRY RUN] ' if self.dry_run else ''}Triggering {event.type} on {event.target}")
+        logger.info(
+            f"{'[DRY RUN] ' if self.dry_run else ''}Triggering {event.type} on {event.target}"
+        )
 
         # Record metrics
         chaos_events.labels(type=event.type.value, target=event.target).inc()
@@ -231,7 +232,7 @@ class ChaosMonkey:
             logger.info(f"Killed container: {event.target}")
 
             # Wait for restart if configured
-            if event.metadata.get('wait_for_restart', True):
+            if event.metadata.get("wait_for_restart", True):
                 time.sleep(5)
                 container.start()
                 logger.info(f"Restarted container: {event.target}")
@@ -277,11 +278,13 @@ class ChaosMonkey:
     # Network chaos methods
     def add_network_delay(self, event: ChaosEvent):
         """Add network delay to container"""
-        delay = event.metadata.get('delay', '100ms')
-        variance = event.metadata.get('variance', '50ms')
+        delay = event.metadata.get("delay", "100ms")
+        variance = event.metadata.get("variance", "50ms")
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would add {delay}±{variance} delay to {event.target}")
+            logger.info(
+                f"[DRY RUN] Would add {delay}±{variance} delay to {event.target}"
+            )
             return
 
         try:
@@ -304,7 +307,9 @@ class ChaosMonkey:
         loss_percent = int(event.intensity * 100)
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would add {loss_percent}% packet loss to {event.target}")
+            logger.info(
+                f"[DRY RUN] Would add {loss_percent}% packet loss to {event.target}"
+            )
             return
 
         try:
@@ -325,7 +330,9 @@ class ChaosMonkey:
         corrupt_percent = int(event.intensity * 10)  # Max 10% corruption
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would corrupt {corrupt_percent}% packets for {event.target}")
+            logger.info(
+                f"[DRY RUN] Would corrupt {corrupt_percent}% packets for {event.target}"
+            )
             return
 
         try:
@@ -356,7 +363,9 @@ class ChaosMonkey:
         cpu_percent = int(event.intensity * 100)
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would stress CPU at {cpu_percent}% for {event.target}")
+            logger.info(
+                f"[DRY RUN] Would stress CPU at {cpu_percent}% for {event.target}"
+            )
             return
 
         try:
@@ -373,14 +382,16 @@ class ChaosMonkey:
         memory_percent = int(event.intensity * 80)  # Max 80% memory
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would stress memory at {memory_percent}% for {event.target}")
+            logger.info(
+                f"[DRY RUN] Would stress memory at {memory_percent}% for {event.target}"
+            )
             return
 
         try:
             container = self.docker_client.containers.get(event.target)
             # Get container memory limit
             stats = container.stats(stream=False)
-            memory_limit = stats['memory_stats']['limit']
+            memory_limit = stats["memory_stats"]["limit"]
             memory_bytes = int(memory_limit * memory_percent / 100)
 
             cmd = f"stress-ng --vm 1 --vm-bytes {memory_bytes} --timeout {event.duration}s"
@@ -394,14 +405,18 @@ class ChaosMonkey:
         io_workers = int(event.intensity * 10)
 
         if self.dry_run:
-            logger.info(f"[DRY RUN] Would stress disk with {io_workers} workers for {event.target}")
+            logger.info(
+                f"[DRY RUN] Would stress disk with {io_workers} workers for {event.target}"
+            )
             return
 
         try:
             container = self.docker_client.containers.get(event.target)
             cmd = f"stress-ng --io {io_workers} --timeout {event.duration}s"
             container.exec_run(cmd, detach=True)
-            logger.info(f"Stressing disk I/O with {io_workers} workers for {event.target}")
+            logger.info(
+                f"Stressing disk I/O with {io_workers} workers for {event.target}"
+            )
         except Exception as e:
             logger.error(f"Failed to stress disk: {e}")
 
@@ -455,7 +470,7 @@ class ChaosMonkey:
 
         try:
             # Flush Redis cache
-            if 'redis' in event.target.lower():
+            if "redis" in event.target.lower():
                 container = self.docker_client.containers.get(event.target)
                 container.exec_run("redis-cli FLUSHALL")
                 logger.info(f"Flushed Redis cache for {event.target}")
@@ -464,23 +479,33 @@ class ChaosMonkey:
 
     def send_notification(self, event: ChaosEvent, status: str):
         """Send notification about chaos event"""
-        webhook_url = self.config.get('notification_webhook')
+        webhook_url = self.config.get("notification_webhook")
         if not webhook_url:
             return
 
         payload = {
-            'text': f'Chaos Monkey: {status.capitalize()} {event.type.value} on {event.target}',
-            'username': 'Chaos Monkey',
-            'icon_emoji': ':monkey:',
-            'attachments': [{
-                'color': 'warning' if status == 'started' else 'good',
-                'fields': [
-                    {'title': 'Type', 'value': event.type.value, 'short': True},
-                    {'title': 'Target', 'value': event.target, 'short': True},
-                    {'title': 'Duration', 'value': f'{event.duration}s', 'short': True},
-                    {'title': 'Intensity', 'value': f'{event.intensity:.0%}', 'short': True},
-                ]
-            }]
+            "text": f"Chaos Monkey: {status.capitalize()} {event.type.value} on {event.target}",
+            "username": "Chaos Monkey",
+            "icon_emoji": ":monkey:",
+            "attachments": [
+                {
+                    "color": "warning" if status == "started" else "good",
+                    "fields": [
+                        {"title": "Type", "value": event.type.value, "short": True},
+                        {"title": "Target", "value": event.target, "short": True},
+                        {
+                            "title": "Duration",
+                            "value": f"{event.duration}s",
+                            "short": True,
+                        },
+                        {
+                            "title": "Intensity",
+                            "value": f"{event.intensity:.0%}",
+                            "short": True,
+                        },
+                    ],
+                }
+            ],
         }
 
         try:
@@ -495,7 +520,7 @@ class ChaosMonkey:
         # Check container health
         unhealthy_containers = 0
         for container in self.docker_client.containers.list():
-            if container.status != 'running':
+            if container.status != "running":
                 unhealthy_containers += 1
 
         health_score -= unhealthy_containers * 10
@@ -528,14 +553,13 @@ class ChaosMonkey:
         start_http_server(9999)
 
         # Schedule chaos events
-        for event_config in self.config['events']:
-            schedule.every(5).minutes.do(
-                self.trigger_random_chaos,
-                event_config
-            ).tag('chaos')
+        for event_config in self.config["events"]:
+            schedule.every(5).minutes.do(self.trigger_random_chaos, event_config).tag(
+                "chaos"
+            )
 
         # Schedule health checks
-        schedule.every(1).minutes.do(self.check_system_health).tag('health')
+        schedule.every(1).minutes.do(self.check_system_health).tag("health")
 
         while self.running:
             schedule.run_pending()
@@ -543,7 +567,7 @@ class ChaosMonkey:
 
     def trigger_random_chaos(self, event_config: Dict):
         """Trigger a random chaos event"""
-        if not self.config.get('enabled', True):
+        if not self.config.get("enabled", True):
             return
 
         # Check system health before triggering chaos
@@ -562,12 +586,12 @@ class ChaosMonkey:
 
         # Create chaos event
         event = ChaosEvent(
-            type=ChaosType(event_config['type']),
+            type=ChaosType(event_config["type"]),
             target=target.name,
-            duration=event_config.get('duration', 0),
-            intensity=event_config.get('intensity', 0.5),
-            probability=event_config.get('probability', 1.0),
-            metadata=event_config.get('metadata', {})
+            duration=event_config.get("duration", 0),
+            intensity=event_config.get("intensity", 0.5),
+            probability=event_config.get("probability", 1.0),
+            metadata=event_config.get("metadata", {}),
         )
 
         # Trigger in separate thread
@@ -583,6 +607,7 @@ class ChaosMonkey:
         for event in self.active_events:
             logger.info(f"Cleaning up {event.type} on {event.target}")
             # Cleanup logic here
+
 
 if __name__ == "__main__":
     # Parse command line arguments

@@ -14,6 +14,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 class DatabaseManager:
     """Manages database connections and operations."""
 
@@ -27,16 +28,16 @@ class DatabaseManager:
         # Try to load from config file
         config_file = Path(".migration-config.json")
         if config_file.exists():
-            with open(config_file, 'r') as f:
+            with open(config_file, "r") as f:
                 config = json.load(f)
         else:
             # Use environment variables or defaults
             config = {
-                'host': os.getenv('DB_HOST', 'localhost'),
-                'port': int(os.getenv('DB_PORT', 3306)),
-                'user': os.getenv('DB_USER', 'root'),
-                'password': os.getenv('DB_PASSWORD', ''),
-                'database': os.getenv('DB_NAME', 'mysql_business_schema')
+                "host": os.getenv("DB_HOST", "localhost"),
+                "port": int(os.getenv("DB_PORT", 3306)),
+                "user": os.getenv("DB_USER", "root"),
+                "password": os.getenv("DB_PASSWORD", ""),
+                "database": os.getenv("DB_NAME", "mysql_business_schema"),
             }
         return config
 
@@ -47,7 +48,7 @@ class DatabaseManager:
                 pool_name="admin_dashboard_pool",
                 pool_size=10,
                 pool_reset_session=True,
-                **self.config
+                **self.config,
             )
             self.initialized = True
             logger.info("Database connection pool initialized")
@@ -65,7 +66,8 @@ class DatabaseManager:
 
         try:
             # Query history table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS query_history (
                     query_id VARCHAR(36) PRIMARY KEY,
                     query_text TEXT NOT NULL,
@@ -79,10 +81,12 @@ class DatabaseManager:
                     INDEX idx_user (user),
                     INDEX idx_created_at (created_at)
                 )
-            """)
+            """
+            )
 
             # Alert configuration table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS alert_configs (
                     alert_id VARCHAR(36) PRIMARY KEY,
                     name VARCHAR(200) NOT NULL,
@@ -98,10 +102,12 @@ class DatabaseManager:
                     INDEX idx_metric (metric),
                     INDEX idx_enabled (is_enabled)
                 )
-            """)
+            """
+            )
 
             # Alert history table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS alert_history (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
                     alert_id VARCHAR(36) NOT NULL,
@@ -116,10 +122,12 @@ class DatabaseManager:
                     INDEX idx_alert_id (alert_id),
                     INDEX idx_triggered_at (triggered_at)
                 )
-            """)
+            """
+            )
 
             # Backup metadata table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS backup_metadata (
                     backup_id VARCHAR(36) PRIMARY KEY,
                     database_name VARCHAR(100) NOT NULL,
@@ -135,7 +143,8 @@ class DatabaseManager:
                     INDEX idx_database (database_name),
                     INDEX idx_created_at (created_at)
                 )
-            """)
+            """
+            )
 
             conn.commit()
             logger.info("Dashboard tables created successfully")
@@ -154,7 +163,9 @@ class DatabaseManager:
             raise RuntimeError("Database not initialized")
         return self.pool.get_connection()
 
-    async def execute_query(self, query: str, params: Optional[tuple] = None) -> List[Dict[str, Any]]:
+    async def execute_query(
+        self, query: str, params: Optional[tuple] = None
+    ) -> List[Dict[str, Any]]:
         """Execute a SELECT query and return results."""
         conn = self.get_connection()
         cursor = conn.cursor(dictionary=True)
@@ -190,7 +201,7 @@ class DatabaseManager:
             "migrations": {},
             "connections": {},
             "uptime": "",
-            "last_backup": None
+            "last_backup": None,
         }
 
         conn = self.get_connection()
@@ -213,25 +224,29 @@ class DatabaseManager:
             status["connections"]["max"] = int(cursor.fetchone()["Value"])
 
             # Migration status
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT
                     COUNT(*) as total,
                     SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) as completed,
                     SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending
                 FROM schema_migrations
-            """)
+            """
+            )
             migration_stats = cursor.fetchone()
             if migration_stats:
                 status["migrations"] = migration_stats
 
             # Last backup
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT created_at
                 FROM backup_metadata
                 WHERE status = 'completed'
                 ORDER BY created_at DESC
                 LIMIT 1
-            """)
+            """
+            )
             last_backup = cursor.fetchone()
             if last_backup:
                 status["last_backup"] = last_backup["created_at"]
@@ -295,7 +310,9 @@ class DatabaseManager:
         """
         return await self.execute_query(query)
 
-    async def create_backup(self, database: str, description: Optional[str] = None) -> Dict[str, Any]:
+    async def create_backup(
+        self, database: str, description: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Create a database backup."""
         import uuid
         import subprocess
@@ -308,61 +325,81 @@ class DatabaseManager:
         backup_path.parent.mkdir(exist_ok=True)
 
         # Insert backup record
-        await self.execute_update("""
+        await self.execute_update(
+            """
             INSERT INTO backup_metadata
             (backup_id, database_name, backup_type, location, status, description, created_by)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (backup_id, database, 'full', str(backup_path), 'running', description, 'admin'))
+        """,
+            (
+                backup_id,
+                database,
+                "full",
+                str(backup_path),
+                "running",
+                description,
+                "admin",
+            ),
+        )
 
         try:
             # Execute mysqldump
             cmd = [
-                'mysqldump',
+                "mysqldump",
                 f'-h{self.config["host"]}',
                 f'-u{self.config["user"]}',
                 f'-p{self.config["password"]}',
-                '--single-transaction',
-                '--routines',
-                '--triggers',
-                database
+                "--single-transaction",
+                "--routines",
+                "--triggers",
+                database,
             ]
 
-            with open(backup_path, 'w') as f:
-                result = subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, text=True)
+            with open(backup_path, "w") as f:
+                result = subprocess.run(
+                    cmd, stdout=f, stderr=subprocess.PIPE, text=True
+                )
 
             if result.returncode != 0:
                 raise Exception(f"Backup failed: {result.stderr}")
 
             # Update backup record
             file_size = backup_path.stat().st_size
-            await self.execute_update("""
+            await self.execute_update(
+                """
                 UPDATE backup_metadata
                 SET status = 'completed', size_bytes = %s, completed_at = NOW()
                 WHERE backup_id = %s
-            """, (file_size, backup_id))
+            """,
+                (file_size, backup_id),
+            )
 
             return {
                 "backup_id": backup_id,
                 "filename": filename,
                 "size_bytes": file_size,
-                "status": "completed"
+                "status": "completed",
             }
 
         except Exception as e:
             # Mark backup as failed
-            await self.execute_update("""
+            await self.execute_update(
+                """
                 UPDATE backup_metadata
                 SET status = 'failed'
                 WHERE backup_id = %s
-            """, (backup_id,))
+            """,
+                (backup_id,),
+            )
             raise
 
-    async def restore_backup(self, backup_id: str, target_database: str) -> Dict[str, Any]:
+    async def restore_backup(
+        self, backup_id: str, target_database: str
+    ) -> Dict[str, Any]:
         """Restore from backup."""
         # Get backup info
         backup = await self.execute_query(
-            "SELECT * FROM backup_metadata WHERE backup_id = %s",
-            (backup_id,)
+            "SELECT * FROM backup_metadata WHERE backup_id = %s", (backup_id,)
         )
 
         if not backup:
@@ -384,15 +421,16 @@ class DatabaseManager:
 
             # Restore backup
             import subprocess
+
             cmd = [
-                'mysql',
+                "mysql",
                 f'-h{self.config["host"]}',
                 f'-u{self.config["user"]}',
                 f'-p{self.config["password"]}',
-                target_database
+                target_database,
             ]
 
-            with open(backup_file, 'r') as f:
+            with open(backup_file, "r") as f:
                 result = subprocess.run(cmd, stdin=f, stderr=subprocess.PIPE, text=True)
 
             if result.returncode != 0:
@@ -401,7 +439,7 @@ class DatabaseManager:
             return {
                 "success": True,
                 "target_database": target_database,
-                "backup_id": backup_id
+                "backup_id": backup_id,
             }
 
         except Exception as e:
@@ -433,26 +471,29 @@ class DatabaseManager:
         metric: str,
         threshold: float,
         condition: str,
-        notification_channels: List[str]
+        notification_channels: List[str],
     ) -> Dict[str, Any]:
         """Create an alert configuration."""
         import uuid
 
         alert_id = str(uuid.uuid4())
 
-        await self.execute_update("""
+        await self.execute_update(
+            """
             INSERT INTO alert_configs
             (alert_id, name, metric, threshold, condition_type, notification_channels, created_by)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
-            alert_id,
-            name,
-            metric,
-            threshold,
-            condition,
-            json.dumps(notification_channels),
-            'admin'
-        ))
+        """,
+            (
+                alert_id,
+                name,
+                metric,
+                threshold,
+                condition,
+                json.dumps(notification_channels),
+                "admin",
+            ),
+        )
 
         return {"alert_id": alert_id, "name": name}
 
@@ -471,8 +512,8 @@ class DatabaseManager:
 
         # Convert JSON strings
         for r in results:
-            if isinstance(r.get('notification_channels'), str):
-                r['notification_channels'] = json.loads(r['notification_channels'])
+            if isinstance(r.get("notification_channels"), str):
+                r["notification_channels"] = json.loads(r["notification_channels"])
 
         return results
 
@@ -499,8 +540,10 @@ class DatabaseManager:
             self.pool._remove_connections()
             logger.info("Database connection pool closed")
 
+
 # Singleton instance
 db_manager = DatabaseManager()
+
 
 async def get_db():
     """Dependency to get database manager."""

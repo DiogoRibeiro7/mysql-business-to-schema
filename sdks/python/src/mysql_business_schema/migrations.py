@@ -34,7 +34,7 @@ class MigrationManager:
         name: str,
         up_script: str,
         down_script: Optional[str] = None,
-        description: Optional[str] = None
+        description: Optional[str] = None,
     ) -> Migration:
         """
         Create a new migration.
@@ -70,7 +70,7 @@ class MigrationManager:
         migration = self.client.create_migration(
             description=description or name,
             up_script=up_script,
-            down_script=down_script
+            down_script=down_script,
         )
 
         # Save to local file if migrations directory exists
@@ -81,9 +81,7 @@ class MigrationManager:
         return migration
 
     def apply_migrations(
-        self,
-        target_version: Optional[str] = None,
-        dry_run: bool = False
+        self, target_version: Optional[str] = None, dry_run: bool = False
     ) -> List[Migration]:
         """
         Apply pending migrations up to target version.
@@ -100,8 +98,7 @@ class MigrationManager:
             >>> print(f"Applied {len(applied)} migrations")
         """
         result = self.client.apply_migration(
-            target_version=target_version,
-            dry_run=dry_run
+            target_version=target_version, dry_run=dry_run
         )
 
         if dry_run:
@@ -112,9 +109,7 @@ class MigrationManager:
         return [result]
 
     def rollback_migrations(
-        self,
-        steps: int = 1,
-        target_version: Optional[str] = None
+        self, steps: int = 1, target_version: Optional[str] = None
     ) -> List[Migration]:
         """
         Rollback migrations.
@@ -130,8 +125,7 @@ class MigrationManager:
             >>> rolled_back = manager.rollback_migrations(steps=2)
         """
         result = self.client.rollback_migration(
-            target_version=target_version,
-            steps=steps
+            target_version=target_version, steps=steps
         )
 
         logger.info(f"Rolled back to version: {result.version}")
@@ -195,10 +189,7 @@ class MigrationManager:
         return True
 
     def generate_migration_from_diff(
-        self,
-        source_database: str,
-        target_database: str,
-        name: str
+        self, source_database: str, target_database: str, name: str
     ) -> Migration:
         """
         Generate migration from database differences.
@@ -231,7 +222,7 @@ class MigrationManager:
             name=name,
             up_script=up_script,
             down_script=down_script,
-            description=f"Sync {source_database} to {target_database}"
+            description=f"Sync {source_database} to {target_database}",
         )
 
     def _calculate_checksum(self, content: str) -> str:
@@ -246,8 +237,18 @@ class MigrationManager:
         # Check for basic SQL structure
         sql_upper = sql.upper()
         valid_statements = [
-            "CREATE", "ALTER", "DROP", "INSERT", "UPDATE", "DELETE",
-            "SELECT", "GRANT", "REVOKE", "BEGIN", "COMMIT", "ROLLBACK"
+            "CREATE",
+            "ALTER",
+            "DROP",
+            "INSERT",
+            "UPDATE",
+            "DELETE",
+            "SELECT",
+            "GRANT",
+            "REVOKE",
+            "BEGIN",
+            "COMMIT",
+            "ROLLBACK",
         ]
 
         has_valid_statement = any(
@@ -258,11 +259,7 @@ class MigrationManager:
             raise ValidationError("SQL script must contain valid SQL statements")
 
     def _save_migration_file(
-        self,
-        version: str,
-        name: str,
-        up_script: str,
-        down_script: Optional[str] = None
+        self, version: str, name: str, up_script: str, down_script: Optional[str] = None
     ):
         """Save migration to local file."""
         filename = f"{version}_{name}.sql"
@@ -287,8 +284,7 @@ class MigrationManager:
         return "-- Schema synchronization script\n"
 
     def load_migrations_from_directory(
-        self,
-        directory: Optional[Path] = None
+        self, directory: Optional[Path] = None
     ) -> List[Migration]:
         """
         Load migrations from local directory.
@@ -346,5 +342,5 @@ class MigrationManager:
             up_script=up_script.strip(),
             down_script=down_script.strip() if down_script else None,
             status=MigrationStatus.PENDING,
-            checksum=self._calculate_checksum(up_script)
+            checksum=self._calculate_checksum(up_script),
         )

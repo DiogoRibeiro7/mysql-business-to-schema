@@ -32,11 +32,7 @@ def cli(ctx, host, port, username, password, api_key):
     # Create client
     try:
         client = create_client(
-            host=host,
-            port=port,
-            username=username,
-            password=password,
-            api_key=api_key
+            host=host, port=port, username=username, password=password, api_key=api_key
         )
         ctx.obj["client"] = client
     except Exception as e:
@@ -76,7 +72,7 @@ def list_databases(ctx):
             str(db.table_count or 0),
             f"{db.size_mb or 0:.2f}",
             db.charset,
-            db.collation
+            db.collation,
         )
 
     console.print(table)
@@ -143,18 +139,16 @@ def list_migrations(ctx, status):
     table.add_column("Executed At")
 
     for m in migrations:
-        status_color = {
-            "pending": "yellow",
-            "completed": "green",
-            "failed": "red"
-        }.get(m.status.value, "white")
+        status_color = {"pending": "yellow", "completed": "green", "failed": "red"}.get(
+            m.status.value, "white"
+        )
 
         table.add_row(
             m.version,
             m.description[:50] + "..." if len(m.description) > 50 else m.description,
             f"[{status_color}]{m.status.value}[/{status_color}]",
             m.applied_by or "-",
-            str(m.executed_at) if m.executed_at else "-"
+            str(m.executed_at) if m.executed_at else "-",
         )
 
     console.print(table)
@@ -168,11 +162,15 @@ def apply_migrations(ctx, target, dry_run):
     """Apply pending migrations."""
     client = ctx.obj["client"]
 
-    with console.status("Applying migrations..." if not dry_run else "Running dry run..."):
+    with console.status(
+        "Applying migrations..." if not dry_run else "Running dry run..."
+    ):
         try:
             result = client.apply_migration(target, dry_run)
             if dry_run:
-                console.print(f"[yellow]Dry run completed. Would apply: {result.version}[/yellow]")
+                console.print(
+                    f"[yellow]Dry run completed. Would apply: {result.version}[/yellow]"
+                )
             else:
                 console.print(f"[green]✓[/green] Applied migration: {result.version}")
         except MySQLSchemaError as e:
@@ -203,7 +201,9 @@ def data():
 
 
 @data.command("generate")
-@click.argument("schema", type=click.Choice(["clinic", "ecommerce", "iot", "social_media"]))
+@click.argument(
+    "schema", type=click.Choice(["clinic", "ecommerce", "iot", "social_media"])
+)
 @click.option("--rows", default=1000, type=int, help="Number of rows to generate")
 @click.option("--format", default="sql", type=click.Choice(["sql", "csv", "json"]))
 @click.option("--output", type=click.Path(), help="Output file path")
@@ -223,7 +223,9 @@ def generate_data(ctx, schema, rows, format, output):
                     output_path.write_text(data)
                 elif format == "csv":
                     for table_name, csv_data in data.items():
-                        table_path = output_path.parent / f"{output_path.stem}_{table_name}.csv"
+                        table_path = (
+                            output_path.parent / f"{output_path.stem}_{table_name}.csv"
+                        )
                         table_path.write_text(csv_data)
                 else:
                     output_path.write_text(data)
@@ -266,9 +268,13 @@ def execute_query(ctx, sql, database, limit):
                 console.print(table)
 
                 if result.row_count > 20:
-                    console.print(f"[yellow]... and {result.row_count - 20} more rows[/yellow]")
+                    console.print(
+                        f"[yellow]... and {result.row_count - 20} more rows[/yellow]"
+                    )
             else:
-                console.print("[yellow]Query executed successfully. No results returned.[/yellow]")
+                console.print(
+                    "[yellow]Query executed successfully. No results returned.[/yellow]"
+                )
 
             console.print(f"[dim]Execution time: {result.execution_time:.3f}s[/dim]")
 
@@ -304,11 +310,9 @@ def list_backups(ctx):
     table.add_column("Created At")
 
     for b in backups:
-        status_color = {
-            "completed": "green",
-            "running": "yellow",
-            "failed": "red"
-        }.get(b.status.value, "white")
+        status_color = {"completed": "green", "running": "yellow", "failed": "red"}.get(
+            b.status.value, "white"
+        )
 
         table.add_row(
             b.id[:8] + "...",
@@ -316,7 +320,7 @@ def list_backups(ctx):
             b.type.value,
             f"{b.size_mb:.2f}",
             f"[{status_color}]{b.status.value}[/{status_color}]",
-            str(b.created_at)
+            str(b.created_at),
         )
 
     console.print(table)

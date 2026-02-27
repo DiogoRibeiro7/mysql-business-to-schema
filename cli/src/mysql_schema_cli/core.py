@@ -100,10 +100,7 @@ class CliContext:
         }
 
 
-def load_config(
-    config_path: Optional[str] = None,
-    profile: str = "default"
-) -> Config:
+def load_config(config_path: Optional[str] = None, profile: str = "default") -> Config:
     """
     Load configuration from file or environment.
 
@@ -134,20 +131,20 @@ def load_config(
                 break
 
     if config_file and config_file.exists():
-        with open(config_file, 'r') as f:
-            if config_file.suffix in ['.yaml', '.yml']:
+        with open(config_file, "r") as f:
+            if config_file.suffix in [".yaml", ".yml"]:
                 data = yaml.safe_load(f)
             else:
                 data = json.load(f)
 
         # Load base config
         for key, value in data.items():
-            if key != 'profiles' and hasattr(config, key):
+            if key != "profiles" and hasattr(config, key):
                 setattr(config, key, value)
 
         # Load profiles
-        if 'profiles' in data:
-            config.profiles = data['profiles']
+        if "profiles" in data:
+            config.profiles = data["profiles"]
 
             # Apply selected profile
             if profile in config.profiles:
@@ -157,20 +154,20 @@ def load_config(
 
     # Override with environment variables
     env_mappings = {
-        'MYSQL_SCHEMA_HOST': 'host',
-        'MYSQL_SCHEMA_PORT': 'port',
-        'MYSQL_SCHEMA_USERNAME': 'username',
-        'MYSQL_SCHEMA_PASSWORD': 'password',
-        'MYSQL_SCHEMA_API_KEY': 'api_key',
-        'MYSQL_SCHEMA_DATABASE': 'default_database',
-        'MYSQL_SCHEMA_MIGRATIONS_DIR': 'migrations_dir',
-        'MYSQL_SCHEMA_OUTPUT_DIR': 'output_dir',
+        "MYSQL_SCHEMA_HOST": "host",
+        "MYSQL_SCHEMA_PORT": "port",
+        "MYSQL_SCHEMA_USERNAME": "username",
+        "MYSQL_SCHEMA_PASSWORD": "password",
+        "MYSQL_SCHEMA_API_KEY": "api_key",
+        "MYSQL_SCHEMA_DATABASE": "default_database",
+        "MYSQL_SCHEMA_MIGRATIONS_DIR": "migrations_dir",
+        "MYSQL_SCHEMA_OUTPUT_DIR": "output_dir",
     }
 
     for env_var, config_key in env_mappings.items():
         value = os.getenv(env_var)
         if value:
-            if config_key == 'port':
+            if config_key == "port":
                 value = int(value)
             setattr(config, config_key, value)
 
@@ -189,12 +186,11 @@ def save_config(config: Config, path: Optional[str] = None):
 
     # Convert config to dict
     config_dict = {
-        key: value for key, value in config.__dict__.items()
-        if not key.startswith('_')
+        key: value for key, value in config.__dict__.items() if not key.startswith("_")
     }
 
     # Save as YAML
-    with open(path, 'w') as f:
+    with open(path, "w") as f:
         yaml.dump(config_dict, f, default_flow_style=False)
 
     console.print(f"[green]✓[/green] Configuration saved to {path}")
@@ -206,11 +202,11 @@ def get_project_root() -> Optional[Path]:
 
     # Marker files that indicate project root
     markers = [
-        '.mysql-schema.yaml',
-        'mysql-schema.yaml',
-        '.git',
-        'docker-compose.yml',
-        'migrations',
+        ".mysql-schema.yaml",
+        "mysql-schema.yaml",
+        ".git",
+        "docker-compose.yml",
+        "migrations",
     ]
 
     while current != current.parent:
@@ -225,13 +221,13 @@ def get_project_root() -> Optional[Path]:
 def ensure_project_structure():
     """Ensure required project directories exist."""
     directories = [
-        'migrations',
-        'schemas',
-        'data',
-        'backups',
-        'output',
-        'config',
-        'scripts',
+        "migrations",
+        "schemas",
+        "data",
+        "backups",
+        "output",
+        "config",
+        "scripts",
     ]
 
     project_root = get_project_root() or Path.cwd()
@@ -258,33 +254,34 @@ class ApiClient:
         self.session = requests.Session()
 
         # Set base URL
-        self.base_url = f"http://{self.context.config.host}:{self.context.config.port}/api"
+        self.base_url = (
+            f"http://{self.context.config.host}:{self.context.config.port}/api"
+        )
 
         # Set authentication
         if self.context.config.api_key:
-            self.session.headers['Authorization'] = f"Bearer {self.context.config.api_key}"
+            self.session.headers["Authorization"] = (
+                f"Bearer {self.context.config.api_key}"
+            )
         elif self.context.config.username and self.context.config.password:
             # Login to get token
             response = self.session.post(
                 f"{self.base_url}/auth/login",
                 json={
                     "username": self.context.config.username,
-                    "password": self.context.config.password
-                }
+                    "password": self.context.config.password,
+                },
             )
             if response.ok:
-                token = response.json().get('access_token')
-                self.session.headers['Authorization'] = f"Bearer {token}"
+                token = response.json().get("access_token")
+                self.session.headers["Authorization"] = f"Bearer {token}"
 
     def request(self, method: str, endpoint: str, **kwargs) -> Any:
         """Make API request."""
         url = f"{self.base_url}{endpoint}"
 
         response = self.session.request(
-            method=method,
-            url=url,
-            timeout=self.context.config.timeout,
-            **kwargs
+            method=method, url=url, timeout=self.context.config.timeout, **kwargs
         )
 
         response.raise_for_status()
@@ -307,9 +304,9 @@ def format_table(data: List[Dict[str, Any]], columns: Optional[List[str]] = None
 
     table = Table()
     for col in columns:
-        table.add_column(col.replace('_', ' ').title())
+        table.add_column(col.replace("_", " ").title())
 
     for row in data:
-        table.add_row(*[str(row.get(col, '')) for col in columns])
+        table.add_row(*[str(row.get(col, "")) for col in columns])
 
     return table

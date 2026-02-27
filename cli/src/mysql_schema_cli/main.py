@@ -29,7 +29,7 @@ from .version import __version__
 console = Console()
 
 CONTEXT_SETTINGS = dict(
-    help_option_names=['-h', '--help'],
+    help_option_names=["-h", "--help"],
     max_content_width=120,
 )
 
@@ -40,16 +40,16 @@ class AliasedGroup(click.Group):
     def get_command(self, ctx, cmd_name):
         # Command aliases
         aliases = {
-            'g': 'generate',
-            'gen': 'generate',
-            'm': 'migrate',
-            'mig': 'migrate',
-            'q': 'query',
-            'b': 'backup',
-            'bak': 'backup',
-            'd': 'deploy',
-            's': 'schema',
-            'mon': 'monitor',
+            "g": "generate",
+            "gen": "generate",
+            "m": "migrate",
+            "mig": "migrate",
+            "q": "query",
+            "b": "backup",
+            "bak": "backup",
+            "d": "deploy",
+            "s": "schema",
+            "mon": "monitor",
         }
 
         # Resolve alias
@@ -60,11 +60,11 @@ class AliasedGroup(click.Group):
 
 @click.group(cls=AliasedGroup, context_settings=CONTEXT_SETTINGS)
 @click.version_option(version=__version__, prog_name="mysql-schema")
-@click.option('-c', '--config', type=click.Path(), help='Config file path')
-@click.option('-v', '--verbose', count=True, help='Increase verbosity')
-@click.option('--profile', default='default', help='Config profile to use')
-@click.option('--no-color', is_flag=True, help='Disable colored output')
-@click.option('--json', 'output_json', is_flag=True, help='Output in JSON format')
+@click.option("-c", "--config", type=click.Path(), help="Config file path")
+@click.option("-v", "--verbose", count=True, help="Increase verbosity")
+@click.option("--profile", default="default", help="Config profile to use")
+@click.option("--no-color", is_flag=True, help="Disable colored output")
+@click.option("--json", "output_json", is_flag=True, help="Output in JSON format")
 @click.pass_context
 def cli(ctx, config, verbose, profile, no_color, output_json):
     """
@@ -97,7 +97,7 @@ def cli(ctx, config, verbose, profile, no_color, output_json):
     ctx.ensure_object(dict)
 
     # Load configuration
-    config_path = config or os.getenv('MYSQL_SCHEMA_CONFIG')
+    config_path = config or os.getenv("MYSQL_SCHEMA_CONFIG")
     cfg = load_config(config_path, profile)
 
     # Create CLI context
@@ -106,7 +106,7 @@ def cli(ctx, config, verbose, profile, no_color, output_json):
         verbose=verbose,
         profile=profile,
         no_color=no_color,
-        output_json=output_json
+        output_json=output_json,
     )
 
     ctx.obj = cli_context
@@ -128,7 +128,7 @@ def _show_banner():
 
 [yellow]Ready to manage your database schemas![/yellow]""",
         border_style="cyan",
-        padding=(1, 2)
+        padding=(1, 2),
     )
     console.print(banner)
 
@@ -151,11 +151,12 @@ cli.add_command(config.config_group)
 def interactive(ctx):
     """Start interactive mode with guided prompts."""
     from .interactive import start_interactive_mode
+
     start_interactive_mode(ctx.obj)
 
 
 @cli.command()
-@click.argument('command', required=False)
+@click.argument("command", required=False)
 def shell(command):
     """
     Start interactive shell or execute shell command.
@@ -164,13 +165,17 @@ def shell(command):
     With arguments, executes the command in the context of the project.
     """
     from .shell import start_shell
+
     start_shell(command)
 
 
 @cli.command()
-@click.option('--shell', type=click.Choice(['bash', 'zsh', 'fish', 'powershell']),
-              help='Shell type for completion')
-@click.option('--path', type=click.Path(), help='Installation path')
+@click.option(
+    "--shell",
+    type=click.Choice(["bash", "zsh", "fish", "powershell"]),
+    help="Shell type for completion",
+)
+@click.option("--path", type=click.Path(), help="Installation path")
 def completion(shell, path):
     """
     Generate shell completion scripts.
@@ -182,24 +187,30 @@ def completion(shell, path):
         mysql-schema completion --shell fish > ~/.config/fish/completions/mysql-schema.fish
     """
     from .completion import generate_completion
-    script = generate_completion(shell or 'bash')
+
+    script = generate_completion(shell or "bash")
     click.echo(script)
 
 
 @cli.command()
-@click.option('--format', type=click.Choice(['text', 'json', 'yaml']),
-              default='text', help='Output format')
+@click.option(
+    "--format",
+    type=click.Choice(["text", "json", "yaml"]),
+    default="text",
+    help="Output format",
+)
 @click.pass_context
 def info(ctx, format):
     """Display system and configuration information."""
     from .info import show_info
+
     show_info(ctx.obj, format)
 
 
 @cli.command()
-@click.argument('path', type=click.Path())
-@click.option('--watch', is_flag=True, help='Watch for changes')
-@click.option('--validate', is_flag=True, help='Validate syntax only')
+@click.argument("path", type=click.Path())
+@click.option("--watch", is_flag=True, help="Watch for changes")
+@click.option("--validate", is_flag=True, help="Validate syntax only")
 @click.pass_context
 def validate(ctx, path, watch, validate):
     """
@@ -213,24 +224,27 @@ def validate(ctx, path, watch, validate):
         - Docker Compose files
     """
     from .validator import validate_files
+
     validate_files(ctx.obj, path, watch, validate_only=validate)
 
 
 @cli.command()
-@click.option('--check', is_flag=True, help='Check for updates only')
-@click.option('--pre', is_flag=True, help='Include pre-release versions')
+@click.option("--check", is_flag=True, help="Check for updates only")
+@click.option("--pre", is_flag=True, help="Include pre-release versions")
 def upgrade(check, pre):
     """Upgrade CLI to the latest version."""
     from .upgrade import check_and_upgrade
+
     check_and_upgrade(check_only=check, include_pre=pre)
 
 
 @cli.command()
-@click.option('--all', 'show_all', is_flag=True, help='Show all commands')
-@click.option('--markdown', is_flag=True, help='Output in Markdown format')
+@click.option("--all", "show_all", is_flag=True, help="Show all commands")
+@click.option("--markdown", is_flag=True, help="Output in Markdown format")
 def commands(show_all, markdown):
     """List all available commands and their descriptions."""
     from .help import list_commands
+
     list_commands(show_all=show_all, markdown=markdown)
 
 
@@ -240,6 +254,7 @@ def process_result(ctx, result, **kwargs):
     """Process command results for consistent output."""
     if result and ctx.obj.output_json:
         import json
+
         if isinstance(result, (dict, list)):
             click.echo(json.dumps(result, indent=2, default=str))
 
@@ -249,15 +264,16 @@ def main():
     try:
         # Enable auto-completion
         import click_completion
+
         click_completion.init()
 
         # Run CLI
-        cli(prog_name='mysql-schema')
+        cli(prog_name="mysql-schema")
     except KeyboardInterrupt:
         console.print("\n[yellow]Interrupted by user[/yellow]")
         sys.exit(1)
     except Exception as e:
-        if '--verbose' in sys.argv or '-v' in sys.argv:
+        if "--verbose" in sys.argv or "-v" in sys.argv:
             console.print_exception()
         else:
             console.print(f"[red]Error: {e}[/red]")
@@ -265,5 +281,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

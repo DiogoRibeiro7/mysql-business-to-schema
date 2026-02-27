@@ -21,7 +21,7 @@ class WebSocketClient:
         host: str,
         token: Optional[str] = None,
         auto_reconnect: bool = True,
-        reconnect_interval: int = 5
+        reconnect_interval: int = 5,
     ):
         """
         Initialize WebSocket client.
@@ -61,7 +61,7 @@ class WebSocketClient:
             on_open=self._on_open,
             on_message=self._on_message,
             on_error=self._on_error,
-            on_close=self._on_close
+            on_close=self._on_close,
         )
 
         # Run WebSocket in a separate thread
@@ -119,9 +119,7 @@ class WebSocketClient:
             return
 
         if handler:
-            self.handlers[event] = [
-                h for h in self.handlers[event] if h != handler
-            ]
+            self.handlers[event] = [h for h in self.handlers[event] if h != handler]
         else:
             del self.handlers[event]
 
@@ -140,10 +138,7 @@ class WebSocketClient:
             logger.warning("Cannot emit: not connected to WebSocket")
             return
 
-        message = {
-            "event": event,
-            "data": data or {}
-        }
+        message = {"event": event, "data": data or {}}
 
         try:
             self.ws.send(json.dumps(message))
@@ -204,10 +199,9 @@ class WebSocketClient:
         self.connected = False
         logger.info(f"WebSocket closed: {close_status_code} - {close_msg}")
 
-        self._trigger_event("disconnected", {
-            "code": close_status_code,
-            "reason": close_msg
-        })
+        self._trigger_event(
+            "disconnected", {"code": close_status_code, "reason": close_msg}
+        )
 
         # Auto-reconnect if enabled
         if self.auto_reconnect and self.running:

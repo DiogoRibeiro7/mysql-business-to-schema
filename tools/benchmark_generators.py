@@ -18,8 +18,10 @@ import statistics
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
+
 class BenchmarkResult:
     """Container for benchmark results"""
+
     def __init__(self, name: str):
         self.name = name
         self.start_time = 0
@@ -33,24 +35,27 @@ class BenchmarkResult:
 
     def to_dict(self) -> Dict:
         return {
-            'name': self.name,
-            'duration': round(self.duration, 2),
-            'rows_generated': self.rows_generated,
-            'records_per_second': round(self.records_per_second, 2),
-            'exit_code': self.exit_code,
-            'success': self.exit_code == 0 and not self.errors,
-            'errors': self.errors
+            "name": self.name,
+            "duration": round(self.duration, 2),
+            "rows_generated": self.rows_generated,
+            "records_per_second": round(self.records_per_second, 2),
+            "exit_code": self.exit_code,
+            "success": self.exit_code == 0 and not self.errors,
+            "errors": self.errors,
         }
 
-def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int = 300) -> BenchmarkResult:
+
+def benchmark_generator(
+    generator_path: Path, mode: str = "test", timeout: int = 300
+) -> BenchmarkResult:
     """Benchmark a single generator"""
     generator_name = generator_path.name
     result = BenchmarkResult(generator_name)
 
     # Check if generator exists
-    generator_file = generator_path / 'generator.py'
+    generator_file = generator_path / "generator.py"
     if not generator_file.exists():
-        test_file = generator_path / 'test_generator.py'
+        test_file = generator_path / "test_generator.py"
         if test_file.exists():
             generator_file = test_file
         else:
@@ -59,8 +64,8 @@ def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int =
 
     try:
         env = os.environ.copy()
-        env['GENERATOR_MODE'] = mode
-        env['PYTHONPATH'] = str(generator_path.parent)
+        env["GENERATOR_MODE"] = mode
+        env["PYTHONPATH"] = str(generator_path.parent)
 
         result.start_time = time.time()
 
@@ -71,7 +76,7 @@ def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int =
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             env=env,
-            text=True
+            text=True,
         )
 
         try:
@@ -88,15 +93,17 @@ def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int =
 
         # Parse output for metrics
         if stdout:
-            result.output_lines = stdout.split('\n')
+            result.output_lines = stdout.split("\n")
             for line in result.output_lines:
                 line_lower = line.lower()
-                if 'generated' in line_lower and ('record' in line_lower or 'row' in line_lower):
+                if "generated" in line_lower and (
+                    "record" in line_lower or "row" in line_lower
+                ):
                     # Try to extract number
                     parts = line.split()
                     for i, part in enumerate(parts):
-                        if part.replace(',', '').isdigit():
-                            num = int(part.replace(',', ''))
+                        if part.replace(",", "").isdigit():
+                            num = int(part.replace(",", ""))
                             # Check if this looks like a row count (not a year or ID)
                             if num > 10 and num < 10000000:
                                 result.rows_generated = max(result.rows_generated, num)
@@ -107,7 +114,7 @@ def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int =
 
         # Capture errors
         if stderr and process.returncode != 0:
-            error_lines = stderr.split('\n')
+            error_lines = stderr.split("\n")
             for line in error_lines:
                 if line.strip():
                     result.errors.append(line.strip())
@@ -118,12 +125,13 @@ def benchmark_generator(generator_path: Path, mode: str = 'test', timeout: int =
 
     return result
 
+
 class BenchmarkSuite:
     """Orchestrate benchmarking of all generators"""
 
     def __init__(self, project_root: Path):
         self.project_root = project_root
-        self.generators_dir = project_root / 'generators'
+        self.generators_dir = project_root / "generators"
         self.results = []
         self.start_time = None
         self.end_time = None
@@ -132,13 +140,17 @@ class BenchmarkSuite:
         """Find all generator directories"""
         generators = []
         for item in self.generators_dir.iterdir():
-            if item.is_dir() and not item.name.startswith('_'):
+            if item.is_dir() and not item.name.startswith("_"):
                 # Check if it has generator.py or test_generator.py
-                if (item / 'generator.py').exists() or (item / 'test_generator.py').exists():
+                if (item / "generator.py").exists() or (
+                    item / "test_generator.py"
+                ).exists():
                     generators.append(item)
         return sorted(generators)
 
-    def run(self, generators: List[str] = None, mode: str = 'test', parallel: bool = False):
+    def run(
+        self, generators: List[str] = None, mode: str = "test", parallel: bool = False
+    ):
         """Run benchmarks"""
         self.start_time = datetime.now()
 
@@ -174,7 +186,7 @@ class BenchmarkSuite:
         """Run benchmarks one at a time"""
         for i, gen_path in enumerate(generators, 1):
             gen_name = gen_path.name
-            print(f"[{i}/{len(generators)}] Benchmarking {gen_name}...", end=' ')
+            print(f"[{i}/{len(generators)}] Benchmarking {gen_name}...", end=" ")
 
             result = benchmark_generator(gen_path, mode)
             self.results.append(result)
@@ -182,15 +194,19 @@ class BenchmarkSuite:
             if result.exit_code == 0 and not result.errors:
                 print(f"[OK] {result.duration:.2f}s, {result.rows_generated} rows")
             else:
-                print(f"[FAIL] {result.errors[0] if result.errors else 'Unknown error'}")
+                print(
+                    f"[FAIL] {result.errors[0] if result.errors else 'Unknown error'}"
+                )
 
     def _run_parallel(self, generators: List[Path], mode: str):
         """Run benchmarks in parallel"""
         max_workers = min(4, multiprocessing.cpu_count())
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            futures = {executor.submit(benchmark_generator, gen, mode): gen.name
-                      for gen in generators}
+            futures = {
+                executor.submit(benchmark_generator, gen, mode): gen.name
+                for gen in generators
+            }
 
             completed = 0
             for future in as_completed(futures):
@@ -232,17 +248,23 @@ class BenchmarkSuite:
             print("-" * 60)
 
             # Sort by performance
-            sorted_results = sorted(successful, key=lambda x: x.records_per_second, reverse=True)
+            sorted_results = sorted(
+                successful, key=lambda x: x.records_per_second, reverse=True
+            )
 
             for result in sorted_results:
-                print(f"{result.name:<25} {result.duration:<10.2f} {result.rows_generated:<10} {result.records_per_second:<10.2f}")
+                print(
+                    f"{result.name:<25} {result.duration:<10.2f} {result.rows_generated:<10} {result.records_per_second:<10.2f}"
+                )
 
             print("-" * 60)
 
             # Statistics
             durations = [r.duration for r in successful]
             rows = [r.rows_generated for r in successful]
-            rates = [r.records_per_second for r in successful if r.records_per_second > 0]
+            rates = [
+                r.records_per_second for r in successful if r.records_per_second > 0
+            ]
 
             print()
             print("Statistics:")
@@ -258,26 +280,28 @@ class BenchmarkSuite:
             print("Failed Generators:")
             print("-" * 60)
             for result in failed:
-                print(f"  {result.name}: {result.errors[0] if result.errors else 'Exit code ' + str(result.exit_code)}")
+                print(
+                    f"  {result.name}: {result.errors[0] if result.errors else 'Exit code ' + str(result.exit_code)}"
+                )
 
         # Save results
         self._save_results()
 
     def _save_results(self):
         """Save results to JSON file"""
-        output_dir = self.project_root / 'benchmark_results'
+        output_dir = self.project_root / "benchmark_results"
         output_dir.mkdir(exist_ok=True)
 
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'generator_benchmark_{timestamp}.json'
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = output_dir / f"generator_benchmark_{timestamp}.json"
 
         data = {
-            'timestamp': datetime.now().isoformat(),
-            'duration': (self.end_time - self.start_time).total_seconds(),
-            'results': [r.to_dict() for r in self.results]
+            "timestamp": datetime.now().isoformat(),
+            "duration": (self.end_time - self.start_time).total_seconds(),
+            "results": [r.to_dict() for r in self.results],
         }
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(data, f, indent=2)
 
         print()
@@ -295,20 +319,22 @@ class BenchmarkSuite:
 
         print("Running in test mode...")
         for gen in generators:
-            result = benchmark_generator(gen, 'test', timeout=60)
+            result = benchmark_generator(gen, "test", timeout=60)
             test_results.append(result)
             print(f"  {gen.name}: {result.duration:.2f}s")
 
         print("Running in production mode...")
         for gen in generators:
-            result = benchmark_generator(gen, 'production', timeout=300)
+            result = benchmark_generator(gen, "production", timeout=300)
             prod_results.append(result)
             print(f"  {gen.name}: {result.duration:.2f}s")
 
         print()
         print("Comparison Results:")
         print("-" * 60)
-        print(f"{'Generator':<20} {'Test Rows':<12} {'Prod Rows':<12} {'Scale Factor':<12}")
+        print(
+            f"{'Generator':<20} {'Test Rows':<12} {'Prod Rows':<12} {'Scale Factor':<12}"
+        )
         print("-" * 60)
 
         for test, prod in zip(test_results, prod_results):
@@ -316,16 +342,27 @@ class BenchmarkSuite:
                 scale = prod.rows_generated / test.rows_generated
             else:
                 scale = 0
-            print(f"{test.name:<20} {test.rows_generated:<12} {prod.rows_generated:<12} {scale:<12.1f}x")
+            print(
+                f"{test.name:<20} {test.rows_generated:<12} {prod.rows_generated:<12} {scale:<12.1f}x"
+            )
+
 
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description='Benchmark MySQL data generators')
-    parser.add_argument('--generators', nargs='+', help='Specific generators to benchmark')
-    parser.add_argument('--mode', choices=['test', 'production', 'both'], default='test',
-                       help='Generator mode (default: test)')
-    parser.add_argument('--parallel', action='store_true', help='Run in parallel')
-    parser.add_argument('--compare', action='store_true', help='Compare test vs production modes')
+    parser = argparse.ArgumentParser(description="Benchmark MySQL data generators")
+    parser.add_argument(
+        "--generators", nargs="+", help="Specific generators to benchmark"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["test", "production", "both"],
+        default="test",
+        help="Generator mode (default: test)",
+    )
+    parser.add_argument("--parallel", action="store_true", help="Run in parallel")
+    parser.add_argument(
+        "--compare", action="store_true", help="Compare test vs production modes"
+    )
 
     args = parser.parse_args()
 
@@ -337,19 +374,20 @@ def main():
 
     if args.compare:
         suite.compare_modes()
-    elif args.mode == 'both':
+    elif args.mode == "both":
         # Run both modes
         print("Running TEST mode benchmarks:")
         print()
-        suite.run(args.generators, 'test', args.parallel)
+        suite.run(args.generators, "test", args.parallel)
 
         print()
         print("Running PRODUCTION mode benchmarks:")
         print()
         suite.results = []  # Reset results
-        suite.run(args.generators, 'production', args.parallel)
+        suite.run(args.generators, "production", args.parallel)
     else:
         suite.run(args.generators, args.mode, args.parallel)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

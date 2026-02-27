@@ -24,22 +24,26 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 # Import ML modules
 from ml.ml_pipeline import (
-    MLPipeline, RecommendationSystem, AnomalyDetector,
-    TimeSeriesForecaster, CustomerSegmentation,
-    EcommercePredictiveAnalytics, FintechFraudDetection,
-    ModelServer
+    MLPipeline,
+    RecommendationSystem,
+    AnomalyDetector,
+    TimeSeriesForecaster,
+    CustomerSegmentation,
+    EcommercePredictiveAnalytics,
+    FintechFraudDetection,
+    ModelServer,
 )
 from ml.healthcare_ml import (
-    HealthcarePredictiveAnalytics, MedicalImageAnalytics,
-    ClinicalTrialAnalytics
+    HealthcarePredictiveAnalytics,
+    MedicalImageAnalytics,
+    ClinicalTrialAnalytics,
 )
 from ml.iot_smart_city_ml import (
-    SmartWasteManagement, SmartEnergyOptimization,
-    UrbanTrafficOptimization
+    SmartWasteManagement,
+    SmartEnergyOptimization,
+    UrbanTrafficOptimization,
 )
-from ml.social_streaming_ml import (
-    SocialMediaAnalytics, StreamingPlatformAnalytics
-)
+from ml.social_streaming_ml import SocialMediaAnalytics, StreamingPlatformAnalytics
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -49,8 +53,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="ML Microservice",
     description="Machine Learning model training, prediction, and management service",
-    version="1.0.0"
+    version="1.0.0",
 )
+
 
 # Request/Response Models
 class ModelInfo(BaseModel):
@@ -124,37 +129,37 @@ specialized_models = {
     "energy_optimization": SmartEnergyOptimization(),
     "traffic": UrbanTrafficOptimization(),
     "social_media": SocialMediaAnalytics(),
-    "streaming": StreamingPlatformAnalytics()
+    "streaming": StreamingPlatformAnalytics(),
 }
 
 
 # Helper functions
 async def train_model_async(
-    dataset: str,
-    model_type: str,
-    parameters: Dict[str, Any],
-    test_split: float
+    dataset: str, model_type: str, parameters: Dict[str, Any], test_split: float
 ) -> Dict[str, Any]:
     """Train model asynchronously"""
     import time
+
     start_time = time.time()
 
     try:
         # Load dataset (simulated)
-        df = pd.DataFrame({
-            'feature1': np.random.randn(1000),
-            'feature2': np.random.randn(1000),
-            'feature3': np.random.randn(1000),
-            'target': np.random.choice([0, 1], 1000)
-        })
+        df = pd.DataFrame(
+            {
+                "feature1": np.random.randn(1000),
+                "feature2": np.random.randn(1000),
+                "feature3": np.random.randn(1000),
+                "target": np.random.choice([0, 1], 1000),
+            }
+        )
 
         # Create ML pipeline
         pipeline = MLPipeline(
             model_type=model_type,
-            task_type=parameters.get('task_type', 'classification'),
-            features=['feature1', 'feature2', 'feature3'],
-            target='target',
-            hyperparameters=parameters.get('hyperparameters', {})
+            task_type=parameters.get("task_type", "classification"),
+            features=["feature1", "feature2", "feature3"],
+            target="target",
+            hyperparameters=parameters.get("hyperparameters", {}),
         )
 
         # Train model
@@ -168,7 +173,7 @@ async def train_model_async(
             model=pipeline,
             name=f"{dataset}_{model_type}",
             version="1.0.0",
-            metrics=metrics
+            metrics=metrics,
         )
 
         training_time = time.time() - start_time
@@ -183,7 +188,7 @@ async def train_model_async(
             "status": "completed",
             "metrics": metrics,
             "training_time_seconds": training_time,
-            "model_path": str(model_path)
+            "model_path": str(model_path),
         }
 
     except Exception as e:
@@ -193,11 +198,12 @@ async def train_model_async(
             "status": f"failed: {str(e)}",
             "metrics": {},
             "training_time_seconds": time.time() - start_time,
-            "model_path": ""
+            "model_path": "",
         }
 
 
 # API Endpoints
+
 
 @app.get("/health")
 async def health_check():
@@ -206,30 +212,29 @@ async def health_check():
         "service": "ml",
         "status": "healthy",
         "models_loaded": len(model_server.models),
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
 @app.get("/models", response_model=List[ModelInfo])
-async def list_models(
-    model_type: Optional[str] = None,
-    status: Optional[str] = None
-):
+async def list_models(model_type: Optional[str] = None, status: Optional[str] = None):
     """List available ML models"""
     models = model_server.list_models(name=model_type)
 
     model_list = []
     for model_meta in models:
-        model_list.append(ModelInfo(
-            model_id=model_meta["model_id"],
-            name=model_meta["name"],
-            type=model_meta.get("type", "unknown"),
-            version=model_meta["version"],
-            status=model_meta.get("status", "active"),
-            accuracy=model_meta.get("metrics", {}).get("accuracy"),
-            created_at=model_meta["created_at"],
-            last_used=model_meta.get("last_used")
-        ))
+        model_list.append(
+            ModelInfo(
+                model_id=model_meta["model_id"],
+                name=model_meta["name"],
+                type=model_meta.get("type", "unknown"),
+                version=model_meta["version"],
+                status=model_meta.get("status", "active"),
+                accuracy=model_meta.get("metrics", {}).get("accuracy"),
+                created_at=model_meta["created_at"],
+                last_used=model_meta.get("last_used"),
+            )
+        )
 
     return model_list
 
@@ -246,18 +251,15 @@ async def get_model_info(model_id: str):
     return {
         "model_id": model_id,
         "metadata": model_meta,
-        "model_type": getattr(model, 'model_type', 'unknown'),
-        "features": getattr(model, 'features', []),
-        "target": getattr(model, 'target', None),
-        "hyperparameters": getattr(model, 'hyperparameters', {})
+        "model_type": getattr(model, "model_type", "unknown"),
+        "features": getattr(model, "features", []),
+        "target": getattr(model, "target", None),
+        "hyperparameters": getattr(model, "hyperparameters", {}),
     }
 
 
 @app.post("/models/train", response_model=TrainResponse)
-async def train_model(
-    request: TrainRequest,
-    background_tasks: BackgroundTasks
-):
+async def train_model(request: TrainRequest, background_tasks: BackgroundTasks):
     """Train a new ML model"""
     # For long training jobs, run in background
     if request.parameters.get("epochs", 0) > 100:
@@ -267,22 +269,19 @@ async def train_model(
             request.dataset,
             request.model_type,
             request.parameters,
-            request.test_split
+            request.test_split,
         )
         return TrainResponse(
             model_id=model_id,
             status="training",
             metrics={},
             training_time_seconds=0,
-            model_path=""
+            model_path="",
         )
     else:
         # Train synchronously for small models
         result = await train_model_async(
-            request.dataset,
-            request.model_type,
-            request.parameters,
-            request.test_split
+            request.dataset, request.model_type, request.parameters, request.test_split
         )
         return TrainResponse(**result)
 
@@ -291,6 +290,7 @@ async def train_model(
 async def predict(model_name: str, request: PredictRequest):
     """Make predictions using a model"""
     import time
+
     start_time = time.time()
 
     # Handle specialized models
@@ -331,20 +331,28 @@ async def predict(model_name: str, request: PredictRequest):
 
         return PredictResponse(
             model_id=model_name,
-            predictions=predictions.to_dict() if hasattr(predictions, 'to_dict') else predictions,
-            prediction_time_ms=prediction_time
+            predictions=(
+                predictions.to_dict()
+                if hasattr(predictions, "to_dict")
+                else predictions
+            ),
+            prediction_time_ms=prediction_time,
         )
 
     # Handle registered models
     elif request.model_id and request.model_id in model_server.models:
-        predictions = model_server.predict(request.model_id, pd.DataFrame([request.data]))
+        predictions = model_server.predict(
+            request.model_id, pd.DataFrame([request.data])
+        )
 
         prediction_time = (time.time() - start_time) * 1000
 
         return PredictResponse(
             model_id=request.model_id,
-            predictions=predictions.tolist() if hasattr(predictions, 'tolist') else predictions,
-            prediction_time_ms=prediction_time
+            predictions=(
+                predictions.tolist() if hasattr(predictions, "tolist") else predictions
+            ),
+            prediction_time_ms=prediction_time,
         )
 
     else:
@@ -353,12 +361,13 @@ async def predict(model_name: str, request: PredictRequest):
 
 @app.post("/models/batch_predict")
 async def batch_predict(
-    request: BatchPredictRequest,
-    background_tasks: BackgroundTasks
+    request: BatchPredictRequest, background_tasks: BackgroundTasks
 ):
     """Batch prediction on large datasets"""
     if request.model_id not in model_server.models:
-        raise HTTPException(status_code=404, detail=f"Model {request.model_id} not found")
+        raise HTTPException(
+            status_code=404, detail=f"Model {request.model_id} not found"
+        )
 
     # Run batch prediction in background
     job_id = str(uuid.uuid4())
@@ -371,7 +380,7 @@ async def batch_predict(
             # Make predictions in batches
             predictions = []
             for i in range(0, len(df), request.batch_size):
-                batch = df.iloc[i:i+request.batch_size]
+                batch = df.iloc[i : i + request.batch_size]
                 batch_preds = model_server.predict(request.model_id, batch)
                 predictions.extend(batch_preds)
 
@@ -380,7 +389,7 @@ async def batch_predict(
             Path(output_path).parent.mkdir(parents=True, exist_ok=True)
 
             results_df = df.copy()
-            results_df['predictions'] = predictions
+            results_df["predictions"] = predictions
             results_df.to_csv(output_path, index=False)
 
             logger.info(f"Batch prediction {job_id} completed")
@@ -395,7 +404,7 @@ async def batch_predict(
         "status": "processing",
         "model_id": request.model_id,
         "data_path": request.data_path,
-        "batch_size": request.batch_size
+        "batch_size": request.batch_size,
     }
 
 
@@ -415,15 +424,13 @@ async def get_model_metrics(model_id: str):
         {
             "date": (datetime.now() - timedelta(days=i)).isoformat(),
             "accuracy": metrics.get("accuracy", 0.9) + np.random.uniform(-0.05, 0.05),
-            "predictions_count": np.random.randint(100, 1000)
+            "predictions_count": np.random.randint(100, 1000),
         }
         for i in range(7)
     ]
 
     return ModelMetricsResponse(
-        model_id=model_id,
-        metrics=metrics,
-        performance_over_time=performance_over_time
+        model_id=model_id, metrics=metrics, performance_over_time=performance_over_time
     )
 
 
@@ -431,7 +438,7 @@ async def get_model_metrics(model_id: str):
 async def retrain_model(
     model_id: str,
     dataset_path: Optional[str] = None,
-    background_tasks: BackgroundTasks = None
+    background_tasks: BackgroundTasks = None,
 ):
     """Retrain an existing model with new data"""
     if model_id not in model_server.models:
@@ -447,12 +454,14 @@ async def retrain_model(
                 df = pd.read_csv(dataset_path)
             else:
                 # Use synthetic data for demo
-                df = pd.DataFrame({
-                    'feature1': np.random.randn(1000),
-                    'feature2': np.random.randn(1000),
-                    'feature3': np.random.randn(1000),
-                    'target': np.random.choice([0, 1], 1000)
-                })
+                df = pd.DataFrame(
+                    {
+                        "feature1": np.random.randn(1000),
+                        "feature2": np.random.randn(1000),
+                        "feature3": np.random.randn(1000),
+                        "target": np.random.choice([0, 1], 1000),
+                    }
+                )
 
             # Retrain model
             metrics = model.train(df)
@@ -471,7 +480,7 @@ async def retrain_model(
     return {
         "model_id": model_id,
         "status": "retraining",
-        "message": "Model retraining initiated"
+        "message": "Model retraining initiated",
     }
 
 
@@ -492,15 +501,13 @@ async def delete_model(model_id: str):
     return {
         "model_id": model_id,
         "status": "deleted",
-        "message": f"Model {model_id} has been deleted"
+        "message": f"Model {model_id} has been deleted",
     }
 
 
 @app.post("/models/upload")
 async def upload_model(
-    file: UploadFile = File(...),
-    name: str = "uploaded_model",
-    version: str = "1.0.0"
+    file: UploadFile = File(...), name: str = "uploaded_model", version: str = "1.0.0"
 ):
     """Upload a pre-trained model"""
     try:
@@ -510,24 +517,20 @@ async def upload_model(
         model_path.parent.mkdir(parents=True, exist_ok=True)
 
         content = await file.read()
-        with open(model_path, 'wb') as f:
+        with open(model_path, "wb") as f:
             f.write(content)
 
         # Load and register model
         model = joblib.load(model_path)
 
-        model_server.register_model(
-            model=model,
-            name=name,
-            version=version
-        )
+        model_server.register_model(model=model, name=name, version=version)
 
         return {
             "model_id": model_id,
             "status": "uploaded",
             "name": name,
             "version": version,
-            "file_size": len(content)
+            "file_size": len(content),
         }
 
     except Exception as e:
@@ -543,38 +546,23 @@ async def list_algorithms():
             "gradient_boosting",
             "logistic_regression",
             "svm",
-            "neural_network"
+            "neural_network",
         ],
         "regression": [
             "linear_regression",
             "random_forest",
             "gradient_boosting",
-            "neural_network"
+            "neural_network",
         ],
-        "clustering": [
-            "kmeans",
-            "dbscan",
-            "hierarchical",
-            "gaussian_mixture"
-        ],
-        "time_series": [
-            "prophet",
-            "arima",
-            "lstm",
-            "exponential_smoothing"
-        ],
-        "recommendation": [
-            "als",
-            "content_based",
-            "hybrid",
-            "deep_learning"
-        ],
+        "clustering": ["kmeans", "dbscan", "hierarchical", "gaussian_mixture"],
+        "time_series": ["prophet", "arima", "lstm", "exponential_smoothing"],
+        "recommendation": ["als", "content_based", "hybrid", "deep_learning"],
         "anomaly_detection": [
             "isolation_forest",
             "autoencoder",
             "statistical",
-            "one_class_svm"
-        ]
+            "one_class_svm",
+        ],
     }
 
 
@@ -588,41 +576,42 @@ async def list_datasets():
                 "rows": 100000,
                 "features": 15,
                 "target": "churned",
-                "task": "classification"
+                "task": "classification",
             },
             {
                 "name": "fintech_fraud",
                 "rows": 50000,
                 "features": 20,
                 "target": "is_fraud",
-                "task": "classification"
+                "task": "classification",
             },
             {
                 "name": "healthcare_vitals",
                 "rows": 75000,
                 "features": 12,
                 "target": "risk_score",
-                "task": "regression"
+                "task": "regression",
             },
             {
                 "name": "social_media_posts",
                 "rows": 200000,
                 "features": 25,
                 "target": "engagement",
-                "task": "regression"
+                "task": "regression",
             },
             {
                 "name": "energy_consumption",
                 "rows": 35000,
                 "features": 10,
                 "target": "consumption",
-                "task": "time_series"
-            }
+                "task": "time_series",
+            },
         ]
     }
 
 
 from datetime import timedelta
+
 
 @app.post("/models/automl")
 async def auto_ml(
@@ -631,7 +620,7 @@ async def auto_ml(
     task_type: str = "classification",
     optimization_metric: str = "accuracy",
     time_limit_minutes: int = 30,
-    background_tasks: BackgroundTasks = None
+    background_tasks: BackgroundTasks = None,
 ):
     """Automated machine learning - finds best model for dataset"""
     job_id = str(uuid.uuid4())
@@ -643,7 +632,7 @@ async def auto_ml(
                 "random_forest",
                 "gradient_boosting",
                 "logistic_regression",
-                "neural_network"
+                "neural_network",
             ]
 
             best_model = None
@@ -655,7 +644,7 @@ async def auto_ml(
                     dataset=dataset,
                     model_type=model_type,
                     parameters={"task_type": task_type},
-                    test_split=0.2
+                    test_split=0.2,
                 )
 
                 score = result["metrics"].get(optimization_metric, 0)
@@ -677,10 +666,13 @@ async def auto_ml(
         "target": target,
         "task_type": task_type,
         "optimization_metric": optimization_metric,
-        "estimated_completion": (datetime.now() + timedelta(minutes=time_limit_minutes)).isoformat()
+        "estimated_completion": (
+            datetime.now() + timedelta(minutes=time_limit_minutes)
+        ).isoformat(),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8002, log_level="info")

@@ -34,7 +34,7 @@ class DataGenerator:
         schema_name: str,
         rows: int = 1000,
         format: str = "sql",
-        seed: Optional[int] = None
+        seed: Optional[int] = None,
     ) -> Union[str, pd.DataFrame, Dict]:
         """
         Generate test data for a schema.
@@ -61,9 +61,7 @@ class DataGenerator:
         # Generate data for each table
         data = {}
         for table_name, table_config in schema_config.get("tables", {}).items():
-            data[table_name] = self._generate_table_data(
-                table_config, rows
-            )
+            data[table_name] = self._generate_table_data(table_config, rows)
 
         # Format output
         return self._format_output(data, format, schema_name)
@@ -111,9 +109,13 @@ class DataGenerator:
                         "specialization": {
                             "type": "choice",
                             "choices": [
-                                "Cardiology", "Neurology", "Pediatrics",
-                                "Orthopedics", "Dermatology", "Psychiatry"
-                            ]
+                                "Cardiology",
+                                "Neurology",
+                                "Pediatrics",
+                                "Orthopedics",
+                                "Dermatology",
+                                "Psychiatry",
+                            ],
                         },
                         "email": {"type": "email"},
                         "phone": {"type": "phone"},
@@ -129,13 +131,13 @@ class DataGenerator:
                         "appointment_date": {"type": "future_datetime"},
                         "status": {
                             "type": "choice",
-                            "choices": ["scheduled", "completed", "cancelled"]
+                            "choices": ["scheduled", "completed", "cancelled"],
                         },
                         "notes": {"type": "text"},
                         "created_at": {"type": "datetime"},
                     }
-                }
-            }
+                },
+            },
         }
 
     def _get_ecommerce_schema(self) -> Dict:
@@ -162,7 +164,13 @@ class DataGenerator:
                         "stock": {"type": "int", "min": 0, "max": 1000},
                         "category": {
                             "type": "choice",
-                            "choices": ["Electronics", "Clothing", "Food", "Books", "Toys"]
+                            "choices": [
+                                "Electronics",
+                                "Clothing",
+                                "Food",
+                                "Books",
+                                "Toys",
+                            ],
                         },
                         "created_at": {"type": "datetime"},
                     }
@@ -170,17 +178,26 @@ class DataGenerator:
                 "orders": {
                     "columns": {
                         "id": {"type": "int", "primary": True},
-                        "customer_id": {"type": "foreign_key", "reference": "customers"},
+                        "customer_id": {
+                            "type": "foreign_key",
+                            "reference": "customers",
+                        },
                         "order_date": {"type": "datetime"},
                         "total": {"type": "decimal", "min": 10, "max": 5000},
                         "status": {
                             "type": "choice",
-                            "choices": ["pending", "processing", "shipped", "delivered", "cancelled"]
+                            "choices": [
+                                "pending",
+                                "processing",
+                                "shipped",
+                                "delivered",
+                                "cancelled",
+                            ],
                         },
                         "shipping_address": {"type": "address"},
                     }
-                }
-            }
+                },
+            },
         }
 
     def _get_iot_schema(self) -> Dict:
@@ -195,12 +212,12 @@ class DataGenerator:
                         "name": {"type": "device_name"},
                         "type": {
                             "type": "choice",
-                            "choices": ["sensor", "actuator", "gateway", "controller"]
+                            "choices": ["sensor", "actuator", "gateway", "controller"],
                         },
                         "location": {"type": "city"},
                         "status": {
                             "type": "choice",
-                            "choices": ["online", "offline", "maintenance"]
+                            "choices": ["online", "offline", "maintenance"],
                         },
                         "created_at": {"type": "datetime"},
                     }
@@ -215,8 +232,8 @@ class DataGenerator:
                         "pressure": {"type": "float", "min": 900, "max": 1100},
                         "battery": {"type": "float", "min": 0, "max": 100},
                     }
-                }
-            }
+                },
+            },
         }
 
     def _get_social_media_schema(self) -> Dict:
@@ -254,8 +271,8 @@ class DataGenerator:
                         "content": {"type": "text"},
                         "created_at": {"type": "datetime"},
                     }
-                }
-            }
+                },
+            },
         }
 
     def _generate_table_data(self, table_config: Dict, rows: int) -> pd.DataFrame:
@@ -263,9 +280,7 @@ class DataGenerator:
         data = {}
 
         for column_name, column_config in table_config.get("columns", {}).items():
-            data[column_name] = self._generate_column_data(
-                column_config, rows
-            )
+            data[column_name] = self._generate_column_data(column_config, rows)
 
         return pd.DataFrame(data)
 
@@ -274,43 +289,60 @@ class DataGenerator:
         data_type = config.get("type", "string")
 
         generators = {
-            "int": lambda: [i + 1 if config.get("primary") else random.randint(
-                config.get("min", 1), config.get("max", 1000000)
-            ) for i in range(rows)],
-            "float": lambda: [random.uniform(
-                config.get("min", 0), config.get("max", 100)
-            ) for _ in range(rows)],
-            "decimal": lambda: [round(random.uniform(
-                config.get("min", 0), config.get("max", 1000)
-            ), 2) for _ in range(rows)],
+            "int": lambda: [
+                (
+                    i + 1
+                    if config.get("primary")
+                    else random.randint(
+                        config.get("min", 1), config.get("max", 1000000)
+                    )
+                )
+                for i in range(rows)
+            ],
+            "float": lambda: [
+                random.uniform(config.get("min", 0), config.get("max", 100))
+                for _ in range(rows)
+            ],
+            "decimal": lambda: [
+                round(random.uniform(config.get("min", 0), config.get("max", 1000)), 2)
+                for _ in range(rows)
+            ],
             "string": lambda: [self.faker.word() for _ in range(rows)],
             "text": lambda: [self.faker.text(max_nb_chars=200) for _ in range(rows)],
             "boolean": lambda: [random.choice([True, False]) for _ in range(rows)],
-            "datetime": lambda: [self.faker.date_time_between(
-                start_date="-1y", end_date="now"
-            ) for _ in range(rows)],
-            "date": lambda: [self.faker.date_between(
-                start_date="-1y", end_date="today"
-            ) for _ in range(rows)],
-            "future_datetime": lambda: [self.faker.date_time_between(
-                start_date="now", end_date="+1y"
-            ) for _ in range(rows)],
-            "date_of_birth": lambda: [self.faker.date_of_birth(
-                minimum_age=18, maximum_age=90
-            ) for _ in range(rows)],
+            "datetime": lambda: [
+                self.faker.date_time_between(start_date="-1y", end_date="now")
+                for _ in range(rows)
+            ],
+            "date": lambda: [
+                self.faker.date_between(start_date="-1y", end_date="today")
+                for _ in range(rows)
+            ],
+            "future_datetime": lambda: [
+                self.faker.date_time_between(start_date="now", end_date="+1y")
+                for _ in range(rows)
+            ],
+            "date_of_birth": lambda: [
+                self.faker.date_of_birth(minimum_age=18, maximum_age=90)
+                for _ in range(rows)
+            ],
             "email": lambda: [self.faker.email() for _ in range(rows)],
             "username": lambda: [self.faker.user_name() for _ in range(rows)],
             "first_name": lambda: [self.faker.first_name() for _ in range(rows)],
             "last_name": lambda: [self.faker.last_name() for _ in range(rows)],
             "name": lambda: [self.faker.name() for _ in range(rows)],
             "phone": lambda: [self.faker.phone_number() for _ in range(rows)],
-            "address": lambda: [self.faker.address().replace("\n", ", ") for _ in range(rows)],
+            "address": lambda: [
+                self.faker.address().replace("\n", ", ") for _ in range(rows)
+            ],
             "city": lambda: [self.faker.city() for _ in range(rows)],
             "country": lambda: [self.faker.country() for _ in range(rows)],
             "url": lambda: [self.faker.url() for _ in range(rows)],
             "uuid": lambda: [self.faker.uuid4() for _ in range(rows)],
             "product_name": lambda: [self.faker.catch_phrase() for _ in range(rows)],
-            "device_name": lambda: [f"Device-{self.faker.bothify('??##')}" for _ in range(rows)],
+            "device_name": lambda: [
+                f"Device-{self.faker.bothify('??##')}" for _ in range(rows)
+            ],
             "choice": lambda: [random.choice(config["choices"]) for _ in range(rows)],
             "foreign_key": lambda: [random.randint(1, rows) for _ in range(rows)],
         }
@@ -319,10 +351,7 @@ class DataGenerator:
         return generator()
 
     def _format_output(
-        self,
-        data: Dict[str, pd.DataFrame],
-        format: str,
-        schema_name: str
+        self, data: Dict[str, pd.DataFrame], format: str, schema_name: str
     ) -> Union[str, Dict, pd.DataFrame]:
         """Format generated data for output."""
         if format == "sql":
@@ -380,7 +409,9 @@ class DataGenerator:
             # Convert datetime objects to strings
             df_copy = df.copy()
             for col in df_copy.columns:
-                if df_copy[col].dtype == 'datetime64[ns]' or isinstance(df_copy[col].iloc[0], datetime):
+                if df_copy[col].dtype == "datetime64[ns]" or isinstance(
+                    df_copy[col].iloc[0], datetime
+                ):
                     df_copy[col] = df_copy[col].astype(str)
             json_data[table_name] = df_copy.to_dict(orient="records")
         return json.dumps(json_data, indent=2, default=str)
@@ -401,10 +432,7 @@ class SchemaGenerator:
         self.client = client
 
     def generate_from_template(
-        self,
-        template_name: str,
-        database_name: str,
-        **kwargs
+        self, template_name: str, database_name: str, **kwargs
     ) -> Database:
         """
         Generate schema from predefined template.
@@ -433,103 +461,121 @@ class SchemaGenerator:
         return templates[template_name](database_name, **kwargs)
 
     def _generate_microservice_schema(
-        self,
-        database_name: str,
-        include_audit: bool = True,
-        **kwargs
+        self, database_name: str, include_audit: bool = True, **kwargs
     ) -> Database:
         """Generate microservice database schema."""
         tables = []
 
         # Base entity table
-        tables.append(Table(
-            name="entities",
-            columns=[
-                Column(name="id", type="BIGINT", is_primary=True, auto_increment=True),
-                Column(name="uuid", type="VARCHAR(36)", is_unique=True, nullable=False),
-                Column(name="type", type="VARCHAR(50)", nullable=False),
-                Column(name="data", type="JSON"),
-                Column(name="version", type="INT", default_value=1),
-                Column(name="created_at", type="TIMESTAMP", default_value="CURRENT_TIMESTAMP"),
-                Column(name="updated_at", type="TIMESTAMP", default_value="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
-            ],
-            indexes=[
-                Index(name="idx_uuid", columns=["uuid"]),
-                Index(name="idx_type", columns=["type"]),
-                Index(name="idx_created", columns=["created_at"]),
-            ]
-        ))
+        tables.append(
+            Table(
+                name="entities",
+                columns=[
+                    Column(
+                        name="id", type="BIGINT", is_primary=True, auto_increment=True
+                    ),
+                    Column(
+                        name="uuid", type="VARCHAR(36)", is_unique=True, nullable=False
+                    ),
+                    Column(name="type", type="VARCHAR(50)", nullable=False),
+                    Column(name="data", type="JSON"),
+                    Column(name="version", type="INT", default_value=1),
+                    Column(
+                        name="created_at",
+                        type="TIMESTAMP",
+                        default_value="CURRENT_TIMESTAMP",
+                    ),
+                    Column(
+                        name="updated_at",
+                        type="TIMESTAMP",
+                        default_value="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+                    ),
+                ],
+                indexes=[
+                    Index(name="idx_uuid", columns=["uuid"]),
+                    Index(name="idx_type", columns=["type"]),
+                    Index(name="idx_created", columns=["created_at"]),
+                ],
+            )
+        )
 
         # Events table for event sourcing
-        tables.append(Table(
-            name="events",
-            columns=[
-                Column(name="id", type="BIGINT", is_primary=True, auto_increment=True),
-                Column(name="aggregate_id", type="VARCHAR(36)", nullable=False),
-                Column(name="event_type", type="VARCHAR(100)", nullable=False),
-                Column(name="event_data", type="JSON"),
-                Column(name="event_version", type="INT", nullable=False),
-                Column(name="created_at", type="TIMESTAMP", default_value="CURRENT_TIMESTAMP"),
-            ],
-            indexes=[
-                Index(name="idx_aggregate", columns=["aggregate_id"]),
-                Index(name="idx_event_type", columns=["event_type"]),
-            ]
-        ))
+        tables.append(
+            Table(
+                name="events",
+                columns=[
+                    Column(
+                        name="id", type="BIGINT", is_primary=True, auto_increment=True
+                    ),
+                    Column(name="aggregate_id", type="VARCHAR(36)", nullable=False),
+                    Column(name="event_type", type="VARCHAR(100)", nullable=False),
+                    Column(name="event_data", type="JSON"),
+                    Column(name="event_version", type="INT", nullable=False),
+                    Column(
+                        name="created_at",
+                        type="TIMESTAMP",
+                        default_value="CURRENT_TIMESTAMP",
+                    ),
+                ],
+                indexes=[
+                    Index(name="idx_aggregate", columns=["aggregate_id"]),
+                    Index(name="idx_event_type", columns=["event_type"]),
+                ],
+            )
+        )
 
         # Audit log table
         if include_audit:
-            tables.append(Table(
-                name="audit_log",
-                columns=[
-                    Column(name="id", type="BIGINT", is_primary=True, auto_increment=True),
-                    Column(name="user_id", type="VARCHAR(50)"),
-                    Column(name="action", type="VARCHAR(50)", nullable=False),
-                    Column(name="entity_type", type="VARCHAR(50)"),
-                    Column(name="entity_id", type="VARCHAR(36)"),
-                    Column(name="old_data", type="JSON"),
-                    Column(name="new_data", type="JSON"),
-                    Column(name="ip_address", type="VARCHAR(45)"),
-                    Column(name="user_agent", type="TEXT"),
-                    Column(name="created_at", type="TIMESTAMP", default_value="CURRENT_TIMESTAMP"),
-                ],
-                indexes=[
-                    Index(name="idx_user", columns=["user_id"]),
-                    Index(name="idx_entity", columns=["entity_type", "entity_id"]),
-                    Index(name="idx_created_audit", columns=["created_at"]),
-                ]
-            ))
+            tables.append(
+                Table(
+                    name="audit_log",
+                    columns=[
+                        Column(
+                            name="id",
+                            type="BIGINT",
+                            is_primary=True,
+                            auto_increment=True,
+                        ),
+                        Column(name="user_id", type="VARCHAR(50)"),
+                        Column(name="action", type="VARCHAR(50)", nullable=False),
+                        Column(name="entity_type", type="VARCHAR(50)"),
+                        Column(name="entity_id", type="VARCHAR(36)"),
+                        Column(name="old_data", type="JSON"),
+                        Column(name="new_data", type="JSON"),
+                        Column(name="ip_address", type="VARCHAR(45)"),
+                        Column(name="user_agent", type="TEXT"),
+                        Column(
+                            name="created_at",
+                            type="TIMESTAMP",
+                            default_value="CURRENT_TIMESTAMP",
+                        ),
+                    ],
+                    indexes=[
+                        Index(name="idx_user", columns=["user_id"]),
+                        Index(name="idx_entity", columns=["entity_type", "entity_id"]),
+                        Index(name="idx_created_audit", columns=["created_at"]),
+                    ],
+                )
+            )
 
         return Database(
             name=database_name,
             tables=tables,
             charset="utf8mb4",
-            collation="utf8mb4_unicode_ci"
+            collation="utf8mb4_unicode_ci",
         )
 
-    def _generate_data_warehouse_schema(
-        self,
-        database_name: str,
-        **kwargs
-    ) -> Database:
+    def _generate_data_warehouse_schema(self, database_name: str, **kwargs) -> Database:
         """Generate data warehouse schema with fact and dimension tables."""
         # Implementation for data warehouse schema
         pass
 
-    def _generate_time_series_schema(
-        self,
-        database_name: str,
-        **kwargs
-    ) -> Database:
+    def _generate_time_series_schema(self, database_name: str, **kwargs) -> Database:
         """Generate time series database schema."""
         # Implementation for time series schema
         pass
 
-    def _generate_multi_tenant_schema(
-        self,
-        database_name: str,
-        **kwargs
-    ) -> Database:
+    def _generate_multi_tenant_schema(self, database_name: str, **kwargs) -> Database:
         """Generate multi-tenant database schema."""
         # Implementation for multi-tenant schema
         pass

@@ -55,6 +55,7 @@ __all__ = [
     "NotFoundError",
 ]
 
+
 # Convenience function for quick client creation
 def create_client(
     host: str = "localhost",

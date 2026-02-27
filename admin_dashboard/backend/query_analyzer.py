@@ -11,6 +11,7 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
+
 class QueryAnalyzer:
     """Analyzes SQL queries for performance and optimization"""
 
@@ -27,32 +28,32 @@ class QueryAnalyzer:
                 "id": "missing_index",
                 "pattern": r"WHERE\s+(\w+)\s*=",
                 "suggestion": "Consider adding an index on column: {column}",
-                "severity": "warning"
+                "severity": "warning",
             },
             {
                 "id": "select_star",
                 "pattern": r"SELECT\s+\*\s+FROM",
                 "suggestion": "Avoid SELECT *, specify needed columns explicitly",
-                "severity": "info"
+                "severity": "info",
             },
             {
                 "id": "no_limit",
                 "pattern": r"SELECT.*FROM.*(?!LIMIT)",
                 "suggestion": "Consider adding LIMIT clause to prevent large result sets",
-                "severity": "info"
+                "severity": "info",
             },
             {
                 "id": "or_condition",
                 "pattern": r"WHERE.*\sOR\s",
                 "suggestion": "OR conditions can prevent index usage, consider using UNION",
-                "severity": "warning"
+                "severity": "warning",
             },
             {
                 "id": "like_wildcard",
                 "pattern": r"LIKE\s+['\"]%\w+",
                 "suggestion": "Leading wildcards prevent index usage",
-                "severity": "warning"
-            }
+                "severity": "warning",
+            },
         ]
 
     def analyze_query(self, query: str) -> Dict[str, Any]:
@@ -73,17 +74,19 @@ class QueryAnalyzer:
             "suggestions": [],
             "estimated_cost": self._estimate_cost(query),
             "complexity": self._calculate_complexity(query),
-            "analyzed_at": datetime.now().isoformat()
+            "analyzed_at": datetime.now().isoformat(),
         }
 
         # Apply optimization rules
         for rule in self.optimization_rules:
             if re.search(rule["pattern"], query, re.IGNORECASE):
-                analysis["suggestions"].append({
-                    "rule_id": rule["id"],
-                    "severity": rule["severity"],
-                    "message": rule["suggestion"]
-                })
+                analysis["suggestions"].append(
+                    {
+                        "rule_id": rule["id"],
+                        "severity": rule["severity"],
+                        "message": rule["suggestion"],
+                    }
+                )
 
         # Cache the analysis
         self.query_cache[query_hash] = analysis
@@ -164,7 +167,9 @@ class QueryAnalyzer:
         if where_match:
             where_clause = where_match.group(1)
             # Split by AND/OR
-            condition_parts = re.split(r"\s+(?:AND|OR)\s+", where_clause, flags=re.IGNORECASE)
+            condition_parts = re.split(
+                r"\s+(?:AND|OR)\s+", where_clause, flags=re.IGNORECASE
+            )
             conditions = [c.strip() for c in condition_parts if c.strip()]
 
         return conditions
@@ -211,13 +216,17 @@ class QueryAnalyzer:
 
         for i, query in enumerate(self.query_history[-limit:]):
             if query.get("estimated_cost", 0) > 50:
-                slow_queries.append({
-                    "id": f"slow_{i}",
-                    "query": query["query"],
-                    "duration_ms": query["estimated_cost"] * 2,
-                    "timestamp": query.get("analyzed_at", datetime.now().isoformat()),
-                    "suggestions": query.get("suggestions", [])
-                })
+                slow_queries.append(
+                    {
+                        "id": f"slow_{i}",
+                        "query": query["query"],
+                        "duration_ms": query["estimated_cost"] * 2,
+                        "timestamp": query.get(
+                            "analyzed_at", datetime.now().isoformat()
+                        ),
+                        "suggestions": query.get("suggestions", []),
+                    }
+                )
 
         return slow_queries
 
@@ -231,26 +240,30 @@ class QueryAnalyzer:
         # Apply automatic optimizations
         if "SELECT *" in query.upper():
             # This is a simplified example
-            optimizations.append({
-                "type": "column_specification",
-                "description": "Replace SELECT * with specific columns",
-                "impact": "high"
-            })
+            optimizations.append(
+                {
+                    "type": "column_specification",
+                    "description": "Replace SELECT * with specific columns",
+                    "impact": "high",
+                }
+            )
 
         if "LIMIT" not in query.upper() and "SELECT" in query.upper():
             optimized_query += " LIMIT 100"
-            optimizations.append({
-                "type": "add_limit",
-                "description": "Added LIMIT clause to prevent large result sets",
-                "impact": "medium"
-            })
+            optimizations.append(
+                {
+                    "type": "add_limit",
+                    "description": "Added LIMIT clause to prevent large result sets",
+                    "impact": "medium",
+                }
+            )
 
         return {
             "original_query": query,
             "optimized_query": optimized_query,
             "optimizations": optimizations,
             "estimated_improvement": "30%",
-            "analysis": analysis
+            "analysis": analysis,
         }
 
     def get_query_plan(self, query: str) -> Dict[str, Any]:
@@ -259,15 +272,19 @@ class QueryAnalyzer:
             "query": query,
             "plan": {
                 "type": "SIMPLE",
-                "table": self._extract_tables(query)[0] if self._extract_tables(query) else "unknown",
+                "table": (
+                    self._extract_tables(query)[0]
+                    if self._extract_tables(query)
+                    else "unknown"
+                ),
                 "possible_keys": ["PRIMARY"],
                 "key": "PRIMARY",
                 "rows": 100,
                 "filtered": 100.0,
-                "extra": "Using where"
+                "extra": "Using where",
             },
             "cost": self._estimate_cost(query),
-            "warnings": []
+            "warnings": [],
         }
 
     def get_index_suggestions(self, schema_name: str) -> List[Dict[str, Any]]:
@@ -281,14 +298,20 @@ class QueryAnalyzer:
                 col_match = re.match(r"([a-zA-Z_]\w*)\s*[=<>]", condition)
                 if col_match:
                     column = col_match.group(1)
-                    suggestions.append({
-                        "table": query.get("tables", ["unknown"])[0] if query.get("tables") else "unknown",
-                        "column": column,
-                        "type": "INDEX",
-                        "reason": "Frequently used in WHERE clause",
-                        "estimated_impact": "medium",
-                        "priority": "medium"
-                    })
+                    suggestions.append(
+                        {
+                            "table": (
+                                query.get("tables", ["unknown"])[0]
+                                if query.get("tables")
+                                else "unknown"
+                            ),
+                            "column": column,
+                            "type": "INDEX",
+                            "reason": "Frequently used in WHERE clause",
+                            "estimated_impact": "medium",
+                            "priority": "medium",
+                        }
+                    )
 
         # Remove duplicates
         seen = set()

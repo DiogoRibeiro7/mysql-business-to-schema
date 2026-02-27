@@ -16,6 +16,7 @@ from selenium.common.exceptions import TimeoutException
 import asyncio
 from playwright.async_api import async_playwright
 
+
 @pytest.mark.e2e
 class TestWebDemoUI:
     """Test web demo user interface."""
@@ -54,14 +55,14 @@ class TestWebDemoUI:
         wait = WebDriverWait(chrome_driver, 10)
 
         # Find and click schema selector
-        selector = wait.until(
-            EC.element_to_be_clickable((By.ID, "schema-selector"))
-        )
+        selector = wait.until(EC.element_to_be_clickable((By.ID, "schema-selector")))
         selector.click()
 
         # Select clinic schema
         clinic_option = wait.until(
-            EC.element_to_be_clickable((By.XPATH, "//option[text()='Clinic Management']"))
+            EC.element_to_be_clickable(
+                (By.XPATH, "//option[text()='Clinic Management']")
+            )
         )
         clinic_option.click()
 
@@ -86,9 +87,7 @@ class TestWebDemoUI:
         wait = WebDriverWait(chrome_driver, 10)
 
         # Find query editor
-        editor = wait.until(
-            EC.presence_of_element_located((By.ID, "query-editor"))
-        )
+        editor = wait.until(EC.presence_of_element_located((By.ID, "query-editor")))
 
         # Type a query
         test_query = "SELECT * FROM patients LIMIT 10"
@@ -99,9 +98,7 @@ class TestWebDemoUI:
         execute_btn.click()
 
         # Wait for results
-        results = wait.until(
-            EC.presence_of_element_located((By.ID, "query-results"))
-        )
+        results = wait.until(EC.presence_of_element_located((By.ID, "query-results")))
 
         # Verify results displayed
         rows = chrome_driver.find_elements(By.CSS_SELECTOR, "#query-results tr")
@@ -115,9 +112,7 @@ class TestWebDemoUI:
         wait = WebDriverWait(chrome_driver, 10)
 
         # Select chart type
-        chart_selector = wait.until(
-            EC.element_to_be_clickable((By.ID, "chart-type"))
-        )
+        chart_selector = wait.until(EC.element_to_be_clickable((By.ID, "chart-type")))
         chart_selector.click()
 
         bar_chart = chrome_driver.find_element(By.XPATH, "//option[text()='Bar Chart']")
@@ -125,7 +120,9 @@ class TestWebDemoUI:
 
         # Configure data source
         data_source = chrome_driver.find_element(By.ID, "data-source")
-        data_source.send_keys("SELECT COUNT(*) as count, status FROM orders GROUP BY status")
+        data_source.send_keys(
+            "SELECT COUNT(*) as count, status FROM orders GROUP BY status"
+        )
 
         # Generate chart
         generate_btn = chrome_driver.find_element(By.ID, "generate-chart")
@@ -150,7 +147,9 @@ class TestWebDemoUI:
             await page.goto(f"{test_config['web_demo']['url']}/real-time")
 
             # Wait for WebSocket connection
-            await page.wait_for_selector("#connection-status:has-text('Connected')", timeout=5000)
+            await page.wait_for_selector(
+                "#connection-status:has-text('Connected')", timeout=5000
+            )
 
             # Verify initial data
             initial_count = await page.inner_text("#record-count")
@@ -166,6 +165,7 @@ class TestWebDemoUI:
             assert updated_count >= initial_count
 
             await browser.close()
+
 
 @pytest.mark.e2e
 class TestGraphQLAPI:
@@ -220,8 +220,7 @@ class TestGraphQLAPI:
         variables = {"limit": 10, "offset": 0}
 
         response = requests.post(
-            graphql_url,
-            json={"query": query, "variables": variables}
+            graphql_url, json={"query": query, "variables": variables}
         )
 
         assert response.status_code == 200
@@ -251,13 +250,12 @@ class TestGraphQLAPI:
                 "doctorId": 1,
                 "scheduledAt": "2024-02-01T10:00:00Z",
                 "reason": "Regular checkup",
-                "status": "scheduled"
+                "status": "scheduled",
             }
         }
 
         response = requests.post(
-            graphql_url,
-            json={"query": mutation, "variables": variables}
+            graphql_url, json={"query": mutation, "variables": variables}
         )
 
         assert response.status_code == 200
@@ -295,15 +293,11 @@ class TestGraphQLAPI:
                         }
                     }
                     """
-                }
+                },
             }
             ws.send(json.dumps(subscription))
 
-        ws = websocket.WebSocketApp(
-            ws_url,
-            on_message=on_message,
-            on_open=on_open
-        )
+        ws = websocket.WebSocketApp(ws_url, on_message=on_message, on_open=on_open)
 
         # Run WebSocket in thread
         ws_thread = threading.Thread(target=ws.run_forever)
@@ -353,8 +347,11 @@ class TestGraphQLAPI:
             # Check if query was rejected due to complexity
             if "errors" in data:
                 error_messages = [e.get("message", "") for e in data["errors"]]
-                assert any("complexity" in msg.lower() or "depth" in msg.lower()
-                          for msg in error_messages)
+                assert any(
+                    "complexity" in msg.lower() or "depth" in msg.lower()
+                    for msg in error_messages
+                )
+
 
 @pytest.mark.e2e
 class TestRESTAPI:
@@ -392,15 +389,12 @@ class TestRESTAPI:
 
     def test_execute_query(self, api_base_url):
         """Test query execution endpoint."""
-        query_data = {
-            "query": "SELECT 1 as test",
-            "database": "test_db"
-        }
+        query_data = {"query": "SELECT 1 as test", "database": "test_db"}
 
         response = requests.post(
             f"{api_base_url}/query",
             json=query_data,
-            headers={"Authorization": "Bearer test-token"}
+            headers={"Authorization": "Bearer test-token"},
         )
 
         if response.status_code == 200:
@@ -423,15 +417,16 @@ class TestRESTAPI:
 
         # Check for rate limit headers
         last_response = responses[-1]
-        assert "X-RateLimit-Limit" in last_response.headers or \
-               "X-RateLimit-Remaining" in last_response.headers
+        assert (
+            "X-RateLimit-Limit" in last_response.headers
+            or "X-RateLimit-Remaining" in last_response.headers
+        )
 
     def test_pagination(self, api_base_url):
         """Test API pagination."""
         # Test with tables endpoint
         response = requests.get(
-            f"{api_base_url}/tables",
-            params={"page": 1, "limit": 10}
+            f"{api_base_url}/tables", params={"page": 1, "limit": 10}
         )
 
         assert response.status_code == 200
@@ -446,6 +441,7 @@ class TestRESTAPI:
         # Verify limit is respected
         assert len(data["data"]) <= 10
 
+
 @pytest.mark.e2e
 class TestAuthentication:
     """Test authentication and authorization."""
@@ -457,10 +453,7 @@ class TestAuthentication:
 
     def test_login(self, auth_api_url):
         """Test user login."""
-        credentials = {
-            "username": "testuser",
-            "password": "testpass123"
-        }
+        credentials = {"username": "testuser", "password": "testpass123"}
 
         response = requests.post(f"{auth_api_url}/login", json=credentials)
 
@@ -492,7 +485,7 @@ class TestAuthentication:
             response = requests.post(
                 f"{api_base_url}/query",
                 json={"query": "SELECT 1"},
-                headers={"Authorization": f"Bearer {token}"}
+                headers={"Authorization": f"Bearer {token}"},
             )
 
             assert response.status_code == 200
@@ -509,12 +502,12 @@ class TestAuthentication:
             if refresh_token:
                 # Use refresh token
                 refresh_response = requests.post(
-                    f"{auth_api_url}/refresh",
-                    json={"refresh_token": refresh_token}
+                    f"{auth_api_url}/refresh", json={"refresh_token": refresh_token}
                 )
 
                 assert refresh_response.status_code == 200
                 assert "token" in refresh_response.json()
+
 
 @pytest.mark.e2e
 class TestErrorHandling:
@@ -524,13 +517,13 @@ class TestErrorHandling:
         """Test handling of invalid SQL queries."""
         query_data = {
             "query": "SELCT * FORM users",  # Intentional typos
-            "database": "test_db"
+            "database": "test_db",
         }
 
         response = requests.post(
             f"{api_base_url}/query",
             json=query_data,
-            headers={"Authorization": "Bearer test-token"}
+            headers={"Authorization": "Bearer test-token"},
         )
 
         assert response.status_code in [400, 422]
@@ -541,15 +534,12 @@ class TestErrorHandling:
     def test_database_connection_failure(self, api_base_url):
         """Test handling of database connection failures."""
         # Query with non-existent database
-        query_data = {
-            "query": "SELECT 1",
-            "database": "non_existent_db"
-        }
+        query_data = {"query": "SELECT 1", "database": "non_existent_db"}
 
         response = requests.post(
             f"{api_base_url}/query",
             json=query_data,
-            headers={"Authorization": "Bearer test-token"}
+            headers={"Authorization": "Bearer test-token"},
         )
 
         assert response.status_code in [500, 503]
@@ -562,14 +552,14 @@ class TestErrorHandling:
         query_data = {
             "query": "SELECT SLEEP(30)",  # 30 second sleep
             "database": "test_db",
-            "timeout": 1  # 1 second timeout
+            "timeout": 1,  # 1 second timeout
         }
 
         response = requests.post(
             f"{api_base_url}/query",
             json=query_data,
             headers={"Authorization": "Bearer test-token"},
-            timeout=5
+            timeout=5,
         )
 
         assert response.status_code in [408, 504]

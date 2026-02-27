@@ -12,6 +12,6 @@ from . import (
 )
 
 __all__ = [
-    'init',
-    'generate',
+    "init",
+    "generate",
 ]

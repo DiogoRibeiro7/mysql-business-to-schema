@@ -20,18 +20,22 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import psutil
 import threading
 
+
 class ColorOutput:
     """Color codes for terminal output"""
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    RED = '\033[91m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    RESET = '\033[0m'
-    BOLD = '\033[1m'
+
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    RED = "\033[91m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+
 
 class BenchmarkResult:
     """Container for benchmark results"""
+
     def __init__(self, name: str):
         self.name = name
         self.start_time = None
@@ -46,18 +50,20 @@ class BenchmarkResult:
 
     def to_dict(self) -> Dict:
         return {
-            'name': self.name,
-            'duration': self.duration,
-            'rows_generated': self.rows_generated,
-            'memory_peak_mb': self.memory_peak,
-            'cpu_peak_percent': self.cpu_peak,
-            'queries_per_second': self.queries_per_second,
-            'errors': self.errors,
-            'metadata': self.metadata
+            "name": self.name,
+            "duration": self.duration,
+            "rows_generated": self.rows_generated,
+            "memory_peak_mb": self.memory_peak,
+            "cpu_peak_percent": self.cpu_peak,
+            "queries_per_second": self.queries_per_second,
+            "errors": self.errors,
+            "metadata": self.metadata,
         }
+
 
 class ResourceMonitor:
     """Monitor system resource usage during benchmarks"""
+
     def __init__(self):
         self.monitoring = False
         self.memory_samples = []
@@ -95,6 +101,7 @@ class ResourceMonitor:
             except:
                 pass
 
+
 class DatabaseBenchmark:
     """Benchmark database operations"""
 
@@ -107,11 +114,11 @@ class DatabaseBenchmark:
         """Establish database connection"""
         try:
             self.connection = mysql.connector.connect(
-                host=self.config.get('host', 'localhost'),
-                port=self.config.get('port', 3306),
-                user=self.config.get('user', 'root'),
-                password=self.config.get('password', ''),
-                database=self.config.get('database', '')
+                host=self.config.get("host", "localhost"),
+                port=self.config.get("port", 3306),
+                user=self.config.get("user", "root"),
+                password=self.config.get("password", ""),
+                database=self.config.get("database", ""),
             )
             return True
         except Exception as e:
@@ -147,7 +154,9 @@ class DatabaseBenchmark:
             result.end_time = time.time()
             result.duration = result.end_time - result.start_time
             result.rows_generated = count
-            result.queries_per_second = count / result.duration if result.duration > 0 else 0
+            result.queries_per_second = (
+                count / result.duration if result.duration > 0 else 0
+            )
 
             memory_peak, cpu_peak = monitor.stop()
             result.memory_peak = memory_peak
@@ -177,7 +186,9 @@ class DatabaseBenchmark:
 
             result.end_time = time.time()
             result.duration = result.end_time - result.start_time
-            result.queries_per_second = count / result.duration if result.duration > 0 else 0
+            result.queries_per_second = (
+                count / result.duration if result.duration > 0 else 0
+            )
 
             memory_peak, cpu_peak = monitor.stop()
             result.memory_peak = memory_peak
@@ -219,7 +230,9 @@ class DatabaseBenchmark:
 
             result.end_time = time.time()
             result.duration = result.end_time - result.start_time
-            result.queries_per_second = count / result.duration if result.duration > 0 else 0
+            result.queries_per_second = (
+                count / result.duration if result.duration > 0 else 0
+            )
 
             memory_peak, cpu_peak = monitor.stop()
             result.memory_peak = memory_peak
@@ -257,7 +270,9 @@ class DatabaseBenchmark:
 
             result.end_time = time.time()
             result.duration = result.end_time - result.start_time
-            result.queries_per_second = (count * len(queries)) / result.duration if result.duration > 0 else 0
+            result.queries_per_second = (
+                (count * len(queries)) / result.duration if result.duration > 0 else 0
+            )
 
             memory_peak, cpu_peak = monitor.stop()
             result.memory_peak = memory_peak
@@ -276,19 +291,20 @@ class DatabaseBenchmark:
         values = []
         for col in columns:
             col_type = col[1].lower()
-            if 'int' in col_type:
-                values.append('1')
-            elif 'varchar' in col_type or 'text' in col_type:
+            if "int" in col_type:
+                values.append("1")
+            elif "varchar" in col_type or "text" in col_type:
                 values.append("'test'")
-            elif 'decimal' in col_type or 'float' in col_type:
-                values.append('1.0')
-            elif 'date' in col_type:
+            elif "decimal" in col_type or "float" in col_type:
+                values.append("1.0")
+            elif "date" in col_type:
                 values.append("'2024-01-01'")
-            elif 'time' in col_type:
+            elif "time" in col_type:
                 values.append("'2024-01-01 00:00:00'")
             else:
-                values.append('NULL')
-        return ','.join(values)
+                values.append("NULL")
+        return ",".join(values)
+
 
 class GeneratorBenchmark:
     """Benchmark data generators"""
@@ -297,7 +313,7 @@ class GeneratorBenchmark:
         self.generator_path = generator_path
         self.results = []
 
-    def benchmark_generator(self, mode: str = 'test') -> BenchmarkResult:
+    def benchmark_generator(self, mode: str = "test") -> BenchmarkResult:
         """Benchmark a single generator"""
         generator_name = Path(self.generator_path).parent.name
         result = BenchmarkResult(f"generator_{generator_name}")
@@ -305,18 +321,18 @@ class GeneratorBenchmark:
 
         try:
             env = os.environ.copy()
-            env['GENERATOR_MODE'] = mode
+            env["GENERATOR_MODE"] = mode
 
             monitor.start()
             result.start_time = time.time()
 
             # Run generator
             process = subprocess.Popen(
-                [sys.executable, 'generator.py'],
+                [sys.executable, "generator.py"],
                 cwd=self.generator_path,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                env=env
+                env=env,
             )
 
             stdout, stderr = process.communicate(timeout=300)  # 5 minute timeout
@@ -325,9 +341,9 @@ class GeneratorBenchmark:
             result.duration = result.end_time - result.start_time
 
             # Parse output for row count
-            output = stdout.decode('utf-8')
-            for line in output.split('\n'):
-                if 'Generated' in line and 'records' in line:
+            output = stdout.decode("utf-8")
+            for line in output.split("\n"):
+                if "Generated" in line and "records" in line:
                     try:
                         parts = line.split()
                         for i, part in enumerate(parts):
@@ -342,7 +358,7 @@ class GeneratorBenchmark:
 
             if process.returncode != 0:
                 result.errors.append(f"Generator failed with code {process.returncode}")
-                result.errors.append(stderr.decode('utf-8'))
+                result.errors.append(stderr.decode("utf-8"))
 
         except subprocess.TimeoutExpired:
             result.errors.append("Generator timeout (5 minutes)")
@@ -352,6 +368,7 @@ class GeneratorBenchmark:
             monitor.stop()
 
         return result
+
 
 class BenchmarkSuite:
     """Main benchmark orchestrator"""
@@ -368,12 +385,22 @@ class BenchmarkSuite:
 
         # Get list of examples
         if examples:
-            example_dirs = [self.project_root / f"example_{ex}" if not ex.startswith('example_') else self.project_root / ex
-                           for ex in examples]
+            example_dirs = [
+                (
+                    self.project_root / f"example_{ex}"
+                    if not ex.startswith("example_")
+                    else self.project_root / ex
+                )
+                for ex in examples
+            ]
         else:
-            example_dirs = sorted([d for d in self.project_root.glob("example_*") if d.is_dir()])
+            example_dirs = sorted(
+                [d for d in self.project_root.glob("example_*") if d.is_dir()]
+            )
 
-        print(f"{ColorOutput.BOLD}MySQL Business-to-Schema Benchmark Suite{ColorOutput.RESET}")
+        print(
+            f"{ColorOutput.BOLD}MySQL Business-to-Schema Benchmark Suite{ColorOutput.RESET}"
+        )
         print(f"{'=' * 60}")
         print(f"Starting benchmarks for {len(example_dirs)} examples")
         print(f"Parallel execution: {parallel}")
@@ -392,21 +419,29 @@ class BenchmarkSuite:
         """Run benchmarks sequentially"""
         for i, example_dir in enumerate(example_dirs, 1):
             example_name = example_dir.name
-            print(f"{ColorOutput.CYAN}[{i}/{len(example_dirs)}] Benchmarking {example_name}{ColorOutput.RESET}")
+            print(
+                f"{ColorOutput.CYAN}[{i}/{len(example_dirs)}] Benchmarking {example_name}{ColorOutput.RESET}"
+            )
 
             result = self._benchmark_example(example_dir)
             self.results[example_name] = result
 
-            if result.get('errors'):
-                print(f"  {ColorOutput.RED}[FAIL] {len(result['errors'])} errors{ColorOutput.RESET}")
+            if result.get("errors"):
+                print(
+                    f"  {ColorOutput.RED}[FAIL] {len(result['errors'])} errors{ColorOutput.RESET}"
+                )
             else:
-                print(f"  {ColorOutput.GREEN}[OK] Duration: {result.get('total_duration', 0):.2f}s{ColorOutput.RESET}")
+                print(
+                    f"  {ColorOutput.GREEN}[OK] Duration: {result.get('total_duration', 0):.2f}s{ColorOutput.RESET}"
+                )
 
     def _run_parallel(self, example_dirs: List[Path]):
         """Run benchmarks in parallel"""
         with ThreadPoolExecutor(max_workers=4) as executor:
-            futures = {executor.submit(self._benchmark_example, d): d.name
-                      for d in example_dirs}
+            futures = {
+                executor.submit(self._benchmark_example, d): d.name
+                for d in example_dirs
+            }
 
             for future in as_completed(futures):
                 example_name = futures[future]
@@ -414,38 +449,48 @@ class BenchmarkSuite:
                     result = future.result(timeout=600)  # 10 minute timeout
                     self.results[example_name] = result
 
-                    if result.get('errors'):
-                        print(f"{ColorOutput.RED}[FAIL] {example_name}{ColorOutput.RESET}")
+                    if result.get("errors"):
+                        print(
+                            f"{ColorOutput.RED}[FAIL] {example_name}{ColorOutput.RESET}"
+                        )
                     else:
-                        print(f"{ColorOutput.GREEN}[OK] {example_name} - {result.get('total_duration', 0):.2f}s{ColorOutput.RESET}")
+                        print(
+                            f"{ColorOutput.GREEN}[OK] {example_name} - {result.get('total_duration', 0):.2f}s{ColorOutput.RESET}"
+                        )
                 except Exception as e:
-                    print(f"{ColorOutput.RED}[ERROR] {example_name}: {e}{ColorOutput.RESET}")
-                    self.results[example_name] = {'errors': [str(e)]}
+                    print(
+                        f"{ColorOutput.RED}[ERROR] {example_name}: {e}{ColorOutput.RESET}"
+                    )
+                    self.results[example_name] = {"errors": [str(e)]}
 
     def _benchmark_example(self, example_dir: Path) -> Dict:
         """Benchmark a single example"""
         results = {
-            'example': example_dir.name,
-            'timestamp': datetime.now().isoformat(),
-            'generator': {},
-            'database': {},
-            'errors': []
+            "example": example_dir.name,
+            "timestamp": datetime.now().isoformat(),
+            "generator": {},
+            "database": {},
+            "errors": [],
         }
 
         # Find generator
-        generator_name = example_dir.name.replace('example_', '').split('_', 1)[1] if '_' in example_dir.name else example_dir.name
-        generator_path = self.project_root / 'generators' / generator_name
+        generator_name = (
+            example_dir.name.replace("example_", "").split("_", 1)[1]
+            if "_" in example_dir.name
+            else example_dir.name
+        )
+        generator_path = self.project_root / "generators" / generator_name
 
         # Benchmark generator if it exists
-        if generator_path.exists() and (generator_path / 'generator.py').exists():
+        if generator_path.exists() and (generator_path / "generator.py").exists():
             bench = GeneratorBenchmark(str(generator_path))
-            gen_result = bench.benchmark_generator('test')
-            results['generator'] = gen_result.to_dict()
+            gen_result = bench.benchmark_generator("test")
+            results["generator"] = gen_result.to_dict()
         else:
-            results['errors'].append(f"Generator not found: {generator_path}")
+            results["errors"].append(f"Generator not found: {generator_path}")
 
         # Benchmark database operations if docker-compose exists
-        docker_compose = example_dir / 'docker-compose.yml'
+        docker_compose = example_dir / "docker-compose.yml"
         if docker_compose.exists():
             # Parse docker-compose for connection details
             config = self._parse_docker_compose(docker_compose)
@@ -459,10 +504,10 @@ class BenchmarkSuite:
 
         # Calculate total duration
         total_duration = 0
-        if results['generator']:
-            total_duration += results['generator'].get('duration', 0)
+        if results["generator"]:
+            total_duration += results["generator"].get("duration", 0)
 
-        results['total_duration'] = total_duration
+        results["total_duration"] = total_duration
 
         return results
 
@@ -470,26 +515,27 @@ class BenchmarkSuite:
         """Parse docker-compose.yml for database configuration"""
         try:
             import yaml
-            with open(compose_file, 'r') as f:
+
+            with open(compose_file, "r") as f:
                 compose = yaml.safe_load(f)
 
-            mysql_service = compose.get('services', {}).get('mysql', {})
-            env = mysql_service.get('environment', {})
-            ports = mysql_service.get('ports', [])
+            mysql_service = compose.get("services", {}).get("mysql", {})
+            env = mysql_service.get("environment", {})
+            ports = mysql_service.get("ports", [])
 
             # Extract port
             port = 3306
             if ports:
-                port_mapping = ports[0].split(':')
+                port_mapping = ports[0].split(":")
                 if len(port_mapping) == 2:
                     port = int(port_mapping[0])
 
             return {
-                'host': 'localhost',
-                'port': port,
-                'user': 'root',
-                'password': env.get('MYSQL_ROOT_PASSWORD', ''),
-                'database': env.get('MYSQL_DATABASE', '')
+                "host": "localhost",
+                "port": port,
+                "user": "root",
+                "password": env.get("MYSQL_ROOT_PASSWORD", ""),
+                "database": env.get("MYSQL_DATABASE", ""),
             }
         except Exception as e:
             return None
@@ -501,7 +547,7 @@ class BenchmarkSuite:
         print(f"{'=' * 60}")
 
         total_duration = (self.end_time - self.start_time).total_seconds()
-        successful = sum(1 for r in self.results.values() if not r.get('errors'))
+        successful = sum(1 for r in self.results.values() if not r.get("errors"))
         failed = len(self.results) - successful
 
         print(f"Total Examples: {len(self.results)}")
@@ -512,20 +558,23 @@ class BenchmarkSuite:
         # Top performers
         if self.results:
             sorted_results = sorted(
-                [(k, v) for k, v in self.results.items() if not v.get('errors')],
-                key=lambda x: x[1].get('total_duration', float('inf'))
+                [(k, v) for k, v in self.results.items() if not v.get("errors")],
+                key=lambda x: x[1].get("total_duration", float("inf")),
             )
 
             if sorted_results:
                 print(f"\n{ColorOutput.BOLD}Top 5 Fastest Examples:{ColorOutput.RESET}")
                 for i, (name, result) in enumerate(sorted_results[:5], 1):
-                    duration = result.get('total_duration', 0)
-                    rows = result.get('generator', {}).get('rows_generated', 0)
+                    duration = result.get("total_duration", 0)
+                    rows = result.get("generator", {}).get("rows_generated", 0)
                     print(f"  {i}. {name}: {duration:.2f}s ({rows} rows)")
 
         # Memory usage
-        all_memory = [r.get('generator', {}).get('memory_peak_mb', 0)
-                     for r in self.results.values() if not r.get('errors')]
+        all_memory = [
+            r.get("generator", {}).get("memory_peak_mb", 0)
+            for r in self.results.values()
+            if not r.get("errors")
+        ]
         if all_memory:
             print(f"\n{ColorOutput.BOLD}Memory Usage:{ColorOutput.RESET}")
             print(f"  Average: {statistics.mean(all_memory):.2f} MB")
@@ -533,30 +582,43 @@ class BenchmarkSuite:
 
     def _save_results(self):
         """Save benchmark results to file"""
-        output_dir = self.project_root / 'benchmark_results'
+        output_dir = self.project_root / "benchmark_results"
         output_dir.mkdir(exist_ok=True)
 
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        output_file = output_dir / f'benchmark_{timestamp}.json'
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_file = output_dir / f"benchmark_{timestamp}.json"
 
-        with open(output_file, 'w') as f:
-            json.dump({
-                'start_time': self.start_time.isoformat(),
-                'end_time': self.end_time.isoformat(),
-                'duration': (self.end_time - self.start_time).total_seconds(),
-                'results': self.results
-            }, f, indent=2)
+        with open(output_file, "w") as f:
+            json.dump(
+                {
+                    "start_time": self.start_time.isoformat(),
+                    "end_time": self.end_time.isoformat(),
+                    "duration": (self.end_time - self.start_time).total_seconds(),
+                    "results": self.results,
+                },
+                f,
+                indent=2,
+            )
 
         print(f"\nResults saved to: {output_file}")
 
+
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description='MySQL Business-to-Schema Benchmark Suite')
-    parser.add_argument('--examples', nargs='+', help='Specific examples to benchmark')
-    parser.add_argument('--parallel', action='store_true', help='Run benchmarks in parallel')
-    parser.add_argument('--mode', choices=['test', 'production'], default='test',
-                       help='Generator mode (test=small dataset, production=large dataset)')
-    parser.add_argument('--output', help='Output file for results')
+    parser = argparse.ArgumentParser(
+        description="MySQL Business-to-Schema Benchmark Suite"
+    )
+    parser.add_argument("--examples", nargs="+", help="Specific examples to benchmark")
+    parser.add_argument(
+        "--parallel", action="store_true", help="Run benchmarks in parallel"
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["test", "production"],
+        default="test",
+        help="Generator mode (test=small dataset, production=large dataset)",
+    )
+    parser.add_argument("--output", help="Output file for results")
 
     args = parser.parse_args()
 
@@ -568,5 +630,6 @@ def main():
     suite = BenchmarkSuite(str(project_root))
     suite.run_all(parallel=args.parallel, examples=args.examples)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

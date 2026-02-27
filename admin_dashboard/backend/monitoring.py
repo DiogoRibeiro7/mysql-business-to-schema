@@ -14,6 +14,7 @@ from fastapi import WebSocket
 
 logger = logging.getLogger(__name__)
 
+
 class MetricsCollector:
     """Collects and manages system metrics."""
 
@@ -24,7 +25,7 @@ class MetricsCollector:
             "disk_io": deque(maxlen=100),
             "network_io": deque(maxlen=100),
             "query_latency": deque(maxlen=100),
-            "qps": deque(maxlen=100)
+            "qps": deque(maxlen=100),
         }
         self.collection_task = None
         self.is_collecting = False
@@ -60,36 +61,40 @@ class MetricsCollector:
                 network_io = psutil.net_io_counters()
 
                 # Store metrics
-                self.metrics_history["cpu"].append({
-                    "timestamp": timestamp.isoformat(),
-                    "value": cpu_percent
-                })
+                self.metrics_history["cpu"].append(
+                    {"timestamp": timestamp.isoformat(), "value": cpu_percent}
+                )
 
-                self.metrics_history["memory"].append({
-                    "timestamp": timestamp.isoformat(),
-                    "value": memory.percent
-                })
+                self.metrics_history["memory"].append(
+                    {"timestamp": timestamp.isoformat(), "value": memory.percent}
+                )
 
                 if disk_io:
-                    self.metrics_history["disk_io"].append({
-                        "timestamp": timestamp.isoformat(),
-                        "read_bytes": disk_io.read_bytes,
-                        "write_bytes": disk_io.write_bytes
-                    })
+                    self.metrics_history["disk_io"].append(
+                        {
+                            "timestamp": timestamp.isoformat(),
+                            "read_bytes": disk_io.read_bytes,
+                            "write_bytes": disk_io.write_bytes,
+                        }
+                    )
 
                 if network_io:
-                    self.metrics_history["network_io"].append({
-                        "timestamp": timestamp.isoformat(),
-                        "bytes_sent": network_io.bytes_sent,
-                        "bytes_recv": network_io.bytes_recv
-                    })
+                    self.metrics_history["network_io"].append(
+                        {
+                            "timestamp": timestamp.isoformat(),
+                            "bytes_sent": network_io.bytes_sent,
+                            "bytes_recv": network_io.bytes_recv,
+                        }
+                    )
 
                 # Database metrics (would need actual DB connection)
                 # This is placeholder for actual implementation
-                self.metrics_history["qps"].append({
-                    "timestamp": timestamp.isoformat(),
-                    "value": 0  # Would calculate actual QPS
-                })
+                self.metrics_history["qps"].append(
+                    {
+                        "timestamp": timestamp.isoformat(),
+                        "value": 0,  # Would calculate actual QPS
+                    }
+                )
 
                 await asyncio.sleep(5)  # Collect every 5 seconds
 
@@ -111,17 +116,25 @@ class MetricsCollector:
             "qps": 0,
             "uptime_percentage": 99.9,
             "slow_queries_count": 0,
-            "error_rate": 0
+            "error_rate": 0,
         }
 
         try:
             # Get actual database metrics
             databases = await db_manager.execute_query("SHOW DATABASES")
-            metrics["database_count"] = len([d for d in databases
-                                           if d["Database"] not in ["information_schema", "mysql", "performance_schema", "sys"]])
+            metrics["database_count"] = len(
+                [
+                    d
+                    for d in databases
+                    if d["Database"]
+                    not in ["information_schema", "mysql", "performance_schema", "sys"]
+                ]
+            )
 
             # Get connection count
-            connections = await db_manager.execute_query("SHOW STATUS LIKE 'Threads_connected'")
+            connections = await db_manager.execute_query(
+                "SHOW STATUS LIKE 'Threads_connected'"
+            )
             if connections:
                 metrics["active_connections"] = int(connections[0]["Value"])
 
@@ -131,7 +144,11 @@ class MetricsCollector:
             if queries and uptime:
                 total_queries = int(queries[0]["Value"])
                 uptime_seconds = int(uptime[0]["Value"])
-                metrics["qps"] = round(total_queries / uptime_seconds, 2) if uptime_seconds > 0 else 0
+                metrics["qps"] = (
+                    round(total_queries / uptime_seconds, 2)
+                    if uptime_seconds > 0
+                    else 0
+                )
 
         except Exception as e:
             logger.error(f"Error getting overview metrics: {e}")
@@ -142,11 +159,11 @@ class MetricsCollector:
         """Get performance metrics for specified timeframe."""
         # Convert timeframe to number of data points
         points_map = {
-            "5m": 12,   # 5 minutes, one point every 25 seconds
+            "5m": 12,  # 5 minutes, one point every 25 seconds
             "15m": 18,  # 15 minutes
-            "1h": 60,   # 1 hour
-            "6h": 72,   # 6 hours
-            "24h": 96   # 24 hours
+            "1h": 60,  # 1 hour
+            "6h": 72,  # 6 hours
+            "24h": 96,  # 24 hours
         }
         num_points = points_map.get(timeframe, 60)
 
@@ -163,7 +180,7 @@ class MetricsCollector:
             "disk_io": get_recent("disk_io", num_points),
             "network_io": get_recent("network_io", num_points),
             "query_latency": get_recent("query_latency", num_points),
-            "timestamps": [datetime.utcnow().isoformat()]
+            "timestamps": [datetime.utcnow().isoformat()],
         }
 
     async def get_slow_queries(self, limit: int = 10) -> List[Dict[str, Any]]:
@@ -197,7 +214,7 @@ class MetricsCollector:
                         "rows_examined": r["rows_examined"],
                         "rows_sent": r["rows_sent"],
                         "timestamp": r["start_time"],
-                        "database": r["db"]
+                        "database": r["db"],
                     }
                     for i, r in enumerate(results)
                 ]
@@ -227,7 +244,7 @@ class MetricsCollector:
                         "rows_examined": r["total_rows_examined"],
                         "rows_sent": r["total_rows_sent"],
                         "first_seen": r["FIRST_SEEN"],
-                        "last_seen": r["LAST_SEEN"]
+                        "last_seen": r["LAST_SEEN"],
                     }
                     for i, r in enumerate(results)
                 ]
@@ -249,12 +266,14 @@ class MetricsCollector:
 
         try:
             # Get current QPS
-            status = await db_manager.execute_query("""
+            status = await db_manager.execute_query(
+                """
                 SELECT
                     (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Queries') as queries,
                     (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Uptime') as uptime,
                     (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Threads_connected') as connections
-            """)
+            """
+            )
 
             if status:
                 queries = int(status[0].get("queries", 0))
@@ -271,7 +290,7 @@ class MetricsCollector:
             "qps": qps,
             "active_connections": connections,
             "response_time_ms": 0,  # Would calculate actual response time
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     async def check_alerts(self) -> List[Dict[str, Any]]:
@@ -282,9 +301,11 @@ class MetricsCollector:
 
         try:
             # Get active alert configurations
-            alerts = await db_manager.execute_query("""
+            alerts = await db_manager.execute_query(
+                """
                 SELECT * FROM alert_configs WHERE is_enabled = 1
-            """)
+            """
+            )
 
             # Get current metrics
             current_metrics = await self.get_real_time_metrics()
@@ -316,27 +337,32 @@ class MetricsCollector:
                         triggered = True
 
                     if triggered:
-                        triggered_alerts.append({
-                            "alert_id": alert["alert_id"],
-                            "alert_name": alert["name"],
-                            "metric": metric_name,
-                            "current_value": metric_value,
-                            "threshold": threshold,
-                            "condition": condition
-                        })
+                        triggered_alerts.append(
+                            {
+                                "alert_id": alert["alert_id"],
+                                "alert_name": alert["name"],
+                                "metric": metric_name,
+                                "current_value": metric_value,
+                                "threshold": threshold,
+                                "condition": condition,
+                            }
+                        )
 
                         # Record in alert history
-                        await db_manager.execute_update("""
+                        await db_manager.execute_update(
+                            """
                             INSERT INTO alert_history
                             (alert_id, alert_name, metric_value, threshold, condition_type)
                             VALUES (%s, %s, %s, %s, %s)
-                        """, (
-                            alert["alert_id"],
-                            alert["name"],
-                            metric_value,
-                            threshold,
-                            condition
-                        ))
+                        """,
+                            (
+                                alert["alert_id"],
+                                alert["name"],
+                                metric_value,
+                                threshold,
+                                condition,
+                            ),
+                        )
 
         except Exception as e:
             logger.error(f"Error checking alerts: {e}")
@@ -354,13 +380,17 @@ class ConnectionManager:
         """Accept WebSocket connection."""
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"WebSocket client connected. Total connections: {len(self.active_connections)}")
+        logger.info(
+            f"WebSocket client connected. Total connections: {len(self.active_connections)}"
+        )
 
     def disconnect(self, websocket: WebSocket):
         """Remove WebSocket connection."""
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-            logger.info(f"WebSocket client disconnected. Total connections: {len(self.active_connections)}")
+            logger.info(
+                f"WebSocket client disconnected. Total connections: {len(self.active_connections)}"
+            )
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
         """Send message to specific WebSocket."""

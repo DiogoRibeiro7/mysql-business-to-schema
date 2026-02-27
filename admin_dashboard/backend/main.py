@@ -16,10 +16,10 @@ from admin_dashboard.backend.app import app
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
+
 
 def main():
     """Run the FastAPI application"""
@@ -31,11 +31,12 @@ def main():
         "port": 8000,
         "reload": True,  # Enable auto-reload in development
         "log_level": "info",
-        "access_log": True
+        "access_log": True,
     }
 
     # Check if running in production mode
     import os
+
     if os.getenv("ENVIRONMENT") == "production":
         config["reload"] = False
         config["workers"] = 4
@@ -46,14 +47,14 @@ def main():
     try:
         # Start the server
         uvicorn.run(
-            "admin_dashboard.backend.app:app" if config["reload"] else app,
-            **config
+            "admin_dashboard.backend.app:app" if config["reload"] else app, **config
         )
     except KeyboardInterrupt:
         logger.info("Server stopped by user")
     except Exception as e:
         logger.error(f"Server error: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()

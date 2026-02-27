@@ -60,7 +60,7 @@ class MySQLSchemaClient:
         timeout: int = 30,
         verify_ssl: bool = True,
         max_retries: int = 3,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize MySQL Schema client.
@@ -103,8 +103,7 @@ class MySQLSchemaClient:
             self.session.headers["Authorization"] = f"Bearer {api_key}"
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=4, max=10)
+        stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10)
     )
     def _request(
         self,
@@ -112,7 +111,7 @@ class MySQLSchemaClient:
         endpoint: str,
         params: Optional[Dict] = None,
         json_data: Optional[Dict] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """
         Make HTTP request to API.
@@ -139,7 +138,7 @@ class MySQLSchemaClient:
                 params=params,
                 json=json_data,
                 timeout=self.timeout,
-                **kwargs
+                **kwargs,
             )
 
             response.raise_for_status()
@@ -179,7 +178,7 @@ class MySQLSchemaClient:
         response = self._request(
             "POST",
             "/auth/login",
-            json_data={"username": username, "password": password}
+            json_data={"username": username, "password": password},
         )
 
         self.token = response.get("access_token")
@@ -221,10 +220,7 @@ class MySQLSchemaClient:
         return Database(**data)
 
     def create_database(
-        self,
-        name: str,
-        charset: str = "utf8mb4",
-        collation: str = "utf8mb4_unicode_ci"
+        self, name: str, charset: str = "utf8mb4", collation: str = "utf8mb4_unicode_ci"
     ) -> Database:
         """
         Create a new database.
@@ -240,11 +236,7 @@ class MySQLSchemaClient:
         data = self._request(
             "POST",
             "/schemas/databases",
-            json_data={
-                "name": name,
-                "charset": charset,
-                "collation": collation
-            }
+            json_data={"name": name, "charset": charset, "collation": collation},
         )
         return Database(**data)
 
@@ -300,9 +292,7 @@ class MySQLSchemaClient:
             Created Table object
         """
         data = self._request(
-            "POST",
-            f"/schemas/databases/{database}/tables",
-            json_data=table_definition
+            "POST", f"/schemas/databases/{database}/tables", json_data=table_definition
         )
         return Table(**data)
 
@@ -325,10 +315,7 @@ class MySQLSchemaClient:
         return [Migration(**m) for m in data]
 
     def create_migration(
-        self,
-        description: str,
-        up_script: str,
-        down_script: Optional[str] = None
+        self, description: str, up_script: str, down_script: Optional[str] = None
     ) -> Migration:
         """
         Create a new migration.
@@ -347,15 +334,13 @@ class MySQLSchemaClient:
             json_data={
                 "description": description,
                 "up_script": up_script,
-                "down_script": down_script
-            }
+                "down_script": down_script,
+            },
         )
         return Migration(**data)
 
     def apply_migration(
-        self,
-        target_version: Optional[str] = None,
-        dry_run: bool = False
+        self, target_version: Optional[str] = None, dry_run: bool = False
     ) -> Migration:
         """
         Apply migrations.
@@ -370,17 +355,12 @@ class MySQLSchemaClient:
         data = self._request(
             "POST",
             "/migrations/apply",
-            json_data={
-                "target_version": target_version,
-                "dry_run": dry_run
-            }
+            json_data={"target_version": target_version, "dry_run": dry_run},
         )
         return Migration(**data)
 
     def rollback_migration(
-        self,
-        target_version: Optional[str] = None,
-        steps: int = 1
+        self, target_version: Optional[str] = None, steps: int = 1
     ) -> Migration:
         """
         Rollback migrations.
@@ -395,10 +375,7 @@ class MySQLSchemaClient:
         data = self._request(
             "POST",
             "/migrations/rollback",
-            json_data={
-                "target_version": target_version,
-                "steps": steps
-            }
+            json_data={"target_version": target_version, "steps": steps},
         )
         return Migration(**data)
 
@@ -407,10 +384,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def execute_query(
-        self,
-        query: str,
-        database: str,
-        limit: Optional[int] = None
+        self, query: str, database: str, limit: Optional[int] = None
     ) -> QueryResult:
         """
         Execute a SQL query.
@@ -426,11 +400,7 @@ class MySQLSchemaClient:
         data = self._request(
             "POST",
             "/query/execute",
-            json_data={
-                "query": query,
-                "database": database,
-                "limit": limit
-            }
+            json_data={"query": query, "database": database, "limit": limit},
         )
         return QueryResult(**data)
 
@@ -446,12 +416,7 @@ class MySQLSchemaClient:
             Query execution plan
         """
         return self._request(
-            "POST",
-            "/query/explain",
-            json_data={
-                "query": query,
-                "database": database
-            }
+            "POST", "/query/explain", json_data={"query": query, "database": database}
         )
 
     def optimize_query(self, query: str, database: str) -> Dict[str, Any]:
@@ -466,12 +431,7 @@ class MySQLSchemaClient:
             Optimization suggestions
         """
         return self._request(
-            "POST",
-            "/query/optimize",
-            json_data={
-                "query": query,
-                "database": database
-            }
+            "POST", "/query/optimize", json_data={"query": query, "database": database}
         )
 
     # ============================================
@@ -489,11 +449,7 @@ class MySQLSchemaClient:
         return [User(**user) for user in data]
 
     def create_user(
-        self,
-        username: str,
-        email: str,
-        password: str,
-        role: str = "viewer"
+        self, username: str, email: str, password: str, role: str = "viewer"
     ) -> User:
         """
         Create a new user.
@@ -514,8 +470,8 @@ class MySQLSchemaClient:
                 "username": username,
                 "email": email,
                 "password": password,
-                "role": role
-            }
+                "role": role,
+            },
         )
         return User(**data)
 
@@ -547,10 +503,7 @@ class MySQLSchemaClient:
         return [Backup(**backup) for backup in data]
 
     def create_backup(
-        self,
-        database: str,
-        description: Optional[str] = None,
-        compression: bool = True
+        self, database: str, description: Optional[str] = None, compression: bool = True
     ) -> Backup:
         """
         Create a database backup.
@@ -569,16 +522,13 @@ class MySQLSchemaClient:
             json_data={
                 "database": database,
                 "description": description,
-                "compression": compression
-            }
+                "compression": compression,
+            },
         )
         return Backup(**data)
 
     def restore_backup(
-        self,
-        backup_id: str,
-        target_database: str,
-        validate_checksum: bool = True
+        self, backup_id: str, target_database: str, validate_checksum: bool = True
     ) -> Dict[str, Any]:
         """
         Restore from backup.
@@ -597,8 +547,8 @@ class MySQLSchemaClient:
             json_data={
                 "backup_id": backup_id,
                 "target_database": target_database,
-                "validate_checksum": validate_checksum
-            }
+                "validate_checksum": validate_checksum,
+            },
         )
 
     # ============================================
@@ -625,10 +575,7 @@ class MySQLSchemaClient:
         Returns:
             Performance metrics
         """
-        return self._request(
-            "GET",
-            f"/monitoring/performance?timeframe={timeframe}"
-        )
+        return self._request("GET", f"/monitoring/performance?timeframe={timeframe}")
 
     def get_slow_queries(self, limit: int = 10) -> List[Query]:
         """
@@ -659,10 +606,7 @@ class MySQLSchemaClient:
         return self.data_generator
 
     def generate_data(
-        self,
-        schema_name: str,
-        rows: int = 1000,
-        format: str = "sql"
+        self, schema_name: str, rows: int = 1000, format: str = "sql"
     ) -> str:
         """
         Generate test data for a schema.
@@ -696,7 +640,7 @@ class MySQLSchemaClient:
             self.websocket = WebSocketClient(
                 host=self.base_url.replace("http", "ws").replace("/api", ""),
                 token=self.token,
-                auto_reconnect=auto_reconnect
+                auto_reconnect=auto_reconnect,
             )
             self.websocket.connect()
         return self.websocket

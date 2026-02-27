@@ -17,7 +17,9 @@ def count_tables(example_path: Path) -> int:
     return total
 
 
-def write_badge(path: Path, label: str, message: str, color: str, extra: dict | None = None) -> None:
+def write_badge(
+    path: Path, label: str, message: str, color: str, extra: dict | None = None
+) -> None:
     payload = {
         "schemaVersion": 1,
         "label": label,

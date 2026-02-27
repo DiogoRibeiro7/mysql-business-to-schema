@@ -40,7 +40,9 @@ class ValidationError(MySQLSchemaError):
 class NotFoundError(MySQLSchemaError):
     """Raised when requested resource is not found."""
 
-    def __init__(self, message: str = "Resource not found", resource: str = None, **kwargs):
+    def __init__(
+        self, message: str = "Resource not found", resource: str = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if resource:
             details["resource"] = resource
@@ -50,7 +52,9 @@ class NotFoundError(MySQLSchemaError):
 class PermissionError(MySQLSchemaError):
     """Raised when user lacks required permissions."""
 
-    def __init__(self, message: str = "Permission denied", required_role: str = None, **kwargs):
+    def __init__(
+        self, message: str = "Permission denied", required_role: str = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if required_role:
             details["required_role"] = required_role
@@ -60,7 +64,9 @@ class PermissionError(MySQLSchemaError):
 class MigrationError(MySQLSchemaError):
     """Raised when migration operation fails."""
 
-    def __init__(self, message: str = "Migration failed", migration_id: str = None, **kwargs):
+    def __init__(
+        self, message: str = "Migration failed", migration_id: str = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if migration_id:
             details["migration_id"] = migration_id
@@ -80,7 +86,9 @@ class QueryError(MySQLSchemaError):
 class BackupError(MySQLSchemaError):
     """Raised when backup operation fails."""
 
-    def __init__(self, message: str = "Backup operation failed", backup_id: str = None, **kwargs):
+    def __init__(
+        self, message: str = "Backup operation failed", backup_id: str = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if backup_id:
             details["backup_id"] = backup_id
@@ -90,7 +98,9 @@ class BackupError(MySQLSchemaError):
 class TimeoutError(MySQLSchemaError):
     """Raised when operation times out."""
 
-    def __init__(self, message: str = "Operation timed out", timeout: int = None, **kwargs):
+    def __init__(
+        self, message: str = "Operation timed out", timeout: int = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if timeout:
             details["timeout_seconds"] = timeout
@@ -100,7 +110,9 @@ class TimeoutError(MySQLSchemaError):
 class RateLimitError(MySQLSchemaError):
     """Raised when API rate limit is exceeded."""
 
-    def __init__(self, message: str = "Rate limit exceeded", retry_after: int = None, **kwargs):
+    def __init__(
+        self, message: str = "Rate limit exceeded", retry_after: int = None, **kwargs
+    ):
         details = kwargs.get("details", {})
         if retry_after:
             details["retry_after_seconds"] = retry_after

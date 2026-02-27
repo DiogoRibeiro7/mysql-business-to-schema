@@ -25,6 +25,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 # Security
 security = HTTPBearer()
 
+
 class AuthManager:
     """Manages authentication and authorization."""
 
@@ -37,7 +38,7 @@ class AuthManager:
                 "hashed_password": self.hash_password("admin123"),
                 "role": UserRole.ADMIN,
                 "permissions": ["*"],
-                "is_active": True
+                "is_active": True,
             },
             "developer": {
                 "username": "developer",
@@ -45,7 +46,7 @@ class AuthManager:
                 "hashed_password": self.hash_password("dev123"),
                 "role": UserRole.DEVELOPER,
                 "permissions": ["read", "write", "execute"],
-                "is_active": True
+                "is_active": True,
             },
             "analyst": {
                 "username": "analyst",
@@ -53,7 +54,7 @@ class AuthManager:
                 "hashed_password": self.hash_password("analyst123"),
                 "role": UserRole.ANALYST,
                 "permissions": ["read", "execute"],
-                "is_active": True
+                "is_active": True,
             },
             "viewer": {
                 "username": "viewer",
@@ -61,8 +62,8 @@ class AuthManager:
                 "hashed_password": self.hash_password("viewer123"),
                 "role": UserRole.VIEWER,
                 "permissions": ["read"],
-                "is_active": True
-            }
+                "is_active": True,
+            },
         }
         self.active_tokens: Dict[str, Dict[str, Any]] = {}
 
@@ -86,7 +87,7 @@ class AuthManager:
         self.active_tokens[token] = {
             "username": data.get("sub"),
             "created_at": datetime.utcnow(),
-            "expires_at": expire
+            "expires_at": expire,
         }
 
         return token
@@ -105,13 +106,12 @@ class AuthManager:
             if token in self.active_tokens:
                 del self.active_tokens[token]
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token has expired"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
             )
         except jwt.InvalidTokenError as e:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Invalid token: {str(e)}"
+                detail=f"Invalid token: {str(e)}",
             )
 
     async def login(self, username: str, password: str) -> Optional[str]:
@@ -134,8 +134,12 @@ class AuthManager:
         access_token = self.create_access_token(
             data={
                 "sub": username,
-                "role": user["role"].value if isinstance(user["role"], UserRole) else user["role"],
-                "permissions": user["permissions"]
+                "role": (
+                    user["role"].value
+                    if isinstance(user["role"], UserRole)
+                    else user["role"]
+                ),
+                "permissions": user["permissions"],
             }
         )
 
@@ -154,7 +158,8 @@ class AuthManager:
         # Clean up expired tokens
         current_time = datetime.utcnow()
         expired_tokens = [
-            t for t, info in self.active_tokens.items()
+            t
+            for t, info in self.active_tokens.items()
             if info["expires_at"] < current_time
         ]
         for token in expired_tokens:
@@ -175,29 +180,31 @@ class AuthManager:
             role=user_data["role"],
             permissions=user_data["permissions"],
             created_at=user_data.get("created_at"),
-            last_login=user_data.get("last_login")
+            last_login=user_data.get("last_login"),
         )
 
     async def list_users(self) -> List[Dict[str, Any]]:
         """List all users."""
         users = []
         for username, user_data in self.users_db.items():
-            users.append({
-                "username": username,
-                "email": user_data["email"],
-                "role": user_data["role"].value if isinstance(user_data["role"], UserRole) else user_data["role"],
-                "permissions": user_data["permissions"],
-                "is_active": user_data.get("is_active", True),
-                "last_login": user_data.get("last_login")
-            })
+            users.append(
+                {
+                    "username": username,
+                    "email": user_data["email"],
+                    "role": (
+                        user_data["role"].value
+                        if isinstance(user_data["role"], UserRole)
+                        else user_data["role"]
+                    ),
+                    "permissions": user_data["permissions"],
+                    "is_active": user_data.get("is_active", True),
+                    "last_login": user_data.get("last_login"),
+                }
+            )
         return users
 
     async def create_user(
-        self,
-        username: str,
-        email: str,
-        password: str,
-        role: UserRole = UserRole.VIEWER
+        self, username: str, email: str, password: str, role: UserRole = UserRole.VIEWER
     ) -> Dict[str, Any]:
         """Create a new user."""
         if username in self.users_db:
@@ -208,7 +215,7 @@ class AuthManager:
             UserRole.ADMIN: ["*"],
             UserRole.DEVELOPER: ["read", "write", "execute"],
             UserRole.ANALYST: ["read", "execute"],
-            UserRole.VIEWER: ["read"]
+            UserRole.VIEWER: ["read"],
         }
 
         user_data = {
@@ -218,18 +225,14 @@ class AuthManager:
             "role": role,
             "permissions": permissions_map.get(role, ["read"]),
             "is_active": True,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.utcnow(),
         }
 
         self.users_db[username] = user_data
 
         logger.info(f"User {username} created with role {role}")
 
-        return {
-            "username": username,
-            "email": email,
-            "role": role.value
-        }
+        return {"username": username, "email": email, "role": role.value}
 
     async def update_user(
         self,
@@ -237,7 +240,7 @@ class AuthManager:
         email: Optional[str] = None,
         role: Optional[UserRole] = None,
         permissions: Optional[List[str]] = None,
-        is_active: Optional[bool] = None
+        is_active: Optional[bool] = None,
     ) -> bool:
         """Update user information."""
         if username not in self.users_db:
@@ -270,7 +273,9 @@ class AuthManager:
         logger.info(f"User {username} deleted")
         return True
 
-    async def change_password(self, username: str, old_password: str, new_password: str) -> bool:
+    async def change_password(
+        self, username: str, old_password: str, new_password: str
+    ) -> bool:
         """Change user password."""
         user_data = self.users_db.get(username)
 
@@ -294,10 +299,14 @@ class AuthManager:
         """Check if user has one of the required roles."""
         return user.role in required_roles
 
+
 # Singleton instance
 auth_manager = AuthManager()
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> User:
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> User:
     """Get current user from JWT token."""
     token = credentials.credentials
 
@@ -308,15 +317,14 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials"
+                detail="Invalid authentication credentials",
             )
 
         user = await auth_manager.get_user(username)
 
         if user is None:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found"
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found"
             )
 
         return user
@@ -327,28 +335,34 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         logger.error(f"Authentication error: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials"
+            detail="Could not validate credentials",
         )
+
 
 def require_roles(roles: List[UserRole]):
     """Dependency to require specific roles."""
+
     def role_checker(current_user: User = Depends(get_current_user)):
         if not auth_manager.check_role(current_user, roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"Requires one of roles: {[r.value for r in roles]}"
+                detail=f"Requires one of roles: {[r.value for r in roles]}",
             )
         return current_user
+
     return role_checker
+
 
 def require_permissions(permissions: List[str]):
     """Dependency to require specific permissions."""
+
     def permission_checker(current_user: User = Depends(get_current_user)):
         for permission in permissions:
             if not auth_manager.has_permission(current_user, permission):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Missing permission: {permission}"
+                    detail=f"Missing permission: {permission}",
                 )
         return current_user
+
     return permission_checker

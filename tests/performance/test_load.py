@@ -14,6 +14,7 @@ import psutil
 import json
 from pathlib import Path
 
+
 @pytest.mark.performance
 class TestDatabasePerformance:
     """Test database performance under load."""
@@ -21,14 +22,16 @@ class TestDatabasePerformance:
     def test_bulk_insert_performance(self, mysql_connection, mysql_cursor):
         """Test bulk insert performance with varying batch sizes."""
         # Create test table
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS perf_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 data VARCHAR(255),
                 value DECIMAL(10,2),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
         mysql_connection.commit()
 
         batch_sizes = [100, 500, 1000, 5000, 10000]
@@ -41,8 +44,7 @@ class TestDatabasePerformance:
             # Measure insert time
             start = time.time()
             mysql_cursor.executemany(
-                "INSERT INTO perf_test (data, value) VALUES (%s, %s)",
-                data
+                "INSERT INTO perf_test (data, value) VALUES (%s, %s)", data
             )
             mysql_connection.commit()
             elapsed = time.time() - start
@@ -50,7 +52,7 @@ class TestDatabasePerformance:
             records_per_second = batch_size / elapsed
             results[batch_size] = {
                 "time": elapsed,
-                "records_per_second": records_per_second
+                "records_per_second": records_per_second,
             }
 
             # Clean up for next test
@@ -59,28 +61,33 @@ class TestDatabasePerformance:
 
         # Verify performance meets thresholds
         for batch_size, metrics in results.items():
-            print(f"Batch size {batch_size}: {metrics['records_per_second']:.0f} records/sec")
-            assert metrics['records_per_second'] > 100  # Minimum 100 records/sec
+            print(
+                f"Batch size {batch_size}: {metrics['records_per_second']:.0f} records/sec"
+            )
+            assert metrics["records_per_second"] > 100  # Minimum 100 records/sec
 
     def test_concurrent_read_performance(self, mysql_container):
         """Test concurrent read performance."""
+
         def read_worker(thread_id, num_queries):
             conn = mysql.connector.connect(
                 host=mysql_container["host"],
                 port=mysql_container["port"],
                 user=mysql_container["user"],
                 password=mysql_container["password"],
-                database=mysql_container["database"]
+                database=mysql_container["database"],
             )
             cursor = conn.cursor()
 
             query_times = []
             for i in range(num_queries):
                 start = time.time()
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT COUNT(*) FROM information_schema.columns
                     WHERE table_schema = DATABASE()
-                """)
+                """
+                )
                 cursor.fetchall()
                 query_times.append(time.time() - start)
 
@@ -120,17 +127,20 @@ class TestDatabasePerformance:
     def test_index_impact_on_performance(self, mysql_connection, mysql_cursor):
         """Test performance impact of indexes."""
         # Create table without index
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS no_index_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 user_id INT,
                 status VARCHAR(20),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         # Create table with index
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS with_index_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 user_id INT,
@@ -138,38 +148,42 @@ class TestDatabasePerformance:
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_user_status (user_id, status)
             )
-        """)
+        """
+        )
         mysql_connection.commit()
 
         # Insert test data
-        test_data = [(i % 1000, "active" if i % 2 == 0 else "inactive")
-                     for i in range(10000)]
+        test_data = [
+            (i % 1000, "active" if i % 2 == 0 else "inactive") for i in range(10000)
+        ]
 
         mysql_cursor.executemany(
-            "INSERT INTO no_index_test (user_id, status) VALUES (%s, %s)",
-            test_data
+            "INSERT INTO no_index_test (user_id, status) VALUES (%s, %s)", test_data
         )
         mysql_cursor.executemany(
-            "INSERT INTO with_index_test (user_id, status) VALUES (%s, %s)",
-            test_data
+            "INSERT INTO with_index_test (user_id, status) VALUES (%s, %s)", test_data
         )
         mysql_connection.commit()
 
         # Test query performance without index
         start = time.time()
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             SELECT COUNT(*) FROM no_index_test
             WHERE user_id = 500 AND status = 'active'
-        """)
+        """
+        )
         mysql_cursor.fetchall()
         no_index_time = time.time() - start
 
         # Test query performance with index
         start = time.time()
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             SELECT COUNT(*) FROM with_index_test
             WHERE user_id = 500 AND status = 'active'
-        """)
+        """
+        )
         mysql_cursor.fetchall()
         with_index_time = time.time() - start
 
@@ -186,19 +200,20 @@ class TestDatabasePerformance:
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Create large result set
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS memory_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 large_text TEXT
             )
-        """)
+        """
+        )
 
         # Insert large data
         large_text = "x" * 10000  # 10KB per row
         for i in range(100):
             mysql_cursor.execute(
-                "INSERT INTO memory_test (large_text) VALUES (%s)",
-                (large_text,)
+                "INSERT INTO memory_test (large_text) VALUES (%s)", (large_text,)
             )
         mysql_connection.commit()
 
@@ -221,6 +236,7 @@ class TestDatabasePerformance:
 
 class WebDemoUser(HttpUser):
     """Locust user for load testing web demo."""
+
     wait_time = between(1, 3)
 
     @task(3)
@@ -238,11 +254,8 @@ class WebDemoUser(HttpUser):
         """Execute a simple query."""
         self.client.post(
             "/api/v1/query",
-            json={
-                "query": "SELECT 1",
-                "database": "test_db"
-            },
-            headers={"Authorization": "Bearer test-token"}
+            json={"query": "SELECT 1", "database": "test_db"},
+            headers={"Authorization": "Bearer test-token"},
         )
 
     @task(1)
@@ -258,9 +271,9 @@ class WebDemoUser(HttpUser):
                 GROUP BY p.id
                 LIMIT 10
                 """,
-                "database": "clinic_db"
+                "database": "clinic_db",
             },
-            headers={"Authorization": "Bearer test-token"}
+            headers={"Authorization": "Bearer test-token"},
         )
 
     @task(2)
@@ -278,7 +291,7 @@ class WebDemoUser(HttpUser):
                     }
                 }
                 """
-            }
+            },
         )
 
 
@@ -293,11 +306,7 @@ class TestLoadTesting:
         env.create_local_runner()
 
         # Configure load test
-        env.runner.start(
-            user_count=10,
-            spawn_rate=2,
-            wait=False
-        )
+        env.runner.start(user_count=10, spawn_rate=2, wait=False)
 
         # Run for 30 seconds
         time.sleep(30)
@@ -365,7 +374,9 @@ class TestLoadTesting:
         initial_response_time = statistics.mean(response_times[:3])
         final_response_time = statistics.mean(response_times[-3:])
 
-        degradation = (final_response_time - initial_response_time) / initial_response_time
+        degradation = (
+            final_response_time - initial_response_time
+        ) / initial_response_time
 
         print(f"Performance degradation: {degradation:.1%}")
 
@@ -407,10 +418,7 @@ class TestQueryOptimization:
             elapsed = time.time() - start
 
             if elapsed > 0.1:
-                slow_queries.append({
-                    "query": query[:100],
-                    "time": elapsed
-                })
+                slow_queries.append({"query": query[:100], "time": elapsed})
 
         # Log slow queries
         if slow_queries:
@@ -422,7 +430,8 @@ class TestQueryOptimization:
     def test_query_plan_analysis(self, mysql_cursor, mysql_connection):
         """Analyze query execution plans."""
         # Create test table with data
-        mysql_cursor.execute("""
+        mysql_cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS plan_test (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 category VARCHAR(50),
@@ -431,7 +440,8 @@ class TestQueryOptimization:
                 INDEX idx_category (category),
                 INDEX idx_status_created (status, created_at)
             )
-        """)
+        """
+        )
 
         # Insert test data
         categories = ["electronics", "clothing", "books", "food", "toys"]
@@ -440,20 +450,28 @@ class TestQueryOptimization:
         for i in range(1000):
             mysql_cursor.execute(
                 "INSERT INTO plan_test (category, status) VALUES (%s, %s)",
-                (categories[i % 5], statuses[i % 3])
+                (categories[i % 5], statuses[i % 3]),
             )
         mysql_connection.commit()
 
         # Analyze different query patterns
         queries = [
-            ("Good: Using index",
-             "SELECT * FROM plan_test WHERE category = 'electronics'"),
-            ("Good: Using covering index",
-             "SELECT status, created_at FROM plan_test WHERE status = 'active'"),
-            ("Bad: Full table scan",
-             "SELECT * FROM plan_test WHERE DATE(created_at) = CURDATE()"),
-            ("Bad: No index on expression",
-             "SELECT * FROM plan_test WHERE UPPER(category) = 'ELECTRONICS'")
+            (
+                "Good: Using index",
+                "SELECT * FROM plan_test WHERE category = 'electronics'",
+            ),
+            (
+                "Good: Using covering index",
+                "SELECT status, created_at FROM plan_test WHERE status = 'active'",
+            ),
+            (
+                "Bad: Full table scan",
+                "SELECT * FROM plan_test WHERE DATE(created_at) = CURDATE()",
+            ),
+            (
+                "Bad: No index on expression",
+                "SELECT * FROM plan_test WHERE UPPER(category) = 'ELECTRONICS'",
+            ),
         ]
 
         for description, query in queries:
@@ -463,9 +481,11 @@ class TestQueryOptimization:
             print(f"\n{description}:")
             print(f"  Query: {query[:80]}")
             for row in plan:
-                print(f"  Type: {row.get('type', 'N/A')}, "
-                      f"Key: {row.get('key', 'N/A')}, "
-                      f"Rows: {row.get('rows', 'N/A')}")
+                print(
+                    f"  Type: {row.get('type', 'N/A')}, "
+                    f"Key: {row.get('key', 'N/A')}, "
+                    f"Rows: {row.get('rows', 'N/A')}"
+                )
 
     def test_connection_pool_performance(self, mysql_container):
         """Test connection pool vs individual connections."""
@@ -479,7 +499,7 @@ class TestQueryOptimization:
                 port=mysql_container["port"],
                 user=mysql_container["user"],
                 password=mysql_container["password"],
-                database=mysql_container["database"]
+                database=mysql_container["database"],
             )
             cursor = conn.cursor()
             cursor.execute("SELECT 1")
@@ -490,6 +510,7 @@ class TestQueryOptimization:
 
         # Test with connection pooling
         from mysql.connector import pooling
+
         pool = pooling.MySQLConnectionPool(
             pool_name="test_pool",
             pool_size=5,
@@ -497,7 +518,7 @@ class TestQueryOptimization:
             port=mysql_container["port"],
             user=mysql_container["user"],
             password=mysql_container["password"],
-            database=mysql_container["database"]
+            database=mysql_container["database"],
         )
 
         start = time.time()

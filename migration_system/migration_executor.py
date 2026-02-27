@@ -23,18 +23,21 @@ import tempfile
 # Database connectors (will be imported as needed)
 try:
     import mysql.connector
+
     MYSQL_AVAILABLE = True
 except ImportError:
     MYSQL_AVAILABLE = False
 
 try:
     import psycopg2
+
     POSTGRESQL_AVAILABLE = True
 except ImportError:
     POSTGRESQL_AVAILABLE = False
 
 try:
     import pymongo
+
     MONGODB_AVAILABLE = True
 except ImportError:
     MONGODB_AVAILABLE = False
@@ -93,8 +96,15 @@ class MySQLConnection(DatabaseConnection):
         self.connection = None
         self.cursor = None
 
-    def connect(self, host='localhost', port=3306, user='root',
-                password='', database=None, **kwargs):
+    def connect(
+        self,
+        host="localhost",
+        port=3306,
+        user="root",
+        password="",
+        database=None,
+        **kwargs,
+    ):
         """Connect to MySQL database"""
         if not MYSQL_AVAILABLE:
             raise ImportError("mysql-connector-python is not installed")
@@ -108,7 +118,7 @@ class MySQLConnection(DatabaseConnection):
                 database=database,
                 autocommit=False,
                 use_unicode=True,
-                charset='utf8mb4'
+                charset="utf8mb4",
             )
             self.cursor = self.connection.cursor()
             logger.info(f"Connected to MySQL database: {database or 'default'}")
@@ -132,7 +142,7 @@ class MySQLConnection(DatabaseConnection):
 
         try:
             # Split script into individual statements
-            statements = [s.strip() for s in script.split(';') if s.strip()]
+            statements = [s.strip() for s in script.split(";") if s.strip()]
 
             for statement in statements:
                 if statement:
@@ -142,7 +152,9 @@ class MySQLConnection(DatabaseConnection):
             self.connection.commit()
             result.success = True
             result.execution_time = time.time() - start_time
-            logger.info(f"Script executed successfully in {result.execution_time:.2f} seconds")
+            logger.info(
+                f"Script executed successfully in {result.execution_time:.2f} seconds"
+            )
 
         except Exception as e:
             self.connection.rollback()
@@ -172,19 +184,22 @@ class PostgreSQLConnection(DatabaseConnection):
         self.connection = None
         self.cursor = None
 
-    def connect(self, host='localhost', port=5432, user='postgres',
-                password='', database='postgres', **kwargs):
+    def connect(
+        self,
+        host="localhost",
+        port=5432,
+        user="postgres",
+        password="",
+        database="postgres",
+        **kwargs,
+    ):
         """Connect to PostgreSQL database"""
         if not POSTGRESQL_AVAILABLE:
             raise ImportError("psycopg2 is not installed")
 
         try:
             self.connection = psycopg2.connect(
-                host=host,
-                port=port,
-                user=user,
-                password=password,
-                database=database
+                host=host, port=port, user=user, password=password, database=database
             )
             self.cursor = self.connection.cursor()
             logger.info(f"Connected to PostgreSQL database: {database}")
@@ -214,7 +229,9 @@ class PostgreSQLConnection(DatabaseConnection):
 
             result.success = True
             result.execution_time = time.time() - start_time
-            logger.info(f"Script executed successfully in {result.execution_time:.2f} seconds")
+            logger.info(
+                f"Script executed successfully in {result.execution_time:.2f} seconds"
+            )
 
         except Exception as e:
             self.connection.rollback()
@@ -244,8 +261,15 @@ class MongoDBConnection(DatabaseConnection):
         self.client = None
         self.database = None
 
-    def connect(self, host='localhost', port=27017, database='test',
-                username=None, password=None, **kwargs):
+    def connect(
+        self,
+        host="localhost",
+        port=27017,
+        database="test",
+        username=None,
+        password=None,
+        **kwargs,
+    ):
         """Connect to MongoDB"""
         if not MONGODB_AVAILABLE:
             raise ImportError("pymongo is not installed")
@@ -282,33 +306,37 @@ class MongoDBConnection(DatabaseConnection):
         try:
             # MongoDB scripts need to be executed differently
             # Parse the script to extract commands
-            lines = script.split('\n')
+            lines = script.split("\n")
             for line in lines:
                 line = line.strip()
 
                 # Skip comments and empty lines
-                if not line or line.startswith('//'):
+                if not line or line.startswith("//"):
                     continue
 
                 # Handle createCollection commands
-                if 'createCollection' in line:
+                if "createCollection" in line:
                     collection_name = self._extract_collection_name(line)
                     if collection_name:
                         self.database.create_collection(collection_name)
                         logger.info(f"Created collection: {collection_name}")
 
                 # Handle createIndex commands
-                elif 'createIndex' in line:
+                elif "createIndex" in line:
                     self._execute_create_index(line)
 
                 # Handle validation commands
-                elif 'runCommand' in line:
+                elif "runCommand" in line:
                     # For complex commands, we'd need more parsing
-                    logger.info("Skipping complex runCommand - would need manual execution")
+                    logger.info(
+                        "Skipping complex runCommand - would need manual execution"
+                    )
 
             result.success = True
             result.execution_time = time.time() - start_time
-            logger.info(f"MongoDB script executed in {result.execution_time:.2f} seconds")
+            logger.info(
+                f"MongoDB script executed in {result.execution_time:.2f} seconds"
+            )
 
         except Exception as e:
             result.error_message = str(e)
@@ -320,12 +348,14 @@ class MongoDBConnection(DatabaseConnection):
     def _extract_collection_name(self, line: str) -> Optional[str]:
         """Extract collection name from createCollection command"""
         import re
+
         match = re.search(r"createCollection\(['\"](\w+)['\"]", line)
         return match.group(1) if match else None
 
     def _execute_create_index(self, line: str):
         """Execute createIndex command"""
         import re
+
         # Extract collection and index details
         match = re.search(r"db\.(\w+)\.createIndex\((.*?)\)", line)
         if match:
@@ -367,7 +397,9 @@ class MigrationExecutor:
 
         return self.connections[db_type]
 
-    def execute_migration(self, migration_id: str, connection_params: Dict[str, Any]) -> ExecutionResult:
+    def execute_migration(
+        self, migration_id: str, connection_params: Dict[str, Any]
+    ) -> ExecutionResult:
         """Execute a migration"""
         result = ExecutionResult()
 
@@ -377,7 +409,7 @@ class MigrationExecutor:
             result.error_message = f"Migration {migration_id} not found"
             return result
 
-        with open(metadata_file, 'r') as f:
+        with open(metadata_file, "r") as f:
             metadata = json.load(f)
 
         # Load migration script
@@ -386,11 +418,11 @@ class MigrationExecutor:
             result.error_message = f"Migration script not found: {up_script_file}"
             return result
 
-        with open(up_script_file, 'r', encoding='utf-8') as f:
+        with open(up_script_file, "r", encoding="utf-8") as f:
             up_script = f.read()
 
         # Get connection for target database
-        target_type = DatabaseType(metadata['target_type'])
+        target_type = DatabaseType(metadata["target_type"])
         connection = self.get_connection(target_type)
 
         try:
@@ -409,7 +441,7 @@ class MigrationExecutor:
                 self._update_migration_status(
                     migration_id,
                     MigrationStatus.COMPLETED,
-                    execution_time=result.execution_time
+                    execution_time=result.execution_time,
                 )
                 logger.info(f"Migration {migration_id} completed successfully")
             else:
@@ -417,16 +449,14 @@ class MigrationExecutor:
                 self._update_migration_status(
                     migration_id,
                     MigrationStatus.FAILED,
-                    error_message=result.error_message
+                    error_message=result.error_message,
                 )
                 logger.error(f"Migration {migration_id} failed")
 
         except Exception as e:
             result.error_message = str(e)
             self._update_migration_status(
-                migration_id,
-                MigrationStatus.FAILED,
-                error_message=str(e)
+                migration_id, MigrationStatus.FAILED, error_message=str(e)
             )
             logger.error(f"Migration execution error: {e}")
 
@@ -435,7 +465,9 @@ class MigrationExecutor:
 
         return result
 
-    def rollback_migration(self, migration_id: str, connection_params: Dict[str, Any]) -> ExecutionResult:
+    def rollback_migration(
+        self, migration_id: str, connection_params: Dict[str, Any]
+    ) -> ExecutionResult:
         """Rollback a migration"""
         result = ExecutionResult()
 
@@ -445,20 +477,22 @@ class MigrationExecutor:
             result.error_message = f"Migration {migration_id} not found"
             return result
 
-        with open(metadata_file, 'r') as f:
+        with open(metadata_file, "r") as f:
             metadata = json.load(f)
 
         # Load rollback script
-        down_script_file = os.path.join(self.migrations_dir, "down", f"{migration_id}_rollback.sql")
+        down_script_file = os.path.join(
+            self.migrations_dir, "down", f"{migration_id}_rollback.sql"
+        )
         if not os.path.exists(down_script_file):
             result.error_message = f"Rollback script not found: {down_script_file}"
             return result
 
-        with open(down_script_file, 'r', encoding='utf-8') as f:
+        with open(down_script_file, "r", encoding="utf-8") as f:
             down_script = f.read()
 
         # Get connection for target database
-        target_type = DatabaseType(metadata['target_type'])
+        target_type = DatabaseType(metadata["target_type"])
         connection = self.get_connection(target_type)
 
         try:
@@ -485,28 +519,32 @@ class MigrationExecutor:
 
         return result
 
-    def _update_migration_status(self, migration_id: str, status: MigrationStatus,
-                                 execution_time: Optional[float] = None,
-                                 error_message: Optional[str] = None):
+    def _update_migration_status(
+        self,
+        migration_id: str,
+        status: MigrationStatus,
+        execution_time: Optional[float] = None,
+        error_message: Optional[str] = None,
+    ):
         """Update migration status in metadata file"""
         metadata_file = os.path.join(self.migrations_dir, f"{migration_id}.json")
 
-        with open(metadata_file, 'r') as f:
+        with open(metadata_file, "r") as f:
             metadata = json.load(f)
 
-        metadata['status'] = status.value
-        metadata['last_updated'] = datetime.now().isoformat()
+        metadata["status"] = status.value
+        metadata["last_updated"] = datetime.now().isoformat()
 
         if execution_time is not None:
-            metadata['execution_time'] = execution_time
+            metadata["execution_time"] = execution_time
 
         if error_message is not None:
-            metadata['error_message'] = error_message
+            metadata["error_message"] = error_message
 
         if status == MigrationStatus.COMPLETED:
-            metadata['executed_at'] = datetime.now().isoformat()
+            metadata["executed_at"] = datetime.now().isoformat()
 
-        with open(metadata_file, 'w') as f:
+        with open(metadata_file, "w") as f:
             json.dump(metadata, f, indent=2)
 
     def close_all_connections(self):
@@ -520,21 +558,18 @@ def main():
     """Example usage of the migration executor"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Migration Executor')
-    parser.add_argument('action', choices=['execute', 'rollback'],
-                       help='Action to perform')
-    parser.add_argument('--migration-id', required=True,
-                       help='Migration ID to execute or rollback')
-    parser.add_argument('--host', default='localhost',
-                       help='Database host')
-    parser.add_argument('--port', type=int,
-                       help='Database port')
-    parser.add_argument('--user', default='root',
-                       help='Database user')
-    parser.add_argument('--password', default='',
-                       help='Database password')
-    parser.add_argument('--database', required=True,
-                       help='Target database name')
+    parser = argparse.ArgumentParser(description="Migration Executor")
+    parser.add_argument(
+        "action", choices=["execute", "rollback"], help="Action to perform"
+    )
+    parser.add_argument(
+        "--migration-id", required=True, help="Migration ID to execute or rollback"
+    )
+    parser.add_argument("--host", default="localhost", help="Database host")
+    parser.add_argument("--port", type=int, help="Database port")
+    parser.add_argument("--user", default="root", help="Database user")
+    parser.add_argument("--password", default="", help="Database password")
+    parser.add_argument("--database", required=True, help="Target database name")
 
     args = parser.parse_args()
 
@@ -542,24 +577,26 @@ def main():
 
     # Prepare connection parameters
     connection_params = {
-        'host': args.host,
-        'user': args.user,
-        'password': args.password,
-        'database': args.database
+        "host": args.host,
+        "user": args.user,
+        "password": args.password,
+        "database": args.database,
     }
 
     if args.port:
-        connection_params['port'] = args.port
+        connection_params["port"] = args.port
 
     try:
-        if args.action == 'execute':
+        if args.action == "execute":
             result = executor.execute_migration(args.migration_id, connection_params)
             if result.success:
-                print(f"Migration executed successfully in {result.execution_time:.2f} seconds")
+                print(
+                    f"Migration executed successfully in {result.execution_time:.2f} seconds"
+                )
             else:
                 print(f"Migration failed: {result.error_message}")
 
-        elif args.action == 'rollback':
+        elif args.action == "rollback":
             result = executor.rollback_migration(args.migration_id, connection_params)
             if result.success:
                 print(f"Migration rolled back successfully")

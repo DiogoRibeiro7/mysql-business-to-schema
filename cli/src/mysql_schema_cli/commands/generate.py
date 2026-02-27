@@ -34,29 +34,45 @@ AVAILABLE_SCHEMAS = [
 ]
 
 
-@click.group(name='generate')
+@click.group(name="generate")
 def generate_group():
     """Generate test data, schemas, and configurations."""
     pass
 
 
-@generate_group.command(name='data')
-@click.argument('schema', type=click.Choice(AVAILABLE_SCHEMAS))
-@click.option('--rows', '-r', default=1000, type=int, help='Number of rows to generate')
-@click.option('--format', '-f',
-              type=click.Choice(['sql', 'csv', 'json', 'parquet', 'excel']),
-              default='sql', help='Output format')
-@click.option('--output', '-o', type=click.Path(), help='Output file path')
-@click.option('--database', '-d', help='Target database name')
-@click.option('--seed', type=int, help='Random seed for reproducibility')
-@click.option('--compress', is_flag=True, help='Compress output file')
-@click.option('--split-tables', is_flag=True, help='Split output by table')
-@click.option('--include-schema', is_flag=True, help='Include CREATE statements')
-@click.option('--batch-size', default=1000, type=int, help='Batch size for inserts')
-@click.option('--parallel', is_flag=True, help='Generate data in parallel')
+@generate_group.command(name="data")
+@click.argument("schema", type=click.Choice(AVAILABLE_SCHEMAS))
+@click.option("--rows", "-r", default=1000, type=int, help="Number of rows to generate")
+@click.option(
+    "--format",
+    "-f",
+    type=click.Choice(["sql", "csv", "json", "parquet", "excel"]),
+    default="sql",
+    help="Output format",
+)
+@click.option("--output", "-o", type=click.Path(), help="Output file path")
+@click.option("--database", "-d", help="Target database name")
+@click.option("--seed", type=int, help="Random seed for reproducibility")
+@click.option("--compress", is_flag=True, help="Compress output file")
+@click.option("--split-tables", is_flag=True, help="Split output by table")
+@click.option("--include-schema", is_flag=True, help="Include CREATE statements")
+@click.option("--batch-size", default=1000, type=int, help="Batch size for inserts")
+@click.option("--parallel", is_flag=True, help="Generate data in parallel")
 @click.pass_context
-def generate_data(ctx, schema, rows, format, output, database, seed, compress,
-                 split_tables, include_schema, batch_size, parallel):
+def generate_data(
+    ctx,
+    schema,
+    rows,
+    format,
+    output,
+    database,
+    seed,
+    compress,
+    split_tables,
+    include_schema,
+    batch_size,
+    parallel,
+):
     """
     Generate test data for predefined schemas.
 
@@ -74,13 +90,12 @@ def generate_data(ctx, schema, rows, format, output, database, seed, compress,
         TextColumn("[progress.description]{task.description}"),
         BarColumn(),
         TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
-        console=console
+        console=console,
     ) as progress:
 
         # Start generation task
         task = progress.add_task(
-            f"Generating {rows:,} rows for {schema} schema...",
-            total=100
+            f"Generating {rows:,} rows for {schema} schema...", total=100
         )
 
         try:
@@ -112,15 +127,15 @@ def generate_data(ctx, schema, rows, format, output, database, seed, compress,
                 output_path = Path(output)
                 progress.update(task, description="Writing to file...")
 
-                if split_tables and format in ['csv', 'json']:
+                if split_tables and format in ["csv", "json"]:
                     # Split by table
                     output_path.mkdir(parents=True, exist_ok=True)
-                    for table_name, table_data in result['data'].items():
+                    for table_name, table_data in result["data"].items():
                         table_file = output_path / f"{table_name}.{format}"
                         _write_output(table_file, table_data, format, compress)
                 else:
                     # Single file
-                    _write_output(output_path, result['data'], format, compress)
+                    _write_output(output_path, result["data"], format, compress)
 
                 progress.update(task, advance=30)
                 console.print(f"[green]✓[/green] Data saved to {output_path}")
@@ -143,22 +158,46 @@ def generate_data(ctx, schema, rows, format, output, database, seed, compress,
             raise click.Abort()
 
 
-@generate_group.command(name='schema')
-@click.argument('template',
-                type=click.Choice(['microservice', 'warehouse', 'timeseries',
-                                 'multitenant', 'event-sourcing', 'graph']))
-@click.option('--name', '-n', required=True, help='Database/schema name')
-@click.option('--output', '-o', type=click.Path(), help='Output directory')
-@click.option('--tables', '-t', multiple=True, help='Table names to include')
-@click.option('--with-indexes', is_flag=True, help='Include optimized indexes')
-@click.option('--with-partitions', is_flag=True, help='Include partitioning')
-@click.option('--with-triggers', is_flag=True, help='Include triggers')
-@click.option('--with-procedures', is_flag=True, help='Include stored procedures')
-@click.option('--engine', type=click.Choice(['InnoDB', 'MyISAM', 'Memory']),
-              default='InnoDB', help='Storage engine')
+@generate_group.command(name="schema")
+@click.argument(
+    "template",
+    type=click.Choice(
+        [
+            "microservice",
+            "warehouse",
+            "timeseries",
+            "multitenant",
+            "event-sourcing",
+            "graph",
+        ]
+    ),
+)
+@click.option("--name", "-n", required=True, help="Database/schema name")
+@click.option("--output", "-o", type=click.Path(), help="Output directory")
+@click.option("--tables", "-t", multiple=True, help="Table names to include")
+@click.option("--with-indexes", is_flag=True, help="Include optimized indexes")
+@click.option("--with-partitions", is_flag=True, help="Include partitioning")
+@click.option("--with-triggers", is_flag=True, help="Include triggers")
+@click.option("--with-procedures", is_flag=True, help="Include stored procedures")
+@click.option(
+    "--engine",
+    type=click.Choice(["InnoDB", "MyISAM", "Memory"]),
+    default="InnoDB",
+    help="Storage engine",
+)
 @click.pass_context
-def generate_schema(ctx, template, name, output, tables, with_indexes,
-                   with_partitions, with_triggers, with_procedures, engine):
+def generate_schema(
+    ctx,
+    template,
+    name,
+    output,
+    tables,
+    with_indexes,
+    with_partitions,
+    with_triggers,
+    with_procedures,
+    engine,
+):
     """
     Generate database schema from templates.
 
@@ -229,13 +268,13 @@ def generate_schema(ctx, template, name, output, tables, with_indexes,
         raise click.Abort()
 
 
-@generate_group.command(name='migration')
-@click.option('--from-db', required=True, help='Source database')
-@click.option('--to-db', required=True, help='Target database')
-@click.option('--name', '-n', help='Migration name')
-@click.option('--output', '-o', type=click.Path(), help='Output file')
-@click.option('--include-data', is_flag=True, help='Include data migration')
-@click.option('--safe-mode', is_flag=True, help='Generate safe migrations only')
+@generate_group.command(name="migration")
+@click.option("--from-db", required=True, help="Source database")
+@click.option("--to-db", required=True, help="Target database")
+@click.option("--name", "-n", help="Migration name")
+@click.option("--output", "-o", type=click.Path(), help="Output file")
+@click.option("--include-data", is_flag=True, help="Include data migration")
+@click.option("--safe-mode", is_flag=True, help="Generate safe migrations only")
 @click.pass_context
 def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mode):
     """
@@ -264,7 +303,9 @@ def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mod
 
             # Format migration
             migration_name = name or f"migrate_{from_db}_to_{to_db}"
-            timestamp = Path.cwd() / "migrations" / f"{result['version']}_{migration_name}.sql"
+            timestamp = (
+                Path.cwd() / "migrations" / f"{result['version']}_{migration_name}.sql"
+            )
 
             migration_content = f"""-- Migration: {migration_name}
 -- Generated: {result['generated_at']}
@@ -294,8 +335,8 @@ def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mod
             table.add_column("Change Type")
             table.add_column("Count")
 
-            for change_type, count in result['summary'].items():
-                table.add_row(change_type.replace('_', ' ').title(), str(count))
+            for change_type, count in result["summary"].items():
+                table.add_row(change_type.replace("_", " ").title(), str(count))
 
             console.print(table)
 
@@ -304,12 +345,16 @@ def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mod
             raise click.Abort()
 
 
-@generate_group.command(name='config')
-@click.argument('type', type=click.Choice(['docker', 'k8s', 'ci', 'monitoring']))
-@click.option('--output', '-o', type=click.Path(), help='Output directory')
-@click.option('--name', '-n', help='Project name')
-@click.option('--env', type=click.Choice(['dev', 'staging', 'prod']),
-              default='dev', help='Environment')
+@generate_group.command(name="config")
+@click.argument("type", type=click.Choice(["docker", "k8s", "ci", "monitoring"]))
+@click.option("--output", "-o", type=click.Path(), help="Output directory")
+@click.option("--name", "-n", help="Project name")
+@click.option(
+    "--env",
+    type=click.Choice(["dev", "staging", "prod"]),
+    default="dev",
+    help="Environment",
+)
 @click.pass_context
 def generate_config(ctx, type, output, name, env):
     """
@@ -336,16 +381,18 @@ def generate_config(ctx, type, output, name, env):
     console.print(f"[green]✓[/green] Configuration generated")
 
 
-@generate_group.command(name='interactive')
+@generate_group.command(name="interactive")
 @click.pass_context
 def generate_interactive(ctx):
     """Interactive data generation wizard."""
     cli_context: CliContext = ctx.obj
 
-    console.print(Panel.fit(
-        "[bold cyan]Interactive Data Generation Wizard[/bold cyan]",
-        border_style="cyan"
-    ))
+    console.print(
+        Panel.fit(
+            "[bold cyan]Interactive Data Generation Wizard[/bold cyan]",
+            border_style="cyan",
+        )
+    )
 
     # Select schema
     console.print("\n[bold]Available schemas:[/bold]")
@@ -353,17 +400,14 @@ def generate_interactive(ctx):
         console.print(f"  {i}. {schema}")
 
     schema_choice = IntPrompt.ask(
-        "Select schema",
-        choices=[str(i) for i in range(1, len(AVAILABLE_SCHEMAS) + 1)]
+        "Select schema", choices=[str(i) for i in range(1, len(AVAILABLE_SCHEMAS) + 1)]
     )
     schema = AVAILABLE_SCHEMAS[int(schema_choice) - 1]
 
     # Get parameters
     rows = IntPrompt.ask("Number of rows to generate", default=1000)
     format = Prompt.ask(
-        "Output format",
-        choices=["sql", "csv", "json", "parquet"],
-        default="sql"
+        "Output format", choices=["sql", "csv", "json", "parquet"], default="sql"
     )
 
     include_schema = Confirm.ask("Include CREATE statements?", default=True)
@@ -376,7 +420,7 @@ def generate_interactive(ctx):
         rows=rows,
         format=format,
         include_schema=include_schema,
-        compress=compress
+        compress=compress,
     )
 
 
@@ -384,14 +428,15 @@ def _write_output(path: Path, data: Any, format: str, compress: bool):
     """Write output to file."""
     if compress:
         import gzip
-        with gzip.open(f"{path}.gz", 'wt') as f:
-            if format == 'json':
+
+        with gzip.open(f"{path}.gz", "wt") as f:
+            if format == "json":
                 json.dump(data, f, indent=2)
             else:
                 f.write(str(data))
     else:
-        if format == 'json':
-            with open(path, 'w') as f:
+        if format == "json":
+            with open(path, "w") as f:
                 json.dump(data, f, indent=2)
         else:
             path.write_text(str(data))
@@ -401,25 +446,25 @@ def _display_generated_data(result: Dict, format: str):
     """Display generated data preview."""
     console.print("\n[bold]Generated Data Preview:[/bold]")
 
-    if format == 'sql':
+    if format == "sql":
         # Show first few SQL statements
-        lines = result['data'].split('\n')[:20]
+        lines = result["data"].split("\n")[:20]
         for line in lines:
             console.print(f"[dim]{line}[/dim]")
-        if len(result['data'].split('\n')) > 20:
+        if len(result["data"].split("\n")) > 20:
             console.print("[dim]... (truncated)[/dim]")
     else:
         # Show summary
-        for table, count in result['tables'].items():
+        for table, count in result["tables"].items():
             console.print(f"  • {table}: {count:,} rows")
 
 
 def _show_generation_stats(result: Dict):
     """Show generation statistics."""
-    if 'stats' not in result:
+    if "stats" not in result:
         return
 
-    stats = result['stats']
+    stats = result["stats"]
     table = Table(title="Generation Statistics")
     table.add_column("Metric")
     table.add_column("Value")

@@ -15,12 +15,13 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
+
 class ResolverGenerator:
     """Generate resolver templates for GraphQL schemas"""
 
     def __init__(self, schema_info: Dict):
         self.schema_info = schema_info
-        self.tables = schema_info.get('tables', {})
+        self.tables = schema_info.get("tables", {})
 
     def generate_resolvers_ts(self) -> str:
         """Generate TypeScript resolvers with full type safety"""
@@ -41,7 +42,7 @@ class ResolverGenerator:
         # Export resolver map
         parts.append(self._generate_resolver_map())
 
-        return '\n\n'.join(parts)
+        return "\n\n".join(parts)
 
     def _generate_imports(self) -> str:
         """Generate import statements"""
@@ -86,7 +87,8 @@ const pubsub = new PubSub();"""
         for table_name, table_info in self.tables.items():
             type_name = self._to_pascal_case(table_name)
 
-            loaders.append(f"""// DataLoader for {type_name}
+            loaders.append(
+                f"""// DataLoader for {type_name}
 export function create{type_name}Loader(db: DatabaseConnection): DataLoader<string, {type_name}> {{
   return new DataLoader(async (ids: readonly string[]) => {{
     const query = `
@@ -105,14 +107,16 @@ export function create{type_name}Loader(db: DatabaseConnection): DataLoader<stri
     cacheKeyFn: (key) => `{table_name}:${{key}}`,
     maxBatchSize: 100,
   }});
-}}""")
+}}"""
+            )
 
             # Add relationship loaders
-            for fk in table_info.get('foreign_keys', []):
-                ref_table = fk['ref_table']
+            for fk in table_info.get("foreign_keys", []):
+                ref_table = fk["ref_table"]
                 ref_type = self._to_pascal_case(ref_table)
 
-                loaders.append(f"""// DataLoader for {type_name} -> {ref_type} relationship
+                loaders.append(
+                    f"""// DataLoader for {type_name} -> {ref_type} relationship
 export function create{type_name}{ref_type}Loader(db: DatabaseConnection): DataLoader<string, {ref_type}[]> {{
   return new DataLoader(async (parentIds: readonly string[]) => {{
     const query = `
@@ -135,7 +139,8 @@ export function create{type_name}{ref_type}Loader(db: DatabaseConnection): DataL
     // Return in order with empty arrays for missing
     return parentIds.map(id => grouped.get(id) || []);
   }});
-}}""")
+}}"""
+                )
 
         return f"""// DataLoader Factories
 {chr(10).join(loaders)}
@@ -157,7 +162,8 @@ export function createLoaders(db: DatabaseConnection) {{
             plural = self._to_plural(singular)
 
             # Single item query
-            resolvers.append(f"""  {singular}: async (
+            resolvers.append(
+                f"""  {singular}: async (
     _: any,
     {{ id }}: {{ id: string }},
     {{ db, loaders, user }}: Context
@@ -172,10 +178,12 @@ export function createLoaders(db: DatabaseConnection) {{
       logger.error('Error fetching {singular}:', error);
       throw new ApolloError('Failed to fetch {singular}');
     }}
-  }},""")
+  }},"""
+            )
 
             # List query with pagination
-            resolvers.append(f"""  {plural}: async (
+            resolvers.append(
+                f"""  {plural}: async (
     _: any,
     args: PaginationArgs & {{ filter?: FilterInput, sort?: SortInput[] }},
     {{ db, user }}: Context
@@ -234,10 +242,12 @@ export function createLoaders(db: DatabaseConnection) {{
       logger.error('Error fetching {plural}:', error);
       throw new ApolloError('Failed to fetch {plural}');
     }}
-  }},""")
+  }},"""
+            )
 
             # Search query
-            resolvers.append(f"""  search{type_name}: async (
+            resolvers.append(
+                f"""  search{type_name}: async (
     _: any,
     {{ query }}: {{ query: string }},
     {{ db, user }}: Context
@@ -263,7 +273,8 @@ export function createLoaders(db: DatabaseConnection) {{
       logger.error('Error searching {table_name}:', error);
       throw new ApolloError('Search failed');
     }}
-  }},""")
+  }},"""
+            )
 
         return f"""// Query Resolvers
 const Query = {{
@@ -302,7 +313,8 @@ const Query = {{
             singular = self._to_camel_case(table_name)
 
             # Create mutation
-            resolvers.append(f"""  create{type_name}: async (
+            resolvers.append(
+                f"""  create{type_name}: async (
     _: any,
     {{ input }}: {{ input: Create{type_name}Input }},
     {{ db, user }}: Context
@@ -352,10 +364,12 @@ const Query = {{
       logger.error('Error creating {singular}:', error);
       throw new ApolloError('Failed to create {singular}');
     }}
-  }},""")
+  }},"""
+            )
 
             # Update mutation
-            resolvers.append(f"""  update{type_name}: async (
+            resolvers.append(
+                f"""  update{type_name}: async (
     _: any,
     {{ id, input }}: {{ id: string, input: Update{type_name}Input }},
     {{ db, user, loaders }}: Context
@@ -403,10 +417,12 @@ const Query = {{
       logger.error('Error updating {singular}:', error);
       throw new ApolloError('Failed to update {singular}');
     }}
-  }},""")
+  }},"""
+            )
 
             # Delete mutation
-            resolvers.append(f"""  delete{type_name}: async (
+            resolvers.append(
+                f"""  delete{type_name}: async (
     _: any,
     {{ id }}: {{ id: string }},
     {{ db, user, loaders }}: Context
@@ -452,7 +468,8 @@ const Query = {{
       logger.error('Error deleting {singular}:', error);
       throw new ApolloError('Failed to delete {singular}');
     }}
-  }},""")
+  }},"""
+            )
 
         return f"""// Mutation Resolvers
 const Mutation = {{
@@ -467,7 +484,8 @@ const Mutation = {{
             type_name = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
 
-            resolvers.append(f"""  {singular}Created: {{
+            resolvers.append(
+                f"""  {singular}Created: {{
     subscribe: withFilter(
       () => pubsub.asyncIterator('{singular.upper()}_CREATED'),
       (payload, variables, context) => {{
@@ -490,7 +508,8 @@ const Mutation = {{
 
   {singular}Deleted: {{
     subscribe: () => pubsub.asyncIterator('{singular.upper()}_DELETED'),
-  }},""")
+  }},"""
+            )
 
         return f"""// Subscription Resolvers
 import {{ withFilter }} from 'graphql-subscriptions';
@@ -508,27 +527,31 @@ const Subscription = {{
             field_resolvers = []
 
             # Add relationship resolvers
-            for fk in table_info.get('foreign_keys', []):
-                ref_table = fk['ref_table']
+            for fk in table_info.get("foreign_keys", []):
+                ref_table = fk["ref_table"]
                 ref_type = self._to_pascal_case(ref_table)
                 ref_field = self._to_camel_case(ref_table)
 
-                field_resolvers.append(f"""  {ref_field}: async (
+                field_resolvers.append(
+                    f"""  {ref_field}: async (
     parent: {type_name},
     _: any,
     {{ loaders }}: Context
   ): Promise<{ref_type} | null> => {{
     if (!parent.{fk['column']}) return null;
     return await loaders.{ref_field}.load(parent.{fk['column']});
-  }},""")
+  }},"""
+                )
 
             if field_resolvers:
-                resolvers.append(f"""// {type_name} field resolvers
+                resolvers.append(
+                    f"""// {type_name} field resolvers
 const {type_name} = {{
 {chr(10).join(field_resolvers)}
-}};""")
+}};"""
+                )
 
-        return '\n\n'.join(resolvers)
+        return "\n\n".join(resolvers)
 
     def _generate_resolver_map(self) -> str:
         """Generate the main resolver map export"""
@@ -593,7 +616,8 @@ function withFilter(
         for table_name in self.tables.keys():
             type_name = self._to_pascal_case(table_name)
 
-            validations.append(f"""async function validate{type_name}Input(
+            validations.append(
+                f"""async function validate{type_name}Input(
   input: any,
   isUpdate: boolean = false
 ): Promise<void> {{
@@ -606,31 +630,32 @@ function withFilter(
   // - Range checks
   // - Uniqueness checks
   // - Business rule validation
-}}""")
+}}"""
+            )
 
-        return '\n\n'.join(validations)
+        return "\n\n".join(validations)
 
     def _to_camel_case(self, snake_str: str) -> str:
         """Convert snake_case to camelCase"""
-        components = snake_str.split('_')
-        return components[0].lower() + ''.join(x.title() for x in components[1:])
+        components = snake_str.split("_")
+        return components[0].lower() + "".join(x.title() for x in components[1:])
 
     def _to_pascal_case(self, snake_str: str) -> str:
         """Convert snake_case to PascalCase"""
-        return ''.join(x.title() for x in snake_str.split('_'))
+        return "".join(x.title() for x in snake_str.split("_"))
 
     def _to_plural(self, word: str) -> str:
         """Convert word to plural"""
-        if word.endswith('y'):
-            return word[:-1] + 'ies'
-        elif word.endswith('s'):
-            return word + 'es'
+        if word.endswith("y"):
+            return word[:-1] + "ies"
+        elif word.endswith("s"):
+            return word + "es"
         else:
-            return word + 's'
+            return word + "s"
 
     def export_resolvers(self, output_file: Path):
         """Export resolvers to file"""
         resolvers = self.generate_resolvers_ts()
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(resolvers)
         print(f"Resolvers exported to: {output_file}")

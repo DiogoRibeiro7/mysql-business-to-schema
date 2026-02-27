@@ -12,6 +12,7 @@ import hashlib
 
 logger = logging.getLogger(__name__)
 
+
 class MigrationHandler:
     """Handles database migrations and version control"""
 
@@ -37,7 +38,7 @@ class MigrationHandler:
                             migration_file.stat().st_ctime
                         ).isoformat(),
                         "checksum": self._calculate_checksum(migration_file),
-                        "status": "pending"
+                        "status": "pending",
                     }
                     self.pending_migrations.append(migration_info)
 
@@ -72,15 +73,11 @@ class MigrationHandler:
     def apply_migration(self, migration_id: str) -> Dict[str, Any]:
         """Apply a specific migration"""
         migration = next(
-            (m for m in self.pending_migrations if m["id"] == migration_id),
-            None
+            (m for m in self.pending_migrations if m["id"] == migration_id), None
         )
 
         if not migration:
-            return {
-                "status": "error",
-                "message": f"Migration {migration_id} not found"
-            }
+            return {"status": "error", "message": f"Migration {migration_id} not found"}
 
         # Simulate migration application
         result = {
@@ -92,8 +89,8 @@ class MigrationHandler:
                 "tables_created": 0,
                 "tables_modified": 0,
                 "indexes_created": 0,
-                "rows_affected": 0
-            }
+                "rows_affected": 0,
+            },
         }
 
         # Move to history
@@ -109,14 +106,13 @@ class MigrationHandler:
     def rollback_migration(self, migration_id: str) -> Dict[str, Any]:
         """Rollback a specific migration"""
         migration = next(
-            (m for m in self.migration_history if m["id"] == migration_id),
-            None
+            (m for m in self.migration_history if m["id"] == migration_id), None
         )
 
         if not migration:
             return {
                 "status": "error",
-                "message": f"Migration {migration_id} not found in history"
+                "message": f"Migration {migration_id} not found in history",
             }
 
         # Simulate rollback
@@ -124,7 +120,7 @@ class MigrationHandler:
             "status": "success",
             "migration_id": migration_id,
             "rolled_back_at": datetime.now().isoformat(),
-            "duration_ms": 100
+            "duration_ms": 100,
         }
 
         # Move back to pending
@@ -152,7 +148,7 @@ class MigrationHandler:
             self.migrations_path.mkdir(parents=True, exist_ok=True)
 
             # Write migration file
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 f.write(sql_content)
 
             migration_info = {
@@ -162,7 +158,7 @@ class MigrationHandler:
                 "size": len(sql_content),
                 "created_at": datetime.now().isoformat(),
                 "checksum": hashlib.sha256(sql_content.encode()).hexdigest(),
-                "status": "pending"
+                "status": "pending",
             }
 
             self.pending_migrations.append(migration_info)
@@ -170,26 +166,22 @@ class MigrationHandler:
             return {
                 "status": "success",
                 "migration": migration_info,
-                "message": f"Migration {migration_id} created successfully"
+                "message": f"Migration {migration_id} created successfully",
             }
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"Failed to create migration: {str(e)}"
+                "message": f"Failed to create migration: {str(e)}",
             }
 
     def validate_migration(self, migration_id: str) -> Dict[str, Any]:
         """Validate a migration before applying"""
         migration = next(
-            (m for m in self.pending_migrations if m["id"] == migration_id),
-            None
+            (m for m in self.pending_migrations if m["id"] == migration_id), None
         )
 
         if not migration:
-            return {
-                "valid": False,
-                "error": "Migration not found"
-            }
+            return {"valid": False, "error": "Migration not found"}
 
         return {
             "valid": True,
@@ -198,16 +190,17 @@ class MigrationHandler:
                 "syntax": True,
                 "dependencies": True,
                 "conflicts": False,
-                "reversible": True
+                "reversible": True,
             },
             "warnings": [],
-            "estimated_duration_ms": 150
+            "estimated_duration_ms": 150,
         }
 
     def get_migration_status(self) -> Dict[str, Any]:
         """Get overall migration status"""
         return {
-            "total_migrations": len(self.migration_history) + len(self.pending_migrations),
+            "total_migrations": len(self.migration_history)
+            + len(self.pending_migrations),
             "applied": len(self.migration_history),
             "pending": len(self.pending_migrations),
             "last_applied": (
@@ -216,8 +209,6 @@ class MigrationHandler:
                 else None
             ),
             "next_migration": (
-                self.pending_migrations[0]["id"]
-                if self.pending_migrations
-                else None
-            )
+                self.pending_migrations[0]["id"] if self.pending_migrations else None
+            ),
         }

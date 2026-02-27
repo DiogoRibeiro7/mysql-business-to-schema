@@ -20,9 +20,11 @@ from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 from dataclasses import dataclass, field
 
+
 @dataclass
 class FieldInfo:
     """Information about a database field"""
+
     name: str
     type: str
     nullable: bool
@@ -34,15 +36,18 @@ class FieldInfo:
     default_value: Optional[str] = None
     comment: Optional[str] = None
 
+
 @dataclass
 class TableInfo:
     """Information about a database table"""
+
     name: str
     fields: List[FieldInfo]
     primary_keys: List[str]
     foreign_keys: List[Dict]
     indexes: List[Dict]
     comment: Optional[str] = None
+
 
 class AdvancedGraphQLGenerator:
     """Advanced GraphQL schema generator with full feature support"""
@@ -74,18 +79,21 @@ class AdvancedGraphQLGenerator:
     def analyze_database(self):
         """Analyze database structure"""
         # Get all tables
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             SELECT TABLE_NAME, TABLE_COMMENT
             FROM information_schema.TABLES
             WHERE TABLE_SCHEMA = %s
             AND TABLE_TYPE = 'BASE TABLE'
-        """, (self.connection_params['database'],))
+        """,
+            (self.connection_params["database"],),
+        )
 
         tables = self.cursor.fetchall()
 
         for table in tables:
-            table_name = table['TABLE_NAME']
-            table_info = self._analyze_table(table_name, table['TABLE_COMMENT'])
+            table_name = table["TABLE_NAME"]
+            table_info = self._analyze_table(table_name, table["TABLE_COMMENT"])
             self.tables[table_name] = table_info
 
         # Analyze relationships
@@ -98,7 +106,8 @@ class AdvancedGraphQLGenerator:
         foreign_keys = []
 
         # Get columns
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             SELECT
                 COLUMN_NAME,
                 DATA_TYPE,
@@ -111,36 +120,41 @@ class AdvancedGraphQLGenerator:
             FROM information_schema.COLUMNS
             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
             ORDER BY ORDINAL_POSITION
-        """, (self.connection_params['database'], table_name))
+        """,
+            (self.connection_params["database"], table_name),
+        )
 
         columns = self.cursor.fetchall()
 
         for col in columns:
             # Extract enum values if applicable
             enum_values = []
-            if col['DATA_TYPE'] == 'enum':
-                enum_match = re.search(r"enum\((.*?)\)", col['COLUMN_TYPE'])
+            if col["DATA_TYPE"] == "enum":
+                enum_match = re.search(r"enum\((.*?)\)", col["COLUMN_TYPE"])
                 if enum_match:
                     values_str = enum_match.group(1)
-                    enum_values = [v.strip().strip("'\"") for v in values_str.split(',')]
+                    enum_values = [
+                        v.strip().strip("'\"") for v in values_str.split(",")
+                    ]
 
             field_info = FieldInfo(
-                name=self._to_camel_case(col['COLUMN_NAME']),
-                type=col['DATA_TYPE'],
-                nullable=col['IS_NULLABLE'] == 'YES',
-                is_primary=col['COLUMN_KEY'] == 'PRI',
-                default_value=col['COLUMN_DEFAULT'],
-                comment=col['COLUMN_COMMENT'],
-                enum_values=enum_values
+                name=self._to_camel_case(col["COLUMN_NAME"]),
+                type=col["DATA_TYPE"],
+                nullable=col["IS_NULLABLE"] == "YES",
+                is_primary=col["COLUMN_KEY"] == "PRI",
+                default_value=col["COLUMN_DEFAULT"],
+                comment=col["COLUMN_COMMENT"],
+                enum_values=enum_values,
             )
 
             fields.append(field_info)
 
-            if col['COLUMN_KEY'] == 'PRI':
-                primary_keys.append(col['COLUMN_NAME'])
+            if col["COLUMN_KEY"] == "PRI":
+                primary_keys.append(col["COLUMN_NAME"])
 
         # Get foreign keys
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             SELECT
                 COLUMN_NAME,
                 REFERENCED_TABLE_NAME,
@@ -149,23 +163,27 @@ class AdvancedGraphQLGenerator:
             WHERE TABLE_SCHEMA = %s
             AND TABLE_NAME = %s
             AND REFERENCED_TABLE_NAME IS NOT NULL
-        """, (self.connection_params['database'], table_name))
+        """,
+            (self.connection_params["database"], table_name),
+        )
 
         fk_results = self.cursor.fetchall()
 
         for fk in fk_results:
-            foreign_keys.append({
-                'column': fk['COLUMN_NAME'],
-                'ref_table': fk['REFERENCED_TABLE_NAME'],
-                'ref_column': fk['REFERENCED_COLUMN_NAME']
-            })
+            foreign_keys.append(
+                {
+                    "column": fk["COLUMN_NAME"],
+                    "ref_table": fk["REFERENCED_TABLE_NAME"],
+                    "ref_column": fk["REFERENCED_COLUMN_NAME"],
+                }
+            )
 
             # Update field info with foreign key data
             for field in fields:
-                if field.name == self._to_camel_case(fk['COLUMN_NAME']):
+                if field.name == self._to_camel_case(fk["COLUMN_NAME"]):
                     field.is_foreign = True
-                    field.reference_table = fk['REFERENCED_TABLE_NAME']
-                    field.reference_field = fk['REFERENCED_COLUMN_NAME']
+                    field.reference_table = fk["REFERENCED_TABLE_NAME"]
+                    field.reference_field = fk["REFERENCED_COLUMN_NAME"]
 
         # Get indexes
         indexes = self._get_table_indexes(table_name)
@@ -176,12 +194,13 @@ class AdvancedGraphQLGenerator:
             primary_keys=primary_keys,
             foreign_keys=foreign_keys,
             indexes=indexes,
-            comment=table_comment
+            comment=table_comment,
         )
 
     def _get_table_indexes(self, table_name: str) -> List[Dict]:
         """Get indexes for a table"""
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             SELECT
                 INDEX_NAME,
                 GROUP_CONCAT(COLUMN_NAME ORDER BY SEQ_IN_INDEX) as COLUMNS,
@@ -191,7 +210,9 @@ class AdvancedGraphQLGenerator:
             WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
             AND INDEX_NAME != 'PRIMARY'
             GROUP BY INDEX_NAME, INDEX_TYPE, NON_UNIQUE
-        """, (self.connection_params['database'], table_name))
+        """,
+            (self.connection_params["database"], table_name),
+        )
 
         return self.cursor.fetchall()
 
@@ -206,24 +227,28 @@ class AdvancedGraphQLGenerator:
                     continue
 
                 for fk in other_table_info.foreign_keys:
-                    if fk['ref_table'] == table_name:
-                        self.relationships[table_name].append({
-                            'type': 'has_many',
-                            'field': self._to_plural(other_table_name),
-                            'target_table': other_table_name,
-                            'foreign_key': fk['column'],
-                            'local_key': fk['ref_column']
-                        })
+                    if fk["ref_table"] == table_name:
+                        self.relationships[table_name].append(
+                            {
+                                "type": "has_many",
+                                "field": self._to_plural(other_table_name),
+                                "target_table": other_table_name,
+                                "foreign_key": fk["column"],
+                                "local_key": fk["ref_column"],
+                            }
+                        )
 
             # Belongs-to relationships (this table references others)
             for fk in table_info.foreign_keys:
-                self.relationships[table_name].append({
-                    'type': 'belongs_to',
-                    'field': self._to_camel_case(fk['ref_table']),
-                    'target_table': fk['ref_table'],
-                    'foreign_key': fk['column'],
-                    'local_key': fk['ref_column']
-                })
+                self.relationships[table_name].append(
+                    {
+                        "type": "belongs_to",
+                        "field": self._to_camel_case(fk["ref_table"]),
+                        "target_table": fk["ref_table"],
+                        "foreign_key": fk["column"],
+                        "local_key": fk["ref_column"],
+                    }
+                )
 
     def generate_schema(self) -> str:
         """Generate complete GraphQL schema"""
@@ -259,7 +284,7 @@ class AdvancedGraphQLGenerator:
         # Subscription type
         schema_parts.append(self._generate_subscription_type())
 
-        return '\n\n'.join(filter(None, schema_parts))
+        return "\n\n".join(filter(None, schema_parts))
 
     def _generate_header(self) -> str:
         """Generate schema header"""
@@ -319,13 +344,15 @@ type OperationResult {
             for field in table_info.fields:
                 if field.enum_values:
                     enum_name = f"{self._to_pascal_case(table_info.name)}{self._to_pascal_case(field.name)}Enum"
-                    enum_values = '\n  '.join(field.enum_values)
-                    enums.append(f"""enum {enum_name} {{
+                    enum_values = "\n  ".join(field.enum_values)
+                    enums.append(
+                        f"""enum {enum_name} {{
   {enum_values}
-}}""")
+}}"""
+                    )
 
         if enums:
-            return "# Enums\n\n" + '\n\n'.join(enums)
+            return "# Enums\n\n" + "\n\n".join(enums)
         return ""
 
     def _generate_object_types(self) -> str:
@@ -340,7 +367,7 @@ type OperationResult {
             for field in table_info.fields:
                 graphql_type = self._mysql_to_graphql_type(field.type)
                 if not field.nullable:
-                    graphql_type += '!'
+                    graphql_type += "!"
 
                 comment = f"  # {field.comment}" if field.comment else ""
                 fields.append(f"  {field.name}: {graphql_type}{comment}")
@@ -348,23 +375,26 @@ type OperationResult {
             # Add relationships
             if table_name in self.relationships:
                 for rel in self.relationships[table_name]:
-                    if rel['type'] == 'belongs_to':
-                        rel_type = self._to_pascal_case(rel['target_table'])
+                    if rel["type"] == "belongs_to":
+                        rel_type = self._to_pascal_case(rel["target_table"])
                         fields.append(f"  {rel['field']}: {rel_type}")
-                    elif rel['type'] == 'has_many':
-                        rel_type = self._to_pascal_case(rel['target_table'])
-                        fields.append(f"  {rel['field']}(first: Int, after: String, filter: {rel_type}Filter): {rel_type}Connection!")
+                    elif rel["type"] == "has_many":
+                        rel_type = self._to_pascal_case(rel["target_table"])
+                        fields.append(
+                            f"  {rel['field']}(first: Int, after: String, filter: {rel_type}Filter): {rel_type}Connection!"
+                        )
 
             # Add timestamps if not already present
             field_names = [f.name for f in table_info.fields]
-            if 'createdAt' not in field_names:
+            if "createdAt" not in field_names:
                 fields.append("  createdAt: DateTime!")
-            if 'updatedAt' not in field_names:
+            if "updatedAt" not in field_names:
                 fields.append("  updatedAt: DateTime!")
 
             # Create type definition
             comment = f"# {table_info.comment}\n" if table_info.comment else ""
-            types.append(f"""{comment}type {type_name} implements Node {{
+            types.append(
+                f"""{comment}type {type_name} implements Node {{
   id: ID!
 {chr(10).join(fields)}
 }}
@@ -377,9 +407,10 @@ type {type_name}Connection {{
 type {type_name}Edge {{
   node: {type_name}!
   cursor: String!
-}}""")
+}}"""
+            )
 
-        return "# Object Types\n\n" + '\n\n'.join(types)
+        return "# Object Types\n\n" + "\n\n".join(types)
 
     def _generate_input_types(self) -> str:
         """Generate input types for mutations"""
@@ -391,33 +422,45 @@ type {type_name}Edge {{
             # Create input
             create_fields = []
             for field in table_info.fields:
-                if field.is_primary or 'createdAt' in field.name or 'updatedAt' in field.name:
+                if (
+                    field.is_primary
+                    or "createdAt" in field.name
+                    or "updatedAt" in field.name
+                ):
                     continue
 
                 graphql_type = self._mysql_to_graphql_type(field.type)
                 if not field.nullable and not field.default_value:
-                    graphql_type += '!'
+                    graphql_type += "!"
 
                 create_fields.append(f"  {field.name}: {graphql_type}")
 
-            inputs.append(f"""input Create{type_name}Input {{
+            inputs.append(
+                f"""input Create{type_name}Input {{
 {chr(10).join(create_fields)}
-}}""")
+}}"""
+            )
 
             # Update input
             update_fields = []
             for field in table_info.fields:
-                if field.is_primary or 'createdAt' in field.name or 'updatedAt' in field.name:
+                if (
+                    field.is_primary
+                    or "createdAt" in field.name
+                    or "updatedAt" in field.name
+                ):
                     continue
 
                 graphql_type = self._mysql_to_graphql_type(field.type)
                 update_fields.append(f"  {field.name}: {graphql_type}")
 
-            inputs.append(f"""input Update{type_name}Input {{
+            inputs.append(
+                f"""input Update{type_name}Input {{
 {chr(10).join(update_fields)}
-}}""")
+}}"""
+            )
 
-        return "# Input Types\n\n" + '\n\n'.join(inputs)
+        return "# Input Types\n\n" + "\n\n".join(inputs)
 
     def _generate_filter_types(self) -> str:
         """Generate filter types for queries"""
@@ -437,14 +480,23 @@ type {type_name}Edge {{
                 filter_fields.append(f"  {field.name}_not_in: [{base_type}!]")
 
                 # Add comparison operators for numeric/date types
-                if field.type in ['int', 'bigint', 'decimal', 'float', 'double', 'date', 'datetime', 'timestamp']:
+                if field.type in [
+                    "int",
+                    "bigint",
+                    "decimal",
+                    "float",
+                    "double",
+                    "date",
+                    "datetime",
+                    "timestamp",
+                ]:
                     filter_fields.append(f"  {field.name}_gt: {base_type}")
                     filter_fields.append(f"  {field.name}_gte: {base_type}")
                     filter_fields.append(f"  {field.name}_lt: {base_type}")
                     filter_fields.append(f"  {field.name}_lte: {base_type}")
 
                 # Add string operations
-                if field.type in ['varchar', 'text', 'char']:
+                if field.type in ["varchar", "text", "char"]:
                     filter_fields.append(f"  {field.name}_contains: String")
                     filter_fields.append(f"  {field.name}_starts_with: String")
                     filter_fields.append(f"  {field.name}_ends_with: String")
@@ -454,7 +506,8 @@ type {type_name}Edge {{
             filter_fields.append(f"  OR: [{type_name}Filter!]")
             filter_fields.append(f"  NOT: {type_name}Filter")
 
-            filters.append(f"""input {type_name}Filter {{
+            filters.append(
+                f"""input {type_name}Filter {{
 {chr(10).join(filter_fields)}
 }}
 
@@ -465,9 +518,10 @@ input {type_name}Sort {{
 
 enum {type_name}SortField {{
   {chr(10).join([f"  {field.name.upper()}" for field in table_info.fields])}
-}}""")
+}}"""
+            )
 
-        return "# Filter Types\n\n" + '\n\n'.join(filters)
+        return "# Filter Types\n\n" + "\n\n".join(filters)
 
     def _generate_query_type(self) -> str:
         """Generate Query type with all queries"""
@@ -482,14 +536,16 @@ enum {type_name}SortField {{
             queries.append(f"  {singular}(id: ID!): {type_name}")
 
             # List query with pagination and filtering
-            queries.append(f"""  {plural}(
+            queries.append(
+                f"""  {plural}(
     first: Int
     after: String
     last: Int
     before: String
     filter: {type_name}Filter
     sort: [{type_name}Sort!]
-  ): {type_name}Connection!""")
+  ): {type_name}Connection!"""
+            )
 
             # Search query
             queries.append(f"  search{type_name}(query: String!): [{type_name}!]!")
@@ -515,29 +571,39 @@ type Query {{
             singular = self._to_camel_case(table_name)
 
             # Create mutation
-            mutations.append(f"""  create{type_name}(
+            mutations.append(
+                f"""  create{type_name}(
     input: Create{type_name}Input!
-  ): {type_name}!""")
+  ): {type_name}!"""
+            )
 
             # Update mutation
-            mutations.append(f"""  update{type_name}(
+            mutations.append(
+                f"""  update{type_name}(
     id: ID!
     input: Update{type_name}Input!
-  ): {type_name}!""")
+  ): {type_name}!"""
+            )
 
             # Delete mutation
-            mutations.append(f"""  delete{type_name}(
+            mutations.append(
+                f"""  delete{type_name}(
     id: ID!
-  ): OperationResult!""")
+  ): OperationResult!"""
+            )
 
             # Batch operations
-            mutations.append(f"""  batchCreate{type_name}(
+            mutations.append(
+                f"""  batchCreate{type_name}(
     inputs: [Create{type_name}Input!]!
-  ): [{type_name}!]!""")
+  ): [{type_name}!]!"""
+            )
 
-            mutations.append(f"""  batchDelete{type_name}(
+            mutations.append(
+                f"""  batchDelete{type_name}(
     ids: [ID!]!
-  ): OperationResult!""")
+  ): OperationResult!"""
+            )
 
         return f"""# Mutation Type
 
@@ -553,9 +619,11 @@ type Mutation {{
             type_name = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
 
-            subscriptions.append(f"""  {singular}Created: {type_name}!
+            subscriptions.append(
+                f"""  {singular}Created: {type_name}!
   {singular}Updated(id: ID!): {type_name}!
-  {singular}Deleted: ID!""")
+  {singular}Deleted: ID!"""
+            )
 
         return f"""# Subscription Type
 
@@ -566,55 +634,55 @@ type Subscription {{
     def _mysql_to_graphql_type(self, mysql_type: str) -> str:
         """Convert MySQL type to GraphQL type"""
         type_mapping = {
-            'int': 'Int',
-            'tinyint': 'Int',
-            'smallint': 'Int',
-            'mediumint': 'Int',
-            'bigint': 'BigInt',
-            'decimal': 'Decimal',
-            'float': 'Float',
-            'double': 'Float',
-            'varchar': 'String',
-            'char': 'String',
-            'text': 'String',
-            'tinytext': 'String',
-            'mediumtext': 'String',
-            'longtext': 'String',
-            'date': 'Date',
-            'datetime': 'DateTime',
-            'timestamp': 'DateTime',
-            'time': 'Time',
-            'json': 'JSON',
-            'boolean': 'Boolean',
-            'bool': 'Boolean',
-            'enum': 'String',
-            'set': '[String!]'
+            "int": "Int",
+            "tinyint": "Int",
+            "smallint": "Int",
+            "mediumint": "Int",
+            "bigint": "BigInt",
+            "decimal": "Decimal",
+            "float": "Float",
+            "double": "Float",
+            "varchar": "String",
+            "char": "String",
+            "text": "String",
+            "tinytext": "String",
+            "mediumtext": "String",
+            "longtext": "String",
+            "date": "Date",
+            "datetime": "DateTime",
+            "timestamp": "DateTime",
+            "time": "Time",
+            "json": "JSON",
+            "boolean": "Boolean",
+            "bool": "Boolean",
+            "enum": "String",
+            "set": "[String!]",
         }
 
-        return type_mapping.get(mysql_type.lower(), 'String')
+        return type_mapping.get(mysql_type.lower(), "String")
 
     def _to_camel_case(self, snake_str: str) -> str:
         """Convert snake_case to camelCase"""
-        components = snake_str.split('_')
-        return components[0].lower() + ''.join(x.title() for x in components[1:])
+        components = snake_str.split("_")
+        return components[0].lower() + "".join(x.title() for x in components[1:])
 
     def _to_pascal_case(self, snake_str: str) -> str:
         """Convert snake_case to PascalCase"""
-        return ''.join(x.title() for x in snake_str.split('_'))
+        return "".join(x.title() for x in snake_str.split("_"))
 
     def _to_plural(self, word: str) -> str:
         """Convert word to plural form (simple rules)"""
-        if word.endswith('y'):
-            return word[:-1] + 'ies'
-        elif word.endswith('s') or word.endswith('x') or word.endswith('z'):
-            return word + 'es'
+        if word.endswith("y"):
+            return word[:-1] + "ies"
+        elif word.endswith("s") or word.endswith("x") or word.endswith("z"):
+            return word + "es"
         else:
-            return word + 's'
+            return word + "s"
 
     def export_schema(self, output_file: Path):
         """Export schema to file"""
         schema = self.generate_schema()
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             f.write(schema)
         print(f"Schema exported to: {output_file}")
 
@@ -634,7 +702,9 @@ def generate_for_example(example_name: str, connection_params: Dict) -> bool:
         schema = generator.generate_schema()
 
         # Export to file
-        output_dir = Path(__file__).parent.parent / f"example_{example_name}" / "graphql"
+        output_dir = (
+            Path(__file__).parent.parent / f"example_{example_name}" / "graphql"
+        )
         output_dir.mkdir(parents=True, exist_ok=True)
         output_file = output_dir / "schema.graphql"
 
@@ -651,22 +721,22 @@ def main():
     """Main entry point"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Generate GraphQL schemas from MySQL')
-    parser.add_argument('--host', default='localhost')
-    parser.add_argument('--port', type=int, default=3306)
-    parser.add_argument('--user', default='root')
-    parser.add_argument('--password', required=True)
-    parser.add_argument('--database', required=True)
-    parser.add_argument('--output', default='schema.graphql')
+    parser = argparse.ArgumentParser(description="Generate GraphQL schemas from MySQL")
+    parser.add_argument("--host", default="localhost")
+    parser.add_argument("--port", type=int, default=3306)
+    parser.add_argument("--user", default="root")
+    parser.add_argument("--password", required=True)
+    parser.add_argument("--database", required=True)
+    parser.add_argument("--output", default="schema.graphql")
 
     args = parser.parse_args()
 
     connection_params = {
-        'host': args.host,
-        'port': args.port,
-        'user': args.user,
-        'password': args.password,
-        'database': args.database
+        "host": args.host,
+        "port": args.port,
+        "user": args.user,
+        "password": args.password,
+        "database": args.database,
     }
 
     generator = AdvancedGraphQLGenerator(connection_params)
@@ -679,5 +749,5 @@ def main():
             generator.disconnect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -12,6 +12,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+
 class SchemaManager:
     """Manages database schemas and their operations"""
 
@@ -35,7 +36,7 @@ class SchemaManager:
                     # Load schema metadata if available
                     metadata_file = schema_path / "metadata.json"
                     if metadata_file.exists():
-                        with open(metadata_file, 'r') as f:
+                        with open(metadata_file, "r") as f:
                             metadata = json.load(f)
                     else:
                         metadata = {
@@ -43,7 +44,7 @@ class SchemaManager:
                             "version": "1.0.0",
                             "description": f"Schema for {schema_name}",
                             "tables": [],
-                            "created_at": datetime.now().isoformat()
+                            "created_at": datetime.now().isoformat(),
                         }
 
                     self.schema_cache[schema_name] = metadata
@@ -73,10 +74,10 @@ class SchemaManager:
                 "structure": True,
                 "indexes": True,
                 "constraints": True,
-                "performance": True
+                "performance": True,
             },
             "warnings": [],
-            "errors": []
+            "errors": [],
         }
 
         # Check for SQL files
@@ -98,7 +99,7 @@ class SchemaManager:
             "row_count": 0,
             "size_mb": 0,
             "index_count": 0,
-            "last_analyzed": datetime.now().isoformat()
+            "last_analyzed": datetime.now().isoformat(),
         }
 
     def get_schema_metrics(self, schema_name: str) -> Dict[str, Any]:
@@ -111,9 +112,9 @@ class SchemaManager:
             "query_performance": {
                 "avg_query_time_ms": 0,
                 "slow_queries": 0,
-                "cache_hit_ratio": 0
+                "cache_hit_ratio": 0,
             },
-            "last_updated": datetime.now().isoformat()
+            "last_updated": datetime.now().isoformat(),
         }
 
     def deploy_schema(self, schema_name: str, target_db: str) -> Dict[str, Any]:
@@ -123,16 +124,18 @@ class SchemaManager:
             "schema": schema_name,
             "target": target_db,
             "deployed_at": datetime.now().isoformat(),
-            "message": f"Schema {schema_name} deployed successfully"
+            "message": f"Schema {schema_name} deployed successfully",
         }
 
     def backup_schema(self, schema_name: str) -> Dict[str, Any]:
         """Create a backup of a schema"""
-        backup_file = f"{schema_name}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+        backup_file = (
+            f"{schema_name}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+        )
         return {
             "status": "success",
             "schema": schema_name,
             "backup_file": backup_file,
             "size_mb": 0,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
         }

@@ -6,6 +6,7 @@ import pytest
 import json
 from pathlib import Path
 import sys
+
 sys.path.append(str(Path(__file__).parent.parent.parent))
 
 from generators.base_generator import BaseGenerator
@@ -14,6 +15,7 @@ from generators.iot_generator import IoTDataGenerator
 from generators.ecommerce_generator import EcommerceDataGenerator
 from unittest.mock import Mock, patch, MagicMock
 
+
 @pytest.mark.unit
 class TestBaseGenerator:
     """Test the base generator functionality."""
@@ -21,33 +23,24 @@ class TestBaseGenerator:
     def test_generator_initialization(self):
         """Test generator initializes correctly."""
         generator = BaseGenerator(
-            host="localhost",
-            user="root",
-            password="test",
-            database="test_db"
+            host="localhost", user="root", password="test", database="test_db"
         )
         assert generator.host == "localhost"
         assert generator.user == "root"
         assert generator.database == "test_db"
 
-    @patch('mysql.connector.connect')
+    @patch("mysql.connector.connect")
     def test_connection_established(self, mock_connect):
         """Test database connection is established."""
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
 
         generator = BaseGenerator(
-            host="localhost",
-            user="root",
-            password="test",
-            database="test_db"
+            host="localhost", user="root", password="test", database="test_db"
         )
 
         mock_connect.assert_called_once_with(
-            host="localhost",
-            user="root",
-            password="test",
-            database="test_db"
+            host="localhost", user="root", password="test", database="test_db"
         )
 
     def test_batch_insert_query_generation(self):
@@ -56,10 +49,7 @@ class TestBaseGenerator:
 
         table = "users"
         columns = ["id", "name", "email"]
-        values = [
-            (1, "John", "john@example.com"),
-            (2, "Jane", "jane@example.com")
-        ]
+        values = [(1, "John", "john@example.com"), (2, "Jane", "jane@example.com")]
 
         query = generator._generate_batch_insert(table, columns, values)
 
@@ -76,7 +66,7 @@ class TestBaseGenerator:
             "'; DROP TABLE users; --",
             "1' OR '1'='1",
             "admin'--",
-            "' UNION SELECT * FROM passwords --"
+            "' UNION SELECT * FROM passwords --",
         ]
 
         for dangerous_input in dangerous_inputs:
@@ -84,11 +74,12 @@ class TestBaseGenerator:
             assert "DROP TABLE" not in escaped or "\\" in escaped
             assert "UNION SELECT" not in escaped or "\\" in escaped
 
+
 @pytest.mark.unit
 class TestClinicDataGenerator:
     """Test clinic data generation."""
 
-    @patch('mysql.connector.connect')
+    @patch("mysql.connector.connect")
     def test_patient_data_generation(self, mock_connect):
         """Test patient data generation."""
         mock_cursor = Mock()
@@ -107,7 +98,7 @@ class TestClinicDataGenerator:
             assert "phone" in patient
             assert "date_of_birth" in patient
 
-    @patch('mysql.connector.connect')
+    @patch("mysql.connector.connect")
     def test_appointment_generation(self, mock_connect):
         """Test appointment generation."""
         mock_cursor = Mock()
@@ -117,9 +108,7 @@ class TestClinicDataGenerator:
 
         generator = ClinicDataGenerator("localhost", "root", "test", "clinic_db")
         appointments = generator.generate_appointments(
-            patient_ids=[1, 2, 3],
-            doctor_ids=[1, 2],
-            count=10
+            patient_ids=[1, 2, 3], doctor_ids=[1, 2], count=10
         )
 
         assert len(appointments) == 10
@@ -141,11 +130,12 @@ class TestClinicDataGenerator:
         assert "prescription" in record
         assert "notes" in record
 
+
 @pytest.mark.unit
 class TestIoTDataGenerator:
     """Test IoT data generation."""
 
-    @patch('mysql.connector.connect')
+    @patch("mysql.connector.connect")
     def test_sensor_data_generation(self, mock_connect):
         """Test IoT sensor data generation."""
         mock_cursor = Mock()
@@ -156,8 +146,7 @@ class TestIoTDataGenerator:
         generator = IoTDataGenerator("localhost", "root", "test", "iot_db")
 
         sensor_data = generator.generate_sensor_readings(
-            device_ids=["sensor_001", "sensor_002"],
-            count=100
+            device_ids=["sensor_001", "sensor_002"], count=100
         )
 
         assert len(sensor_data) == 100
@@ -175,9 +164,7 @@ class TestIoTDataGenerator:
 
         # Generate normal data
         normal_data = generator.generate_sensor_readings(
-            device_ids=["sensor_001"],
-            count=100,
-            include_anomalies=False
+            device_ids=["sensor_001"], count=100, include_anomalies=False
         )
 
         # Generate data with anomalies
@@ -185,7 +172,7 @@ class TestIoTDataGenerator:
             device_ids=["sensor_001"],
             count=100,
             include_anomalies=True,
-            anomaly_rate=0.1
+            anomaly_rate=0.1,
         )
 
         # Check that some anomalies exist
@@ -201,19 +188,20 @@ class TestIoTDataGenerator:
             device_id="sensor_001",
             start_time="2024-01-01 00:00:00",
             interval_seconds=60,
-            count=60
+            count=60,
         )
 
         # Check timestamps are properly spaced
         for i in range(1, len(data)):
-            time_diff = (data[i]["timestamp"] - data[i-1]["timestamp"]).seconds
+            time_diff = (data[i]["timestamp"] - data[i - 1]["timestamp"]).seconds
             assert time_diff == 60
+
 
 @pytest.mark.unit
 class TestEcommerceDataGenerator:
     """Test e-commerce data generation."""
 
-    @patch('mysql.connector.connect')
+    @patch("mysql.connector.connect")
     def test_product_generation(self, mock_connect):
         """Test product data generation."""
         mock_cursor = Mock()
@@ -238,9 +226,7 @@ class TestEcommerceDataGenerator:
         generator = EcommerceDataGenerator("localhost", "root", "test", "ecommerce_db")
 
         order = generator.generate_order_with_items(
-            user_id=1,
-            product_ids=[1, 2, 3, 4, 5],
-            max_items=3
+            user_id=1, product_ids=[1, 2, 3, 4, 5], max_items=3
         )
 
         assert order["user_id"] == 1
@@ -249,7 +235,9 @@ class TestEcommerceDataGenerator:
         assert order["total_amount"] > 0
 
         # Check total amount matches items
-        items_total = sum(item["price"] * item["quantity"] for item in order["order_items"])
+        items_total = sum(
+            item["price"] * item["quantity"] for item in order["order_items"]
+        )
         assert abs(order["total_amount"] - items_total) < 0.01
 
     def test_customer_journey_generation(self):
@@ -258,7 +246,13 @@ class TestEcommerceDataGenerator:
 
         journey = generator.generate_customer_journey(user_id=1)
 
-        expected_events = ["page_view", "product_view", "add_to_cart", "checkout", "purchase"]
+        expected_events = [
+            "page_view",
+            "product_view",
+            "add_to_cart",
+            "checkout",
+            "purchase",
+        ]
 
         assert len(journey) > 0
         for event in journey:
@@ -270,10 +264,7 @@ class TestEcommerceDataGenerator:
         """Test inventory update generation."""
         generator = EcommerceDataGenerator("localhost", "root", "test", "ecommerce_db")
 
-        updates = generator.generate_inventory_updates(
-            product_ids=[1, 2, 3],
-            count=10
-        )
+        updates = generator.generate_inventory_updates(product_ids=[1, 2, 3], count=10)
 
         assert len(updates) == 10
         for update in updates:
@@ -281,6 +272,7 @@ class TestEcommerceDataGenerator:
             assert "quantity_change" in update
             assert "reason" in update
             assert update["reason"] in ["sale", "restock", "return", "damaged"]
+
 
 @pytest.mark.unit
 class TestDataValidation:
@@ -293,15 +285,10 @@ class TestDataValidation:
         valid_emails = [
             "user@example.com",
             "john.doe@company.co.uk",
-            "test+tag@domain.org"
+            "test+tag@domain.org",
         ]
 
-        invalid_emails = [
-            "not-an-email",
-            "@example.com",
-            "user@",
-            "user..@example.com"
-        ]
+        invalid_emails = ["not-an-email", "@example.com", "user@", "user..@example.com"]
 
         for email in valid_emails:
             assert validate_email(email) is True
@@ -317,7 +304,7 @@ class TestDataValidation:
             "+1-234-567-8900",
             "(234) 567-8900",
             "234.567.8900",
-            "2345678900"
+            "2345678900",
         ]
 
         for phone in valid_phones:
@@ -327,17 +314,13 @@ class TestDataValidation:
         """Test date format validation."""
         from generators.validators import validate_date
 
-        valid_dates = [
-            "2024-01-15",
-            "2024-12-31",
-            "2023-02-28"
-        ]
+        valid_dates = ["2024-01-15", "2024-12-31", "2023-02-28"]
 
         invalid_dates = [
             "2024-13-01",  # Invalid month
             "2024-01-32",  # Invalid day
-            "24-01-15",    # Wrong format
-            "not-a-date"
+            "24-01-15",  # Wrong format
+            "not-a-date",
         ]
 
         for date in valid_dates:
@@ -345,6 +328,7 @@ class TestDataValidation:
 
         for date in invalid_dates:
             assert validate_date(date) is False
+
 
 @pytest.mark.unit
 class TestPerformanceOptimizations:
@@ -356,9 +340,9 @@ class TestPerformanceOptimizations:
 
         # Test with different data sizes
         test_cases = [
-            (100, 10),      # Small dataset
-            (10000, 100),   # Medium dataset
-            (1000000, 1000) # Large dataset
+            (100, 10),  # Small dataset
+            (10000, 100),  # Medium dataset
+            (1000000, 1000),  # Large dataset
         ]
 
         for total_records, expected_min_batch in test_cases:
@@ -375,7 +359,7 @@ class TestPerformanceOptimizations:
             user="root",
             password="test",
             database="test_db",
-            pool_size=5
+            pool_size=5,
         )
 
         # Test acquiring connections

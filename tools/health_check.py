@@ -16,6 +16,7 @@ from datetime import datetime
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.append(str(PROJECT_ROOT))
 
+
 class HealthChecker:
     def __init__(self):
         self.project_root = PROJECT_ROOT
@@ -25,14 +26,14 @@ class HealthChecker:
             "timestamp": datetime.now().isoformat(),
             "examples": {},
             "generators": {},
-            "overall": {"passed": 0, "failed": 0, "warnings": 0}
+            "overall": {"passed": 0, "failed": 0, "warnings": 0},
         }
 
     def check_all(self):
         """Run all health checks"""
-        print("="*60)
+        print("=" * 60)
         print("MySQL Business-to-Schema Health Check")
-        print("="*60)
+        print("=" * 60)
         print()
 
         # Check examples
@@ -61,7 +62,7 @@ class HealthChecker:
             self.results["examples"][example_name] = {
                 "status": "PASS",
                 "issues": [],
-                "warnings": []
+                "warnings": [],
             }
 
             # Check required directories
@@ -76,10 +77,7 @@ class HealthChecker:
             # Check schema files
             schema_dir = example_dir / "schema"
             if schema_dir.exists():
-                required_schema_files = [
-                    "00_create_database.sql",
-                    "01_tables.sql"
-                ]
+                required_schema_files = ["00_create_database.sql", "01_tables.sql"]
                 for schema_file in required_schema_files:
                     if not (schema_dir / schema_file).exists():
                         self.results["examples"][example_name]["status"] = "FAIL"
@@ -104,7 +102,7 @@ class HealthChecker:
             else:
                 # Check README quality
                 readme_path = example_dir / "README.md"
-                with open(readme_path, 'r', encoding='utf-8') as f:
+                with open(readme_path, "r", encoding="utf-8") as f:
                     readme_content = f.read()
                     readme_lines = len(readme_content.splitlines())
 
@@ -117,7 +115,7 @@ class HealthChecker:
                     required_sections = [
                         "## Database Overview",
                         "## Schema Structure",
-                        "## Getting Started"
+                        "## Getting Started",
                     ]
                     for section in required_sections:
                         if section not in readme_content:
@@ -127,13 +125,20 @@ class HealthChecker:
 
             # Display status
             status = self.results["examples"][example_name]["status"]
-            if status == "PASS" and not self.results["examples"][example_name]["warnings"]:
+            if (
+                status == "PASS"
+                and not self.results["examples"][example_name]["warnings"]
+            ):
                 print(f"    [OK] {example_name}: PASS")
                 self.results["overall"]["passed"] += 1
-            elif status == "PASS" and self.results["examples"][example_name]["warnings"]:
+            elif (
+                status == "PASS" and self.results["examples"][example_name]["warnings"]
+            ):
                 print(f"    [WARN]  {example_name}: PASS with warnings")
                 self.results["overall"]["passed"] += 1
-                self.results["overall"]["warnings"] += len(self.results["examples"][example_name]["warnings"])
+                self.results["overall"]["warnings"] += len(
+                    self.results["examples"][example_name]["warnings"]
+                )
             else:
                 print(f"    [FAIL] {example_name}: FAIL")
                 self.results["overall"]["failed"] += 1
@@ -147,7 +152,13 @@ class HealthChecker:
             print("  [FAIL] Generators directory not found!")
             return
 
-        generator_dirs = sorted([d for d in self.generators_dir.iterdir() if d.is_dir() and not d.name.startswith('__')])
+        generator_dirs = sorted(
+            [
+                d
+                for d in self.generators_dir.iterdir()
+                if d.is_dir() and not d.name.startswith("__")
+            ]
+        )
 
         for gen_dir in generator_dirs:
             gen_name = gen_dir.name
@@ -156,7 +167,7 @@ class HealthChecker:
             self.results["generators"][gen_name] = {
                 "status": "PASS",
                 "issues": [],
-                "warnings": []
+                "warnings": [],
             }
 
             # Check for generator.py
@@ -186,13 +197,18 @@ class HealthChecker:
 
             # Display status
             status = self.results["generators"][gen_name]["status"]
-            if status == "PASS" and not self.results["generators"][gen_name]["warnings"]:
+            if (
+                status == "PASS"
+                and not self.results["generators"][gen_name]["warnings"]
+            ):
                 print(f"    [OK] {gen_name}: PASS")
                 self.results["overall"]["passed"] += 1
             elif status == "PASS" and self.results["generators"][gen_name]["warnings"]:
                 print(f"    [WARN]  {gen_name}: PASS with warnings")
                 self.results["overall"]["passed"] += 1
-                self.results["overall"]["warnings"] += len(self.results["generators"][gen_name]["warnings"])
+                self.results["overall"]["warnings"] += len(
+                    self.results["generators"][gen_name]["warnings"]
+                )
             else:
                 print(f"    [FAIL] {gen_name}: FAIL")
                 self.results["overall"]["failed"] += 1
@@ -202,11 +218,7 @@ class HealthChecker:
         print("\n[DOCS] Checking Documentation...")
         print("-" * 40)
 
-        required_docs = [
-            "README.md",
-            "CONTRIBUTING.md",
-            "LICENSE"
-        ]
+        required_docs = ["README.md", "CONTRIBUTING.md", "LICENSE"]
 
         for doc in required_docs:
             doc_path = self.project_root / doc
@@ -221,7 +233,7 @@ class HealthChecker:
         try:
             # This would require mysql client to be installed
             # For now, just do basic validation
-            with open(sql_file, 'r', encoding='utf-8') as f:
+            with open(sql_file, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Basic checks
@@ -238,11 +250,13 @@ class HealthChecker:
 
     def generate_report(self):
         """Generate health check report"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("HEALTH CHECK SUMMARY")
-        print("="*60)
+        print("=" * 60)
 
-        total_checks = self.results["overall"]["passed"] + self.results["overall"]["failed"]
+        total_checks = (
+            self.results["overall"]["passed"] + self.results["overall"]["failed"]
+        )
 
         print(f"\n[STATS] Overall Statistics:")
         print(f"  Total Checks: {total_checks}")
@@ -257,7 +271,7 @@ class HealthChecker:
 
         # Save detailed report
         report_file = self.project_root / "health_check_report.json"
-        with open(report_file, 'w', encoding='utf-8') as f:
+        with open(report_file, "w", encoding="utf-8") as f:
             json.dump(self.results, f, indent=2)
 
         print(f"\n[REPORT] Detailed report saved to: health_check_report.json")
@@ -290,33 +304,46 @@ class HealthChecker:
             "example_12_real_estate": "smart_energy",
             "example_13_event_ticketing": "healthcare_iot",
             "example_14_logistics": "logistics",
-            "example_15_education": "industrial_iot"
+            "example_15_education": "industrial_iot",
         }
 
         examples_with_generators = 0
         for example_dir in example_dirs:
-            gen_name = example_to_generator.get(example_dir.name, example_dir.name.replace("example_", "").replace("_", ""))
+            gen_name = example_to_generator.get(
+                example_dir.name,
+                example_dir.name.replace("example_", "").replace("_", ""),
+            )
             gen_path = self.generators_dir / gen_name / "generator.py"
             if gen_path.exists():
                 examples_with_generators += 1
 
-        generator_coverage = (examples_with_generators / total_examples * 100) if total_examples > 0 else 0
+        generator_coverage = (
+            (examples_with_generators / total_examples * 100)
+            if total_examples > 0
+            else 0
+        )
 
         print(f"  Examples: {total_examples}")
-        print(f"  With Generators: {examples_with_generators}/{total_examples} ({generator_coverage:.1f}%)")
+        print(
+            f"  With Generators: {examples_with_generators}/{total_examples} ({generator_coverage:.1f}%)"
+        )
 
         # Count documentation quality
         well_documented = 0
         for example_dir in example_dirs:
             readme_path = example_dir / "README.md"
             if readme_path.exists():
-                with open(readme_path, 'r', encoding='utf-8') as f:
+                with open(readme_path, "r", encoding="utf-8") as f:
                     lines = len(f.read().splitlines())
                     if lines >= 200:
                         well_documented += 1
 
-        doc_coverage = (well_documented / total_examples * 100) if total_examples > 0 else 0
-        print(f"  Well Documented: {well_documented}/{total_examples} ({doc_coverage:.1f}%)")
+        doc_coverage = (
+            (well_documented / total_examples * 100) if total_examples > 0 else 0
+        )
+        print(
+            f"  Well Documented: {well_documented}/{total_examples} ({doc_coverage:.1f}%)"
+        )
 
         # Overall health score
         health_score = (generator_coverage + doc_coverage) / 2
@@ -331,6 +358,7 @@ class HealthChecker:
             print("   Status: FAIR")
         else:
             print("   Status: NEEDS IMPROVEMENT")
+
 
 def main():
     """Run health check"""
@@ -357,6 +385,7 @@ def main():
 
     # Return exit code based on failures
     sys.exit(checker.results["overall"]["failed"])
+
 
 if __name__ == "__main__":
     main()

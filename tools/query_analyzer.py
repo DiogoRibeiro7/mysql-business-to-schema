@@ -20,8 +20,9 @@ from mysql.connector import Error
 from tabulate import tabulate
 import yaml
 
+
 class QueryPerformanceAnalyzer:
-    def __init__(self, host='localhost', port=3306, user='root', password=''):
+    def __init__(self, host="localhost", port=3306, user="root", password=""):
         """Initialize the analyzer with database connection parameters."""
         self.host = host
         self.port = port
@@ -41,7 +42,7 @@ class QueryPerformanceAnalyzer:
                 port=self.port,
                 user=self.user,
                 password=self.password,
-                database=database
+                database=database,
             )
             return True
         except Error as e:
@@ -60,7 +61,7 @@ class QueryPerformanceAnalyzer:
             "execution_times": [],
             "explain_plan": [],
             "index_usage": {},
-            "recommendations": []
+            "recommendations": [],
         }
 
         try:
@@ -81,7 +82,9 @@ class QueryPerformanceAnalyzer:
                 result["execution_times"].append(execution_time)
 
             # Calculate statistics
-            result["avg_execution_time"] = sum(result["execution_times"]) / len(result["execution_times"])
+            result["avg_execution_time"] = sum(result["execution_times"]) / len(
+                result["execution_times"]
+            )
             result["min_execution_time"] = min(result["execution_times"])
             result["max_execution_time"] = max(result["execution_times"])
 
@@ -89,7 +92,7 @@ class QueryPerformanceAnalyzer:
             result["recommendations"] = self._generate_recommendations(
                 result["explain_plan"],
                 result["index_usage"],
-                result["avg_execution_time"]
+                result["avg_execution_time"],
             )
 
         except Error as e:
@@ -107,45 +110,48 @@ class QueryPerformanceAnalyzer:
             "full_table_scans": [],
             "filesorts": False,
             "temporary_tables": False,
-            "total_rows_examined": 0
+            "total_rows_examined": 0,
         }
 
         for row in explain_plan:
             # Check for index usage
-            if row.get('key'):
-                analysis["indexes_used"].append({
-                    "table": row.get('table'),
-                    "index": row.get('key'),
-                    "key_len": row.get('key_len')
-                })
+            if row.get("key"):
+                analysis["indexes_used"].append(
+                    {
+                        "table": row.get("table"),
+                        "index": row.get("key"),
+                        "key_len": row.get("key_len"),
+                    }
+                )
 
             # Check for full table scans
-            if row.get('type') in ['ALL', 'index']:
-                rows_value = row.get('rows', 0)
+            if row.get("type") in ["ALL", "index"]:
+                rows_value = row.get("rows", 0)
                 if rows_value is None:
                     rows_value = 0
-                analysis["full_table_scans"].append({
-                    "table": row.get('table'),
-                    "rows": int(rows_value)
-                })
+                analysis["full_table_scans"].append(
+                    {"table": row.get("table"), "rows": int(rows_value)}
+                )
 
             # Check for filesort
-            if row.get('Extra') and 'filesort' in str(row.get('Extra')).lower():
+            if row.get("Extra") and "filesort" in str(row.get("Extra")).lower():
                 analysis["filesorts"] = True
 
             # Check for temporary tables
-            if row.get('Extra') and 'temporary' in str(row.get('Extra')).lower():
+            if row.get("Extra") and "temporary" in str(row.get("Extra")).lower():
                 analysis["temporary_tables"] = True
 
             # Sum rows examined
-            rows_value = row.get('rows', 0)
+            rows_value = row.get("rows", 0)
             if rows_value is None:
                 rows_value = 0
             analysis["total_rows_examined"] += int(rows_value)
 
         return analysis
 
-    def _generate_recommendations(self, explain_plan: List[Dict], index_usage: Dict, avg_time: float) -> List[str]:
+    def _generate_recommendations(
+        self, explain_plan: List[Dict], index_usage: Dict, avg_time: float
+    ) -> List[str]:
         """Generate optimization recommendations based on analysis."""
         recommendations = []
 
@@ -183,7 +189,7 @@ class QueryPerformanceAnalyzer:
 
         # Check rows examined vs returned
         for row in explain_plan:
-            if row.get('filtered') and float(row.get('filtered', 100)) < 25:
+            if row.get("filtered") and float(row.get("filtered", 100)) < 25:
                 recommendations.append(
                     f"⚠️ Table '{row.get('table')}' has low filtering efficiency ({row.get('filtered')}%). "
                     f"Consider adding more selective indexes."
@@ -200,7 +206,7 @@ class QueryPerformanceAnalyzer:
             return []
 
         results = []
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Extract queries (simple pattern - may need refinement)
@@ -222,25 +228,25 @@ class QueryPerformanceAnalyzer:
         queries = []
 
         # Remove single-line comments but capture query descriptions
-        lines = sql_content.split('\n')
+        lines = sql_content.split("\n")
         current_query = []
         current_comment = None
 
         for line in lines:
             # Check for comment with query description
-            if line.strip().startswith('--') and not current_query:
+            if line.strip().startswith("--") and not current_query:
                 current_comment = line.strip()[2:].strip()
-            elif line.strip() and not line.strip().startswith('--'):
+            elif line.strip() and not line.strip().startswith("--"):
                 current_query.append(line)
 
                 # Check if query is complete (ends with semicolon)
-                if ';' in line:
-                    query_text = ' '.join(current_query)
+                if ";" in line:
+                    query_text = " ".join(current_query)
 
                     # Only process SELECT queries
-                    if 'SELECT' in query_text.upper():
+                    if "SELECT" in query_text.upper():
                         # Clean up the query
-                        query_text = query_text.split(';')[0].strip()
+                        query_text = query_text.split(";")[0].strip()
                         queries.append((query_text, current_comment))
 
                     current_query = []
@@ -248,9 +254,9 @@ class QueryPerformanceAnalyzer:
 
         return queries
 
-    def generate_report(self, results: List[Dict], output_format: str = 'text') -> str:
+    def generate_report(self, results: List[Dict], output_format: str = "text") -> str:
         """Generate a performance report from analysis results."""
-        if output_format == 'json':
+        if output_format == "json":
             return json.dumps(results, indent=2, default=str)
 
         report = []
@@ -274,24 +280,30 @@ class QueryPerformanceAnalyzer:
             report.append(f"      Max: {result['max_execution_time']:.2f}ms")
 
             # Index usage
-            index_info = result['index_usage']
+            index_info = result["index_usage"]
             report.append(f"\n   📚 Index Usage:")
 
-            if index_info['indexes_used']:
-                for idx in index_info['indexes_used']:
-                    report.append(f"      ✓ Table '{idx['table']}' uses index '{idx['index']}'")
+            if index_info["indexes_used"]:
+                for idx in index_info["indexes_used"]:
+                    report.append(
+                        f"      ✓ Table '{idx['table']}' uses index '{idx['index']}'"
+                    )
             else:
                 report.append(f"      ⚠️ No indexes used")
 
-            if index_info['full_table_scans']:
-                for scan in index_info['full_table_scans']:
-                    report.append(f"      ⚠️ Full scan on '{scan['table']}' ({scan['rows']} rows)")
+            if index_info["full_table_scans"]:
+                for scan in index_info["full_table_scans"]:
+                    report.append(
+                        f"      ⚠️ Full scan on '{scan['table']}' ({scan['rows']} rows)"
+                    )
 
-            report.append(f"      Total rows examined: {index_info['total_rows_examined']}")
+            report.append(
+                f"      Total rows examined: {index_info['total_rows_examined']}"
+            )
 
             # Recommendations
             report.append(f"\n   💡 Recommendations:")
-            for rec in result['recommendations']:
+            for rec in result["recommendations"]:
                 report.append(f"      {rec}")
 
         return "\n".join(report)
@@ -306,7 +318,7 @@ class QueryPerformanceAnalyzer:
         results = {
             "example": example_name,
             "database": database_name,
-            "query_files": {}
+            "query_files": {},
         }
 
         # Find all query files
@@ -331,9 +343,9 @@ class QueryPerformanceAnalyzer:
             "example_07_fleet_management": "fleet_management",
             "example_08_healthcare_iot": "healthcare_iot",
             "example_09_streaming_ml": "streaming_ml",
-            "example_10_fintech": "fintech"
+            "example_10_fintech": "fintech",
         }
-        return mapping.get(example_name, example_name.split('_', 2)[-1])
+        return mapping.get(example_name, example_name.split("_", 2)[-1])
 
     def compare_examples(self, results: List[Dict]) -> str:
         """Generate a comparison report across all examples."""
@@ -355,32 +367,44 @@ class QueryPerformanceAnalyzer:
                 for query in file_queries:
                     if "error" not in query:
                         total_queries += 1
-                        total_time += query['avg_execution_time']
+                        total_time += query["avg_execution_time"]
 
-                        if query['avg_execution_time'] > 100:  # >100ms is slow
+                        if query["avg_execution_time"] > 100:  # >100ms is slow
                             slow_queries += 1
-                        elif query['avg_execution_time'] < 10:  # <10ms is fast
+                        elif query["avg_execution_time"] < 10:  # <10ms is fast
                             optimized_queries += 1
 
-                        if query['index_usage']['full_table_scans'] or \
-                           query['index_usage']['filesorts'] or \
-                           query['index_usage']['temporary_tables']:
+                        if (
+                            query["index_usage"]["full_table_scans"]
+                            or query["index_usage"]["filesorts"]
+                            or query["index_usage"]["temporary_tables"]
+                        ):
                             queries_with_issues += 1
 
             if total_queries > 0:
-                summary_data.append([
-                    example_result['example'],
-                    total_queries,
-                    f"{total_time/total_queries:.2f}ms",
-                    slow_queries,
-                    optimized_queries,
-                    queries_with_issues
-                ])
+                summary_data.append(
+                    [
+                        example_result["example"],
+                        total_queries,
+                        f"{total_time/total_queries:.2f}ms",
+                        slow_queries,
+                        optimized_queries,
+                        queries_with_issues,
+                    ]
+                )
 
-        headers = ["Example", "Total Queries", "Avg Time", "Slow", "Optimized", "Issues"]
+        headers = [
+            "Example",
+            "Total Queries",
+            "Avg Time",
+            "Slow",
+            "Optimized",
+            "Issues",
+        ]
         comparison.append(tabulate(summary_data, headers=headers, tablefmt="grid"))
 
         return "\n".join(comparison)
+
 
 def main():
     parser = argparse.ArgumentParser(description="MySQL Query Performance Analyzer")
@@ -388,18 +412,19 @@ def main():
     parser.add_argument("--port", type=int, default=3306, help="MySQL port")
     parser.add_argument("--user", default="root", help="MySQL user")
     parser.add_argument("--password", default="", help="MySQL password")
-    parser.add_argument("--example", help="Specific example to analyze (e.g., example_01_clinic)")
+    parser.add_argument(
+        "--example", help="Specific example to analyze (e.g., example_01_clinic)"
+    )
     parser.add_argument("--all", action="store_true", help="Analyze all examples")
-    parser.add_argument("--output", choices=["text", "json"], default="text", help="Output format")
+    parser.add_argument(
+        "--output", choices=["text", "json"], default="text", help="Output format"
+    )
     parser.add_argument("--save", help="Save report to file")
 
     args = parser.parse_args()
 
     analyzer = QueryPerformanceAnalyzer(
-        host=args.host,
-        port=args.port,
-        user=args.user,
-        password=args.password
+        host=args.host, port=args.port, user=args.user, password=args.password
     )
 
     results = []
@@ -446,7 +471,7 @@ def main():
 
     # Save report if requested
     if args.save:
-        with open(args.save, 'w') as f:
+        with open(args.save, "w") as f:
             for result in results:
                 all_queries = []
                 for file_queries in result["query_files"].values():
@@ -459,6 +484,7 @@ def main():
                 f.write(analyzer.compare_examples(results))
 
         print(f"\nReport saved to: {args.save}")
+
 
 if __name__ == "__main__":
     main()

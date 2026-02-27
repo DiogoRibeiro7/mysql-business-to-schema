@@ -29,7 +29,7 @@ app = FastAPI(
     description="Unified API gateway for database operations, ML models, and streaming services",
     version="1.0.0",
     docs_url="/api/docs",
-    redoc_url="/api/redoc"
+    redoc_url="/api/redoc",
 )
 
 # CORS configuration
@@ -46,7 +46,7 @@ security = HTTPBearer()
 
 # Redis for caching and rate limiting
 try:
-    redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
     redis_client.ping()
     REDIS_AVAILABLE = True
 except:
@@ -59,23 +59,23 @@ MICROSERVICES = {
     "database": {
         "url": os.getenv("DATABASE_SERVICE_URL", "http://localhost:8001"),
         "health": "/health",
-        "timeout": 30
+        "timeout": 30,
     },
     "ml": {
         "url": os.getenv("ML_SERVICE_URL", "http://localhost:8002"),
         "health": "/health",
-        "timeout": 60
+        "timeout": 60,
     },
     "streaming": {
         "url": os.getenv("STREAMING_SERVICE_URL", "http://localhost:8003"),
         "health": "/health",
-        "timeout": 30
+        "timeout": 30,
     },
     "analytics": {
         "url": os.getenv("ANALYTICS_SERVICE_URL", "http://localhost:8004"),
         "health": "/health",
-        "timeout": 45
-    }
+        "timeout": 45,
+    },
 }
 
 # JWT Configuration
@@ -117,7 +117,7 @@ def create_token(username: str) -> str:
     payload = {
         "sub": username,
         "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
-        "iat": datetime.utcnow()
+        "iat": datetime.utcnow(),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
@@ -131,18 +131,16 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
         if username is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials"
+                detail="Invalid authentication credentials",
             )
         return username
     except jwt.ExpiredSignatureError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token has expired"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired"
         )
     except jwt.JWTError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
 
@@ -176,8 +174,7 @@ async def check_rate_limit(request: Request):
     client_id = request.client.host
     if not await rate_limiter.check_rate_limit(client_id):
         raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="Rate limit exceeded"
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
         )
 
 
@@ -194,10 +191,12 @@ class CircuitBreaker:
         # Check if circuit is open
         if service in self.failures:
             if self.failures[service] >= self.failure_threshold:
-                if datetime.now() - self.last_failure_time[service] < timedelta(seconds=self.recovery_timeout):
+                if datetime.now() - self.last_failure_time[service] < timedelta(
+                    seconds=self.recovery_timeout
+                ):
                     raise HTTPException(
                         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        detail=f"Service {service} is temporarily unavailable"
+                        detail=f"Service {service} is temporarily unavailable",
                     )
                 else:
                     # Reset after recovery timeout
@@ -227,7 +226,7 @@ async def discover_service(service_name: str) -> Dict[str, Any]:
     if service_name not in MICROSERVICES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Service {service_name} not found"
+            detail=f"Service {service_name} not found",
         )
 
     service = MICROSERVICES[service_name]
@@ -236,12 +235,13 @@ async def discover_service(service_name: str) -> Dict[str, Any]:
     async with httpx.AsyncClient() as client:
         try:
             response = await client.get(
-                f"{service['url']}{service['health']}",
-                timeout=5
+                f"{service['url']}{service['health']}", timeout=5
             )
-            service['status'] = 'healthy' if response.status_code == 200 else 'unhealthy'
+            service["status"] = (
+                "healthy" if response.status_code == 200 else "unhealthy"
+            )
         except:
-            service['status'] = 'unavailable'
+            service["status"] = "unavailable"
 
     return service
 
@@ -253,12 +253,12 @@ async def route_request(
     method: str = "GET",
     data: Optional[Dict] = None,
     params: Optional[Dict] = None,
-    headers: Optional[Dict] = None
+    headers: Optional[Dict] = None,
 ) -> Dict[str, Any]:
     """Route request to appropriate microservice"""
     service = await discover_service(service_name)
 
-    if service['status'] != 'healthy':
+    if service["status"] != "healthy":
         # Try fallback or cache
         if REDIS_AVAILABLE and method == "GET":
             cache_key = f"cache:{service_name}:{endpoint}:{json.dumps(params or {})}"
@@ -269,7 +269,7 @@ async def route_request(
 
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Service {service_name} is not available"
+            detail=f"Service {service_name} is not available",
         )
 
     # Make request to microservice
@@ -285,14 +285,16 @@ async def route_request(
                 json=data,
                 params=params,
                 headers=headers,
-                timeout=service['timeout']
+                timeout=service["timeout"],
             )
 
             result = response.json()
 
             # Cache successful GET requests
             if REDIS_AVAILABLE and method == "GET" and response.status_code == 200:
-                cache_key = f"cache:{service_name}:{endpoint}:{json.dumps(params or {})}"
+                cache_key = (
+                    f"cache:{service_name}:{endpoint}:{json.dumps(params or {})}"
+                )
                 redis_client.setex(cache_key, 300, json.dumps(result))  # 5 min cache
 
             return result
@@ -300,17 +302,18 @@ async def route_request(
         except httpx.TimeoutException:
             raise HTTPException(
                 status_code=status.HTTP_504_GATEWAY_TIMEOUT,
-                detail=f"Request to {service_name} timed out"
+                detail=f"Request to {service_name} timed out",
             )
         except Exception as e:
             logger.error(f"Error routing to {service_name}: {e}")
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Error communicating with {service_name}"
+                detail=f"Error communicating with {service_name}",
             )
 
 
 # API Endpoints
+
 
 @app.get("/")
 async def root():
@@ -319,7 +322,7 @@ async def root():
         "name": "MySQL Business-to-Schema API Gateway",
         "version": "1.0.0",
         "services": list(MICROSERVICES.keys()),
-        "docs": "/api/docs"
+        "docs": "/api/docs",
     }
 
 
@@ -329,13 +332,9 @@ async def login(auth: AuthRequest):
     # Simplified authentication - in production use proper auth service
     if auth.username == "admin" and auth.password == "password":
         token = create_token(auth.username)
-        return AuthResponse(
-            access_token=token,
-            expires_in=JWT_EXPIRATION_HOURS * 3600
-        )
+        return AuthResponse(access_token=token, expires_in=JWT_EXPIRATION_HOURS * 3600)
     raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid credentials"
+        status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
     )
 
 
@@ -346,23 +345,22 @@ async def health_check():
 
     for service_name in MICROSERVICES:
         service = await discover_service(service_name)
-        services_health[service_name] = service['status']
+        services_health[service_name] = service["status"]
 
-    all_healthy = all(status == 'healthy' for status in services_health.values())
+    all_healthy = all(status == "healthy" for status in services_health.values())
 
     return {
         "gateway": "healthy",
         "services": services_health,
         "overall": "healthy" if all_healthy else "degraded",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
-@app.post("/service", response_model=ServiceResponse, dependencies=[Depends(check_rate_limit)])
-async def call_service(
-    request: ServiceRequest,
-    username: str = Depends(verify_token)
-):
+@app.post(
+    "/service", response_model=ServiceResponse, dependencies=[Depends(check_rate_limit)]
+)
+async def call_service(request: ServiceRequest, username: str = Depends(verify_token)):
     """Route request to a microservice"""
     try:
         result = await route_request(
@@ -370,7 +368,7 @@ async def call_service(
             endpoint=request.endpoint,
             method=request.method,
             data=request.data,
-            params=request.params
+            params=request.params,
         )
         return ServiceResponse(success=True, data=result)
     except HTTPException as e:
@@ -388,42 +386,31 @@ async def list_databases(username: str = Depends(verify_token)):
 
 
 @app.get("/api/v1/databases/{db_name}/schema", dependencies=[Depends(check_rate_limit)])
-async def get_database_schema(
-    db_name: str,
-    username: str = Depends(verify_token)
-):
+async def get_database_schema(db_name: str, username: str = Depends(verify_token)):
     """Get schema for specific database"""
     return await route_request("database", f"/databases/{db_name}/schema")
 
 
-@app.post("/api/v1/databases/{db_name}/generate", dependencies=[Depends(check_rate_limit)])
+@app.post(
+    "/api/v1/databases/{db_name}/generate", dependencies=[Depends(check_rate_limit)]
+)
 async def generate_data(
-    db_name: str,
-    rows: int = 1000,
-    username: str = Depends(verify_token)
+    db_name: str, rows: int = 1000, username: str = Depends(verify_token)
 ):
     """Generate sample data for database"""
     return await route_request(
-        "database",
-        f"/databases/{db_name}/generate",
-        method="POST",
-        data={"rows": rows}
+        "database", f"/databases/{db_name}/generate", method="POST", data={"rows": rows}
     )
 
 
 # ML Operations
 @app.post("/api/v1/ml/predict", dependencies=[Depends(check_rate_limit)])
 async def ml_predict(
-    model_name: str,
-    data: Dict[str, Any],
-    username: str = Depends(verify_token)
+    model_name: str, data: Dict[str, Any], username: str = Depends(verify_token)
 ):
     """Make ML prediction"""
     return await route_request(
-        "ml",
-        f"/models/{model_name}/predict",
-        method="POST",
-        data=data
+        "ml", f"/models/{model_name}/predict", method="POST", data=data
     )
 
 
@@ -438,33 +425,25 @@ async def train_model(
     model_name: str,
     dataset: str,
     parameters: Optional[Dict] = None,
-    username: str = Depends(verify_token)
+    username: str = Depends(verify_token),
 ):
     """Train ML model"""
     return await route_request(
         "ml",
         f"/models/{model_name}/train",
         method="POST",
-        data={
-            "dataset": dataset,
-            "parameters": parameters or {}
-        }
+        data={"dataset": dataset, "parameters": parameters or {}},
     )
 
 
 # Streaming Operations
 @app.post("/api/v1/streaming/publish", dependencies=[Depends(check_rate_limit)])
 async def publish_to_stream(
-    topic: str,
-    message: Dict[str, Any],
-    username: str = Depends(verify_token)
+    topic: str, message: Dict[str, Any], username: str = Depends(verify_token)
 ):
     """Publish message to streaming topic"""
     return await route_request(
-        "streaming",
-        f"/topics/{topic}/publish",
-        method="POST",
-        data=message
+        "streaming", f"/topics/{topic}/publish", method="POST", data=message
     )
 
 
@@ -480,16 +459,16 @@ async def get_metrics(
     database: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    username: str = Depends(verify_token)
+    username: str = Depends(verify_token),
 ):
     """Get analytics metrics"""
     params = {}
     if database:
-        params['database'] = database
+        params["database"] = database
     if start_date:
-        params['start_date'] = start_date
+        params["start_date"] = start_date
     if end_date:
-        params['end_date'] = end_date
+        params["end_date"] = end_date
 
     return await route_request("analytics", "/metrics", params=params)
 
@@ -542,17 +521,17 @@ async def websocket_endpoint(websocket: WebSocket):
                 message = json.loads(data)
                 if message.get("type") == "subscribe":
                     # Subscribe to specific events
-                    await websocket.send_text(json.dumps({
-                        "type": "subscribed",
-                        "topic": message.get("topic")
-                    }))
+                    await websocket.send_text(
+                        json.dumps(
+                            {"type": "subscribed", "topic": message.get("topic")}
+                        )
+                    )
                 elif message.get("type") == "ping":
                     await websocket.send_text(json.dumps({"type": "pong"}))
             except json.JSONDecodeError:
-                await websocket.send_text(json.dumps({
-                    "type": "error",
-                    "message": "Invalid JSON"
-                }))
+                await websocket.send_text(
+                    json.dumps({"type": "error", "message": "Invalid JSON"})
+                )
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
@@ -567,8 +546,8 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         content={
             "error": exc.detail,
             "status_code": exc.status_code,
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
 
 
@@ -581,8 +560,8 @@ async def general_exception_handler(request: Request, exc: Exception):
         content={
             "error": "Internal server error",
             "status_code": 500,
-            "timestamp": datetime.now().isoformat()
-        }
+            "timestamp": datetime.now().isoformat(),
+        },
     )
 
 
@@ -614,4 +593,5 @@ async def shutdown_event():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")

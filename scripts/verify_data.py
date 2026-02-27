@@ -18,11 +18,12 @@ init()
 
 # Database configuration
 DB_CONFIG = {
-    'host': os.getenv('MYSQL_HOST', 'localhost'),
-    'user': os.getenv('MYSQL_USER', 'root'),
-    'password': os.getenv('MYSQL_PASSWORD', 'root'),
-    'port': int(os.getenv('MYSQL_PORT', 3306))
+    "host": os.getenv("MYSQL_HOST", "localhost"),
+    "user": os.getenv("MYSQL_USER", "root"),
+    "password": os.getenv("MYSQL_PASSWORD", "root"),
+    "port": int(os.getenv("MYSQL_PORT", 3306)),
 }
+
 
 def print_header(text: str):
     """Print formatted header"""
@@ -30,26 +31,30 @@ def print_header(text: str):
     print(f"{Fore.CYAN}{text:^70}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*70}{Style.RESET_ALL}\n")
 
+
 def get_schema_stats(conn: mysql.connector.MySQLConnection, schema: str) -> Dict:
     """Get statistics for a schema"""
     cursor = conn.cursor(dictionary=True)
-    stats = {'schema': schema}
+    stats = {"schema": schema}
 
     try:
         # Get table count and total rows
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 COUNT(DISTINCT table_name) as table_count,
                 SUM(table_rows) as total_rows,
                 ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size_mb
             FROM information_schema.tables
             WHERE table_schema = '{schema}'
-        """)
+        """
+        )
         result = cursor.fetchone()
         stats.update(result if result else {})
 
         # Get detailed table information
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT
                 table_name,
                 table_rows,
@@ -59,28 +64,33 @@ def get_schema_stats(conn: mysql.connector.MySQLConnection, schema: str) -> Dict
             WHERE table_schema = '{schema}'
             ORDER BY table_rows DESC
             LIMIT 10
-        """)
-        stats['tables'] = cursor.fetchall()
+        """
+        )
+        stats["tables"] = cursor.fetchall()
 
         # Get foreign key relationships
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT COUNT(*) as fk_count
             FROM information_schema.key_column_usage
             WHERE table_schema = '{schema}'
             AND referenced_table_name IS NOT NULL
-        """)
+        """
+        )
         result = cursor.fetchone()
-        stats['fk_count'] = result['fk_count'] if result else 0
+        stats["fk_count"] = result["fk_count"] if result else 0
 
         # Get index count
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT COUNT(DISTINCT index_name) as index_count
             FROM information_schema.statistics
             WHERE table_schema = '{schema}'
             AND index_name != 'PRIMARY'
-        """)
+        """
+        )
         result = cursor.fetchone()
-        stats['index_count'] = result['index_count'] if result else 0
+        stats["index_count"] = result["index_count"] if result else 0
 
     except Exception as e:
         print(f"{Fore.RED}Error getting stats for {schema}: {e}{Style.RESET_ALL}")
@@ -88,15 +98,11 @@ def get_schema_stats(conn: mysql.connector.MySQLConnection, schema: str) -> Dict
     cursor.close()
     return stats
 
+
 def verify_data_quality(conn: mysql.connector.MySQLConnection, schema: str) -> Dict:
     """Check data quality metrics"""
     cursor = conn.cursor()
-    quality_report = {
-        'nulls': 0,
-        'duplicates': 0,
-        'orphans': 0,
-        'issues': []
-    }
+    quality_report = {"nulls": 0, "duplicates": 0, "orphans": 0, "issues": []}
 
     try:
         # Switch to schema
@@ -118,23 +124,26 @@ def verify_data_quality(conn: mysql.connector.MySQLConnection, schema: str) -> D
 
                 for column in columns[:3]:  # Check first 3 columns
                     try:
-                        cursor.execute(f"SELECT COUNT(*) FROM `{table}` WHERE `{column}` IS NULL")
+                        cursor.execute(
+                            f"SELECT COUNT(*) FROM `{table}` WHERE `{column}` IS NULL"
+                        )
                         null_count = cursor.fetchone()[0]
                         null_percentage = (null_count / total_rows) * 100
 
                         if null_percentage > 50:
-                            quality_report['issues'].append(
+                            quality_report["issues"].append(
                                 f"{table}.{column} has {null_percentage:.1f}% NULL values"
                             )
-                            quality_report['nulls'] += 1
+                            quality_report["nulls"] += 1
                     except:
                         pass
 
     except Exception as e:
-        quality_report['issues'].append(f"Error checking quality: {str(e)}")
+        quality_report["issues"].append(f"Error checking quality: {str(e)}")
 
     cursor.close()
     return quality_report
+
 
 def print_summary_table(stats_list: List[Dict]):
     """Print summary statistics in a table"""
@@ -144,19 +153,22 @@ def print_summary_table(stats_list: List[Dict]):
     # Prepare data for tabulate
     table_data = []
     for stat in stats_list:
-        table_data.append([
-            stat.get('schema', 'Unknown'),
-            stat.get('table_count', 0),
-            f"{stat.get('total_rows', 0):,}",
-            f"{stat.get('size_mb', 0):.2f} MB",
-            stat.get('fk_count', 0),
-            stat.get('index_count', 0)
-        ])
+        table_data.append(
+            [
+                stat.get("schema", "Unknown"),
+                stat.get("table_count", 0),
+                f"{stat.get('total_rows', 0):,}",
+                f"{stat.get('size_mb', 0):.2f} MB",
+                stat.get("fk_count", 0),
+                stat.get("index_count", 0),
+            ]
+        )
 
-    headers = ['Schema', 'Tables', 'Total Rows', 'Size', 'FKs', 'Indexes']
+    headers = ["Schema", "Tables", "Total Rows", "Size", "FKs", "Indexes"]
 
     print(f"\n{Fore.CYAN}Schema Statistics Summary:{Style.RESET_ALL}")
-    print(tabulate(table_data, headers=headers, tablefmt='grid'))
+    print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
 
 def print_top_tables(stats_list: List[Dict]):
     """Print top tables by row count"""
@@ -164,32 +176,37 @@ def print_top_tables(stats_list: List[Dict]):
 
     all_tables = []
     for stat in stats_list:
-        if 'tables' in stat:
-            for table in stat['tables']:
-                all_tables.append({
-                    'schema': stat['schema'],
-                    'table': table['table_name'],
-                    'rows': table['table_rows'],
-                    'columns': table['column_count'],
-                    'size_mb': table['size_mb']
-                })
+        if "tables" in stat:
+            for table in stat["tables"]:
+                all_tables.append(
+                    {
+                        "schema": stat["schema"],
+                        "table": table["table_name"],
+                        "rows": table["table_rows"],
+                        "columns": table["column_count"],
+                        "size_mb": table["size_mb"],
+                    }
+                )
 
     # Sort by row count and get top 10
-    all_tables.sort(key=lambda x: x['rows'] if x['rows'] else 0, reverse=True)
+    all_tables.sort(key=lambda x: x["rows"] if x["rows"] else 0, reverse=True)
     top_tables = all_tables[:10]
 
     if top_tables:
         table_data = []
         for table in top_tables:
-            table_data.append([
-                f"{table['schema']}.{table['table']}",
-                f"{table['rows']:,}" if table['rows'] else '0',
-                table['columns'],
-                f"{table['size_mb']:.2f} MB"
-            ])
+            table_data.append(
+                [
+                    f"{table['schema']}.{table['table']}",
+                    f"{table['rows']:,}" if table["rows"] else "0",
+                    table["columns"],
+                    f"{table['size_mb']:.2f} MB",
+                ]
+            )
 
-        headers = ['Table', 'Rows', 'Columns', 'Size']
-        print(tabulate(table_data, headers=headers, tablefmt='grid'))
+        headers = ["Table", "Rows", "Columns", "Size"]
+        print(tabulate(table_data, headers=headers, tablefmt="grid"))
+
 
 def generate_sample_queries(stats_list: List[Dict]):
     """Generate sample queries for testing"""
@@ -198,29 +215,42 @@ def generate_sample_queries(stats_list: List[Dict]):
     queries = []
 
     # Healthcare queries
-    if any(s['schema'] == 'clinic_db' for s in stats_list):
-        queries.append(("Patient Statistics (clinic_db)", """
+    if any(s["schema"] == "clinic_db" for s in stats_list):
+        queries.append(
+            (
+                "Patient Statistics (clinic_db)",
+                """
 SELECT
     COUNT(*) as total_patients,
     AVG(YEAR(CURDATE()) - YEAR(date_of_birth)) as avg_age,
     COUNT(CASE WHEN gender = 'M' THEN 1 END) as male_count,
     COUNT(CASE WHEN gender = 'F' THEN 1 END) as female_count
-FROM clinic_db.patients;"""))
+FROM clinic_db.patients;""",
+            )
+        )
 
     # E-commerce queries
-    if any(s['schema'] == 'ecommerce_db' for s in stats_list):
-        queries.append(("Order Analytics (ecommerce_db)", """
+    if any(s["schema"] == "ecommerce_db" for s in stats_list):
+        queries.append(
+            (
+                "Order Analytics (ecommerce_db)",
+                """
 SELECT
     DATE(order_date) as date,
     COUNT(*) as order_count,
     SUM(total_amount) as revenue
 FROM ecommerce_db.orders
 WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-GROUP BY DATE(order_date);"""))
+GROUP BY DATE(order_date);""",
+            )
+        )
 
     # IoT queries
-    if any(s['schema'] == 'iot_bins_db' for s in stats_list):
-        queries.append(("Sensor Readings (iot_bins_db)", """
+    if any(s["schema"] == "iot_bins_db" for s in stats_list):
+        queries.append(
+            (
+                "Sensor Readings (iot_bins_db)",
+                """
 SELECT
     sensor_type,
     COUNT(*) as reading_count,
@@ -228,12 +258,15 @@ SELECT
     MAX(value) as max_value
 FROM iot_bins_db.sensor_readings
 WHERE timestamp >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-GROUP BY sensor_type;"""))
+GROUP BY sensor_type;""",
+            )
+        )
 
     # Print queries
     for title, query in queries[:5]:
         print(f"\n{Fore.GREEN}{title}:{Style.RESET_ALL}")
         print(f"{Fore.YELLOW}{query}{Style.RESET_ALL}")
+
 
 def main():
     """Main execution function"""
@@ -248,7 +281,7 @@ def main():
         # Get all schemas
         cursor.execute("SHOW DATABASES")
         all_schemas = [db[0] for db in cursor.fetchall()]
-        business_schemas = [s for s in all_schemas if s.endswith('_db')]
+        business_schemas = [s for s in all_schemas if s.endswith("_db")]
 
         print(f"\nFound {len(business_schemas)} business schemas")
 
@@ -265,13 +298,15 @@ def main():
 
             # Check data quality
             quality = verify_data_quality(conn, schema)
-            quality_reports.append({'schema': schema, 'quality': quality})
+            quality_reports.append({"schema": schema, "quality": quality})
 
             # Print schema details
-            if stats.get('total_rows', 0) > 0:
-                print(f"  {Fore.GREEN}✓{Style.RESET_ALL} {stats.get('table_count', 0)} tables, "
-                      f"{stats.get('total_rows', 0):,} rows, "
-                      f"{stats.get('size_mb', 0):.2f} MB")
+            if stats.get("total_rows", 0) > 0:
+                print(
+                    f"  {Fore.GREEN}✓{Style.RESET_ALL} {stats.get('table_count', 0)} tables, "
+                    f"{stats.get('total_rows', 0):,} rows, "
+                    f"{stats.get('size_mb', 0):.2f} MB"
+                )
             else:
                 print(f"  {Fore.YELLOW}○{Style.RESET_ALL} No data found")
 
@@ -283,10 +318,10 @@ def main():
         print(f"\n{Fore.CYAN}Data Quality Report:{Style.RESET_ALL}")
         issues_found = False
         for report in quality_reports:
-            if report['quality']['issues']:
+            if report["quality"]["issues"]:
                 issues_found = True
                 print(f"\n{Fore.YELLOW}{report['schema']}:{Style.RESET_ALL}")
-                for issue in report['quality']['issues'][:3]:
+                for issue in report["quality"]["issues"][:3]:
                     print(f"  - {issue}")
 
         if not issues_found:
@@ -297,9 +332,9 @@ def main():
 
         # Calculate totals
         total_schemas = len(business_schemas)
-        total_tables = sum(s.get('table_count', 0) for s in stats_list)
-        total_rows = sum(s.get('total_rows', 0) for s in stats_list)
-        total_size = sum(s.get('size_mb', 0) for s in stats_list)
+        total_tables = sum(s.get("table_count", 0) for s in stats_list)
+        total_rows = sum(s.get("total_rows", 0) for s in stats_list)
+        total_size = sum(s.get("size_mb", 0) for s in stats_list)
 
         # Print final summary
         print_header("Verification Summary")
@@ -321,6 +356,7 @@ def main():
     except Exception as e:
         print(f"\n{Fore.RED}Unexpected Error: {e}{Style.RESET_ALL}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

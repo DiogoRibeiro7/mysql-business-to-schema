@@ -22,5 +22,5 @@ __all__ = [
     "MigrationRunner",
     "MigrationGenerator",
     "MigrationValidator",
-    "cli"
+    "cli",
 ]

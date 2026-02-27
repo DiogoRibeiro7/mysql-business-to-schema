@@ -18,93 +18,65 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configuration
-MYSQL_HOST = os.getenv('MYSQL_HOST', 'localhost')
-MYSQL_PORT = int(os.getenv('MYSQL_PORT', 3306))
-MYSQL_USER = os.getenv('MYSQL_USER', 'root')
-MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD', 'root')
-EXPORT_PORT = int(os.getenv('EXPORT_PORT', 9105))
+MYSQL_HOST = os.getenv("MYSQL_HOST", "localhost")
+MYSQL_PORT = int(os.getenv("MYSQL_PORT", 3306))
+MYSQL_USER = os.getenv("MYSQL_USER", "root")
+MYSQL_PASSWORD = os.getenv("MYSQL_PASSWORD", "root")
+EXPORT_PORT = int(os.getenv("EXPORT_PORT", 9105))
 
 # Define metrics
 SCHEMA_METRICS = {
     # Schema-level metrics
-    'table_count': Gauge(
-        'mysql_schema_table_count',
-        'Number of tables in database',
-        ['database']
+    "table_count": Gauge(
+        "mysql_schema_table_count", "Number of tables in database", ["database"]
     ),
-    'total_size_bytes': Gauge(
-        'mysql_schema_total_size_bytes',
-        'Total size of database in bytes',
-        ['database']
+    "total_size_bytes": Gauge(
+        "mysql_schema_total_size_bytes", "Total size of database in bytes", ["database"]
     ),
-    'index_count': Gauge(
-        'mysql_schema_index_count',
-        'Number of indexes in database',
-        ['database']
+    "index_count": Gauge(
+        "mysql_schema_index_count", "Number of indexes in database", ["database"]
     ),
-    'migration_version': Gauge(
-        'mysql_schema_migration_version',
-        'Current migration version',
-        ['database']
+    "migration_version": Gauge(
+        "mysql_schema_migration_version", "Current migration version", ["database"]
     ),
-
     # Table-level metrics
-    'table_rows': Gauge(
-        'mysql_schema_table_rows',
-        'Number of rows in table',
-        ['database', 'table']
+    "table_rows": Gauge(
+        "mysql_schema_table_rows", "Number of rows in table", ["database", "table"]
     ),
-    'table_size_bytes': Gauge(
-        'mysql_schema_table_size_bytes',
-        'Size of table in bytes',
-        ['database', 'table']
+    "table_size_bytes": Gauge(
+        "mysql_schema_table_size_bytes", "Size of table in bytes", ["database", "table"]
     ),
-    'table_fragmentation': Gauge(
-        'mysql_schema_table_fragmentation_ratio',
-        'Table fragmentation ratio',
-        ['database', 'table']
+    "table_fragmentation": Gauge(
+        "mysql_schema_table_fragmentation_ratio",
+        "Table fragmentation ratio",
+        ["database", "table"],
     ),
-
     # Business metrics for specific schemas
-    'clinic_patients': Gauge(
-        'mysql_schema_clinic_patients_total',
-        'Total number of patients',
-        ['database']
+    "clinic_patients": Gauge(
+        "mysql_schema_clinic_patients_total", "Total number of patients", ["database"]
     ),
-    'clinic_appointments': Gauge(
-        'mysql_schema_clinic_appointments_today',
-        'Number of appointments today',
-        ['database']
+    "clinic_appointments": Gauge(
+        "mysql_schema_clinic_appointments_today",
+        "Number of appointments today",
+        ["database"],
     ),
-    'ecommerce_orders': Gauge(
-        'mysql_schema_ecommerce_orders_total',
-        'Total number of orders',
-        ['database']
+    "ecommerce_orders": Gauge(
+        "mysql_schema_ecommerce_orders_total", "Total number of orders", ["database"]
     ),
-    'ecommerce_revenue': Gauge(
-        'mysql_schema_ecommerce_revenue_total',
-        'Total revenue',
-        ['database']
+    "ecommerce_revenue": Gauge(
+        "mysql_schema_ecommerce_revenue_total", "Total revenue", ["database"]
     ),
-    'iot_devices': Gauge(
-        'mysql_schema_iot_devices_active',
-        'Number of active IoT devices',
-        ['database']
+    "iot_devices": Gauge(
+        "mysql_schema_iot_devices_active", "Number of active IoT devices", ["database"]
     ),
-    'iot_readings': Counter(
-        'mysql_schema_iot_readings_total',
-        'Total number of IoT readings',
-        ['database']
+    "iot_readings": Counter(
+        "mysql_schema_iot_readings_total", "Total number of IoT readings", ["database"]
     ),
-    'social_users': Gauge(
-        'mysql_schema_social_users_active',
-        'Number of active users',
-        ['database']
+    "social_users": Gauge(
+        "mysql_schema_social_users_active", "Number of active users", ["database"]
     ),
-    'social_posts': Gauge(
-        'mysql_schema_social_posts_today',
-        'Number of posts today',
-        ['database']
+    "social_posts": Gauge(
+        "mysql_schema_social_posts_today", "Number of posts today", ["database"]
     ),
 }
 
@@ -124,7 +96,7 @@ class SchemaMetricsCollector:
                 port=MYSQL_PORT,
                 user=MYSQL_USER,
                 password=MYSQL_PASSWORD,
-                autocommit=True
+                autocommit=True,
             )
             logger.info(f"Connected to MySQL at {MYSQL_HOST}:{MYSQL_PORT}")
         except Exception as e:
@@ -151,16 +123,16 @@ class SchemaMetricsCollector:
         databases = self.execute_query("SHOW DATABASES")
 
         for db in databases:
-            db_name = db['Database']
+            db_name = db["Database"]
 
             # Skip system databases
-            if db_name in ['information_schema', 'mysql', 'performance_schema', 'sys']:
+            if db_name in ["information_schema", "mysql", "performance_schema", "sys"]:
                 continue
 
             try:
                 # Table count
                 tables = self.execute_query(f"SHOW TABLES", database=db_name)
-                SCHEMA_METRICS['table_count'].labels(database=db_name).set(len(tables))
+                SCHEMA_METRICS["table_count"].labels(database=db_name).set(len(tables))
 
                 # Database size
                 size_query = """
@@ -172,7 +144,7 @@ class SchemaMetricsCollector:
                 cursor = self.connection.cursor()
                 cursor.execute(size_query, (db_name,))
                 size = cursor.fetchone()[0] or 0
-                SCHEMA_METRICS['total_size_bytes'].labels(database=db_name).set(size)
+                SCHEMA_METRICS["total_size_bytes"].labels(database=db_name).set(size)
                 cursor.close()
 
                 # Collect table-level metrics
@@ -202,93 +174,114 @@ class SchemaMetricsCollector:
         cursor.close()
 
         for table in tables:
-            SCHEMA_METRICS['table_rows'].labels(
-                database=database,
-                table=table['table_name']
-            ).set(table['table_rows'] or 0)
+            SCHEMA_METRICS["table_rows"].labels(
+                database=database, table=table["table_name"]
+            ).set(table["table_rows"] or 0)
 
-            SCHEMA_METRICS['table_size_bytes'].labels(
-                database=database,
-                table=table['table_name']
-            ).set(table['size_bytes'] or 0)
+            SCHEMA_METRICS["table_size_bytes"].labels(
+                database=database, table=table["table_name"]
+            ).set(table["size_bytes"] or 0)
 
-            SCHEMA_METRICS['table_fragmentation'].labels(
-                database=database,
-                table=table['table_name']
-            ).set(table['fragmentation'] or 0)
+            SCHEMA_METRICS["table_fragmentation"].labels(
+                database=database, table=table["table_name"]
+            ).set(table["fragmentation"] or 0)
 
     def collect_business_metrics(self, database: str):
         """Collect business-specific metrics based on schema type."""
 
         # Clinic schema metrics
-        if 'clinic' in database.lower():
+        if "clinic" in database.lower():
             try:
                 # Patient count
-                result = self.execute_query("SELECT COUNT(*) as count FROM patients", database)
+                result = self.execute_query(
+                    "SELECT COUNT(*) as count FROM patients", database
+                )
                 if result:
-                    SCHEMA_METRICS['clinic_patients'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["clinic_patients"].labels(database=database).set(
+                        result[0]["count"]
+                    )
 
                 # Today's appointments
                 result = self.execute_query(
                     "SELECT COUNT(*) as count FROM appointments WHERE DATE(appointment_date) = CURDATE()",
-                    database
+                    database,
                 )
                 if result:
-                    SCHEMA_METRICS['clinic_appointments'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["clinic_appointments"].labels(database=database).set(
+                        result[0]["count"]
+                    )
             except:
                 pass
 
         # E-commerce schema metrics
-        elif 'ecommerce' in database.lower() or 'shop' in database.lower():
+        elif "ecommerce" in database.lower() or "shop" in database.lower():
             try:
                 # Order count
-                result = self.execute_query("SELECT COUNT(*) as count FROM orders", database)
+                result = self.execute_query(
+                    "SELECT COUNT(*) as count FROM orders", database
+                )
                 if result:
-                    SCHEMA_METRICS['ecommerce_orders'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["ecommerce_orders"].labels(database=database).set(
+                        result[0]["count"]
+                    )
 
                 # Total revenue
-                result = self.execute_query("SELECT SUM(total_amount) as revenue FROM orders", database)
-                if result and result[0]['revenue']:
-                    SCHEMA_METRICS['ecommerce_revenue'].labels(database=database).set(result[0]['revenue'])
+                result = self.execute_query(
+                    "SELECT SUM(total_amount) as revenue FROM orders", database
+                )
+                if result and result[0]["revenue"]:
+                    SCHEMA_METRICS["ecommerce_revenue"].labels(database=database).set(
+                        result[0]["revenue"]
+                    )
             except:
                 pass
 
         # IoT schema metrics
-        elif 'iot' in database.lower() or 'sensor' in database.lower():
+        elif "iot" in database.lower() or "sensor" in database.lower():
             try:
                 # Active devices
                 result = self.execute_query(
                     "SELECT COUNT(*) as count FROM devices WHERE status = 'active'",
-                    database
+                    database,
                 )
                 if result:
-                    SCHEMA_METRICS['iot_devices'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["iot_devices"].labels(database=database).set(
+                        result[0]["count"]
+                    )
 
                 # Reading count
-                result = self.execute_query("SELECT COUNT(*) as count FROM readings", database)
+                result = self.execute_query(
+                    "SELECT COUNT(*) as count FROM readings", database
+                )
                 if result:
-                    SCHEMA_METRICS['iot_readings'].labels(database=database).inc(result[0]['count'])
+                    SCHEMA_METRICS["iot_readings"].labels(database=database).inc(
+                        result[0]["count"]
+                    )
             except:
                 pass
 
         # Social media schema metrics
-        elif 'social' in database.lower():
+        elif "social" in database.lower():
             try:
                 # Active users
                 result = self.execute_query(
                     "SELECT COUNT(*) as count FROM users WHERE last_login > DATE_SUB(NOW(), INTERVAL 30 DAY)",
-                    database
+                    database,
                 )
                 if result:
-                    SCHEMA_METRICS['social_users'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["social_users"].labels(database=database).set(
+                        result[0]["count"]
+                    )
 
                 # Today's posts
                 result = self.execute_query(
                     "SELECT COUNT(*) as count FROM posts WHERE DATE(created_at) = CURDATE()",
-                    database
+                    database,
                 )
                 if result:
-                    SCHEMA_METRICS['social_posts'].labels(database=database).set(result[0]['count'])
+                    SCHEMA_METRICS["social_posts"].labels(database=database).set(
+                        result[0]["count"]
+                    )
             except:
                 pass
 
@@ -323,5 +316,5 @@ def main():
     collector.run()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

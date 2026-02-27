@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, EmailStr
 # Enums
 # ============================================
 
+
 class UserRole(str, Enum):
     ADMIN = "admin"
     DEVELOPER = "developer"
@@ -50,8 +51,10 @@ class AlertCondition(str, Enum):
 # Schema Models
 # ============================================
 
+
 class Column(BaseModel):
     """Database column definition."""
+
     name: str
     type: str
     nullable: bool = True
@@ -80,6 +83,7 @@ class Column(BaseModel):
 
 class Index(BaseModel):
     """Database index definition."""
+
     name: str
     columns: List[str]
     is_unique: bool = False
@@ -95,6 +99,7 @@ class Index(BaseModel):
 
 class ForeignKey(BaseModel):
     """Foreign key constraint definition."""
+
     name: str
     column: str
     referenced_table: str
@@ -113,6 +118,7 @@ class ForeignKey(BaseModel):
 
 class Table(BaseModel):
     """Database table definition."""
+
     name: str
     columns: List[Column]
     indexes: List[Index] = []
@@ -155,6 +161,7 @@ class Table(BaseModel):
 
 class Database(BaseModel):
     """Database schema definition."""
+
     name: str
     tables: List[Table] = []
     views: List[str] = []
@@ -179,6 +186,7 @@ class Database(BaseModel):
 
 class SchemaInfo(BaseModel):
     """Complete schema information."""
+
     databases: List[Database]
     total_size_mb: float
     total_tables: int
@@ -191,8 +199,10 @@ class SchemaInfo(BaseModel):
 # Migration Models
 # ============================================
 
+
 class Migration(BaseModel):
     """Database migration definition."""
+
     id: Optional[str] = None
     version: str
     description: str
@@ -211,8 +221,10 @@ class Migration(BaseModel):
 # Query Models
 # ============================================
 
+
 class Query(BaseModel):
     """SQL query definition."""
+
     id: Optional[str] = None
     text: str
     database: str
@@ -226,6 +238,7 @@ class Query(BaseModel):
 
 class QueryResult(BaseModel):
     """Query execution result."""
+
     query_id: str
     columns: List[str]
     rows: List[List[Any]]
@@ -237,6 +250,7 @@ class QueryResult(BaseModel):
 
 class QueryPlan(BaseModel):
     """Query execution plan."""
+
     query: str
     plan: List[Dict[str, Any]]
     estimated_cost: float
@@ -248,8 +262,10 @@ class QueryPlan(BaseModel):
 # User Models
 # ============================================
 
+
 class User(BaseModel):
     """User account definition."""
+
     id: Optional[str] = None
     username: str
     email: EmailStr
@@ -265,8 +281,10 @@ class User(BaseModel):
 # Backup Models
 # ============================================
 
+
 class Backup(BaseModel):
     """Database backup definition."""
+
     id: str
     database: str
     type: BackupType
@@ -287,8 +305,10 @@ class Backup(BaseModel):
 # Monitoring Models
 # ============================================
 
+
 class MetricPoint(BaseModel):
     """Metric data point."""
+
     timestamp: datetime
     value: float
     label: Optional[str] = None
@@ -296,6 +316,7 @@ class MetricPoint(BaseModel):
 
 class DatabaseMetrics(BaseModel):
     """Database performance metrics."""
+
     database_count: int
     table_count: int
     total_size_mb: float
@@ -310,6 +331,7 @@ class DatabaseMetrics(BaseModel):
 
 class SystemStatus(BaseModel):
     """System status information."""
+
     database: Dict[str, Any]
     migrations: Dict[str, int]
     connections: Dict[str, int]
@@ -324,6 +346,7 @@ class SystemStatus(BaseModel):
 
 class Alert(BaseModel):
     """Alert configuration."""
+
     id: str
     name: str
     metric: str
@@ -339,6 +362,7 @@ class Alert(BaseModel):
 
 class AlertHistory(BaseModel):
     """Alert trigger history."""
+
     alert_id: str
     alert_name: str
     triggered_at: datetime
@@ -353,8 +377,10 @@ class AlertHistory(BaseModel):
 # Connection Models
 # ============================================
 
+
 class ConnectionInfo(BaseModel):
     """Database connection information."""
+
     connection_id: int
     user: str
     host: str

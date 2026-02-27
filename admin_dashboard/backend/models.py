@@ -11,11 +11,13 @@ from enum import Enum
 # Enums
 # ============================================
 
+
 class UserRole(str, Enum):
     ADMIN = "admin"
     DEVELOPER = "developer"
     ANALYST = "analyst"
     VIEWER = "viewer"
+
 
 class MigrationStatus(str, Enum):
     PENDING = "pending"
@@ -24,20 +26,24 @@ class MigrationStatus(str, Enum):
     FAILED = "failed"
     ROLLED_BACK = "rolled_back"
 
+
 class AlertCondition(str, Enum):
     GREATER_THAN = "greater_than"
     LESS_THAN = "less_than"
     EQUALS = "equals"
     NOT_EQUALS = "not_equals"
 
+
 class BackupType(str, Enum):
     FULL = "full"
     INCREMENTAL = "incremental"
     DIFFERENTIAL = "differential"
 
+
 # ============================================
 # Authentication Models
 # ============================================
+
 
 class User(BaseModel):
     username: str
@@ -47,18 +53,22 @@ class User(BaseModel):
     created_at: Optional[datetime] = None
     last_login: Optional[datetime] = None
 
+
 class LoginRequest(BaseModel):
     username: str
     password: str
+
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     expires_in: int = 3600
 
+
 # ============================================
 # Schema Models
 # ============================================
+
 
 class ColumnInfo(BaseModel):
     name: str
@@ -70,11 +80,13 @@ class ColumnInfo(BaseModel):
     is_indexed: bool = False
     comment: Optional[str] = None
 
+
 class IndexInfo(BaseModel):
     name: str
     columns: List[str]
     is_unique: bool
     type: str  # BTREE, HASH, etc.
+
 
 class ForeignKeyInfo(BaseModel):
     name: str
@@ -83,6 +95,7 @@ class ForeignKeyInfo(BaseModel):
     referenced_column: str
     on_delete: str
     on_update: str
+
 
 class TableInfo(BaseModel):
     name: str
@@ -96,6 +109,7 @@ class TableInfo(BaseModel):
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+
 class SchemaInfo(BaseModel):
     name: str
     tables: List[TableInfo]
@@ -106,9 +120,11 @@ class SchemaInfo(BaseModel):
     size_mb: float
     table_count: int
 
+
 # ============================================
 # Migration Models
 # ============================================
+
 
 class Migration(BaseModel):
     version: str
@@ -122,36 +138,44 @@ class Migration(BaseModel):
     execution_time: Optional[float] = None
     applied_by: Optional[str] = None
 
+
 class CreateMigrationRequest(BaseModel):
     description: str
     sql_up: str
     sql_down: Optional[str] = None
     auto_rollback: bool = False
 
+
 class ApplyMigrationRequest(BaseModel):
     target_version: Optional[str] = None
     dry_run: bool = False
+
 
 class RollbackMigrationRequest(BaseModel):
     target_version: Optional[str] = None
     steps: Optional[int] = 1
 
+
 # ============================================
 # Query Models
 # ============================================
+
 
 class ExecuteQueryRequest(BaseModel):
     query: str
     database: str
     limit: Optional[int] = 1000
 
+
 class ExplainQueryRequest(BaseModel):
     query: str
     database: str
 
+
 class OptimizeQueryRequest(BaseModel):
     query: str
     database: str
+
 
 class QueryResult(BaseModel):
     columns: List[str]
@@ -159,6 +183,7 @@ class QueryResult(BaseModel):
     row_count: int
     execution_time: float
     query_id: str
+
 
 class QueryHistoryItem(BaseModel):
     query_id: str
@@ -170,13 +195,16 @@ class QueryHistoryItem(BaseModel):
     timestamp: datetime
     status: str
 
+
 # ============================================
 # Metrics Models
 # ============================================
 
+
 class MetricPoint(BaseModel):
     timestamp: datetime
     value: float
+
 
 class PerformanceMetrics(BaseModel):
     cpu_usage: List[MetricPoint]
@@ -184,6 +212,7 @@ class PerformanceMetrics(BaseModel):
     disk_io: List[MetricPoint]
     network_io: List[MetricPoint]
     query_latency: List[MetricPoint]
+
 
 class DatabaseMetrics(BaseModel):
     database_count: int
@@ -195,6 +224,7 @@ class DatabaseMetrics(BaseModel):
     slow_queries_count: int
     error_rate: float
 
+
 class SlowQuery(BaseModel):
     query_id: str
     query: str
@@ -205,9 +235,11 @@ class SlowQuery(BaseModel):
     user: str
     database: str
 
+
 # ============================================
 # Backup Models
 # ============================================
+
 
 class Backup(BaseModel):
     backup_id: str
@@ -221,20 +253,24 @@ class Backup(BaseModel):
     status: str
     checksum: Optional[str] = None
 
+
 class CreateBackupRequest(BaseModel):
     database: str
     type: BackupType = BackupType.FULL
     description: Optional[str] = None
     compression: bool = True
 
+
 class RestoreBackupRequest(BaseModel):
     backup_id: str
     target_database: str
     validate_checksum: bool = True
 
+
 # ============================================
 # User Management Models
 # ============================================
+
 
 class CreateUserRequest(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
@@ -243,11 +279,13 @@ class CreateUserRequest(BaseModel):
     role: UserRole = UserRole.VIEWER
     permissions: Optional[List[str]] = []
 
+
 class UpdateUserRequest(BaseModel):
     email: Optional[EmailStr] = None
     role: Optional[UserRole] = None
     permissions: Optional[List[str]] = None
     is_active: Optional[bool] = None
+
 
 class DatabaseUser(BaseModel):
     username: str
@@ -257,9 +295,11 @@ class DatabaseUser(BaseModel):
     max_queries_per_hour: int
     created_at: Optional[datetime] = None
 
+
 # ============================================
 # Alert Models
 # ============================================
+
 
 class Alert(BaseModel):
     alert_id: str
@@ -273,6 +313,7 @@ class Alert(BaseModel):
     created_by: str
     last_triggered: Optional[datetime] = None
 
+
 class CreateAlertRequest(BaseModel):
     name: str
     metric: str
@@ -280,6 +321,7 @@ class CreateAlertRequest(BaseModel):
     condition: AlertCondition
     notification_channels: List[str]
     description: Optional[str] = None
+
 
 class AlertHistory(BaseModel):
     alert_id: str
@@ -291,9 +333,11 @@ class AlertHistory(BaseModel):
     notification_sent: bool
     resolved_at: Optional[datetime] = None
 
+
 # ============================================
 # System Models
 # ============================================
+
 
 class SystemStatus(BaseModel):
     database: Dict[str, Any]
@@ -303,6 +347,7 @@ class SystemStatus(BaseModel):
     last_backup: Optional[datetime] = None
     version: str
     environment: str
+
 
 class ConnectionInfo(BaseModel):
     connection_id: int
@@ -314,21 +359,25 @@ class ConnectionInfo(BaseModel):
     state: str
     info: Optional[str] = None
 
+
 class ProcessList(BaseModel):
     connections: List[ConnectionInfo]
     total_connections: int
     active_connections: int
     idle_connections: int
 
+
 # ============================================
 # WebSocket Models
 # ============================================
+
 
 class WebSocketMessage(BaseModel):
     type: str
     data: Any
     timestamp: datetime
     user: Optional[str] = None
+
 
 class RealtimeMetrics(BaseModel):
     cpu: float
@@ -338,20 +387,24 @@ class RealtimeMetrics(BaseModel):
     response_time_ms: float
     timestamp: datetime
 
+
 # ============================================
 # Response Models
 # ============================================
+
 
 class SuccessResponse(BaseModel):
     success: bool = True
     message: str
     data: Optional[Any] = None
 
+
 class ErrorResponse(BaseModel):
     success: bool = False
     error: str
     details: Optional[str] = None
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
 
 class PaginatedResponse(BaseModel):
     items: List[Any]

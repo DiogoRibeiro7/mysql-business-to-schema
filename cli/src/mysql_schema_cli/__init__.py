@@ -8,4 +8,4 @@ migration control, data generation, and monitoring.
 from .version import __version__
 from .main import cli
 
-__all__ = ['cli', '__version__']
+__all__ = ["cli", "__version__"]

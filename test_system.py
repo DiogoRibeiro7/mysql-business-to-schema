@@ -21,18 +21,15 @@ from colorama import init, Fore, Style
 init()
 
 # Test results storage
-test_results = {
-    "passed": [],
-    "failed": [],
-    "skipped": [],
-    "warnings": []
-}
+test_results = {"passed": [], "failed": [], "skipped": [], "warnings": []}
+
 
 def print_header(text: str):
     """Print section header"""
     print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{text:^60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}\n")
+
 
 def print_test(name: str, status: str, message: str = ""):
     """Print test result"""
@@ -53,6 +50,7 @@ def print_test(name: str, status: str, message: str = ""):
             print(f"    {Fore.YELLOW}→ {message}{Style.RESET_ALL}")
         test_results["warnings"].append((name, message))
 
+
 def run_command(cmd: str) -> Tuple[bool, str]:
     """Run shell command and return success status and output"""
     try:
@@ -61,7 +59,9 @@ def run_command(cmd: str) -> Tuple[bool, str]:
     except Exception as e:
         return False, str(e)
 
+
 # ==================== Test Functions ====================
+
 
 def test_docker_services():
     """Test if Docker services are running"""
@@ -75,7 +75,7 @@ def test_docker_services():
         "zookeeper",
         "elasticsearch",
         "prometheus",
-        "grafana"
+        "grafana",
     ]
 
     for service in services:
@@ -85,17 +85,14 @@ def test_docker_services():
         else:
             print_test(f"Docker: {service}", "WARN", "Service not running")
 
+
 def test_database_schemas():
     """Test MySQL database schemas"""
     print_header("Database Schemas")
 
     try:
         # Connect to MySQL
-        conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root"
-        )
+        conn = mysql.connector.connect(host="localhost", user="root", password="root")
         cursor = conn.cursor()
 
         # Test each schema
@@ -109,7 +106,7 @@ def test_database_schemas():
             "fleet_management_db",
             "healthcare_iot_db",
             "streaming_ml_db",
-            "fintech_db"
+            "fintech_db",
         ]
 
         for schema in schemas:
@@ -117,11 +114,13 @@ def test_database_schemas():
             result = cursor.fetchone()
             if result:
                 # Check table count
-                cursor.execute(f"""
+                cursor.execute(
+                    f"""
                     SELECT COUNT(*)
                     FROM information_schema.tables
                     WHERE table_schema = '{schema}'
-                """)
+                """
+                )
                 table_count = cursor.fetchone()[0]
                 print_test(f"Schema: {schema} ({table_count} tables)", "PASS")
             else:
@@ -131,6 +130,7 @@ def test_database_schemas():
 
     except Exception as e:
         print_test("MySQL Connection", "FAIL", str(e))
+
 
 def test_admin_api():
     """Test Admin Dashboard API"""
@@ -142,7 +142,7 @@ def test_admin_api():
         ("/api/schemas", "GET", None),
         ("/api/auth/login", "POST", {"username": "admin", "password": "admin"}),
         ("/api/metrics/system", "GET", None),
-        ("/api/migrations/status", "GET", None)
+        ("/api/migrations/status", "GET", None),
     ]
 
     for endpoint, method, data in endpoints:
@@ -155,12 +155,17 @@ def test_admin_api():
             if response.status_code < 400:
                 print_test(f"API: {method} {endpoint}", "PASS")
             else:
-                print_test(f"API: {method} {endpoint}", "FAIL", f"Status {response.status_code}")
+                print_test(
+                    f"API: {method} {endpoint}",
+                    "FAIL",
+                    f"Status {response.status_code}",
+                )
 
         except requests.exceptions.ConnectionError:
             print_test(f"API: {method} {endpoint}", "SKIP", "Service not running")
         except Exception as e:
             print_test(f"API: {method} {endpoint}", "FAIL", str(e))
+
 
 def test_python_sdk():
     """Test Python SDK"""
@@ -187,6 +192,7 @@ def test_python_sdk():
     except Exception as e:
         print_test("SDK: Client creation", "FAIL", str(e))
 
+
 def test_data_generators():
     """Test data generators"""
     print_header("Data Generators")
@@ -206,11 +212,15 @@ def test_data_generators():
         try:
             sys.path.append(generators_dir)
             from clinic import patient_generator
+
             print_test("Generator: Import patient_generator", "PASS")
         except:
-            print_test("Generator: Import patient_generator", "WARN", "Could not import")
+            print_test(
+                "Generator: Import patient_generator", "WARN", "Could not import"
+            )
     else:
         print_test("Generators directory", "SKIP", "Not found")
+
 
 def test_ml_platform():
     """Test ML Platform components"""
@@ -229,6 +239,7 @@ def test_ml_platform():
     # Test Feast
     try:
         import feast
+
         print_test("Feast: Import", "PASS")
     except ImportError:
         print_test("Feast: Import", "SKIP", "Not installed")
@@ -243,14 +254,17 @@ def test_ml_platform():
     except:
         print_test("BentoML: Health check", "SKIP", "Service not running")
 
+
 def test_data_pipeline():
     """Test Data Pipeline components"""
     print_header("Data Pipeline")
 
     # Test Kafka
-    success, output = run_command("docker exec kafka1 kafka-topics --list --zookeeper zookeeper:2181")
+    success, output = run_command(
+        "docker exec kafka1 kafka-topics --list --zookeeper zookeeper:2181"
+    )
     if success:
-        topics = output.strip().split('\n')
+        topics = output.strip().split("\n")
         print_test(f"Kafka: {len(topics)} topics", "PASS")
     else:
         print_test("Kafka: Topic list", "SKIP", "Kafka not running")
@@ -264,6 +278,7 @@ def test_data_pipeline():
             print_test("ClickHouse: Health check", "FAIL")
     except:
         print_test("ClickHouse: Health check", "SKIP", "Service not running")
+
 
 def test_observability():
     """Test Observability Stack"""
@@ -295,6 +310,7 @@ def test_observability():
     except:
         print_test("Grafana: Health check", "SKIP", "Service not running")
 
+
 def test_performance():
     """Test Performance Testing Stack"""
     print_header("Performance Testing")
@@ -319,6 +335,7 @@ def test_performance():
     else:
         print_test("Chaos Monkey: Script exists", "FAIL")
 
+
 def test_file_structure():
     """Test project file structure"""
     print_header("Project Structure")
@@ -334,7 +351,7 @@ def test_file_structure():
         "data-pipeline",
         "performance-testing",
         "ml-platform",
-        "migration_system"
+        "migration_system",
     ]
 
     for dir_name in required_dirs:
@@ -344,6 +361,7 @@ def test_file_structure():
             print_test(f"Directory: {dir_name} ({file_count} files)", "PASS")
         else:
             print_test(f"Directory: {dir_name}", "FAIL", "Not found")
+
 
 def test_documentation():
     """Test documentation files"""
@@ -357,7 +375,7 @@ def test_documentation():
         "observability/README.md",
         "data-pipeline/README.md",
         "performance-testing/README.md",
-        "ml-platform/README.md"
+        "ml-platform/README.md",
     ]
 
     for doc_file in doc_files:
@@ -371,6 +389,7 @@ def test_documentation():
         else:
             print_test(f"Doc: {doc_file}", "FAIL", "Not found")
 
+
 def run_integration_test():
     """Run a simple integration test"""
     print_header("Integration Test")
@@ -378,9 +397,7 @@ def run_integration_test():
     try:
         # 1. Check if MySQL is accessible
         mysql_conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="root"
+            host="localhost", user="root", password="root"
         )
         print_test("Integration: MySQL connection", "PASS")
 
@@ -391,13 +408,15 @@ def run_integration_test():
         print_test("Integration: Create test database", "PASS")
 
         # 3. Create test table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS test_table (
                 id INT PRIMARY KEY AUTO_INCREMENT,
                 data VARCHAR(255),
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
         print_test("Integration: Create test table", "PASS")
 
         # 4. Insert test data
@@ -421,15 +440,22 @@ def run_integration_test():
     except Exception as e:
         print_test("Integration test", "FAIL", str(e))
 
+
 def print_summary():
     """Print test summary"""
     print_header("Test Summary")
 
-    total = len(test_results["passed"]) + len(test_results["failed"]) + len(test_results["skipped"])
+    total = (
+        len(test_results["passed"])
+        + len(test_results["failed"])
+        + len(test_results["skipped"])
+    )
 
     print(f"{Fore.GREEN}Passed:{Style.RESET_ALL} {len(test_results['passed'])}/{total}")
     print(f"{Fore.RED}Failed:{Style.RESET_ALL} {len(test_results['failed'])}/{total}")
-    print(f"{Fore.YELLOW}Skipped:{Style.RESET_ALL} {len(test_results['skipped'])}/{total}")
+    print(
+        f"{Fore.YELLOW}Skipped:{Style.RESET_ALL} {len(test_results['skipped'])}/{total}"
+    )
     print(f"{Fore.YELLOW}Warnings:{Style.RESET_ALL} {len(test_results['warnings'])}")
 
     if test_results["failed"]:
@@ -449,6 +475,7 @@ def print_summary():
     else:
         print(f"{Fore.RED}✗ SOME TESTS FAILED - Review required{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
+
 
 def main():
     """Main test execution"""
@@ -473,6 +500,7 @@ def main():
     print_summary()
 
     print(f"\n{Fore.CYAN}Completed: {datetime.now()}{Style.RESET_ALL}\n")
+
 
 if __name__ == "__main__":
     main()

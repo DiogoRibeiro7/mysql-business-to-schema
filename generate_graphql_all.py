@@ -17,10 +17,11 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 # Add graphql directory to path
-sys.path.append(str(Path(__file__).parent / 'graphql'))
+sys.path.append(str(Path(__file__).parent / "graphql"))
 
 from graphql_generator_advanced import AdvancedGraphQLGenerator
 from resolver_generator import ResolverGenerator
+
 
 class GraphQLProjectGenerator:
     """Generate complete GraphQL projects for examples"""
@@ -32,8 +33,7 @@ class GraphQLProjectGenerator:
 
     def _get_examples(self) -> List[Path]:
         """Get all example directories"""
-        return sorted([d for d in self.project_root.glob('example_*')
-                      if d.is_dir()])
+        return sorted([d for d in self.project_root.glob("example_*") if d.is_dir()])
 
     def generate_all(self):
         """Generate GraphQL for all examples"""
@@ -74,7 +74,7 @@ class GraphQLProjectGenerator:
 
     def _generate_example(self, example_dir: Path) -> bool:
         """Generate GraphQL for a single example"""
-        example_name = example_dir.name.replace('example_', '').replace('_', '-')
+        example_name = example_dir.name.replace("example_", "").replace("_", "-")
 
         # Get database connection parameters
         connection_params = self._get_connection_params(example_dir)
@@ -83,7 +83,7 @@ class GraphQLProjectGenerator:
             return False
 
         # Create GraphQL directory
-        graphql_dir = example_dir / 'graphql'
+        graphql_dir = example_dir / "graphql"
         graphql_dir.mkdir(exist_ok=True)
 
         # Generate schema
@@ -111,33 +111,34 @@ class GraphQLProjectGenerator:
 
     def _get_connection_params(self, example_dir: Path) -> Optional[Dict]:
         """Extract connection parameters from docker-compose.yml"""
-        docker_compose = example_dir / 'docker-compose.yml'
+        docker_compose = example_dir / "docker-compose.yml"
 
         if not docker_compose.exists():
             return None
 
         try:
             import yaml
-            with open(docker_compose, 'r') as f:
+
+            with open(docker_compose, "r") as f:
                 compose = yaml.safe_load(f)
 
-            mysql_service = compose.get('services', {}).get('mysql', {})
-            env = mysql_service.get('environment', {})
-            ports = mysql_service.get('ports', [])
+            mysql_service = compose.get("services", {}).get("mysql", {})
+            env = mysql_service.get("environment", {})
+            ports = mysql_service.get("ports", [])
 
             # Extract port
             port = 3306
             if ports:
-                port_mapping = ports[0].split(':')
+                port_mapping = ports[0].split(":")
                 if len(port_mapping) == 2:
                     port = int(port_mapping[0])
 
             return {
-                'host': 'localhost',
-                'port': port,
-                'user': 'root',
-                'password': env.get('MYSQL_ROOT_PASSWORD', ''),
-                'database': env.get('MYSQL_DATABASE', '')
+                "host": "localhost",
+                "port": port,
+                "user": "root",
+                "password": env.get("MYSQL_ROOT_PASSWORD", ""),
+                "database": env.get("MYSQL_DATABASE", ""),
             }
         except Exception as e:
             print(f"    Error parsing docker-compose.yml: {e}")
@@ -156,25 +157,25 @@ class GraphQLProjectGenerator:
                 schema = generator.generate_schema()
 
                 # Save schema
-                schema_file = output_dir / 'schema.graphql'
-                with open(schema_file, 'w', encoding='utf-8') as f:
+                schema_file = output_dir / "schema.graphql"
+                with open(schema_file, "w", encoding="utf-8") as f:
                     f.write(schema)
 
                 # Save schema info for resolver generation
                 schema_info = {
-                    'tables': {
+                    "tables": {
                         name: {
-                            'fields': [vars(f) for f in info.fields],
-                            'primary_keys': info.primary_keys,
-                            'foreign_keys': info.foreign_keys,
-                            'indexes': info.indexes
+                            "fields": [vars(f) for f in info.fields],
+                            "primary_keys": info.primary_keys,
+                            "foreign_keys": info.foreign_keys,
+                            "indexes": info.indexes,
                         }
                         for name, info in generator.tables.items()
                     }
                 }
 
-                info_file = output_dir / 'schema_info.json'
-                with open(info_file, 'w') as f:
+                info_file = output_dir / "schema_info.json"
+                with open(info_file, "w") as f:
                     json.dump(schema_info, f, indent=2)
 
                 return True
@@ -189,8 +190,8 @@ class GraphQLProjectGenerator:
         """Generate resolver templates"""
         try:
             # Load schema info
-            info_file = output_dir / 'schema_info.json'
-            with open(info_file, 'r') as f:
+            info_file = output_dir / "schema_info.json"
+            with open(info_file, "r") as f:
                 schema_info = json.load(f)
 
             generator = ResolverGenerator(schema_info)
@@ -199,8 +200,8 @@ class GraphQLProjectGenerator:
             resolvers = generator.generate_resolvers_ts()
 
             # Save resolvers
-            resolvers_file = output_dir / 'resolvers.ts'
-            with open(resolvers_file, 'w', encoding='utf-8') as f:
+            resolvers_file = output_dir / "resolvers.ts"
+            with open(resolvers_file, "w", encoding="utf-8") as f:
                 f.write(resolvers)
 
             return True
@@ -213,20 +214,23 @@ class GraphQLProjectGenerator:
         """Generate Apollo Server project structure"""
         try:
             # Create src directory structure
-            src_dir = output_dir / 'src'
+            src_dir = output_dir / "src"
             src_dir.mkdir(exist_ok=True)
 
             # Create subdirectories
-            (src_dir / 'resolvers').mkdir(exist_ok=True)
-            (src_dir / 'dataloaders').mkdir(exist_ok=True)
-            (src_dir / 'utils').mkdir(exist_ok=True)
-            (src_dir / 'middleware').mkdir(exist_ok=True)
+            (src_dir / "resolvers").mkdir(exist_ok=True)
+            (src_dir / "dataloaders").mkdir(exist_ok=True)
+            (src_dir / "utils").mkdir(exist_ok=True)
+            (src_dir / "middleware").mkdir(exist_ok=True)
 
             # Copy Apollo Server template
-            apollo_template = self.project_root / 'graphql' / 'apollo_server_template.ts'
+            apollo_template = (
+                self.project_root / "graphql" / "apollo_server_template.ts"
+            )
             if apollo_template.exists():
                 import shutil
-                shutil.copy(apollo_template, src_dir / 'server.ts')
+
+                shutil.copy(apollo_template, src_dir / "server.ts")
 
             # Generate index file
             index_content = f"""/**
@@ -238,7 +242,7 @@ import './server';
 
 console.log('Starting GraphQL server for {example_name}...');
 """
-            with open(src_dir / 'index.ts', 'w') as f:
+            with open(src_dir / "index.ts", "w") as f:
                 f.write(index_content)
 
             return True
@@ -261,7 +265,7 @@ console.log('Starting GraphQL server for {example_name}...');
                 "test": "jest",
                 "codegen": "graphql-codegen",
                 "lint": "eslint src --ext .ts",
-                "format": "prettier --write \"src/**/*.ts\""
+                "format": 'prettier --write "src/**/*.ts"',
             },
             "dependencies": {
                 "apollo-server-express": "^3.12.0",
@@ -285,7 +289,7 @@ console.log('Starting GraphQL server for {example_name}...');
                 "rate-limit-redis": "^3.1.0",
                 "graphql-depth-limit": "^1.1.0",
                 "graphql-validation-complexity": "^0.4.2",
-                "graphql-cost-analysis": "^1.1.0"
+                "graphql-cost-analysis": "^1.1.0",
             },
             "devDependencies": {
                 "@types/node": "^20.5.0",
@@ -301,15 +305,13 @@ console.log('Starting GraphQL server for {example_name}...');
                 "eslint": "^8.46.0",
                 "@typescript-eslint/parser": "^6.2.0",
                 "@typescript-eslint/eslint-plugin": "^6.2.0",
-                "prettier": "^3.0.0"
+                "prettier": "^3.0.0",
             },
-            "engines": {
-                "node": ">=16.0.0"
-            }
+            "engines": {"node": ">=16.0.0"},
         }
 
-        package_file = output_dir / 'package.json'
-        with open(package_file, 'w') as f:
+        package_file = output_dir / "package.json"
+        with open(package_file, "w") as f:
             json.dump(package, f, indent=2)
 
     def _generate_config_files(self, example_name: str, output_dir: Path):
@@ -332,13 +334,13 @@ console.log('Starting GraphQL server for {example_name}...');
                 "declarationMap": True,
                 "sourceMap": True,
                 "experimentalDecorators": True,
-                "emitDecoratorMetadata": True
+                "emitDecoratorMetadata": True,
             },
             "include": ["src/**/*"],
-            "exclude": ["node_modules", "dist", "**/*.test.ts"]
+            "exclude": ["node_modules", "dist", "**/*.test.ts"],
         }
 
-        with open(output_dir / 'tsconfig.json', 'w') as f:
+        with open(output_dir / "tsconfig.json", "w") as f:
             json.dump(tsconfig, f, indent=2)
 
         # Environment variables template
@@ -374,7 +376,7 @@ SOFT_DELETE=false
 CORS_ORIGIN=*
 """
 
-        with open(output_dir / '.env.example', 'w') as f:
+        with open(output_dir / ".env.example", "w") as f:
             f.write(env_template)
 
         # Docker configuration
@@ -401,7 +403,7 @@ EXPOSE 4000
 CMD ["node", "dist/index.js"]
 """
 
-        with open(output_dir / 'Dockerfile', 'w') as f:
+        with open(output_dir / "Dockerfile", "w") as f:
             f.write(dockerfile)
 
         # Docker Compose for GraphQL server
@@ -439,7 +441,7 @@ networks:
     external: true
 """
 
-        with open(output_dir / 'docker-compose.graphql.yml', 'w') as f:
+        with open(output_dir / "docker-compose.graphql.yml", "w") as f:
             f.write(docker_compose)
 
     def _generate_readme(self, example_name: str, output_dir: Path):
@@ -640,7 +642,7 @@ GET /metrics
 *Generated by MySQL Business-to-Schema GraphQL Generator*
 """
 
-        with open(output_dir / 'README.md', 'w') as f:
+        with open(output_dir / "README.md", "w") as f:
             f.write(readme)
 
 
@@ -652,5 +654,5 @@ def main():
     generator.generate_all()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

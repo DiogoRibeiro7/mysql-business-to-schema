@@ -5,8 +5,15 @@ Defines features for all business domains
 
 from datetime import timedelta
 from feast import (
-    Entity, Feature, FeatureView, FileSource, ValueType,
-    Field, FeatureService, PushSource, RequestSource
+    Entity,
+    Feature,
+    FeatureView,
+    FileSource,
+    ValueType,
+    Field,
+    FeatureService,
+    PushSource,
+    RequestSource,
 )
 from feast.types import Float32, Float64, Int32, Int64, String, Bool, UnixTimestamp
 from feast.data_source import DataSource
@@ -256,6 +263,7 @@ product_features_fv = FeatureView(
 
 # ==================== On-Demand Features ====================
 
+
 @on_demand_feature_view(
     sources=[customer_profile_fv, customer_transactions_fv],
     schema=[
@@ -270,18 +278,21 @@ def customer_ltv_features(inputs: pd.DataFrame) -> pd.DataFrame:
 
     # Customer Lifetime Value (simplified CLV calculation)
     df["customer_lifetime_value"] = (
-        inputs["total_spent"] *
-        inputs["transactions_last_30d"] *
-        12  # Projected annual value
+        inputs["total_spent"]
+        * inputs["transactions_last_30d"]
+        * 12  # Projected annual value
     )
 
     # Days since last purchase
     df["days_since_last_purchase"] = inputs["last_order_days_ago"]
 
     # Purchase frequency (orders per month)
-    df["purchase_frequency"] = inputs["total_orders"] / (inputs["registration_days"] / 30)
+    df["purchase_frequency"] = inputs["total_orders"] / (
+        inputs["registration_days"] / 30
+    )
 
     return df
+
 
 @on_demand_feature_view(
     sources=[patient_demographics_fv, patient_vitals_fv],
@@ -297,25 +308,25 @@ def patient_risk_features(inputs: pd.DataFrame) -> pd.DataFrame:
 
     # Health risk score based on demographics and vitals
     df["health_risk_score"] = (
-        (inputs["age"] / 100) * 0.3 +
-        (inputs["chronic_conditions_count"] / 10) * 0.3 +
-        (inputs["bmi"].clip(0, 50) / 50) * 0.2 +
-        (1 - inputs["oxygen_saturation"] / 100) * 0.2
+        (inputs["age"] / 100) * 0.3
+        + (inputs["chronic_conditions_count"] / 10) * 0.3
+        + (inputs["bmi"].clip(0, 50) / 50) * 0.2
+        + (1 - inputs["oxygen_saturation"] / 100) * 0.2
     ).clip(0, 1)
 
     # Vital signs stability (lower is more stable)
     df["vital_signs_stability"] = (
-        inputs["heart_rate_std"] / 50 * 0.5 +
-        abs(inputs["blood_pressure_systolic"] - 120) / 120 * 0.5
+        inputs["heart_rate_std"] / 50 * 0.5
+        + abs(inputs["blood_pressure_systolic"] - 120) / 120 * 0.5
     ).clip(0, 1)
 
     # Readmission risk (simplified model)
     df["readmission_risk"] = (
-        df["health_risk_score"] * 0.6 +
-        df["vital_signs_stability"] * 0.4
+        df["health_risk_score"] * 0.6 + df["vital_signs_stability"] * 0.4
     ).clip(0, 1)
 
     return df
+
 
 @on_demand_feature_view(
     sources=[iot_device_fv],
@@ -330,18 +341,18 @@ def iot_maintenance_features(inputs: pd.DataFrame) -> pd.DataFrame:
 
     # Maintenance urgency score
     df["maintenance_urgency"] = (
-        inputs["failure_probability"] * 0.4 +
-        (inputs["last_maintenance_days"] / 365) * 0.3 +
-        inputs["anomaly_rate"] * 0.3
+        inputs["failure_probability"] * 0.4
+        + (inputs["last_maintenance_days"] / 365) * 0.3
+        + inputs["anomaly_rate"] * 0.3
     ).clip(0, 1)
 
     # Anomaly severity
     df["anomaly_severity"] = (
-        inputs["anomaly_rate"] *
-        (inputs["std_value"] / (inputs["avg_value"] + 1))
+        inputs["anomaly_rate"] * (inputs["std_value"] / (inputs["avg_value"] + 1))
     ).clip(0, 1)
 
     return df
+
 
 # ==================== Stream Feature Views ====================
 
@@ -350,6 +361,7 @@ push_source = PushSource(
     name="real_time_push_source",
     batch_source=FileSource(path=""),  # Dummy path
 )
+
 
 # Real-time IoT anomaly detection features
 @stream_feature_view(
@@ -369,6 +381,7 @@ def realtime_iot_features(df: pd.DataFrame) -> pd.DataFrame:
     """Process real-time IoT data for anomaly detection"""
     # This would be implemented with actual streaming logic
     return df
+
 
 # ==================== Feature Services ====================
 

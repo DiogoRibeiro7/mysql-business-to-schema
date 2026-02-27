@@ -26,8 +26,9 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Database Microservice",
     description="Database schema management and data generation service",
-    version="1.0.0"
+    version="1.0.0",
 )
+
 
 # Request/Response Models
 class DatabaseInfo(BaseModel):
@@ -87,71 +88,71 @@ DATABASES = {
         "description": "Complete e-commerce database with products, orders, customers",
         "tables": 15,
         "generator": "generators.ecommerce.generator",
-        "example_path": "examples/example_09_ecommerce"
+        "example_path": "examples/example_09_ecommerce",
     },
     "fintech": {
         "name": "FinTech Platform",
         "description": "Financial technology platform with transactions and accounts",
         "tables": 12,
         "generator": "generators.fintech.generator",
-        "example_path": "examples/example_13_fintech"
+        "example_path": "examples/example_13_fintech",
     },
     "social_media": {
         "name": "Social Media Network",
         "description": "Social networking platform with users, posts, interactions",
         "tables": 14,
         "generator": "generators.social_media.generator",
-        "example_path": "examples/example_12_social_media"
+        "example_path": "examples/example_12_social_media",
     },
     "healthcare_iot": {
         "name": "Healthcare IoT",
         "description": "IoT-enabled healthcare monitoring system",
         "tables": 10,
         "generator": "generators.healthcare_iot.generator",
-        "example_path": "examples/example_05_healthcare_iot"
+        "example_path": "examples/example_05_healthcare_iot",
     },
     "smart_energy": {
         "name": "Smart Energy Grid",
         "description": "Smart grid energy management system",
         "tables": 11,
         "generator": "generators.smart_energy.generator",
-        "example_path": "examples/example_07_smart_energy"
+        "example_path": "examples/example_07_smart_energy",
     },
     "iot_bins": {
         "name": "IoT Waste Management",
         "description": "Smart waste management with IoT sensors",
         "tables": 8,
         "generator": "generators.iot_bins.generator",
-        "example_path": "examples/example_02_iot_bins"
+        "example_path": "examples/example_02_iot_bins",
     },
     "education": {
         "name": "Education Platform",
         "description": "Online education and learning management system",
         "tables": 13,
         "generator": "generators.education.generator",
-        "example_path": "examples/example_14_education"
+        "example_path": "examples/example_14_education",
     },
     "event_ticketing": {
         "name": "Event Ticketing",
         "description": "Event management and ticketing platform",
         "tables": 11,
         "generator": "generators.event_ticketing.generator",
-        "example_path": "examples/example_15_event_ticketing"
+        "example_path": "examples/example_15_event_ticketing",
     },
     "real_estate": {
         "name": "Real Estate Platform",
         "description": "Property listing and management system",
         "tables": 12,
         "generator": "generators.real_estate.generator",
-        "example_path": "examples/example_11_real_estate"
+        "example_path": "examples/example_11_real_estate",
     },
     "industrial_iot": {
         "name": "Industrial IoT",
         "description": "Industrial IoT monitoring and control system",
         "tables": 9,
         "generator": "generators.industrial_iot.generator",
-        "example_path": "examples/example_06_industrial_iot"
-    }
+        "example_path": "examples/example_06_industrial_iot",
+    },
 }
 
 
@@ -175,7 +176,7 @@ async def load_schema(database: str, format: str = "mysql") -> Dict[str, Any]:
     schema_path = Path(db_info["example_path"]) / "schema.sql"
 
     if schema_path.exists():
-        with open(schema_path, 'r') as f:
+        with open(schema_path, "r") as f:
             schema_content = f.read()
 
         # Parse schema based on format
@@ -184,11 +185,13 @@ async def load_schema(database: str, format: str = "mysql") -> Dict[str, Any]:
         elif format == "postgresql":
             # Convert MySQL to PostgreSQL
             from converters.postgresql_converter import MySQLToPostgreSQLConverter
+
             converter = MySQLToPostgreSQLConverter()
             schema = converter.convert(schema_content)
         elif format == "mongodb":
             # Convert to MongoDB collections
             from converters.mongodb_converter import MySQLToMongoDBConverter
+
             converter = MySQLToMongoDBConverter()
             schema = converter.convert(schema_content)
         else:
@@ -206,48 +209,42 @@ def parse_mysql_schema(schema_content: str) -> Dict[str, Any]:
     tables = {}
     current_table = None
 
-    lines = schema_content.split('\n')
+    lines = schema_content.split("\n")
     for line in lines:
         line = line.strip()
 
         # Parse CREATE TABLE
-        if line.startswith('CREATE TABLE'):
-            table_name = line.split('`')[1] if '`' in line else line.split()[2]
+        if line.startswith("CREATE TABLE"):
+            table_name = line.split("`")[1] if "`" in line else line.split()[2]
             current_table = table_name
-            tables[current_table] = {
-                "columns": [],
-                "indexes": [],
-                "constraints": []
-            }
+            tables[current_table] = {"columns": [], "indexes": [], "constraints": []}
 
         # Parse columns
-        elif current_table and line and not line.startswith(('PRIMARY', 'KEY', 'INDEX', 'CONSTRAINT', ')')):
-            if '`' in line:
-                parts = line.split('`')
+        elif (
+            current_table
+            and line
+            and not line.startswith(("PRIMARY", "KEY", "INDEX", "CONSTRAINT", ")"))
+        ):
+            if "`" in line:
+                parts = line.split("`")
                 if len(parts) >= 2:
                     column_name = parts[1]
-                    column_def = line.split('`')[2].strip().rstrip(',')
-                    tables[current_table]["columns"].append({
-                        "name": column_name,
-                        "definition": column_def
-                    })
+                    column_def = line.split("`")[2].strip().rstrip(",")
+                    tables[current_table]["columns"].append(
+                        {"name": column_name, "definition": column_def}
+                    )
 
         # Parse constraints
-        elif current_table and 'PRIMARY KEY' in line:
-            tables[current_table]["constraints"].append({
-                "type": "PRIMARY KEY",
-                "definition": line
-            })
+        elif current_table and "PRIMARY KEY" in line:
+            tables[current_table]["constraints"].append(
+                {"type": "PRIMARY KEY", "definition": line}
+            )
 
         # End of table
-        elif line.startswith(');'):
+        elif line.startswith(");"):
             current_table = None
 
-    return {
-        "database_type": "mysql",
-        "tables": tables,
-        "table_count": len(tables)
-    }
+    return {"database_type": "mysql", "tables": tables, "table_count": len(tables)}
 
 
 def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
@@ -267,15 +264,23 @@ def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
             "database_type": format,
             "database_name": database,
             "tables": {},
-            "description": db_info["description"]
+            "description": db_info["description"],
         }
 
         # Add sample table structure
         schema["tables"] = {
             "sample_table": {
                 "columns": [
-                    {"name": "id", "type": "INT", "constraints": "PRIMARY KEY AUTO_INCREMENT"},
-                    {"name": "created_at", "type": "TIMESTAMP", "default": "CURRENT_TIMESTAMP"}
+                    {
+                        "name": "id",
+                        "type": "INT",
+                        "constraints": "PRIMARY KEY AUTO_INCREMENT",
+                    },
+                    {
+                        "name": "created_at",
+                        "type": "TIMESTAMP",
+                        "default": "CURRENT_TIMESTAMP",
+                    },
                 ]
             }
         }
@@ -287,7 +292,9 @@ def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
         return {}
 
 
-async def generate_data_async(database: str, request: GenerateDataRequest) -> Dict[str, Any]:
+async def generate_data_async(
+    database: str, request: GenerateDataRequest
+) -> Dict[str, Any]:
     """Generate data asynchronously"""
     if database not in DATABASES:
         raise ValueError(f"Database {database} not found")
@@ -311,7 +318,7 @@ async def generate_data_async(database: str, request: GenerateDataRequest) -> Di
 
         if request.format == "sql":
             file_path = output_dir / f"data_{timestamp}.sql"
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 f.write(f"-- Generated data for {database}\n")
                 f.write(f"-- Rows: {request.rows}\n")
                 f.write(f"-- Generated at: {datetime.now()}\n\n")
@@ -322,14 +329,15 @@ async def generate_data_async(database: str, request: GenerateDataRequest) -> Di
 
         elif request.format == "json":
             file_path = output_dir / f"data_{timestamp}.json"
-            with open(file_path, 'w') as f:
+            with open(file_path, "w") as f:
                 json.dump(data, f, indent=2, default=str)
 
         elif request.format == "csv":
             import csv
+
             file_path = output_dir / f"data_{timestamp}.csv"
             if data:
-                with open(file_path, 'w', newline='') as f:
+                with open(file_path, "w", newline="") as f:
                     writer = csv.DictWriter(f, fieldnames=data[0].keys())
                     writer.writeheader()
                     writer.writerows(data)
@@ -342,7 +350,7 @@ async def generate_data_async(database: str, request: GenerateDataRequest) -> Di
             "rows_generated": len(data),
             "format": request.format,
             "file_path": str(file_path) if file_path else None,
-            "status": "completed"
+            "status": "completed",
         }
 
     except Exception as e:
@@ -352,11 +360,12 @@ async def generate_data_async(database: str, request: GenerateDataRequest) -> Di
             "rows_generated": 0,
             "format": request.format,
             "file_path": None,
-            "status": f"error: {str(e)}"
+            "status": f"error: {str(e)}",
         }
 
 
 # API Endpoints
+
 
 @app.get("/health")
 async def health_check():
@@ -364,7 +373,7 @@ async def health_check():
     return {
         "service": "database",
         "status": "healthy",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -373,12 +382,14 @@ async def list_databases():
     """List all available databases"""
     databases = []
     for key, info in DATABASES.items():
-        databases.append(DatabaseInfo(
-            name=key,
-            description=info["description"],
-            tables=info["tables"],
-            has_generator=bool(info.get("generator"))
-        ))
+        databases.append(
+            DatabaseInfo(
+                name=key,
+                description=info["description"],
+                tables=info["tables"],
+                has_generator=bool(info.get("generator")),
+            )
+        )
     return databases
 
 
@@ -395,12 +406,7 @@ async def get_database_info(db_name: str):
         "tables": db_info["tables"],
         "has_generator": bool(db_info.get("generator")),
         "example_path": db_info["example_path"],
-        "supported_operations": [
-            "schema",
-            "generate",
-            "query",
-            "export"
-        ]
+        "supported_operations": ["schema", "generate", "query", "export"],
     }
 
 
@@ -412,18 +418,12 @@ async def get_schema(db_name: str, format: str = "mysql"):
 
     schema = await load_schema(db_name, format)
 
-    return SchemaResponse(
-        database=db_name,
-        format=format,
-        schema=schema
-    )
+    return SchemaResponse(database=db_name, format=format, schema=schema)
 
 
 @app.post("/databases/{db_name}/generate", response_model=GenerateDataResponse)
 async def generate_data(
-    db_name: str,
-    request: GenerateDataRequest,
-    background_tasks: BackgroundTasks
+    db_name: str, request: GenerateDataRequest, background_tasks: BackgroundTasks
 ):
     """Generate sample data for a database"""
     if db_name not in DATABASES:
@@ -436,7 +436,7 @@ async def generate_data(
             database=db_name,
             rows_generated=0,
             format=request.format,
-            status="processing"
+            status="processing",
         )
     else:
         # Generate synchronously for small datasets
@@ -452,6 +452,7 @@ async def execute_query(db_name: str, request: QueryRequest):
 
     # Simulate query execution
     import time
+
     start_time = time.time()
 
     # Parse query type
@@ -479,7 +480,7 @@ async def execute_query(db_name: str, request: QueryRequest):
         query=request.query,
         results=results,
         row_count=len(results),
-        execution_time_ms=execution_time
+        execution_time_ms=execution_time,
     )
 
 
@@ -488,7 +489,7 @@ async def export_database(
     db_name: str,
     format: str = "sql",
     include_data: bool = True,
-    include_schema: bool = True
+    include_schema: bool = True,
 ):
     """Export database schema and/or data"""
     if db_name not in DATABASES:
@@ -513,8 +514,8 @@ async def export_database(
         content.append(f"\n-- Sample data for {db_name}")
         content.append("-- [Data would be generated here]")
 
-    with open(file_path, 'w') as f:
-        f.write('\n'.join(content))
+    with open(file_path, "w") as f:
+        f.write("\n".join(content))
 
     return {
         "database": db_name,
@@ -523,7 +524,7 @@ async def export_database(
         "file_size": file_path.stat().st_size,
         "include_schema": include_schema,
         "include_data": include_data,
-        "exported_at": datetime.now().isoformat()
+        "exported_at": datetime.now().isoformat(),
     }
 
 
@@ -547,8 +548,8 @@ async def get_database_statistics(db_name: str):
         "access_pattern": {
             "reads_per_second": 150,
             "writes_per_second": 50,
-            "cache_hit_ratio": 0.85
-        }
+            "cache_hit_ratio": 0.85,
+        },
     }
 
 
@@ -584,10 +585,11 @@ async def validate_schema(db_name: str, schema: Dict[str, Any]):
         "valid": len(errors) == 0,
         "errors": errors,
         "warnings": warnings,
-        "validated_at": datetime.now().isoformat()
+        "validated_at": datetime.now().isoformat(),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8001, log_level="info")

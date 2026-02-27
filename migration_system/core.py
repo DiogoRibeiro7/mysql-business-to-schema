@@ -17,25 +17,31 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class MigrationStatus(Enum):
     """Migration status enumeration."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
     ROLLED_BACK = "rolled_back"
 
+
 class MigrationType(Enum):
     """Types of migrations."""
+
     SQL = "sql"
     PYTHON = "python"
     VERSIONED = "versioned"
     REPEATABLE = "repeatable"
     UNDO = "undo"
 
+
 @dataclass
 class Migration:
     """Represents a database migration."""
+
     version: str
     description: str
     type: MigrationType
@@ -66,14 +72,17 @@ class Migration:
             return False, "Up migration script is required"
 
         # Validate version format (e.g., V001, V20240120_1230, etc.)
-        version_pattern = r'^V\d+(_\d+)?(__[\w_]+)?$'
+        version_pattern = r"^V\d+(_\d+)?(__[\w_]+)?$"
         if not re.match(version_pattern, self.version):
             return False, f"Invalid version format: {self.version}"
 
         # Check checksum
         calculated = self.calculate_checksum()
         if self.checksum and self.checksum != calculated:
-            return False, f"Checksum mismatch: expected {self.checksum}, got {calculated}"
+            return (
+                False,
+                f"Checksum mismatch: expected {self.checksum}, got {calculated}",
+            )
 
         return True, None
 
@@ -89,8 +98,9 @@ class Migration:
             "execution_time": self.execution_time,
             "status": self.status.value,
             "applied_by": self.applied_by,
-            "metadata": self.metadata
+            "metadata": self.metadata,
         }
+
 
 class MigrationHistory:
     """Manages migration history in database."""
@@ -103,7 +113,8 @@ class MigrationHistory:
     def _ensure_history_table(self):
         """Create migration history table if it doesn't exist."""
         cursor = self.connection.cursor()
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             CREATE TABLE IF NOT EXISTS {self.history_table} (
                 version VARCHAR(255) PRIMARY KEY,
                 description TEXT,
@@ -118,18 +129,21 @@ class MigrationHistory:
                 INDEX idx_applied_at (applied_at),
                 INDEX idx_status (status)
             )
-        """)
+        """
+        )
         self.connection.commit()
         cursor.close()
 
     def get_applied_migrations(self) -> List[Dict[str, Any]]:
         """Get list of applied migrations."""
         cursor = self.connection.cursor(dictionary=True)
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT * FROM {self.history_table}
             WHERE status = 'completed'
             ORDER BY applied_at
-        """)
+        """
+        )
         migrations = cursor.fetchall()
         cursor.close()
         return migrations
@@ -137,12 +151,14 @@ class MigrationHistory:
     def get_last_migration(self) -> Optional[Dict[str, Any]]:
         """Get the last applied migration."""
         cursor = self.connection.cursor(dictionary=True)
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT * FROM {self.history_table}
             WHERE status = 'completed'
             ORDER BY applied_at DESC
             LIMIT 1
-        """)
+        """
+        )
         result = cursor.fetchone()
         cursor.close()
         return result
@@ -150,10 +166,13 @@ class MigrationHistory:
     def is_applied(self, version: str) -> bool:
         """Check if a migration version is already applied."""
         cursor = self.connection.cursor()
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             SELECT COUNT(*) as count FROM {self.history_table}
             WHERE version = %s AND status = 'completed'
-        """, (version,))
+        """,
+            (version,),
+        )
         result = cursor.fetchone()
         cursor.close()
         return result[0] > 0
@@ -161,7 +180,8 @@ class MigrationHistory:
     def record_migration(self, migration: Migration):
         """Record migration execution in history."""
         cursor = self.connection.cursor()
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             INSERT INTO {self.history_table}
             (version, description, type, script_name, checksum, applied_by,
              execution_time, status, metadata)
@@ -170,36 +190,44 @@ class MigrationHistory:
                 status = VALUES(status),
                 execution_time = VALUES(execution_time),
                 applied_at = CURRENT_TIMESTAMP
-        """, (
-            migration.version,
-            migration.description,
-            migration.type.value,
-            migration.filename,
-            migration.checksum,
-            migration.applied_by or os.getenv('USER', 'system'),
-            migration.execution_time,
-            migration.status.value,
-            json.dumps(migration.metadata)
-        ))
+        """,
+            (
+                migration.version,
+                migration.description,
+                migration.type.value,
+                migration.filename,
+                migration.checksum,
+                migration.applied_by or os.getenv("USER", "system"),
+                migration.execution_time,
+                migration.status.value,
+                json.dumps(migration.metadata),
+            ),
+        )
         self.connection.commit()
         cursor.close()
 
     def mark_as_failed(self, version: str, error: str):
         """Mark a migration as failed."""
         cursor = self.connection.cursor()
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             UPDATE {self.history_table}
             SET status = 'failed',
                 metadata = JSON_SET(COALESCE(metadata, '{{}}'), '$.error', %s)
             WHERE version = %s
-        """, (error, version))
+        """,
+            (error, version),
+        )
         self.connection.commit()
         cursor.close()
 
-    def get_pending_migrations(self, available_migrations: List[Migration]) -> List[Migration]:
+    def get_pending_migrations(
+        self, available_migrations: List[Migration]
+    ) -> List[Migration]:
         """Get migrations that haven't been applied yet."""
-        applied = {m['version'] for m in self.get_applied_migrations()}
+        applied = {m["version"] for m in self.get_applied_migrations()}
         return [m for m in available_migrations if m.version not in applied]
+
 
 class MigrationRunner:
     """Executes database migrations."""
@@ -216,7 +244,9 @@ class MigrationRunner:
         migrations = []
 
         if not self.migrations_path.exists():
-            logger.warning(f"Migrations directory {self.migrations_path} does not exist")
+            logger.warning(
+                f"Migrations directory {self.migrations_path} does not exist"
+            )
             return migrations
 
         # Find all SQL migration files
@@ -237,7 +267,7 @@ class MigrationRunner:
     def _parse_migration_file(self, file_path: Path) -> Optional[Migration]:
         """Parse a SQL migration file."""
         # Expected format: V001__description.sql or V20240120_1230__description.sql
-        pattern = r'^(V\d+(?:_\d+)?)__(.+)\.sql$'
+        pattern = r"^(V\d+(?:_\d+)?)__(.+)\.sql$"
         match = re.match(pattern, file_path.name)
 
         if not match:
@@ -245,9 +275,9 @@ class MigrationRunner:
             return None
 
         version = match.group(1)
-        description = match.group(2).replace('_', ' ')
+        description = match.group(2).replace("_", " ")
 
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             content = f.read()
 
         # Split into up and down migrations
@@ -260,7 +290,7 @@ class MigrationRunner:
             checksum="",  # Will be calculated
             up_script=up_script,
             down_script=down_script,
-            filename=file_path.name
+            filename=file_path.name,
         )
         migration.checksum = migration.calculate_checksum()
 
@@ -269,14 +299,14 @@ class MigrationRunner:
     def _parse_python_migration(self, file_path: Path) -> Optional[Migration]:
         """Parse a Python migration file."""
         # Expected format: V001__description.py
-        pattern = r'^(V\d+(?:_\d+)?)__(.+)\.py$'
+        pattern = r"^(V\d+(?:_\d+)?)__(.+)\.py$"
         match = re.match(pattern, file_path.name)
 
         if not match:
             return None
 
         version = match.group(1)
-        description = match.group(2).replace('_', ' ')
+        description = match.group(2).replace("_", " ")
 
         # For Python migrations, we store the file path
         migration = Migration(
@@ -286,10 +316,10 @@ class MigrationRunner:
             checksum="",
             up_script=str(file_path),
             down_script=None,
-            filename=file_path.name
+            filename=file_path.name,
         )
 
-        with open(file_path, 'r') as f:
+        with open(file_path, "r") as f:
             content = f.read()
             migration.checksum = hashlib.sha256(content.encode()).hexdigest()
 
@@ -299,7 +329,7 @@ class MigrationRunner:
         """Split migration script into up and down parts."""
         # Look for markers
         if "-- ==== DOWN ====" in content or "-- ==== ROLLBACK ====" in content:
-            parts = re.split(r'-- ==== (?:DOWN|ROLLBACK) ====', content)
+            parts = re.split(r"-- ==== (?:DOWN|ROLLBACK) ====", content)
             up_script = parts[0].strip()
             down_script = parts[1].strip() if len(parts) > 1 else None
             return up_script, down_script
@@ -307,9 +337,9 @@ class MigrationRunner:
         # No down migration provided
         return content.strip(), None
 
-    def run_migrations(self,
-                       target_version: Optional[str] = None,
-                       dry_run: bool = False) -> Dict[str, Any]:
+    def run_migrations(
+        self, target_version: Optional[str] = None, dry_run: bool = False
+    ) -> Dict[str, Any]:
         """
         Run pending migrations up to target version.
 
@@ -321,11 +351,7 @@ class MigrationRunner:
             Migration results
         """
         self.dry_run = dry_run
-        results = {
-            "success": True,
-            "migrations_run": [],
-            "errors": []
-        }
+        results = {"success": True, "migrations_run": [], "errors": []}
 
         try:
             # Discover available migrations
@@ -350,10 +376,14 @@ class MigrationRunner:
 
             # Execute migrations
             for migration in pending:
-                logger.info(f"Running migration {migration.version}: {migration.description}")
+                logger.info(
+                    f"Running migration {migration.version}: {migration.description}"
+                )
 
                 if dry_run:
-                    logger.info(f"[DRY RUN] Would execute:\n{migration.up_script[:500]}")
+                    logger.info(
+                        f"[DRY RUN] Would execute:\n{migration.up_script[:500]}"
+                    )
                     results["migrations_run"].append(migration.version)
                     continue
 
@@ -363,7 +393,9 @@ class MigrationRunner:
                     results["migrations_run"].append(migration.version)
                 else:
                     results["success"] = False
-                    results["errors"].append(f"Failed to run migration {migration.version}")
+                    results["errors"].append(
+                        f"Failed to run migration {migration.version}"
+                    )
 
                     if self.auto_rollback and migration.down_script:
                         logger.info(f"Rolling back migration {migration.version}")
@@ -381,7 +413,7 @@ class MigrationRunner:
         """Execute a single migration."""
         start_time = time.time()
         migration.status = MigrationStatus.RUNNING
-        migration.applied_by = os.getenv('USER', 'system')
+        migration.applied_by = os.getenv("USER", "system")
 
         try:
             if migration.type == MigrationType.SQL:
@@ -396,7 +428,9 @@ class MigrationRunner:
             # Record in history
             self.history.record_migration(migration)
 
-            logger.info(f"Migration {migration.version} completed in {migration.execution_time:.2f}s")
+            logger.info(
+                f"Migration {migration.version} completed in {migration.execution_time:.2f}s"
+            )
             return True
 
         except Exception as e:
@@ -426,17 +460,18 @@ class MigrationRunner:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            f"migration_{migration.version}",
-            migration.up_script
+            f"migration_{migration.version}", migration.up_script
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
         # Call the up() function
-        if hasattr(module, 'up'):
+        if hasattr(module, "up"):
             module.up(self.connection)
         else:
-            raise Exception(f"Python migration {migration.version} missing up() function")
+            raise Exception(
+                f"Python migration {migration.version} missing up() function"
+            )
 
     def _rollback_migration(self, migration: Migration) -> bool:
         """Rollback a single migration."""
@@ -456,14 +491,14 @@ class MigrationRunner:
 
             elif migration.type == MigrationType.PYTHON:
                 import importlib.util
+
                 spec = importlib.util.spec_from_file_location(
-                    f"migration_{migration.version}",
-                    migration.up_script
+                    f"migration_{migration.version}", migration.up_script
                 )
                 module = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(module)
 
-                if hasattr(module, 'down'):
+                if hasattr(module, "down"):
                     module.down(self.connection)
 
             migration.status = MigrationStatus.ROLLED_BACK
@@ -482,21 +517,21 @@ class MigrationRunner:
         statements = []
         current = []
 
-        for line in sql.split('\n'):
+        for line in sql.split("\n"):
             # Skip comments
-            if line.strip().startswith('--'):
+            if line.strip().startswith("--"):
                 continue
 
             current.append(line)
 
             # Check for statement end
-            if line.rstrip().endswith(';'):
-                statements.append('\n'.join(current))
+            if line.rstrip().endswith(";"):
+                statements.append("\n".join(current))
                 current = []
 
         # Add remaining if any
         if current:
-            statements.append('\n'.join(current))
+            statements.append("\n".join(current))
 
         return statements
 
@@ -510,11 +545,7 @@ class MigrationRunner:
         Returns:
             Rollback results
         """
-        results = {
-            "success": True,
-            "migrations_rolled_back": [],
-            "errors": []
-        }
+        results = {"success": True, "migrations_rolled_back": [], "errors": []}
 
         try:
             applied = self.history.get_applied_migrations()
@@ -526,7 +557,7 @@ class MigrationRunner:
             # Determine migrations to rollback
             to_rollback = []
             if target_version:
-                to_rollback = [m for m in applied if m['version'] > target_version]
+                to_rollback = [m for m in applied if m["version"] > target_version]
             else:
                 # Rollback last migration
                 to_rollback = [applied[-1]]
@@ -536,8 +567,12 @@ class MigrationRunner:
                 # Find migration definition
                 all_migrations = self.discover_migrations()
                 migration = next(
-                    (m for m in all_migrations if m.version == migration_record['version']),
-                    None
+                    (
+                        m
+                        for m in all_migrations
+                        if m.version == migration_record["version"]
+                    ),
+                    None,
                 )
 
                 if not migration:
@@ -560,10 +595,7 @@ class MigrationRunner:
 
     def validate_migrations(self) -> Dict[str, Any]:
         """Validate all migrations for consistency."""
-        results = {
-            "valid": True,
-            "issues": []
-        }
+        results = {"valid": True, "issues": []}
 
         migrations = self.discover_migrations()
 
@@ -585,10 +617,9 @@ class MigrationRunner:
         applied = self.history.get_applied_migrations()
         for record in applied:
             migration = next(
-                (m for m in migrations if m.version == record['version']),
-                None
+                (m for m in migrations if m.version == record["version"]), None
             )
-            if migration and migration.checksum != record.get('checksum'):
+            if migration and migration.checksum != record.get("checksum"):
                 results["valid"] = False
                 results["issues"].append(
                     f"{migration.version}: Checksum mismatch - migration file has been modified"
@@ -607,5 +638,5 @@ class MigrationRunner:
             "applied_migrations": len(applied),
             "pending_migrations": len(pending),
             "last_migration": self.history.get_last_migration(),
-            "pending_versions": [m.version for m in pending]
+            "pending_versions": [m.version for m in pending],
         }

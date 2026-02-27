@@ -31,9 +31,11 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuration
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/performance')
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-DOCKER_SOCKET = os.getenv('DOCKER_SOCKET', 'unix:///var/run/docker.sock')
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://postgres:password@localhost:5432/performance"
+)
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+DOCKER_SOCKET = os.getenv("DOCKER_SOCKET", "unix:///var/run/docker.sock")
 
 # Initialize connections
 redis_client = redis.from_url(REDIS_URL)
@@ -41,28 +43,38 @@ docker_client = docker.DockerClient(base_url=DOCKER_SOCKET)
 
 # Metrics registry
 registry = CollectorRegistry()
-test_runs = Counter('test_coordinator_runs_total', 'Total test runs', ['test_type'], registry=registry)
-test_status = Gauge('test_coordinator_status', 'Test run status', ['test_id'], registry=registry)
+test_runs = Counter(
+    "test_coordinator_runs_total", "Total test runs", ["test_type"], registry=registry
+)
+test_status = Gauge(
+    "test_coordinator_status", "Test run status", ["test_id"], registry=registry
+)
+
 
 class TestType(Enum):
     """Types of performance tests"""
+
     LOCUST = "locust"
     K6 = "k6"
     GATLING = "gatling"
     JMETER = "jmeter"
     CUSTOM = "custom"
 
+
 class TestStatus(Enum):
     """Test execution status"""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
     CANCELLED = "cancelled"
 
+
 @dataclass
 class TestConfiguration:
     """Test configuration"""
+
     test_id: str
     test_type: TestType
     name: str
@@ -75,9 +87,11 @@ class TestConfiguration:
     thresholds: Dict[str, Any]
     metadata: Dict[str, Any]
 
+
 @dataclass
 class TestResult:
     """Test execution result"""
+
     test_id: str
     status: TestStatus
     start_time: datetime
@@ -85,6 +99,7 @@ class TestResult:
     metrics: Dict[str, Any]
     errors: List[str]
     report_url: Optional[str]
+
 
 class TestCoordinator:
     """Main test coordinator"""
@@ -100,7 +115,8 @@ class TestCoordinator:
         cur = conn.cursor()
 
         # Create tables
-        cur.execute("""
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS test_runs (
                 test_id UUID PRIMARY KEY,
                 test_type VARCHAR(50),
@@ -112,9 +128,11 @@ class TestCoordinator:
                 end_time TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
-        cur.execute("""
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS test_metrics (
                 id SERIAL PRIMARY KEY,
                 test_id UUID REFERENCES test_runs(test_id),
@@ -123,9 +141,11 @@ class TestCoordinator:
                 metric_value FLOAT,
                 metadata JSONB
             )
-        """)
+        """
+        )
 
-        cur.execute("""
+        cur.execute(
+            """
             CREATE TABLE IF NOT EXISTS test_errors (
                 id SERIAL PRIMARY KEY,
                 test_id UUID REFERENCES test_runs(test_id),
@@ -134,7 +154,8 @@ class TestCoordinator:
                 error_message TEXT,
                 stack_trace TEXT
             )
-        """)
+        """
+        )
 
         conn.commit()
         cur.close()
@@ -149,18 +170,21 @@ class TestCoordinator:
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
 
-        cur.execute("""
+        cur.execute(
+            """
             INSERT INTO test_runs (test_id, test_type, name, description, configuration, status, start_time)
             VALUES (%s, %s, %s, %s, %s, %s, %s)
-        """, (
-            test_id,
-            config.test_type.value,
-            config.name,
-            config.description,
-            json.dumps(asdict(config)),
-            TestStatus.PENDING.value,
-            datetime.utcnow()
-        ))
+        """,
+            (
+                test_id,
+                config.test_type.value,
+                config.name,
+                config.description,
+                json.dumps(asdict(config)),
+                TestStatus.PENDING.value,
+                datetime.utcnow(),
+            ),
+        )
 
         conn.commit()
         cur.close()
@@ -168,9 +192,7 @@ class TestCoordinator:
 
         # Store in Redis for quick access
         redis_client.setex(
-            f"test:{test_id}",
-            3600,  # 1 hour TTL
-            json.dumps(asdict(config))
+            f"test:{test_id}", 3600, json.dumps(asdict(config))  # 1 hour TTL
         )
 
         # Add to active tests
@@ -219,13 +241,9 @@ class TestCoordinator:
                 command=f"-f /mnt/locust/locustfile.py --master --expect-workers 3 -H {config.target_url}",
                 detach=True,
                 name=f"locust-master-{config.test_id}",
-                volumes={
-                    '/opt/locust': {'bind': '/mnt/locust', 'mode': 'ro'}
-                },
+                volumes={"/opt/locust": {"bind": "/mnt/locust", "mode": "ro"}},
                 network="performance-testing",
-                environment={
-                    'TARGET_HOST': config.target_url
-                }
+                environment={"TARGET_HOST": config.target_url},
             )
 
             # Start workers
@@ -236,10 +254,8 @@ class TestCoordinator:
                     command=f"-f /mnt/locust/locustfile.py --worker --master-host {master.name}",
                     detach=True,
                     name=f"locust-worker-{i}-{config.test_id}",
-                    volumes={
-                        '/opt/locust': {'bind': '/mnt/locust', 'mode': 'ro'}
-                    },
-                    network="performance-testing"
+                    volumes={"/opt/locust": {"bind": "/mnt/locust", "mode": "ro"}},
+                    network="performance-testing",
                 )
                 workers.append(worker)
 
@@ -248,13 +264,14 @@ class TestCoordinator:
 
             # Trigger test via API
             import requests
+
             response = requests.post(
                 f"http://{master.name}:8089/swarm",
                 json={
-                    'user_count': config.users,
-                    'spawn_rate': config.users / config.ramp_up,
-                    'host': config.target_url
-                }
+                    "user_count": config.users,
+                    "spawn_rate": config.users / config.ramp_up,
+                    "host": config.target_url,
+                },
             )
 
             # Monitor test
@@ -280,14 +297,14 @@ class TestCoordinator:
                 start_time=start_time,
                 end_time=datetime.utcnow(),
                 metrics={
-                    'total_requests': stats.get('total_rps', 0),
-                    'failure_rate': stats.get('fail_ratio', 0),
-                    'response_time_p50': stats.get('response_time_percentile_50', 0),
-                    'response_time_p95': stats.get('response_time_percentile_95', 0),
-                    'response_time_p99': stats.get('response_time_percentile_99', 0),
+                    "total_requests": stats.get("total_rps", 0),
+                    "failure_rate": stats.get("fail_ratio", 0),
+                    "response_time_p50": stats.get("response_time_percentile_50", 0),
+                    "response_time_p95": stats.get("response_time_percentile_95", 0),
+                    "response_time_p99": stats.get("response_time_percentile_99", 0),
                 },
                 errors=[],
-                report_url=f"/reports/{config.test_id}"
+                report_url=f"/reports/{config.test_id}",
             )
 
         except Exception as e:
@@ -298,7 +315,7 @@ class TestCoordinator:
                 end_time=datetime.utcnow(),
                 metrics={},
                 errors=[str(e)],
-                report_url=None
+                report_url=None,
             )
 
     def run_k6_test(self, config: TestConfiguration) -> TestResult:
@@ -309,19 +326,19 @@ class TestCoordinator:
                 "grafana/k6",
                 command=f"run /scripts/load-test.js --duration {config.duration}s --vus {config.users}",
                 volumes={
-                    '/opt/k6': {'bind': '/scripts', 'mode': 'ro'},
-                    '/opt/results': {'bind': '/results', 'mode': 'rw'}
+                    "/opt/k6": {"bind": "/scripts", "mode": "ro"},
+                    "/opt/results": {"bind": "/results", "mode": "rw"},
                 },
                 environment={
-                    'BASE_URL': config.target_url,
-                    'K6_OUT': 'json=/results/results.json'
+                    "BASE_URL": config.target_url,
+                    "K6_OUT": "json=/results/results.json",
                 },
                 network="performance-testing",
-                remove=True
+                remove=True,
             )
 
             # Parse results
-            with open(f'/opt/results/results.json', 'r') as f:
+            with open(f"/opt/results/results.json", "r") as f:
                 k6_results = json.load(f)
 
             return TestResult(
@@ -329,9 +346,9 @@ class TestCoordinator:
                 status=TestStatus.COMPLETED,
                 start_time=datetime.utcnow(),
                 end_time=datetime.utcnow(),
-                metrics=k6_results.get('metrics', {}),
+                metrics=k6_results.get("metrics", {}),
                 errors=[],
-                report_url=f"/reports/{config.test_id}"
+                report_url=f"/reports/{config.test_id}",
             )
 
         except Exception as e:
@@ -342,7 +359,7 @@ class TestCoordinator:
                 end_time=datetime.utcnow(),
                 metrics={},
                 errors=[str(e)],
-                report_url=None
+                report_url=None,
             )
 
     def run_gatling_test(self, config: TestConfiguration) -> TestResult:
@@ -369,30 +386,46 @@ class TestCoordinator:
             try:
                 # Get stats from Locust
                 import requests
-                stats = requests.get(f"http://{container.name}:8089/stats/requests").json()
-                metrics.append({
-                    'timestamp': datetime.utcnow().isoformat(),
-                    'rps': stats.get('total_rps', 0),
-                    'failures': stats.get('num_failures', 0),
-                    'users': stats.get('user_count', 0)
-                })
+
+                stats = requests.get(
+                    f"http://{container.name}:8089/stats/requests"
+                ).json()
+                metrics.append(
+                    {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "rps": stats.get("total_rps", 0),
+                        "failures": stats.get("num_failures", 0),
+                        "users": stats.get("user_count", 0),
+                    }
+                )
             except:
                 pass
 
             time.sleep(5)
 
-        return {'timeline': metrics}
+        return {"timeline": metrics}
 
     def update_test_status(self, test_id: str, status: TestStatus):
         """Update test status"""
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
 
-        cur.execute("""
+        cur.execute(
+            """
             UPDATE test_runs
             SET status = %s, end_time = %s
             WHERE test_id = %s
-        """, (status.value, datetime.utcnow() if status in [TestStatus.COMPLETED, TestStatus.FAILED] else None, test_id))
+        """,
+            (
+                status.value,
+                (
+                    datetime.utcnow()
+                    if status in [TestStatus.COMPLETED, TestStatus.FAILED]
+                    else None
+                ),
+                test_id,
+            ),
+        )
 
         conn.commit()
         cur.close()
@@ -408,17 +441,23 @@ class TestCoordinator:
 
         # Store metrics
         for metric_name, metric_value in result.metrics.items():
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO test_metrics (test_id, timestamp, metric_name, metric_value)
                 VALUES (%s, %s, %s, %s)
-            """, (result.test_id, result.end_time, metric_name, metric_value))
+            """,
+                (result.test_id, result.end_time, metric_name, metric_value),
+            )
 
         # Store errors
         for error in result.errors:
-            cur.execute("""
+            cur.execute(
+                """
                 INSERT INTO test_errors (test_id, timestamp, error_type, error_message)
                 VALUES (%s, %s, %s, %s)
-            """, (result.test_id, result.end_time, 'error', error))
+            """,
+                (result.test_id, result.end_time, "error", error),
+            )
 
         conn.commit()
         cur.close()
@@ -429,21 +468,30 @@ class TestCoordinator:
         conn = psycopg2.connect(DATABASE_URL)
 
         # Get test info
-        test_df = pd.read_sql("""
+        test_df = pd.read_sql(
+            """
             SELECT * FROM test_runs WHERE test_id = %s
-        """, conn, params=(test_id,))
+        """,
+            conn,
+            params=(test_id,),
+        )
 
         # Get metrics
-        metrics_df = pd.read_sql("""
+        metrics_df = pd.read_sql(
+            """
             SELECT * FROM test_metrics WHERE test_id = %s ORDER BY timestamp
-        """, conn, params=(test_id,))
+        """,
+            conn,
+            params=(test_id,),
+        )
 
         conn.close()
 
         # Create visualizations
         fig = make_subplots(
-            rows=2, cols=2,
-            subplot_titles=('Response Time', 'Throughput', 'Error Rate', 'User Load')
+            rows=2,
+            cols=2,
+            subplot_titles=("Response Time", "Throughput", "Error Rate", "User Load"),
         )
 
         # Add traces for different metrics
@@ -464,108 +512,123 @@ class TestCoordinator:
 
         # Save report
         report_path = f"/opt/results/reports/{test_id}.html"
-        with open(report_path, 'w') as f:
+        with open(report_path, "w") as f:
             f.write(report_html)
 
         return report_path
 
+
 # Create coordinator instance
 coordinator = TestCoordinator()
 
+
 # Flask routes
-@app.route('/health')
+@app.route("/health")
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy'})
+    return jsonify({"status": "healthy"})
 
-@app.route('/api/tests', methods=['POST'])
+
+@app.route("/api/tests", methods=["POST"])
 def create_test():
     """Create new test"""
     data = request.json
 
     config = TestConfiguration(
         test_id="",
-        test_type=TestType(data['test_type']),
-        name=data['name'],
-        description=data.get('description', ''),
-        target_url=data['target_url'],
-        duration=data.get('duration', 300),
-        users=data.get('users', 10),
-        ramp_up=data.get('ramp_up', 30),
-        scenarios=data.get('scenarios', []),
-        thresholds=data.get('thresholds', {}),
-        metadata=data.get('metadata', {})
+        test_type=TestType(data["test_type"]),
+        name=data["name"],
+        description=data.get("description", ""),
+        target_url=data["target_url"],
+        duration=data.get("duration", 300),
+        users=data.get("users", 10),
+        ramp_up=data.get("ramp_up", 30),
+        scenarios=data.get("scenarios", []),
+        thresholds=data.get("thresholds", {}),
+        metadata=data.get("metadata", {}),
     )
 
     test_id = coordinator.create_test(config)
 
-    return jsonify({'test_id': test_id, 'status': 'created'})
+    return jsonify({"test_id": test_id, "status": "created"})
 
-@app.route('/api/tests/<test_id>/run', methods=['POST'])
+
+@app.route("/api/tests/<test_id>/run", methods=["POST"])
 def run_test(test_id):
     """Run a test"""
     # Run in background thread
     thread = threading.Thread(target=coordinator.run_test, args=(test_id,))
     thread.start()
 
-    return jsonify({'test_id': test_id, 'status': 'started'})
+    return jsonify({"test_id": test_id, "status": "started"})
 
-@app.route('/api/tests/<test_id>/status')
+
+@app.route("/api/tests/<test_id>/status")
 def get_test_status(test_id):
     """Get test status"""
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
 
-    cur.execute("""
+    cur.execute(
+        """
         SELECT status, start_time, end_time
         FROM test_runs
         WHERE test_id = %s
-    """, (test_id,))
+    """,
+        (test_id,),
+    )
 
     result = cur.fetchone()
     cur.close()
     conn.close()
 
     if result:
-        return jsonify({
-            'test_id': test_id,
-            'status': result[0],
-            'start_time': result[1].isoformat() if result[1] else None,
-            'end_time': result[2].isoformat() if result[2] else None
-        })
+        return jsonify(
+            {
+                "test_id": test_id,
+                "status": result[0],
+                "start_time": result[1].isoformat() if result[1] else None,
+                "end_time": result[2].isoformat() if result[2] else None,
+            }
+        )
     else:
-        return jsonify({'error': 'Test not found'}), 404
+        return jsonify({"error": "Test not found"}), 404
 
-@app.route('/api/tests/<test_id>/results')
+
+@app.route("/api/tests/<test_id>/results")
 def get_test_results(test_id):
     """Get test results"""
     conn = psycopg2.connect(DATABASE_URL)
 
     # Get metrics
-    metrics_df = pd.read_sql("""
+    metrics_df = pd.read_sql(
+        """
         SELECT metric_name, metric_value, timestamp
         FROM test_metrics
         WHERE test_id = %s
         ORDER BY timestamp
-    """, conn, params=(test_id,))
+    """,
+        conn,
+        params=(test_id,),
+    )
 
     conn.close()
 
-    return jsonify({
-        'test_id': test_id,
-        'metrics': metrics_df.to_dict('records')
-    })
+    return jsonify({"test_id": test_id, "metrics": metrics_df.to_dict("records")})
 
-@app.route('/reports/<test_id>')
+
+@app.route("/reports/<test_id>")
 def get_report(test_id):
     """Get test report"""
     report_path = coordinator.generate_report(test_id)
-    return send_file(report_path, mimetype='text/html')
+    return send_file(report_path, mimetype="text/html")
 
-@app.route('/metrics')
+
+@app.route("/metrics")
 def metrics():
     """Prometheus metrics endpoint"""
-    return generate_latest(registry), 200, {'Content-Type': 'text/plain'}
+    return generate_latest(registry), 200, {"Content-Type": "text/plain"}
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)

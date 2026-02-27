@@ -30,7 +30,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -40,19 +40,31 @@ structlog.configure(
 logger = structlog.get_logger()
 
 # Environment configuration
-KAFKA_BROKERS = os.getenv('KAFKA_BROKERS', 'kafka1:29092,kafka2:29093').split(',')
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
-REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
-CLICKHOUSE_HOST = os.getenv('CLICKHOUSE_HOST', 'localhost')
-CLICKHOUSE_PORT = int(os.getenv('CLICKHOUSE_PORT', 9000))
-METRICS_PORT = int(os.getenv('METRICS_PORT', 8000))
+KAFKA_BROKERS = os.getenv("KAFKA_BROKERS", "kafka1:29092,kafka2:29093").split(",")
+REDIS_HOST = os.getenv("REDIS_HOST", "localhost")
+REDIS_PORT = int(os.getenv("REDIS_PORT", 6379))
+CLICKHOUSE_HOST = os.getenv("CLICKHOUSE_HOST", "localhost")
+CLICKHOUSE_PORT = int(os.getenv("CLICKHOUSE_PORT", 9000))
+METRICS_PORT = int(os.getenv("METRICS_PORT", 8000))
 
 # Metrics
-events_processed = Counter('stream_events_processed_total', 'Total events processed', ['database', 'table', 'operation'])
-events_failed = Counter('stream_events_failed_total', 'Total events failed', ['database', 'table', 'error_type'])
-processing_time = Histogram('stream_processing_duration_seconds', 'Event processing time', ['processor'])
-aggregation_value = Gauge('stream_aggregation_value', 'Current aggregation value', ['metric_type', 'database'])
-lag_gauge = Gauge('stream_consumer_lag', 'Consumer lag', ['topic', 'partition'])
+events_processed = Counter(
+    "stream_events_processed_total",
+    "Total events processed",
+    ["database", "table", "operation"],
+)
+events_failed = Counter(
+    "stream_events_failed_total",
+    "Total events failed",
+    ["database", "table", "error_type"],
+)
+processing_time = Histogram(
+    "stream_processing_duration_seconds", "Event processing time", ["processor"]
+)
+aggregation_value = Gauge(
+    "stream_aggregation_value", "Current aggregation value", ["metric_type", "database"]
+)
+lag_gauge = Gauge("stream_consumer_lag", "Consumer lag", ["topic", "partition"])
 
 # Initialize external connections
 redis_client = Redis(host=REDIS_HOST, port=REDIS_PORT, decode_responses=True)
@@ -60,19 +72,21 @@ clickhouse_client = clickhouse_driver.Client(host=CLICKHOUSE_HOST, port=CLICKHOU
 
 # Create Faust app
 app = faust.App(
-    'mysql-stream-processor',
+    "mysql-stream-processor",
     broker=KAFKA_BROKERS,
-    value_serializer='json',
-    store='rocksdb://',
+    value_serializer="json",
+    store="rocksdb://",
     topic_partitions=4,
-    processing_guarantee='exactly_once',
+    processing_guarantee="exactly_once",
     stream_buffer_maxsize=100000,
 )
 
 # ==================== Data Models ====================
 
+
 class DatabaseEvent(Record):
     """Base CDC event from MySQL"""
+
     database: str
     table: str
     operation: str  # INSERT, UPDATE, DELETE
@@ -81,8 +95,10 @@ class DatabaseEvent(Record):
     after: Optional[Dict[str, Any]] = None
     transaction_id: Optional[str] = None
 
+
 class ClinicPatientEvent(Record):
     """Patient event from clinic database"""
+
     patient_id: int
     name: str
     date_of_birth: datetime
@@ -92,8 +108,10 @@ class ClinicPatientEvent(Record):
     created_at: datetime
     updated_at: datetime
 
+
 class EcommerceOrderEvent(Record):
     """Order event from e-commerce database"""
+
     order_id: int
     customer_id: int
     order_date: datetime
@@ -102,8 +120,10 @@ class EcommerceOrderEvent(Record):
     items: List[Dict[str, Any]]
     payment_method: str
 
+
 class IoTReadingEvent(Record):
     """IoT sensor reading event"""
+
     device_id: str
     sensor_type: str
     value: float
@@ -112,8 +132,10 @@ class IoTReadingEvent(Record):
     location: Optional[Dict[str, float]]
     metadata: Optional[Dict[str, Any]]
 
+
 class SocialMediaPostEvent(Record):
     """Social media post event"""
+
     post_id: int
     user_id: int
     content: str
@@ -123,66 +145,68 @@ class SocialMediaPostEvent(Record):
     comments_count: int
     shares_count: int
 
+
 # ==================== Topics ====================
 
 # Input topics from Debezium CDC
-cdc_events_topic = app.topic('mysql-schema.*', value_type=DatabaseEvent, pattern=True)
-clinic_patients_topic = app.topic('clinic_db.patients', value_type=ClinicPatientEvent)
-ecommerce_orders_topic = app.topic('ecommerce_db.orders', value_type=EcommerceOrderEvent)
-iot_readings_topic = app.topic('iot_db.readings', value_type=IoTReadingEvent)
-social_posts_topic = app.topic('social_media_db.posts', value_type=SocialMediaPostEvent)
+cdc_events_topic = app.topic("mysql-schema.*", value_type=DatabaseEvent, pattern=True)
+clinic_patients_topic = app.topic("clinic_db.patients", value_type=ClinicPatientEvent)
+ecommerce_orders_topic = app.topic(
+    "ecommerce_db.orders", value_type=EcommerceOrderEvent
+)
+iot_readings_topic = app.topic("iot_db.readings", value_type=IoTReadingEvent)
+social_posts_topic = app.topic("social_media_db.posts", value_type=SocialMediaPostEvent)
 
 # Output topics for processed data
-analytics_topic = app.topic('analytics.events', value_type=dict)
-alerts_topic = app.topic('alerts.notifications', value_type=dict)
-metrics_topic = app.topic('metrics.aggregations', value_type=dict)
+analytics_topic = app.topic("analytics.events", value_type=dict)
+alerts_topic = app.topic("alerts.notifications", value_type=dict)
+metrics_topic = app.topic("metrics.aggregations", value_type=dict)
 
 # ==================== Tables (State Stores) ====================
 
 # Aggregation tables
-patient_counts = app.Table('patient_counts', default=int)
-order_totals = app.Table('order_totals', default=float)
-device_stats = app.Table('device_stats', default=dict)
-user_activity = app.Table('user_activity', default=dict)
+patient_counts = app.Table("patient_counts", default=int)
+order_totals = app.Table("order_totals", default=float)
+device_stats = app.Table("device_stats", default=dict)
+user_activity = app.Table("user_activity", default=dict)
 
 # Window tables for time-based aggregations
-orders_hourly = app.Table('orders_hourly', default=list).tumbling(
-    size=timedelta(hours=1),
-    expires=timedelta(hours=24)
+orders_hourly = app.Table("orders_hourly", default=list).tumbling(
+    size=timedelta(hours=1), expires=timedelta(hours=24)
 )
 
-readings_5min = app.Table('readings_5min', default=list).tumbling(
-    size=timedelta(minutes=5),
-    expires=timedelta(hours=1)
+readings_5min = app.Table("readings_5min", default=list).tumbling(
+    size=timedelta(minutes=5), expires=timedelta(hours=1)
 )
 
 # ==================== Stream Processors ====================
+
 
 @app.agent(cdc_events_topic)
 async def process_cdc_events(events):
     """Process all CDC events from MySQL"""
     async for event in events:
         try:
-            logger.info("Processing CDC event",
-                       database=event.database,
-                       table=event.table,
-                       operation=event.operation)
+            logger.info(
+                "Processing CDC event",
+                database=event.database,
+                table=event.table,
+                operation=event.operation,
+            )
 
             # Update metrics
             events_processed.labels(
-                database=event.database,
-                table=event.table,
-                operation=event.operation
+                database=event.database, table=event.table, operation=event.operation
             ).inc()
 
             # Route to specific processors based on database/table
-            if event.database == 'clinic_db' and event.table == 'patients':
+            if event.database == "clinic_db" and event.table == "patients":
                 await process_patient_change(event)
-            elif event.database == 'ecommerce_db' and event.table == 'orders':
+            elif event.database == "ecommerce_db" and event.table == "orders":
                 await process_order_change(event)
-            elif event.database == 'iot_db' and event.table == 'readings':
+            elif event.database == "iot_db" and event.table == "readings":
                 await process_iot_reading(event)
-            elif event.database == 'social_media_db' and event.table == 'posts':
+            elif event.database == "social_media_db" and event.table == "posts":
                 await process_social_post(event)
 
             # Store in data warehouse
@@ -191,83 +215,94 @@ async def process_cdc_events(events):
         except Exception as e:
             logger.error("Failed to process CDC event", error=str(e))
             events_failed.labels(
-                database=event.database,
-                table=event.table,
-                error_type=type(e).__name__
+                database=event.database, table=event.table, error_type=type(e).__name__
             ).inc()
+
 
 @app.agent(clinic_patients_topic)
 async def process_patients(patients):
     """Process patient events for analytics"""
     async for patient in patients:
         # Update patient count
-        patient_counts['total'] += 1
-        patient_counts[f'gender_{patient.gender}'] += 1
+        patient_counts["total"] += 1
+        patient_counts[f"gender_{patient.gender}"] += 1
 
         # Check for data quality issues
-        if not patient.email or '@' not in patient.email:
-            await alerts_topic.send(value={
-                'alert_type': 'data_quality',
-                'severity': 'warning',
-                'message': f'Patient {patient.patient_id} has invalid email',
-                'timestamp': datetime.utcnow().isoformat()
-            })
+        if not patient.email or "@" not in patient.email:
+            await alerts_topic.send(
+                value={
+                    "alert_type": "data_quality",
+                    "severity": "warning",
+                    "message": f"Patient {patient.patient_id} has invalid email",
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
         # Calculate patient age and segment
         age = (datetime.now() - patient.date_of_birth).days // 365
         age_group = get_age_group(age)
-        patient_counts[f'age_group_{age_group}'] += 1
+        patient_counts[f"age_group_{age_group}"] += 1
 
         # Send to analytics
-        await analytics_topic.send(value={
-            'event_type': 'patient_registration',
-            'patient_id': patient.patient_id,
-            'age': age,
-            'age_group': age_group,
-            'gender': patient.gender,
-            'timestamp': patient.created_at.isoformat()
-        })
+        await analytics_topic.send(
+            value={
+                "event_type": "patient_registration",
+                "patient_id": patient.patient_id,
+                "age": age,
+                "age_group": age_group,
+                "gender": patient.gender,
+                "timestamp": patient.created_at.isoformat(),
+            }
+        )
+
 
 @app.agent(ecommerce_orders_topic)
 async def process_orders(orders):
     """Process e-commerce orders for real-time analytics"""
     async for order in orders.group_by(lambda o: o.customer_id):
         # Update order totals
-        order_totals['revenue'] += float(order.total_amount)
-        order_totals['count'] += 1
-        order_totals[f'status_{order.status}'] += 1
+        order_totals["revenue"] += float(order.total_amount)
+        order_totals["count"] += 1
+        order_totals[f"status_{order.status}"] += 1
 
         # Calculate customer lifetime value
         customer_orders = await get_customer_orders(order.customer_id)
-        ltv = sum(float(o.get('total_amount', 0)) for o in customer_orders)
+        ltv = sum(float(o.get("total_amount", 0)) for o in customer_orders)
 
         # Detect high-value customers
         if ltv > 10000:
-            await alerts_topic.send(value={
-                'alert_type': 'high_value_customer',
-                'severity': 'info',
-                'customer_id': order.customer_id,
-                'ltv': ltv,
-                'timestamp': datetime.utcnow().isoformat()
-            })
+            await alerts_topic.send(
+                value={
+                    "alert_type": "high_value_customer",
+                    "severity": "info",
+                    "customer_id": order.customer_id,
+                    "ltv": ltv,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
 
         # Add to hourly window
-        orders_hourly[order.order_date.hour].append({
-            'order_id': order.order_id,
-            'amount': float(order.total_amount),
-            'items_count': len(order.items)
-        })
+        orders_hourly[order.order_date.hour].append(
+            {
+                "order_id": order.order_id,
+                "amount": float(order.total_amount),
+                "items_count": len(order.items),
+            }
+        )
 
         # Real-time fraud detection
         if await detect_fraud(order):
-            await alerts_topic.send(value={
-                'alert_type': 'potential_fraud',
-                'severity': 'critical',
-                'order_id': order.order_id,
-                'customer_id': order.customer_id,
-                'amount': float(order.total_amount),
-                'timestamp': datetime.utcnow().isoformat()
-            })
+            await alerts_topic.send(
+                value={
+                    "alert_type": "potential_fraud",
+                    "severity": "critical",
+                    "order_id": order.order_id,
+                    "customer_id": order.customer_id,
+                    "amount": float(order.total_amount),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }
+            )
+
 
 @app.agent(iot_readings_topic)
 async def process_iot_readings(readings):
@@ -278,47 +313,51 @@ async def process_iot_readings(readings):
         # Update device statistics
         if device_id not in device_stats:
             device_stats[device_id] = {
-                'count': 0,
-                'sum': 0,
-                'min': float('inf'),
-                'max': float('-inf'),
-                'last_reading': None
+                "count": 0,
+                "sum": 0,
+                "min": float("inf"),
+                "max": float("-inf"),
+                "last_reading": None,
             }
 
         stats = device_stats[device_id]
-        stats['count'] += 1
-        stats['sum'] += reading.value
-        stats['min'] = min(stats['min'], reading.value)
-        stats['max'] = max(stats['max'], reading.value)
-        stats['last_reading'] = reading.timestamp.isoformat()
+        stats["count"] += 1
+        stats["sum"] += reading.value
+        stats["min"] = min(stats["min"], reading.value)
+        stats["max"] = max(stats["max"], reading.value)
+        stats["last_reading"] = reading.timestamp.isoformat()
 
         # Calculate moving average
-        avg = stats['sum'] / stats['count']
+        avg = stats["sum"] / stats["count"]
 
         # Anomaly detection
         if reading.value > avg * 1.5 or reading.value < avg * 0.5:
-            await alerts_topic.send(value={
-                'alert_type': 'anomaly_detected',
-                'severity': 'warning',
-                'device_id': device_id,
-                'sensor_type': reading.sensor_type,
-                'value': reading.value,
-                'average': avg,
-                'timestamp': reading.timestamp.isoformat()
-            })
+            await alerts_topic.send(
+                value={
+                    "alert_type": "anomaly_detected",
+                    "severity": "warning",
+                    "device_id": device_id,
+                    "sensor_type": reading.sensor_type,
+                    "value": reading.value,
+                    "average": avg,
+                    "timestamp": reading.timestamp.isoformat(),
+                }
+            )
 
         # Add to 5-minute window for aggregation
-        readings_5min[reading.timestamp].append({
-            'device_id': device_id,
-            'value': reading.value,
-            'sensor_type': reading.sensor_type
-        })
+        readings_5min[reading.timestamp].append(
+            {
+                "device_id": device_id,
+                "value": reading.value,
+                "sensor_type": reading.sensor_type,
+            }
+        )
 
         # Update metrics
-        aggregation_value.labels(
-            metric_type='iot_reading',
-            database='iot_db'
-        ).set(reading.value)
+        aggregation_value.labels(metric_type="iot_reading", database="iot_db").set(
+            reading.value
+        )
+
 
 @app.agent(social_posts_topic)
 async def process_social_posts(posts):
@@ -329,76 +368,90 @@ async def process_social_posts(posts):
         # Update user activity
         if user_id not in user_activity:
             user_activity[user_id] = {
-                'posts_count': 0,
-                'total_likes': 0,
-                'total_comments': 0,
-                'total_shares': 0,
-                'engagement_rate': 0
+                "posts_count": 0,
+                "total_likes": 0,
+                "total_comments": 0,
+                "total_shares": 0,
+                "engagement_rate": 0,
             }
 
         activity = user_activity[user_id]
-        activity['posts_count'] += 1
-        activity['total_likes'] += post.likes_count
-        activity['total_comments'] += post.comments_count
-        activity['total_shares'] += post.shares_count
+        activity["posts_count"] += 1
+        activity["total_likes"] += post.likes_count
+        activity["total_comments"] += post.comments_count
+        activity["total_shares"] += post.shares_count
 
         # Calculate engagement rate
         total_engagement = post.likes_count + post.comments_count + post.shares_count
-        activity['engagement_rate'] = total_engagement / activity['posts_count']
+        activity["engagement_rate"] = total_engagement / activity["posts_count"]
 
         # Detect viral content
         if total_engagement > 1000:
-            await alerts_topic.send(value={
-                'alert_type': 'viral_content',
-                'severity': 'info',
-                'post_id': post.post_id,
-                'user_id': post.user_id,
-                'engagement': total_engagement,
-                'timestamp': post.created_at.isoformat()
-            })
+            await alerts_topic.send(
+                value={
+                    "alert_type": "viral_content",
+                    "severity": "info",
+                    "post_id": post.post_id,
+                    "user_id": post.user_id,
+                    "engagement": total_engagement,
+                    "timestamp": post.created_at.isoformat(),
+                }
+            )
 
         # Sentiment analysis (simplified)
         sentiment = analyze_sentiment(post.content)
 
         # Send to analytics
-        await analytics_topic.send(value={
-            'event_type': 'social_post',
-            'post_id': post.post_id,
-            'user_id': post.user_id,
-            'sentiment': sentiment,
-            'engagement': total_engagement,
-            'timestamp': post.created_at.isoformat()
-        })
+        await analytics_topic.send(
+            value={
+                "event_type": "social_post",
+                "post_id": post.post_id,
+                "user_id": post.user_id,
+                "sentiment": sentiment,
+                "engagement": total_engagement,
+                "timestamp": post.created_at.isoformat(),
+            }
+        )
+
 
 # ==================== Helper Functions ====================
 
+
 async def process_patient_change(event: DatabaseEvent):
     """Process patient-specific changes"""
-    if event.operation == 'INSERT':
-        redis_client.incr('clinic:patients:total')
-        redis_client.incr(f'clinic:patients:daily:{datetime.now().date()}')
-    elif event.operation == 'DELETE':
-        redis_client.decr('clinic:patients:total')
+    if event.operation == "INSERT":
+        redis_client.incr("clinic:patients:total")
+        redis_client.incr(f"clinic:patients:daily:{datetime.now().date()}")
+    elif event.operation == "DELETE":
+        redis_client.decr("clinic:patients:total")
+
 
 async def process_order_change(event: DatabaseEvent):
     """Process order-specific changes"""
-    if event.operation == 'INSERT' and event.after:
-        amount = float(event.after.get('total_amount', 0))
-        redis_client.incrbyfloat('ecommerce:revenue:total', amount)
-        redis_client.incrbyfloat(f'ecommerce:revenue:daily:{datetime.now().date()}', amount)
+    if event.operation == "INSERT" and event.after:
+        amount = float(event.after.get("total_amount", 0))
+        redis_client.incrbyfloat("ecommerce:revenue:total", amount)
+        redis_client.incrbyfloat(
+            f"ecommerce:revenue:daily:{datetime.now().date()}", amount
+        )
+
 
 async def process_iot_reading(event: DatabaseEvent):
     """Process IoT reading changes"""
-    if event.operation == 'INSERT' and event.after:
-        device_id = event.after.get('device_id')
-        value = float(event.after.get('value', 0))
-        redis_client.zadd(f'iot:readings:{device_id}', {datetime.now().timestamp(): value})
+    if event.operation == "INSERT" and event.after:
+        device_id = event.after.get("device_id")
+        value = float(event.after.get("value", 0))
+        redis_client.zadd(
+            f"iot:readings:{device_id}", {datetime.now().timestamp(): value}
+        )
+
 
 async def process_social_post(event: DatabaseEvent):
     """Process social media post changes"""
-    if event.operation == 'INSERT':
-        redis_client.incr('social:posts:total')
-        redis_client.incr(f'social:posts:hourly:{datetime.now().hour}')
+    if event.operation == "INSERT":
+        redis_client.incr("social:posts:total")
+        redis_client.incr(f"social:posts:hourly:{datetime.now().hour}")
+
 
 async def store_to_clickhouse(event: DatabaseEvent):
     """Store processed events in ClickHouse"""
@@ -414,22 +467,24 @@ async def store_to_clickhouse(event: DatabaseEvent):
             )
             """,
             {
-                'database': event.database,
-                'table': event.table,
-                'operation': event.operation,
-                'timestamp': event.timestamp,
-                'data': json.dumps(event.after or event.before)
-            }
+                "database": event.database,
+                "table": event.table,
+                "operation": event.operation,
+                "timestamp": event.timestamp,
+                "data": json.dumps(event.after or event.before),
+            },
         )
     except Exception as e:
         logger.error("Failed to store in ClickHouse", error=str(e))
 
+
 async def get_customer_orders(customer_id: int) -> List[Dict]:
     """Get all orders for a customer from Redis cache"""
-    orders = redis_client.get(f'customer:{customer_id}:orders')
+    orders = redis_client.get(f"customer:{customer_id}:orders")
     if orders:
         return json.loads(orders)
     return []
+
 
 async def detect_fraud(order: EcommerceOrderEvent) -> bool:
     """Simple fraud detection based on patterns"""
@@ -438,7 +493,7 @@ async def detect_fraud(order: EcommerceOrderEvent) -> bool:
         return True
 
     # Check for rapid orders
-    recent_orders = redis_client.get(f'customer:{order.customer_id}:recent_orders')
+    recent_orders = redis_client.get(f"customer:{order.customer_id}:recent_orders")
     if recent_orders:
         recent = json.loads(recent_orders)
         if len(recent) > 5:  # More than 5 orders in short time
@@ -446,66 +501,72 @@ async def detect_fraud(order: EcommerceOrderEvent) -> bool:
 
     return False
 
+
 def get_age_group(age: int) -> str:
     """Categorize age into groups"""
     if age < 18:
-        return 'minor'
+        return "minor"
     elif age < 30:
-        return 'young_adult'
+        return "young_adult"
     elif age < 50:
-        return 'adult'
+        return "adult"
     elif age < 65:
-        return 'middle_age'
+        return "middle_age"
     else:
-        return 'senior'
+        return "senior"
+
 
 def analyze_sentiment(content: str) -> str:
     """Simplified sentiment analysis"""
-    positive_words = ['good', 'great', 'excellent', 'amazing', 'love']
-    negative_words = ['bad', 'terrible', 'hate', 'awful', 'horrible']
+    positive_words = ["good", "great", "excellent", "amazing", "love"]
+    negative_words = ["bad", "terrible", "hate", "awful", "horrible"]
 
     content_lower = content.lower()
     positive_count = sum(word in content_lower for word in positive_words)
     negative_count = sum(word in content_lower for word in negative_words)
 
     if positive_count > negative_count:
-        return 'positive'
+        return "positive"
     elif negative_count > positive_count:
-        return 'negative'
+        return "negative"
     else:
-        return 'neutral'
+        return "neutral"
+
 
 # ==================== Periodic Tasks ====================
+
 
 @app.timer(interval=60.0)  # Every minute
 async def publish_metrics():
     """Publish aggregated metrics to metrics topic"""
     metrics = {
-        'timestamp': datetime.utcnow().isoformat(),
-        'patients': {
-            'total': patient_counts.get('total', 0),
-            'by_gender': {
-                'male': patient_counts.get('gender_male', 0),
-                'female': patient_counts.get('gender_female', 0)
-            }
+        "timestamp": datetime.utcnow().isoformat(),
+        "patients": {
+            "total": patient_counts.get("total", 0),
+            "by_gender": {
+                "male": patient_counts.get("gender_male", 0),
+                "female": patient_counts.get("gender_female", 0),
+            },
         },
-        'orders': {
-            'total': order_totals.get('count', 0),
-            'revenue': order_totals.get('revenue', 0),
-            'average': order_totals.get('revenue', 0) / max(order_totals.get('count', 1), 1)
+        "orders": {
+            "total": order_totals.get("count", 0),
+            "revenue": order_totals.get("revenue", 0),
+            "average": order_totals.get("revenue", 0)
+            / max(order_totals.get("count", 1), 1),
         },
-        'devices': {
-            'active': len(device_stats),
-            'total_readings': sum(d['count'] for d in device_stats.values())
+        "devices": {
+            "active": len(device_stats),
+            "total_readings": sum(d["count"] for d in device_stats.values()),
         },
-        'social': {
-            'active_users': len(user_activity),
-            'total_posts': sum(u['posts_count'] for u in user_activity.values())
-        }
+        "social": {
+            "active_users": len(user_activity),
+            "total_posts": sum(u["posts_count"] for u in user_activity.values()),
+        },
     }
 
     await metrics_topic.send(value=metrics)
     logger.info("Published metrics", metrics=metrics)
+
 
 @app.timer(interval=300.0)  # Every 5 minutes
 async def cleanup_old_data():
@@ -514,15 +575,16 @@ async def cleanup_old_data():
 
     # Clean Redis
     for key in redis_client.scan_iter("*:daily:*"):
-        date_str = key.split(':')[-1]
+        date_str = key.split(":")[-1]
         try:
-            date = datetime.strptime(date_str, '%Y-%m-%d')
+            date = datetime.strptime(date_str, "%Y-%m-%d")
             if date < cutoff:
                 redis_client.delete(key)
         except:
             pass
 
     logger.info("Cleaned up old data")
+
 
 @app.timer(interval=30.0)  # Every 30 seconds
 async def monitor_lag():
@@ -532,12 +594,11 @@ async def monitor_lag():
         position = await app.consumer.position(tp)
         lag = position - committed if committed else 0
 
-        lag_gauge.labels(
-            topic=tp.topic,
-            partition=tp.partition
-        ).set(lag)
+        lag_gauge.labels(topic=tp.topic, partition=tp.partition).set(lag)
+
 
 # ==================== Main ====================
+
 
 @app.on_leader_election
 async def on_leader_election(app, was_leader_before: bool):
@@ -545,7 +606,8 @@ async def on_leader_election(app, was_leader_before: bool):
     if not was_leader_before:
         logger.info("Became leader, initializing resources")
         # Initialize ClickHouse tables
-        clickhouse_client.execute("""
+        clickhouse_client.execute(
+            """
             CREATE TABLE IF NOT EXISTS analytics.events (
                 database String,
                 table_name String,
@@ -556,9 +618,11 @@ async def on_leader_election(app, was_leader_before: bool):
             ) ENGINE = MergeTree()
             PARTITION BY toYYYYMM(created_at)
             ORDER BY (database, table_name, created_at)
-        """)
+        """
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # Start metrics server
     start_http_server(METRICS_PORT)
     logger.info(f"Metrics server started on port {METRICS_PORT}")

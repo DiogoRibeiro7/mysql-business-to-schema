@@ -118,6 +118,7 @@ def demonstrate_migration_system():
 
     # Create a temporary directory for migrations
     import tempfile
+
     temp_dir = tempfile.mkdtemp(prefix="migration_demo_")
     print(f"\nUsing temporary directory: {temp_dir}")
 
@@ -126,7 +127,7 @@ def demonstrate_migration_system():
 
     # Save sample schema to a temporary file
     schema_file = os.path.join(temp_dir, "sample_schema.sql")
-    with open(schema_file, 'w') as f:
+    with open(schema_file, "w") as f:
         f.write(SAMPLE_MYSQL_SCHEMA)
 
     print("\n" + "=" * 70)
@@ -139,7 +140,7 @@ def demonstrate_migration_system():
         name="ecommerce_to_postgresql",
         source_file=schema_file,
         source_type=DatabaseType.MYSQL,
-        target_type=DatabaseType.POSTGRESQL
+        target_type=DatabaseType.POSTGRESQL,
     )
 
     print(f"[OK] Created migration: {pg_migration.id}")
@@ -147,10 +148,10 @@ def demonstrate_migration_system():
     # Display PostgreSQL migration script (first 50 lines)
     print("\n--- PostgreSQL Migration Script (Preview) ---")
     print("-" * 50)
-    lines = pg_migration.up_script.split('\n')[:50]
+    lines = pg_migration.up_script.split("\n")[:50]
     for line in lines:
         print(line)
-    if len(pg_migration.up_script.split('\n')) > 50:
+    if len(pg_migration.up_script.split("\n")) > 50:
         print("... (truncated)")
 
     print("\n" + "=" * 70)
@@ -163,7 +164,7 @@ def demonstrate_migration_system():
         name="ecommerce_to_mongodb",
         source_file=schema_file,
         source_type=DatabaseType.MYSQL,
-        target_type=DatabaseType.MONGODB
+        target_type=DatabaseType.MONGODB,
     )
 
     print(f"[OK] Created migration: {mongo_migration.id}")
@@ -171,10 +172,10 @@ def demonstrate_migration_system():
     # Display MongoDB migration script (first 50 lines)
     print("\n--- MongoDB Migration Script (Preview) ---")
     print("-" * 50)
-    lines = mongo_migration.up_script.split('\n')[:50]
+    lines = mongo_migration.up_script.split("\n")[:50]
     for line in lines:
         print(line)
-    if len(mongo_migration.up_script.split('\n')) > 50:
+    if len(mongo_migration.up_script.split("\n")) > 50:
         print("... (truncated)")
 
     print("\n" + "=" * 70)
@@ -196,7 +197,8 @@ def demonstrate_migration_system():
     print("4. KEY FEATURES DEMONSTRATED")
     print("=" * 70)
 
-    print("""
+    print(
+        """
 [OK] Schema Parsing:
   - Extracted 5 tables from MySQL schema
   - Parsed columns, data types, constraints
@@ -235,7 +237,8 @@ def demonstrate_migration_system():
   - Metadata tracking
   - Checksum verification
   - Status tracking
-    """)
+    """
+    )
 
     print("\n" + "=" * 70)
     print("5. GENERATED FILES")
@@ -246,12 +249,12 @@ def demonstrate_migration_system():
 
     # List generated files
     for root, dirs, files in os.walk(migrations_dir):
-        level = root.replace(migrations_dir, '').count(os.sep)
-        indent = ' ' * 2 * level
-        print(f'{indent}{os.path.basename(root)}/')
-        subindent = ' ' * 2 * (level + 1)
+        level = root.replace(migrations_dir, "").count(os.sep)
+        indent = " " * 2 * level
+        print(f"{indent}{os.path.basename(root)}/")
+        subindent = " " * 2 * (level + 1)
         for file in files:
-            print(f'{subindent}{file}')
+            print(f"{subindent}{file}")
 
     print("\n" + "=" * 70)
     print("6. ROLLBACK SCRIPTS")
@@ -260,7 +263,7 @@ def demonstrate_migration_system():
     # Show rollback script preview
     print("\n--- PostgreSQL Rollback Script ---")
     print("-" * 50)
-    rollback_lines = pg_migration.down_script.split('\n')[:20]
+    rollback_lines = pg_migration.down_script.split("\n")[:20]
     for line in rollback_lines:
         print(line)
 
@@ -268,7 +271,8 @@ def demonstrate_migration_system():
     print("DEMONSTRATION COMPLETE")
     print("=" * 70)
 
-    print(f"""
+    print(
+        f"""
 The migration system successfully:
 1. Parsed MySQL schema with {len(manager.parser.parse_mysql_schema(SAMPLE_MYSQL_SCHEMA))} tables
 2. Generated PostgreSQL migration with proper data type mappings
@@ -283,7 +287,8 @@ To use in production:
 4. Rollback if needed: python migrate.py rollback --migration-id <id> --database mydb
 
 Temporary files location: {temp_dir}
-    """)
+    """
+    )
 
     return temp_dir
 

@@ -11,54 +11,51 @@ from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from datetime import datetime
 
+
 class MySQLToPostgreSQLConverter:
     """Convert MySQL schemas to PostgreSQL"""
 
     # Type mappings from MySQL to PostgreSQL
     TYPE_MAPPINGS = {
         # Numeric types
-        'tinyint': 'SMALLINT',
-        'smallint': 'SMALLINT',
-        'mediumint': 'INTEGER',
-        'int': 'INTEGER',
-        'integer': 'INTEGER',
-        'bigint': 'BIGINT',
-        'decimal': 'DECIMAL',
-        'numeric': 'NUMERIC',
-        'float': 'REAL',
-        'double': 'DOUBLE PRECISION',
-        'real': 'REAL',
-        'bit': 'BOOLEAN',
-        'boolean': 'BOOLEAN',
-        'bool': 'BOOLEAN',
-
+        "tinyint": "SMALLINT",
+        "smallint": "SMALLINT",
+        "mediumint": "INTEGER",
+        "int": "INTEGER",
+        "integer": "INTEGER",
+        "bigint": "BIGINT",
+        "decimal": "DECIMAL",
+        "numeric": "NUMERIC",
+        "float": "REAL",
+        "double": "DOUBLE PRECISION",
+        "real": "REAL",
+        "bit": "BOOLEAN",
+        "boolean": "BOOLEAN",
+        "bool": "BOOLEAN",
         # String types
-        'char': 'CHAR',
-        'varchar': 'VARCHAR',
-        'tinytext': 'TEXT',
-        'text': 'TEXT',
-        'mediumtext': 'TEXT',
-        'longtext': 'TEXT',
-        'binary': 'BYTEA',
-        'varbinary': 'BYTEA',
-        'tinyblob': 'BYTEA',
-        'blob': 'BYTEA',
-        'mediumblob': 'BYTEA',
-        'longblob': 'BYTEA',
-
+        "char": "CHAR",
+        "varchar": "VARCHAR",
+        "tinytext": "TEXT",
+        "text": "TEXT",
+        "mediumtext": "TEXT",
+        "longtext": "TEXT",
+        "binary": "BYTEA",
+        "varbinary": "BYTEA",
+        "tinyblob": "BYTEA",
+        "blob": "BYTEA",
+        "mediumblob": "BYTEA",
+        "longblob": "BYTEA",
         # Date/Time types
-        'date': 'DATE',
-        'datetime': 'TIMESTAMP',
-        'timestamp': 'TIMESTAMP',
-        'time': 'TIME',
-        'year': 'INTEGER',
-
+        "date": "DATE",
+        "datetime": "TIMESTAMP",
+        "timestamp": "TIMESTAMP",
+        "time": "TIME",
+        "year": "INTEGER",
         # JSON
-        'json': 'JSONB',
-
+        "json": "JSONB",
         # Enum handled separately
-        'enum': 'VARCHAR',
-        'set': 'TEXT[]',
+        "enum": "VARCHAR",
+        "set": "TEXT[]",
     }
 
     def __init__(self):
@@ -71,7 +68,7 @@ class MySQLToPostgreSQLConverter:
 
     def convert_file(self, input_file: Path) -> str:
         """Convert a MySQL SQL file to PostgreSQL"""
-        with open(input_file, 'r', encoding='utf-8') as f:
+        with open(input_file, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Clean the content
@@ -90,11 +87,11 @@ class MySQLToPostgreSQLConverter:
     def _clean_sql(self, sql: str) -> str:
         """Clean SQL content"""
         # Remove MySQL-specific comments
-        sql = re.sub(r'/\*![\d\s]+', '/*', sql)
-        sql = re.sub(r'\*/', '*/', sql)
+        sql = re.sub(r"/\*![\d\s]+", "/*", sql)
+        sql = re.sub(r"\*/", "*/", sql)
 
         # Remove backticks
-        sql = sql.replace('`', '')
+        sql = sql.replace("`", "")
 
         return sql
 
@@ -104,19 +101,19 @@ class MySQLToPostgreSQLConverter:
         statements = []
         current = []
 
-        for line in sql.split('\n'):
+        for line in sql.split("\n"):
             line = line.strip()
-            if not line or line.startswith('--'):
+            if not line or line.startswith("--"):
                 continue
 
             current.append(line)
 
-            if line.endswith(';'):
-                statements.append('\n'.join(current))
+            if line.endswith(";"):
+                statements.append("\n".join(current))
                 current = []
 
         if current:
-            statements.append('\n'.join(current))
+            statements.append("\n".join(current))
 
         return statements
 
@@ -130,22 +127,22 @@ class MySQLToPostgreSQLConverter:
         # Determine statement type
         upper_stmt = statement.upper()
 
-        if upper_stmt.startswith('CREATE DATABASE'):
+        if upper_stmt.startswith("CREATE DATABASE"):
             self._process_create_database(statement)
-        elif upper_stmt.startswith('CREATE TABLE'):
+        elif upper_stmt.startswith("CREATE TABLE"):
             self._process_create_table(statement)
-        elif upper_stmt.startswith('ALTER TABLE'):
+        elif upper_stmt.startswith("ALTER TABLE"):
             self._process_alter_table(statement)
-        elif upper_stmt.startswith('CREATE INDEX'):
+        elif upper_stmt.startswith("CREATE INDEX"):
             self._process_create_index(statement)
-        elif upper_stmt.startswith('INSERT'):
+        elif upper_stmt.startswith("INSERT"):
             self._process_insert(statement)
-        elif upper_stmt.startswith('USE'):
+        elif upper_stmt.startswith("USE"):
             # Skip USE statements
             pass
-        elif upper_stmt.startswith('DROP'):
+        elif upper_stmt.startswith("DROP"):
             self.output_lines.append(statement)
-        elif upper_stmt.startswith('SET'):
+        elif upper_stmt.startswith("SET"):
             # Skip SET statements
             pass
         else:
@@ -155,7 +152,11 @@ class MySQLToPostgreSQLConverter:
     def _process_create_database(self, statement: str) -> None:
         """Process CREATE DATABASE statement"""
         # PostgreSQL version
-        db_match = re.search(r'CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)', statement, re.IGNORECASE)
+        db_match = re.search(
+            r"CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)",
+            statement,
+            re.IGNORECASE,
+        )
         if db_match:
             db_name = db_match.group(1)
             self.output_lines.append(f"-- Create database (run as superuser)")
@@ -166,7 +167,9 @@ class MySQLToPostgreSQLConverter:
     def _process_create_table(self, statement: str) -> None:
         """Process CREATE TABLE statement"""
         # Extract table name
-        table_match = re.search(r'CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)', statement, re.IGNORECASE)
+        table_match = re.search(
+            r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)", statement, re.IGNORECASE
+        )
         if not table_match:
             return
 
@@ -174,7 +177,11 @@ class MySQLToPostgreSQLConverter:
         self.current_table = table_name
 
         # Extract table content
-        content_match = re.search(r'CREATE\s+TABLE[^(]+\((.*)\)\s*(?:ENGINE|;)', statement, re.IGNORECASE | re.DOTALL)
+        content_match = re.search(
+            r"CREATE\s+TABLE[^(]+\((.*)\)\s*(?:ENGINE|;)",
+            statement,
+            re.IGNORECASE | re.DOTALL,
+        )
         if not content_match:
             return
 
@@ -193,32 +200,43 @@ class MySQLToPostgreSQLConverter:
                 continue
 
             # Handle different line types
-            if re.match(r'^\w+\s+', line) and not any(k in line.upper() for k in ['PRIMARY', 'FOREIGN', 'KEY', 'INDEX', 'UNIQUE', 'CONSTRAINT', 'CHECK']):
+            if re.match(r"^\w+\s+", line) and not any(
+                k in line.upper()
+                for k in [
+                    "PRIMARY",
+                    "FOREIGN",
+                    "KEY",
+                    "INDEX",
+                    "UNIQUE",
+                    "CONSTRAINT",
+                    "CHECK",
+                ]
+            ):
                 # This is a field definition
                 pg_field = self._convert_field(line, table_name)
                 if pg_field:
                     field_lines.append(f"    {pg_field}")
-            elif 'PRIMARY KEY' in line.upper():
+            elif "PRIMARY KEY" in line.upper():
                 # Handle primary key
                 pk = self._convert_primary_key(line)
                 if pk:
                     field_lines.append(f"    {pk}")
-            elif 'FOREIGN KEY' in line.upper():
+            elif "FOREIGN KEY" in line.upper():
                 # Store foreign key for later
                 self.foreign_keys.append((table_name, line))
-            elif 'INDEX' in line.upper() or 'KEY' in line.upper():
+            elif "INDEX" in line.upper() or "KEY" in line.upper():
                 # Store index for later
-                if 'UNIQUE' in line.upper():
+                if "UNIQUE" in line.upper():
                     unique = self._convert_unique_constraint(line)
                     if unique:
                         field_lines.append(f"    {unique}")
                 else:
                     self.indexes.append((table_name, line))
 
-        pg_lines.append(',\n'.join(field_lines))
+        pg_lines.append(",\n".join(field_lines))
         pg_lines.append(");")
 
-        self.output_lines.append('\n'.join(pg_lines))
+        self.output_lines.append("\n".join(pg_lines))
         self.output_lines.append("")
 
         # Add foreign keys as separate statements
@@ -239,11 +257,11 @@ class MySQLToPostgreSQLConverter:
         for char in content:
             current_line += char
 
-            if char == '(':
+            if char == "(":
                 paren_depth += 1
-            elif char == ')':
+            elif char == ")":
                 paren_depth -= 1
-            elif char == ',' and paren_depth == 0:
+            elif char == "," and paren_depth == 0:
                 lines.append(current_line[:-1].strip())
                 current_line = ""
 
@@ -255,43 +273,45 @@ class MySQLToPostgreSQLConverter:
     def _convert_field(self, field_line: str, table_name: str) -> Optional[str]:
         """Convert a field definition from MySQL to PostgreSQL"""
         # Parse field
-        match = re.match(r'(\w+)\s+(\w+)(?:\(([^)]+)\))?\s*(.*)', field_line)
+        match = re.match(r"(\w+)\s+(\w+)(?:\(([^)]+)\))?\s*(.*)", field_line)
         if not match:
             return None
 
         field_name = match.group(1)
         field_type = match.group(2).lower()
         field_size = match.group(3)
-        modifiers = match.group(4) if match.group(4) else ''
+        modifiers = match.group(4) if match.group(4) else ""
 
         # Convert type
         pg_type = self._convert_type(field_type, field_size)
 
         # Handle AUTO_INCREMENT
-        if 'AUTO_INCREMENT' in modifiers.upper():
+        if "AUTO_INCREMENT" in modifiers.upper():
             # Use SERIAL or BIGSERIAL
-            if 'bigint' in field_type:
-                pg_type = 'BIGSERIAL'
+            if "bigint" in field_type:
+                pg_type = "BIGSERIAL"
             else:
-                pg_type = 'SERIAL'
-            modifiers = re.sub(r'AUTO_INCREMENT', '', modifiers, flags=re.IGNORECASE)
+                pg_type = "SERIAL"
+            modifiers = re.sub(r"AUTO_INCREMENT", "", modifiers, flags=re.IGNORECASE)
 
         # Handle UNSIGNED
-        modifiers = re.sub(r'UNSIGNED', '', modifiers, flags=re.IGNORECASE)
+        modifiers = re.sub(r"UNSIGNED", "", modifiers, flags=re.IGNORECASE)
 
         # Handle ON UPDATE CURRENT_TIMESTAMP
-        if 'ON UPDATE CURRENT_TIMESTAMP' in modifiers.upper():
-            modifiers = re.sub(r'ON\s+UPDATE\s+CURRENT_TIMESTAMP', '', modifiers, flags=re.IGNORECASE)
+        if "ON UPDATE CURRENT_TIMESTAMP" in modifiers.upper():
+            modifiers = re.sub(
+                r"ON\s+UPDATE\s+CURRENT_TIMESTAMP", "", modifiers, flags=re.IGNORECASE
+            )
             # Note: PostgreSQL doesn't have automatic ON UPDATE, need trigger
 
         # Handle DEFAULT
         modifiers = self._convert_default(modifiers)
 
         # Handle COMMENT
-        modifiers = re.sub(r"COMMENT\s+'[^']*'", '', modifiers, flags=re.IGNORECASE)
+        modifiers = re.sub(r"COMMENT\s+'[^']*'", "", modifiers, flags=re.IGNORECASE)
 
         # Clean up
-        modifiers = ' '.join(modifiers.split())
+        modifiers = " ".join(modifiers.split())
 
         return f"{field_name} {pg_type} {modifiers}".strip()
 
@@ -300,18 +320,18 @@ class MySQLToPostgreSQLConverter:
         base_type = mysql_type.lower()
 
         # Check if it's an enum
-        if base_type == 'enum' and size:
+        if base_type == "enum" and size:
             # Create enum type with better naming
             enum_name = f"{self.current_table}_status"
-            values = [v.strip().strip("'\"") for v in size.split(',')]
+            values = [v.strip().strip("'\"") for v in size.split(",")]
             self.enums[enum_name] = values
             return enum_name
 
         # Get PostgreSQL equivalent
-        pg_type = self.TYPE_MAPPINGS.get(base_type, 'TEXT')
+        pg_type = self.TYPE_MAPPINGS.get(base_type, "TEXT")
 
         # Handle types with size
-        if size and base_type in ['varchar', 'char', 'decimal', 'numeric']:
+        if size and base_type in ["varchar", "char", "decimal", "numeric"]:
             return f"{pg_type}({size})"
 
         return pg_type
@@ -319,15 +339,24 @@ class MySQLToPostgreSQLConverter:
     def _convert_default(self, modifiers: str) -> str:
         """Convert DEFAULT clause"""
         # Replace MySQL functions with PostgreSQL equivalents
-        modifiers = re.sub(r'DEFAULT\s+CURRENT_TIMESTAMP', 'DEFAULT CURRENT_TIMESTAMP', modifiers, flags=re.IGNORECASE)
-        modifiers = re.sub(r'DEFAULT\s+NULL', 'DEFAULT NULL', modifiers, flags=re.IGNORECASE)
-        modifiers = re.sub(r"DEFAULT\s+\(''\)", "DEFAULT ''", modifiers, flags=re.IGNORECASE)
+        modifiers = re.sub(
+            r"DEFAULT\s+CURRENT_TIMESTAMP",
+            "DEFAULT CURRENT_TIMESTAMP",
+            modifiers,
+            flags=re.IGNORECASE,
+        )
+        modifiers = re.sub(
+            r"DEFAULT\s+NULL", "DEFAULT NULL", modifiers, flags=re.IGNORECASE
+        )
+        modifiers = re.sub(
+            r"DEFAULT\s+\(''\)", "DEFAULT ''", modifiers, flags=re.IGNORECASE
+        )
 
         return modifiers
 
     def _convert_primary_key(self, line: str) -> Optional[str]:
         """Convert PRIMARY KEY constraint"""
-        match = re.search(r'PRIMARY\s+KEY\s*\(([^)]+)\)', line, re.IGNORECASE)
+        match = re.search(r"PRIMARY\s+KEY\s*\(([^)]+)\)", line, re.IGNORECASE)
         if match:
             keys = match.group(1)
             return f"PRIMARY KEY ({keys})"
@@ -336,8 +365,9 @@ class MySQLToPostgreSQLConverter:
     def _convert_foreign_key(self, table_name: str, line: str) -> Optional[str]:
         """Convert FOREIGN KEY constraint to separate ALTER TABLE"""
         match = re.search(
-            r'(?:CONSTRAINT\s+(\w+)\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s+REFERENCES\s+(\w+)\s*\(([^)]+)\)',
-            line, re.IGNORECASE
+            r"(?:CONSTRAINT\s+(\w+)\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s+REFERENCES\s+(\w+)\s*\(([^)]+)\)",
+            line,
+            re.IGNORECASE,
         )
         if match:
             constraint_name = match.group(1) or f"fk_{table_name}_{match.group(2)}"
@@ -348,12 +378,12 @@ class MySQLToPostgreSQLConverter:
             # Check for ON DELETE/UPDATE actions
             on_delete = ""
             on_update = ""
-            if 'ON DELETE' in line.upper():
-                del_match = re.search(r'ON\s+DELETE\s+(\w+)', line, re.IGNORECASE)
+            if "ON DELETE" in line.upper():
+                del_match = re.search(r"ON\s+DELETE\s+(\w+)", line, re.IGNORECASE)
                 if del_match:
                     on_delete = f" ON DELETE {del_match.group(1)}"
-            if 'ON UPDATE' in line.upper():
-                upd_match = re.search(r'ON\s+UPDATE\s+(\w+)', line, re.IGNORECASE)
+            if "ON UPDATE" in line.upper():
+                upd_match = re.search(r"ON\s+UPDATE\s+(\w+)", line, re.IGNORECASE)
                 if upd_match:
                     on_update = f" ON UPDATE {upd_match.group(1)}"
 
@@ -363,7 +393,9 @@ class MySQLToPostgreSQLConverter:
 
     def _convert_unique_constraint(self, line: str) -> Optional[str]:
         """Convert UNIQUE constraint"""
-        match = re.search(r'UNIQUE\s+(?:KEY|INDEX)?\s*(?:\w+)?\s*\(([^)]+)\)', line, re.IGNORECASE)
+        match = re.search(
+            r"UNIQUE\s+(?:KEY|INDEX)?\s*(?:\w+)?\s*\(([^)]+)\)", line, re.IGNORECASE
+        )
         if match:
             keys = match.group(1)
             return f"UNIQUE ({keys})"
@@ -372,22 +404,22 @@ class MySQLToPostgreSQLConverter:
     def _process_alter_table(self, statement: str) -> None:
         """Process ALTER TABLE statement"""
         # Most ALTER TABLE statements can remain similar
-        statement = statement.replace('`', '')
-        statement = re.sub(r'AFTER\s+\w+', '', statement, flags=re.IGNORECASE)
-        statement = re.sub(r'FIRST', '', statement, flags=re.IGNORECASE)
+        statement = statement.replace("`", "")
+        statement = re.sub(r"AFTER\s+\w+", "", statement, flags=re.IGNORECASE)
+        statement = re.sub(r"FIRST", "", statement, flags=re.IGNORECASE)
         self.output_lines.append(statement)
 
     def _process_create_index(self, statement: str) -> None:
         """Process CREATE INDEX statement"""
-        statement = statement.replace('`', '')
+        statement = statement.replace("`", "")
         # PostgreSQL syntax is similar
         self.output_lines.append(statement)
 
     def _process_insert(self, statement: str) -> None:
         """Process INSERT statement"""
-        statement = statement.replace('`', '')
+        statement = statement.replace("`", "")
         # Handle different NULL representations
-        statement = statement.replace('\\N', 'NULL')
+        statement = statement.replace("\\N", "NULL")
         self.output_lines.append(statement)
 
     def _build_output(self) -> str:
@@ -404,7 +436,7 @@ class MySQLToPostgreSQLConverter:
         if self.enums:
             output.append("-- Enum Types")
             for enum_name, values in self.enums.items():
-                values_str = ', '.join(f"'{v}'" for v in values)
+                values_str = ", ".join(f"'{v}'" for v in values)
                 output.append(f"CREATE TYPE {enum_name} AS ENUM ({values_str});")
             output.append("")
 
@@ -416,34 +448,39 @@ class MySQLToPostgreSQLConverter:
             output.append("-- Indexes")
             for table_name, index_line in self.indexes:
                 # Convert MySQL index to PostgreSQL
-                if 'KEY' in index_line.upper():
-                    match = re.search(r'KEY\s+(\w+)\s*\(([^)]+)\)', index_line, re.IGNORECASE)
+                if "KEY" in index_line.upper():
+                    match = re.search(
+                        r"KEY\s+(\w+)\s*\(([^)]+)\)", index_line, re.IGNORECASE
+                    )
                     if match:
                         index_name = match.group(1)
                         columns = match.group(2)
-                        output.append(f"CREATE INDEX idx_{table_name}_{index_name} ON {table_name}({columns});")
+                        output.append(
+                            f"CREATE INDEX idx_{table_name}_{index_name} ON {table_name}({columns});"
+                        )
             output.append("")
 
-        return '\n'.join(output)
+        return "\n".join(output)
+
 
 def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
     """Convert schemas for a single example"""
     print(f"Converting {example_dir.name} to PostgreSQL...")
 
     # Find SQL files
-    schema_dir = example_dir / 'schema'
+    schema_dir = example_dir / "schema"
     if not schema_dir.exists():
         print(f"  No schema directory found")
         return False
 
-    sql_files = sorted(schema_dir.glob('*.sql'))
+    sql_files = sorted(schema_dir.glob("*.sql"))
     if not sql_files:
         print(f"  No SQL files found")
         return False
 
     # Create output directory
     if output_dir is None:
-        output_dir = example_dir / 'schema_postgres'
+        output_dir = example_dir / "schema_postgres"
     output_dir.mkdir(exist_ok=True)
 
     converter = MySQLToPostgreSQLConverter()
@@ -456,8 +493,8 @@ def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
             postgres_sql = converter.convert_file(sql_file)
 
             # Save output
-            output_file = output_dir / sql_file.name.replace('.sql', '_postgres.sql')
-            with open(output_file, 'w', encoding='utf-8') as f:
+            output_file = output_dir / sql_file.name.replace(".sql", "_postgres.sql")
+            with open(output_file, "w", encoding="utf-8") as f:
                 f.write(postgres_sql)
 
             print(f"    -> {output_file.name}")
@@ -469,12 +506,15 @@ def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
     print(f"  Completed: {len(sql_files)} files converted")
     return True
 
+
 def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description='Convert MySQL schemas to PostgreSQL')
-    parser.add_argument('input', nargs='?', help='Input MySQL SQL file or example directory')
-    parser.add_argument('--output', help='Output file or directory')
-    parser.add_argument('--all', action='store_true', help='Convert all examples')
+    parser = argparse.ArgumentParser(description="Convert MySQL schemas to PostgreSQL")
+    parser.add_argument(
+        "input", nargs="?", help="Input MySQL SQL file or example directory"
+    )
+    parser.add_argument("--output", help="Output file or directory")
+    parser.add_argument("--all", action="store_true", help="Convert all examples")
 
     args = parser.parse_args()
 
@@ -520,11 +560,12 @@ def main():
             postgres_sql = converter.convert_file(input_path)
 
             if args.output:
-                with open(args.output, 'w', encoding='utf-8') as f:
+                with open(args.output, "w", encoding="utf-8") as f:
                     f.write(postgres_sql)
                 print(f"Converted to: {args.output}")
             else:
                 print(postgres_sql)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
