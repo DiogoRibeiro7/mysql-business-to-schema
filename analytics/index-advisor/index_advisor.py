@@ -21,9 +21,11 @@ from collections import defaultdict
 import numpy as np
 from pathlib import Path
 
+
 @dataclass
 class QueryPattern:
     """Represents a query pattern for analysis"""
+
     query_hash: str
     query_template: str
     table_name: str
@@ -39,9 +41,11 @@ class QueryPattern:
     rows_returned: int = 0
     selectivity: float = 0.0
 
+
 @dataclass
 class IndexRecommendation:
     """Index recommendation with impact analysis"""
+
     table_name: str
     column_names: List[str]
     index_name: str
@@ -56,28 +60,31 @@ class IndexRecommendation:
 
     def to_dict(self) -> Dict:
         return {
-            'table': self.table_name,
-            'columns': self.column_names,
-            'name': self.index_name,
-            'type': self.index_type,
-            'reason': self.reason,
-            'improvement': f"{self.estimated_improvement:.1f}%",
-            'affected_queries': len(self.affected_queries),
-            'priority': self.priority,
-            'sql': self.create_statement,
-            'size_mb': f"{self.size_estimate_mb:.2f}",
-            'maintenance_cost': self.maintenance_cost
+            "table": self.table_name,
+            "columns": self.column_names,
+            "name": self.index_name,
+            "type": self.index_type,
+            "reason": self.reason,
+            "improvement": f"{self.estimated_improvement:.1f}%",
+            "affected_queries": len(self.affected_queries),
+            "priority": self.priority,
+            "sql": self.create_statement,
+            "size_mb": f"{self.size_estimate_mb:.2f}",
+            "maintenance_cost": self.maintenance_cost,
         }
+
 
 @dataclass
 class IndexImpact:
     """Impact analysis for an index recommendation"""
+
     before_metrics: Dict
     after_metrics: Dict
     improvement_percentage: float
     affected_queries: int
     disk_space_required: float
     write_overhead: float
+
 
 class AdvancedIndexAdvisor:
     """Advanced index recommendation system"""
@@ -112,10 +119,12 @@ class AdvancedIndexAdvisor:
         if self.connection:
             self.connection.close()
 
-    def analyze(self,
-                slow_query_threshold: float = 1.0,
-                min_execution_count: int = 5,
-                days_to_analyze: int = 7) -> List[IndexRecommendation]:
+    def analyze(
+        self,
+        slow_query_threshold: float = 1.0,
+        min_execution_count: int = 5,
+        days_to_analyze: int = 7,
+    ) -> List[IndexRecommendation]:
         """
         Perform comprehensive index analysis
 
@@ -160,7 +169,8 @@ class AdvancedIndexAdvisor:
 
     def _collect_existing_indexes(self):
         """Collect information about existing indexes"""
-        self.cursor.execute("""
+        self.cursor.execute(
+            """
             SELECT
                 TABLE_NAME,
                 INDEX_NAME,
@@ -171,26 +181,31 @@ class AdvancedIndexAdvisor:
             FROM information_schema.STATISTICS
             WHERE TABLE_SCHEMA = %s
             GROUP BY TABLE_NAME, INDEX_NAME
-        """, (self.connection_params['database'],))
+        """,
+            (self.connection_params["database"],),
+        )
 
         for row in self.cursor.fetchall():
-            table = row['TABLE_NAME']
+            table = row["TABLE_NAME"]
             if table not in self.existing_indexes:
                 self.existing_indexes[table] = []
 
-            self.existing_indexes[table].append({
-                'name': row['INDEX_NAME'],
-                'columns': row['COLUMNS'].split(',') if row['COLUMNS'] else [],
-                'type': row['INDEX_TYPE'],
-                'cardinality': row['CARDINALITY'],
-                'unique': not row['NON_UNIQUE']
-            })
+            self.existing_indexes[table].append(
+                {
+                    "name": row["INDEX_NAME"],
+                    "columns": row["COLUMNS"].split(",") if row["COLUMNS"] else [],
+                    "type": row["INDEX_TYPE"],
+                    "cardinality": row["CARDINALITY"],
+                    "unique": not row["NON_UNIQUE"],
+                }
+            )
 
     def _analyze_slow_queries(self, threshold: float, days: int):
         """Analyze slow query log patterns"""
         # Try to read from performance_schema first
         try:
-            self.cursor.execute("""
+            self.cursor.execute(
+                """
                 SELECT
                     DIGEST_TEXT,
                     COUNT_STAR as EXEC_COUNT,
@@ -203,33 +218,41 @@ class AdvancedIndexAdvisor:
                 AND AVG_TIMER_WAIT/1000000000000 > %s
                 ORDER BY SUM_TIMER_WAIT DESC
                 LIMIT 1000
-            """, (threshold,))
+            """,
+                (threshold,),
+            )
 
             for row in self.cursor.fetchall():
                 self._parse_query_pattern(
-                    row['DIGEST_TEXT'],
-                    row['EXEC_COUNT'],
-                    row['TOTAL_TIME'],
-                    row['AVG_TIME'],
-                    row['ROWS_EXAMINED'],
-                    row['ROWS_SENT']
+                    row["DIGEST_TEXT"],
+                    row["EXEC_COUNT"],
+                    row["TOTAL_TIME"],
+                    row["AVG_TIME"],
+                    row["ROWS_EXAMINED"],
+                    row["ROWS_SENT"],
                 )
         except:
             # Fallback to slow query log file if available
             self._parse_slow_log_file(threshold, days)
 
-    def _parse_query_pattern(self, query: str, exec_count: int,
-                            total_time: float, avg_time: float,
-                            rows_examined: int, rows_sent: int):
+    def _parse_query_pattern(
+        self,
+        query: str,
+        exec_count: int,
+        total_time: float,
+        avg_time: float,
+        rows_examined: int,
+        rows_sent: int,
+    ):
         """Parse a query and extract pattern information"""
         query = query.upper().strip()
 
         # Skip non-SELECT queries for now
-        if not query.startswith('SELECT'):
+        if not query.startswith("SELECT"):
             return
 
         # Extract table name
-        table_match = re.search(r'FROM\s+`?(\w+)`?', query)
+        table_match = re.search(r"FROM\s+`?(\w+)`?", query)
         if not table_match:
             return
 
@@ -272,7 +295,7 @@ class AdvancedIndexAdvisor:
                 avg_time=avg_time,
                 rows_examined=rows_examined,
                 rows_returned=rows_sent,
-                selectivity=selectivity
+                selectivity=selectivity,
             )
         else:
             pattern = self.query_patterns[query_hash]
@@ -285,17 +308,20 @@ class AdvancedIndexAdvisor:
         columns = []
 
         # Extract WHERE clause
-        where_match = re.search(r'WHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)', query)
+        where_match = re.search(r"WHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)", query)
         if where_match:
             where_clause = where_match.group(1)
 
             # Find column references
-            col_pattern = r'`?(\w+)`?\s*(?:=|!=|<>|>|<|>=|<=|LIKE|IN|BETWEEN|IS)'
+            col_pattern = r"`?(\w+)`?\s*(?:=|!=|<>|>|<|>=|<=|LIKE|IN|BETWEEN|IS)"
             columns = re.findall(col_pattern, where_clause)
 
             # Clean column names
-            columns = [col.lower() for col in columns if not col.upper() in
-                      ('AND', 'OR', 'NOT', 'NULL', 'TRUE', 'FALSE')]
+            columns = [
+                col.lower()
+                for col in columns
+                if not col.upper() in ("AND", "OR", "NOT", "NULL", "TRUE", "FALSE")
+            ]
 
         return list(set(columns))
 
@@ -304,12 +330,12 @@ class AdvancedIndexAdvisor:
         columns = []
 
         # Find JOIN clauses
-        join_pattern = r'JOIN\s+.*?\s+ON\s+(.*?)(?:JOIN|WHERE|GROUP|ORDER|LIMIT|$)'
+        join_pattern = r"JOIN\s+.*?\s+ON\s+(.*?)(?:JOIN|WHERE|GROUP|ORDER|LIMIT|$)"
         join_matches = re.findall(join_pattern, query)
 
         for join_clause in join_matches:
             # Extract column names from join condition
-            col_pattern = r'`?(\w+)`?\.`?(\w+)`?'
+            col_pattern = r"`?(\w+)`?\.`?(\w+)`?"
             found_cols = re.findall(col_pattern, join_clause)
             columns.extend([col[1].lower() for col in found_cols])
 
@@ -319,14 +345,16 @@ class AdvancedIndexAdvisor:
         """Extract columns used in ORDER BY clause"""
         columns = []
 
-        order_match = re.search(r'ORDER\s+BY\s+(.*?)(?:LIMIT|$)', query)
+        order_match = re.search(r"ORDER\s+BY\s+(.*?)(?:LIMIT|$)", query)
         if order_match:
             order_clause = order_match.group(1)
 
             # Extract column names
-            col_pattern = r'`?(\w+)`?(?:\s+(?:ASC|DESC))?'
+            col_pattern = r"`?(\w+)`?(?:\s+(?:ASC|DESC))?"
             columns = re.findall(col_pattern, order_clause)
-            columns = [col.lower() for col in columns if col.lower() not in ('asc', 'desc')]
+            columns = [
+                col.lower() for col in columns if col.lower() not in ("asc", "desc")
+            ]
 
         return list(set(columns))
 
@@ -334,12 +362,12 @@ class AdvancedIndexAdvisor:
         """Extract columns used in GROUP BY clause"""
         columns = []
 
-        group_match = re.search(r'GROUP\s+BY\s+(.*?)(?:HAVING|ORDER|LIMIT|$)', query)
+        group_match = re.search(r"GROUP\s+BY\s+(.*?)(?:HAVING|ORDER|LIMIT|$)", query)
         if group_match:
             group_clause = group_match.group(1)
 
             # Extract column names
-            col_pattern = r'`?(\w+)`?'
+            col_pattern = r"`?(\w+)`?"
             columns = re.findall(col_pattern, group_clause)
             columns = [col.lower() for col in columns]
 
@@ -351,7 +379,8 @@ class AdvancedIndexAdvisor:
 
         # Filter patterns by minimum execution count
         self.query_patterns = {
-            k: v for k, v in self.query_patterns.items()
+            k: v
+            for k, v in self.query_patterns.items()
             if v.execution_count >= min_count
         }
 
@@ -362,53 +391,61 @@ class AdvancedIndexAdvisor:
         for table in tables:
             try:
                 # Get table size
-                self.cursor.execute("""
+                self.cursor.execute(
+                    """
                     SELECT
                         TABLE_ROWS,
                         DATA_LENGTH/1024/1024 as DATA_SIZE_MB,
                         INDEX_LENGTH/1024/1024 as INDEX_SIZE_MB
                     FROM information_schema.TABLES
                     WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
-                """, (self.connection_params['database'], table))
+                """,
+                    (self.connection_params["database"], table),
+                )
 
                 result = self.cursor.fetchone()
                 if result:
                     self.table_statistics[table] = {
-                        'row_count': result['TABLE_ROWS'],
-                        'data_size_mb': result['DATA_SIZE_MB'],
-                        'index_size_mb': result['INDEX_SIZE_MB']
+                        "row_count": result["TABLE_ROWS"],
+                        "data_size_mb": result["DATA_SIZE_MB"],
+                        "index_size_mb": result["INDEX_SIZE_MB"],
                     }
 
                 # Get column cardinality
-                self.cursor.execute("""
+                self.cursor.execute(
+                    """
                     SELECT
                         COLUMN_NAME,
                         DATA_TYPE,
                         CHARACTER_MAXIMUM_LENGTH
                     FROM information_schema.COLUMNS
                     WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
-                """, (self.connection_params['database'], table))
+                """,
+                    (self.connection_params["database"], table),
+                )
 
                 columns = {}
                 for col in self.cursor.fetchall():
-                    col_name = col['COLUMN_NAME'].lower()
+                    col_name = col["COLUMN_NAME"].lower()
 
                     # Estimate cardinality (simplified)
-                    self.cursor.execute(f"""
+                    self.cursor.execute(
+                        f"""
                         SELECT COUNT(DISTINCT `{col_name}`) as cardinality
                         FROM `{table}`
                         LIMIT 1000
-                    """)
+                    """
+                    )
 
-                    cardinality = self.cursor.fetchone()['cardinality']
+                    cardinality = self.cursor.fetchone()["cardinality"]
 
                     columns[col_name] = {
-                        'type': col['DATA_TYPE'],
-                        'length': col['CHARACTER_MAXIMUM_LENGTH'],
-                        'cardinality': cardinality
+                        "type": col["DATA_TYPE"],
+                        "length": col["CHARACTER_MAXIMUM_LENGTH"],
+                        "cardinality": cardinality,
                     }
 
-                self.table_statistics[table]['columns'] = columns
+                self.table_statistics[table]["columns"] = columns
 
             except Exception as e:
                 print(f"Warning: Could not collect statistics for {table}: {e}")
@@ -431,25 +468,29 @@ class AdvancedIndexAdvisor:
                 self._recommend_index(
                     pattern.table_name,
                     pattern.where_columns,
-                    'WHERE clause optimization',
+                    "WHERE clause optimization",
                     pattern,
-                    recommendations_map
+                    recommendations_map,
                 )
 
             # Check for covering indexes
             if pattern.where_columns and pattern.columns_used:
-                covering_columns = pattern.where_columns + [
-                    col for col in pattern.columns_used
-                    if col not in pattern.where_columns
-                ][:3]  # Limit covering columns
+                covering_columns = (
+                    pattern.where_columns
+                    + [
+                        col
+                        for col in pattern.columns_used
+                        if col not in pattern.where_columns
+                    ][:3]
+                )  # Limit covering columns
 
                 self._recommend_index(
                     pattern.table_name,
                     covering_columns,
-                    'Covering index for SELECT',
+                    "Covering index for SELECT",
                     pattern,
                     recommendations_map,
-                    is_covering=True
+                    is_covering=True,
                 )
 
             # Check for ORDER BY optimization
@@ -458,9 +499,9 @@ class AdvancedIndexAdvisor:
                 self._recommend_index(
                     pattern.table_name,
                     order_index_cols,
-                    'ORDER BY optimization',
+                    "ORDER BY optimization",
                     pattern,
-                    recommendations_map
+                    recommendations_map,
                 )
 
             # Check for GROUP BY optimization
@@ -469,9 +510,9 @@ class AdvancedIndexAdvisor:
                 self._recommend_index(
                     pattern.table_name,
                     group_index_cols,
-                    'GROUP BY optimization',
+                    "GROUP BY optimization",
                     pattern,
-                    recommendations_map
+                    recommendations_map,
                 )
 
             # Check for JOIN optimization
@@ -480,18 +521,23 @@ class AdvancedIndexAdvisor:
                     self._recommend_index(
                         pattern.table_name,
                         [col],
-                        'JOIN optimization',
+                        "JOIN optimization",
                         pattern,
-                        recommendations_map
+                        recommendations_map,
                     )
 
         # Convert map to list
         self.recommendations = list(recommendations_map.values())
 
-    def _recommend_index(self, table: str, columns: List[str],
-                        reason: str, pattern: QueryPattern,
-                        recommendations_map: Dict,
-                        is_covering: bool = False):
+    def _recommend_index(
+        self,
+        table: str,
+        columns: List[str],
+        reason: str,
+        pattern: QueryPattern,
+        recommendations_map: Dict,
+        is_covering: bool = False,
+    ):
         """Create an index recommendation"""
         # Clean and deduplicate columns
         columns = [col.lower() for col in columns if col]
@@ -522,7 +568,9 @@ class AdvancedIndexAdvisor:
             index_name = f"covering_{index_name}"
 
         # Create SQL statement
-        create_statement = f"CREATE INDEX {index_name} ON {table} ({', '.join(columns)})"
+        create_statement = (
+            f"CREATE INDEX {index_name} ON {table} ({', '.join(columns)})"
+        )
 
         # Determine priority
         priority = self._determine_priority(improvement, pattern.execution_count)
@@ -532,21 +580,23 @@ class AdvancedIndexAdvisor:
             # Update existing recommendation
             existing = recommendations_map[rec_key]
             existing.affected_queries.append(pattern.query_hash)
-            existing.estimated_improvement = max(existing.estimated_improvement, improvement)
+            existing.estimated_improvement = max(
+                existing.estimated_improvement, improvement
+            )
         else:
             # Create new recommendation
             recommendations_map[rec_key] = IndexRecommendation(
                 table_name=table,
                 column_names=columns,
                 index_name=index_name,
-                index_type='BTREE',
+                index_type="BTREE",
                 reason=reason,
                 estimated_improvement=improvement,
                 affected_queries=[pattern.query_hash],
                 priority=priority,
                 create_statement=create_statement,
                 size_estimate_mb=size_mb,
-                maintenance_cost=maintenance_cost
+                maintenance_cost=maintenance_cost,
             )
 
     def _index_exists(self, table: str, columns: List[str]) -> bool:
@@ -558,13 +608,14 @@ class AdvancedIndexAdvisor:
 
         for index in self.existing_indexes[table]:
             # Check if existing index covers our columns
-            if set(index['columns'][:len(columns)]) == columns_set:
+            if set(index["columns"][: len(columns)]) == columns_set:
                 return True
 
         return False
 
-    def _estimate_improvement(self, table: str, columns: List[str],
-                             pattern: QueryPattern) -> float:
+    def _estimate_improvement(
+        self, table: str, columns: List[str], pattern: QueryPattern
+    ) -> float:
         """Estimate performance improvement from index"""
         improvement = 0.0
 
@@ -582,9 +633,9 @@ class AdvancedIndexAdvisor:
         if table in self.table_statistics:
             stats = self.table_statistics[table]
             for col in columns[:1]:  # Check first column (most important)
-                if col in stats.get('columns', {}):
-                    cardinality = stats['columns'][col]['cardinality']
-                    row_count = stats.get('row_count', 1)
+                if col in stats.get("columns", {}):
+                    cardinality = stats["columns"][col]["cardinality"]
+                    row_count = stats.get("row_count", 1)
 
                     if row_count > 0:
                         selectivity = cardinality / row_count
@@ -600,25 +651,25 @@ class AdvancedIndexAdvisor:
             return 10.0  # Default estimate
 
         stats = self.table_statistics[table]
-        row_count = stats.get('row_count', 0)
+        row_count = stats.get("row_count", 0)
 
         # Estimate bytes per index entry
         bytes_per_entry = 8  # Overhead
 
         for col in columns:
-            if col in stats.get('columns', {}):
-                col_type = stats['columns'][col]['type']
+            if col in stats.get("columns", {}):
+                col_type = stats["columns"][col]["type"]
 
-                if 'int' in col_type.lower():
+                if "int" in col_type.lower():
                     bytes_per_entry += 4
-                elif 'bigint' in col_type.lower():
+                elif "bigint" in col_type.lower():
                     bytes_per_entry += 8
-                elif 'varchar' in col_type.lower():
-                    length = stats['columns'][col].get('length', 50)
+                elif "varchar" in col_type.lower():
+                    length = stats["columns"][col].get("length", 50)
                     bytes_per_entry += min(length, 50)  # Assume average fill
-                elif 'date' in col_type.lower():
+                elif "date" in col_type.lower():
                     bytes_per_entry += 3
-                elif 'datetime' in col_type.lower():
+                elif "datetime" in col_type.lower():
                     bytes_per_entry += 8
                 else:
                     bytes_per_entry += 20  # Default
@@ -632,29 +683,29 @@ class AdvancedIndexAdvisor:
     def _estimate_maintenance_cost(self, table: str, columns: List[str]) -> str:
         """Estimate maintenance cost of index"""
         if table not in self.table_statistics:
-            return 'MEDIUM'
+            return "MEDIUM"
 
         stats = self.table_statistics[table]
-        row_count = stats.get('row_count', 0)
+        row_count = stats.get("row_count", 0)
 
         # High maintenance for large tables with many columns
         if row_count > 1000000 and len(columns) > 3:
-            return 'HIGH'
+            return "HIGH"
         elif row_count > 100000 or len(columns) > 2:
-            return 'MEDIUM'
+            return "MEDIUM"
         else:
-            return 'LOW'
+            return "LOW"
 
     def _determine_priority(self, improvement: float, exec_count: int) -> str:
         """Determine recommendation priority"""
         score = improvement * np.log(exec_count + 1)
 
         if score > 100:
-            return 'HIGH'
+            return "HIGH"
         elif score > 50:
-            return 'MEDIUM'
+            return "MEDIUM"
         else:
-            return 'LOW'
+            return "LOW"
 
     def _perform_impact_analysis(self):
         """Perform detailed impact analysis for recommendations"""
@@ -671,7 +722,9 @@ class AdvancedIndexAdvisor:
             for query_hash in recommendation.affected_queries:
                 if query_hash in self.query_patterns:
                     pattern = self.query_patterns[query_hash]
-                    time_saved = pattern.total_time * (recommendation.estimated_improvement / 100)
+                    time_saved = pattern.total_time * (
+                        recommendation.estimated_improvement / 100
+                    )
                     total_time_saved += time_saved
 
             # Update recommendation with impact data
@@ -680,13 +733,13 @@ class AdvancedIndexAdvisor:
     def _prioritize_recommendations(self):
         """Prioritize recommendations based on impact"""
         # Sort by priority and improvement
-        priority_order = {'HIGH': 0, 'MEDIUM': 1, 'LOW': 2}
+        priority_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 
         self.recommendations.sort(
             key=lambda r: (
                 priority_order.get(r.priority, 3),
                 -r.estimated_improvement,
-                -len(r.affected_queries)
+                -len(r.affected_queries),
             )
         )
 
@@ -699,28 +752,34 @@ class AdvancedIndexAdvisor:
     def export_recommendations(self, output_file: Path):
         """Export recommendations to JSON file"""
         data = {
-            'timestamp': datetime.now().isoformat(),
-            'database': self.connection_params['database'],
-            'analysis_summary': {
-                'queries_analyzed': len(self.query_patterns),
-                'recommendations': len(self.recommendations),
-                'high_priority': sum(1 for r in self.recommendations if r.priority == 'HIGH'),
-                'estimated_improvement': np.mean([r.estimated_improvement for r in self.recommendations]) if self.recommendations else 0
+            "timestamp": datetime.now().isoformat(),
+            "database": self.connection_params["database"],
+            "analysis_summary": {
+                "queries_analyzed": len(self.query_patterns),
+                "recommendations": len(self.recommendations),
+                "high_priority": sum(
+                    1 for r in self.recommendations if r.priority == "HIGH"
+                ),
+                "estimated_improvement": (
+                    np.mean([r.estimated_improvement for r in self.recommendations])
+                    if self.recommendations
+                    else 0
+                ),
             },
-            'recommendations': [r.to_dict() for r in self.recommendations],
-            'query_patterns': {
+            "recommendations": [r.to_dict() for r in self.recommendations],
+            "query_patterns": {
                 k: {
-                    'table': v.table_name,
-                    'exec_count': v.execution_count,
-                    'avg_time': v.avg_time,
-                    'total_time': v.total_time,
-                    'selectivity': v.selectivity
+                    "table": v.table_name,
+                    "exec_count": v.execution_count,
+                    "avg_time": v.avg_time,
+                    "total_time": v.total_time,
+                    "selectivity": v.selectivity,
                 }
                 for k, v in list(self.query_patterns.items())[:20]  # Top 20 patterns
-            }
+            },
         }
 
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             json.dump(data, f, indent=2)
 
         print(f"Recommendations exported to: {output_file}")
@@ -759,12 +818,14 @@ class AdvancedIndexAdvisor:
 
         # Total estimated improvement
         if self.recommendations:
-            avg_improvement = np.mean([r.estimated_improvement for r in self.recommendations])
+            avg_improvement = np.mean(
+                [r.estimated_improvement for r in self.recommendations]
+            )
             print(f"\nAverage Expected Improvement: {avg_improvement:.1f}%")
 
     def generate_implementation_script(self, output_file: Path):
         """Generate SQL script to implement recommendations"""
-        with open(output_file, 'w') as f:
+        with open(output_file, "w") as f:
             f.write("-- Index Recommendations Implementation Script\n")
             f.write(f"-- Generated: {datetime.now().isoformat()}\n")
             f.write(f"-- Database: {self.connection_params['database']}\n")
@@ -778,7 +839,7 @@ class AdvancedIndexAdvisor:
             for rec in self.recommendations:
                 by_priority[rec.priority].append(rec)
 
-            for priority in ['HIGH', 'MEDIUM', 'LOW']:
+            for priority in ["HIGH", "MEDIUM", "LOW"]:
                 if by_priority[priority]:
                     f.write(f"\n-- {priority} PRIORITY INDEXES\n")
                     f.write("-" * 60 + "\n\n")
@@ -786,7 +847,9 @@ class AdvancedIndexAdvisor:
                     for rec in by_priority[priority]:
                         f.write(f"-- Index: {rec.index_name}\n")
                         f.write(f"-- Reason: {rec.reason}\n")
-                        f.write(f"-- Expected Improvement: {rec.estimated_improvement:.1f}%\n")
+                        f.write(
+                            f"-- Expected Improvement: {rec.estimated_improvement:.1f}%\n"
+                        )
                         f.write(f"-- Affected Queries: {len(rec.affected_queries)}\n")
                         f.write(f"-- Estimated Size: {rec.size_estimate_mb:.1f} MB\n")
                         f.write(f"-- Maintenance Cost: {rec.maintenance_cost}\n\n")
@@ -810,30 +873,34 @@ def main():
     """Main entry point for Index Advisor"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Advanced Index Advisor')
-    parser.add_argument('--host', default='localhost')
-    parser.add_argument('--port', type=int, default=3306)
-    parser.add_argument('--user', default='root')
-    parser.add_argument('--password', required=True)
-    parser.add_argument('--database', required=True)
-    parser.add_argument('--threshold', type=float, default=1.0,
-                       help='Slow query threshold in seconds')
-    parser.add_argument('--min-count', type=int, default=5,
-                       help='Minimum execution count for analysis')
-    parser.add_argument('--days', type=int, default=7,
-                       help='Days of history to analyze')
-    parser.add_argument('--output', default='index_recommendations.json')
-    parser.add_argument('--script', default='implement_indexes.sql',
-                       help='Output SQL script file')
+    parser = argparse.ArgumentParser(description="Advanced Index Advisor")
+    parser.add_argument("--host", default="localhost")
+    parser.add_argument("--port", type=int, default=3306)
+    parser.add_argument("--user", default="root")
+    parser.add_argument("--password", required=True)
+    parser.add_argument("--database", required=True)
+    parser.add_argument(
+        "--threshold", type=float, default=1.0, help="Slow query threshold in seconds"
+    )
+    parser.add_argument(
+        "--min-count", type=int, default=5, help="Minimum execution count for analysis"
+    )
+    parser.add_argument(
+        "--days", type=int, default=7, help="Days of history to analyze"
+    )
+    parser.add_argument("--output", default="index_recommendations.json")
+    parser.add_argument(
+        "--script", default="implement_indexes.sql", help="Output SQL script file"
+    )
 
     args = parser.parse_args()
 
     connection_params = {
-        'host': args.host,
-        'port': args.port,
-        'user': args.user,
-        'password': args.password,
-        'database': args.database
+        "host": args.host,
+        "port": args.port,
+        "user": args.user,
+        "password": args.password,
+        "database": args.database,
     }
 
     advisor = AdvancedIndexAdvisor(connection_params)
@@ -844,7 +911,7 @@ def main():
             recommendations = advisor.analyze(
                 slow_query_threshold=args.threshold,
                 min_execution_count=args.min_count,
-                days_to_analyze=args.days
+                days_to_analyze=args.days,
             )
 
             # Print summary
@@ -860,5 +927,5 @@ def main():
             advisor.disconnect()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

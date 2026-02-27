@@ -99,11 +99,19 @@ def load_config(path: Path) -> Config:
         raise ValueError("date_ranges must be a mapping.")
 
     date_ranges = DateRanges(
-        appointments_start=_parse_date(str(date_ranges_raw["appointments_start"]), "appointments_start"),
-        appointments_end=_parse_date(str(date_ranges_raw["appointments_end"]), "appointments_end"),
-        invoices_start=_parse_date(str(date_ranges_raw["invoices_start"]), "invoices_start"),
+        appointments_start=_parse_date(
+            str(date_ranges_raw["appointments_start"]), "appointments_start"
+        ),
+        appointments_end=_parse_date(
+            str(date_ranges_raw["appointments_end"]), "appointments_end"
+        ),
+        invoices_start=_parse_date(
+            str(date_ranges_raw["invoices_start"]), "invoices_start"
+        ),
         invoices_end=_parse_date(str(date_ranges_raw["invoices_end"]), "invoices_end"),
-        payments_start=_parse_date(str(date_ranges_raw["payments_start"]), "payments_start"),
+        payments_start=_parse_date(
+            str(date_ranges_raw["payments_start"]), "payments_start"
+        ),
         payments_end=_parse_date(str(date_ranges_raw["payments_end"]), "payments_end"),
     )
 
@@ -122,7 +130,9 @@ def load_config(path: Path) -> Config:
     if date_ranges.payments_start > date_ranges.payments_end:
         raise ValueError("payments_start must be <= payments_end.")
 
-    return Config(seed=seed, output_dir=output_dir, counts=counts, date_ranges=date_ranges)
+    return Config(
+        seed=seed, output_dir=output_dir, counts=counts, date_ranges=date_ranges
+    )
 
 
 def _daterange(start: date, end: date) -> List[date]:
@@ -219,7 +229,8 @@ def generate_appointments(
 
     # Track next available slot per doctor to avoid overlaps.
     next_slots: Dict[int, datetime] = {
-        doctor_id: _start_of_day(rng.choice(start_dates)) for doctor_id in range(1, doctor_count + 1)
+        doctor_id: _start_of_day(rng.choice(start_dates))
+        for doctor_id in range(1, doctor_count + 1)
     }
 
     for i in range(1, count + 1):
@@ -286,7 +297,9 @@ def generate_invoices(
                 "invoice_id": i,
                 "patient_id": rng.randint(1, patient_count),
                 "invoice_number": f"INV-{issue_date.year}-{i:04d}",
-                "issued_at": datetime.combine(issue_date, time(12, 0)).strftime("%Y-%m-%d %H:%M:%S"),
+                "issued_at": datetime.combine(issue_date, time(12, 0)).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
                 "status": status,
                 "total_amount": total_amount,
             }
@@ -310,7 +323,9 @@ def generate_payments(
             {
                 "payment_id": i,
                 "patient_id": rng.randint(1, patient_count),
-                "payment_date": datetime.combine(pay_date, time(15, 30)).strftime("%Y-%m-%d %H:%M:%S"),
+                "payment_date": datetime.combine(pay_date, time(15, 30)).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                ),
                 "method": "card" if i % 2 == 0 else "cash",
                 "reference": f"PAY-{i:05d}",
                 "amount": round(20 + (i % 5) * 10, 2),
@@ -319,7 +334,9 @@ def generate_payments(
     return payments
 
 
-def write_csv(path: Path, rows: Iterable[Dict[str, object]], fieldnames: List[str]) -> None:
+def write_csv(
+    path: Path, rows: Iterable[Dict[str, object]], fieldnames: List[str]
+) -> None:
     """Write CSV to disk with headers."""
 
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -349,9 +366,15 @@ def write_seed_sql(
             values.append(
                 "("
                 + ", ".join(
-                    "NULL"
-                    if row.get(col) is None
-                    else f"'{row[col]}'" if isinstance(row.get(col), str) else str(row.get(col))
+                    (
+                        "NULL"
+                        if row.get(col) is None
+                        else (
+                            f"'{row[col]}'"
+                            if isinstance(row.get(col), str)
+                            else str(row.get(col))
+                        )
+                    )
                     for col in cols
                 )
                 + ")"
@@ -362,12 +385,31 @@ def write_seed_sql(
 
     _insert(
         "patients",
-        ["patient_id", "nif", "first_name", "last_name", "date_of_birth", "phone", "email", "created_at", "status"],
+        [
+            "patient_id",
+            "nif",
+            "first_name",
+            "last_name",
+            "date_of_birth",
+            "phone",
+            "email",
+            "created_at",
+            "status",
+        ],
         patients,
     )
     _insert(
         "doctors",
-        ["doctor_id", "license_number", "first_name", "last_name", "email", "phone", "active_from", "active_to"],
+        [
+            "doctor_id",
+            "license_number",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "active_from",
+            "active_to",
+        ],
         doctors,
     )
     _insert(
@@ -388,7 +430,14 @@ def write_seed_sql(
     )
     _insert(
         "invoices",
-        ["invoice_id", "patient_id", "invoice_number", "issued_at", "status", "total_amount"],
+        [
+            "invoice_id",
+            "patient_id",
+            "invoice_number",
+            "issued_at",
+            "status",
+            "total_amount",
+        ],
         invoices,
     )
     _insert(
@@ -405,7 +454,9 @@ def main() -> int:
     """CLI entrypoint."""
 
     parser = argparse.ArgumentParser(description="Generate clinic datasets.")
-    parser.add_argument("--config", default="config.yaml", help="Path to config YAML/JSON file.")
+    parser.add_argument(
+        "--config", default="config.yaml", help="Path to config YAML/JSON file."
+    )
     args = parser.parse_args()
 
     config_path = Path(args.config)
@@ -460,7 +511,16 @@ def main() -> int:
     write_csv(
         output_dir / "doctors.csv",
         doctors,
-        ["doctor_id", "license_number", "first_name", "last_name", "email", "phone", "active_from", "active_to"],
+        [
+            "doctor_id",
+            "license_number",
+            "first_name",
+            "last_name",
+            "email",
+            "phone",
+            "active_from",
+            "active_to",
+        ],
     )
     write_csv(
         output_dir / "appointments.csv",
@@ -481,7 +541,14 @@ def main() -> int:
     write_csv(
         output_dir / "invoices.csv",
         invoices,
-        ["invoice_id", "patient_id", "invoice_number", "issued_at", "status", "total_amount"],
+        [
+            "invoice_id",
+            "patient_id",
+            "invoice_number",
+            "issued_at",
+            "status",
+            "total_amount",
+        ],
     )
     write_csv(
         output_dir / "payments.csv",

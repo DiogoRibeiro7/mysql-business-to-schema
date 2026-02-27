@@ -17,10 +17,11 @@ fake = Faker()
 Faker.seed(42)
 random.seed(42)
 
+
 class LogisticsDataGenerator:
-    def __init__(self, config_file='config.yaml'):
+    def __init__(self, config_file="config.yaml"):
         """Initialize the data generator with configuration."""
-        with open(config_file, 'r') as f:
+        with open(config_file, "r") as f:
             self.config = yaml.safe_load(f)
 
         self.connection = None
@@ -41,10 +42,10 @@ class LogisticsDataGenerator:
         """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(
-                host=self.config['database']['host'],
-                user=self.config['database']['user'],
-                password=self.config['database']['password'],
-                database=self.config['database']['name']
+                host=self.config["database"]["host"],
+                user=self.config["database"]["user"],
+                password=self.config["database"]["password"],
+                database=self.config["database"]["name"],
             )
             self.cursor = self.connection.cursor()
             print("Successfully connected to database")
@@ -54,39 +55,45 @@ class LogisticsDataGenerator:
 
     def generate_warehouses(self):
         """Generate warehouse data."""
-        warehouse_types = ['DC', 'FC', 'CROSS_DOCK', 'COLD_STORAGE', 'BONDED']
-        capabilities = ['HAZMAT', 'REFRIGERATED', 'HIGH_VALUE', 'OVERSIZED', 'PHARMA']
+        warehouse_types = ["DC", "FC", "CROSS_DOCK", "COLD_STORAGE", "BONDED"]
+        capabilities = ["HAZMAT", "REFRIGERATED", "HIGH_VALUE", "OVERSIZED", "PHARMA"]
 
         warehouses_data = []
-        for i in range(self.config['counts']['warehouses']):
+        for i in range(self.config["counts"]["warehouses"]):
             warehouse = {
-                'warehouse_code': f'WH{str(i+1).zfill(4)}',
-                'warehouse_name': f"{fake.city()} {random.choice(['Distribution', 'Fulfillment', 'Logistics'])} Center",
-                'warehouse_type': random.choice(warehouse_types),
-                'address_line1': fake.street_address(),
-                'address_line2': fake.secondary_address() if random.random() > 0.7 else None,
-                'city': fake.city(),
-                'state_province': fake.state_abbr(),
-                'postal_code': fake.zipcode(),
-                'country_code': 'US',
-                'latitude': float(fake.latitude()),
-                'longitude': float(fake.longitude()),
-                'total_capacity_cbm': random.randint(10000, 100000),
-                'available_capacity_cbm': random.randint(5000, 50000),
-                'operating_hours': json.dumps({
-                    'monday': '06:00-22:00',
-                    'tuesday': '06:00-22:00',
-                    'wednesday': '06:00-22:00',
-                    'thursday': '06:00-22:00',
-                    'friday': '06:00-22:00',
-                    'saturday': '08:00-18:00',
-                    'sunday': 'closed'
-                }),
-                'capabilities': ','.join(random.sample(capabilities, k=random.randint(1, 3))),
-                'manager_name': fake.name(),
-                'contact_phone': fake.phone_number(),
-                'contact_email': fake.company_email(),
-                'is_active': True
+                "warehouse_code": f"WH{str(i+1).zfill(4)}",
+                "warehouse_name": f"{fake.city()} {random.choice(['Distribution', 'Fulfillment', 'Logistics'])} Center",
+                "warehouse_type": random.choice(warehouse_types),
+                "address_line1": fake.street_address(),
+                "address_line2": (
+                    fake.secondary_address() if random.random() > 0.7 else None
+                ),
+                "city": fake.city(),
+                "state_province": fake.state_abbr(),
+                "postal_code": fake.zipcode(),
+                "country_code": "US",
+                "latitude": float(fake.latitude()),
+                "longitude": float(fake.longitude()),
+                "total_capacity_cbm": random.randint(10000, 100000),
+                "available_capacity_cbm": random.randint(5000, 50000),
+                "operating_hours": json.dumps(
+                    {
+                        "monday": "06:00-22:00",
+                        "tuesday": "06:00-22:00",
+                        "wednesday": "06:00-22:00",
+                        "thursday": "06:00-22:00",
+                        "friday": "06:00-22:00",
+                        "saturday": "08:00-18:00",
+                        "sunday": "closed",
+                    }
+                ),
+                "capabilities": ",".join(
+                    random.sample(capabilities, k=random.randint(1, 3))
+                ),
+                "manager_name": fake.name(),
+                "contact_phone": fake.phone_number(),
+                "contact_email": fake.company_email(),
+                "is_active": True,
             }
             warehouses_data.append(warehouse)
 
@@ -114,23 +121,31 @@ class LogisticsDataGenerator:
 
     def generate_warehouse_zones_and_bins(self):
         """Generate warehouse zones and bins."""
-        zone_types = ['RECEIVING', 'STORAGE', 'PICKING', 'PACKING', 'SHIPPING', 'RETURNS', 'QUARANTINE']
-        bin_types = ['FLOOR', 'PALLET_RACK', 'SHELF', 'BULK', 'CANTILEVER']
+        zone_types = [
+            "RECEIVING",
+            "STORAGE",
+            "PICKING",
+            "PACKING",
+            "SHIPPING",
+            "RETURNS",
+            "QUARANTINE",
+        ]
+        bin_types = ["FLOOR", "PALLET_RACK", "SHELF", "BULK", "CANTILEVER"]
 
         for warehouse_id in self.warehouse_ids:
             # Generate zones
             num_zones = random.randint(5, 15)
             for z in range(num_zones):
                 zone_data = {
-                    'warehouse_id': warehouse_id,
-                    'zone_code': f'Z{str(z+1).zfill(2)}',
-                    'zone_name': f"Zone {chr(65 + z)}",
-                    'zone_type': random.choice(zone_types),
-                    'temperature_range': '2-8°C' if random.random() > 0.8 else None,
-                    'max_weight_kg': random.randint(1000, 10000),
-                    'max_height_meters': round(random.uniform(2.5, 6.0), 2),
-                    'aisle_width_meters': round(random.uniform(2.0, 4.0), 2),
-                    'is_automated': random.random() > 0.85
+                    "warehouse_id": warehouse_id,
+                    "zone_code": f"Z{str(z+1).zfill(2)}",
+                    "zone_name": f"Zone {chr(65 + z)}",
+                    "zone_type": random.choice(zone_types),
+                    "temperature_range": "2-8°C" if random.random() > 0.8 else None,
+                    "max_weight_kg": random.randint(1000, 10000),
+                    "max_height_meters": round(random.uniform(2.5, 6.0), 2),
+                    "aisle_width_meters": round(random.uniform(2.0, 4.0), 2),
+                    "is_automated": random.random() > 0.85,
                 }
 
                 insert_zone_query = """
@@ -150,18 +165,18 @@ class LogisticsDataGenerator:
                 num_bins = random.randint(20, 100)
                 for b in range(num_bins):
                     bin_data = {
-                        'zone_id': zone_id,
-                        'bin_code': f"A{str(z+1).zfill(2)}-R{str(b//10 + 1).zfill(2)}-L{str(b%10 + 1).zfill(2)}",
-                        'aisle': f"A{str(z+1).zfill(2)}",
-                        'rack': f"R{str(b//10 + 1).zfill(2)}",
-                        'level': f"L{str(b%10 + 1).zfill(2)}",
-                        'position': str(b % 4 + 1),
-                        'bin_type': random.choice(bin_types),
-                        'max_weight_kg': random.randint(100, 2000),
-                        'dimensions_lwh': f"{random.randint(100,200)}x{random.randint(100,150)}x{random.randint(100,200)}",
-                        'volume_cbm': round(random.uniform(0.5, 5.0), 3),
-                        'is_occupied': random.random() > 0.3,
-                        'is_locked': False
+                        "zone_id": zone_id,
+                        "bin_code": f"A{str(z+1).zfill(2)}-R{str(b//10 + 1).zfill(2)}-L{str(b%10 + 1).zfill(2)}",
+                        "aisle": f"A{str(z+1).zfill(2)}",
+                        "rack": f"R{str(b//10 + 1).zfill(2)}",
+                        "level": f"L{str(b%10 + 1).zfill(2)}",
+                        "position": str(b % 4 + 1),
+                        "bin_type": random.choice(bin_types),
+                        "max_weight_kg": random.randint(100, 2000),
+                        "dimensions_lwh": f"{random.randint(100,200)}x{random.randint(100,150)}x{random.randint(100,200)}",
+                        "volume_cbm": round(random.uniform(0.5, 5.0), 3),
+                        "is_occupied": random.random() > 0.3,
+                        "is_locked": False,
                     }
 
                     insert_bin_query = """
@@ -181,42 +196,61 @@ class LogisticsDataGenerator:
 
     def generate_products(self):
         """Generate product master data."""
-        categories = ['Electronics', 'Apparel', 'Food', 'Furniture', 'Automotive', 'Pharmaceuticals', 'Toys', 'Books']
-        uom_types = ['EACH', 'CASE', 'PALLET', 'KG', 'LB', 'LITER', 'METER']
-        abc_classes = ['A', 'B', 'C']
+        categories = [
+            "Electronics",
+            "Apparel",
+            "Food",
+            "Furniture",
+            "Automotive",
+            "Pharmaceuticals",
+            "Toys",
+            "Books",
+        ]
+        uom_types = ["EACH", "CASE", "PALLET", "KG", "LB", "LITER", "METER"]
+        abc_classes = ["A", "B", "C"]
 
         products_data = []
-        for i in range(self.config['counts']['products']):
+        for i in range(self.config["counts"]["products"]):
             category = random.choice(categories)
-            is_hazmat = category in ['Automotive', 'Pharmaceuticals'] and random.random() > 0.7
-            requires_temp = category in ['Food', 'Pharmaceuticals'] and random.random() > 0.5
+            is_hazmat = (
+                category in ["Automotive", "Pharmaceuticals"] and random.random() > 0.7
+            )
+            requires_temp = (
+                category in ["Food", "Pharmaceuticals"] and random.random() > 0.5
+            )
 
             product = {
-                'sku': f"SKU{str(i+1).zfill(6)}",
-                'product_name': f"{fake.company()} {fake.word().title()} {random.choice(['Pro', 'Plus', 'Elite', 'Basic'])}",
-                'product_description': fake.text(max_nb_chars=200),
-                'category': category,
-                'subcategory': f"{category} - {fake.word().title()}",
-                'brand': fake.company(),
-                'unit_of_measure': random.choice(uom_types),
-                'weight_kg': round(random.uniform(0.1, 50.0), 3),
-                'dimensions_lwh': f"{random.randint(10,100)}x{random.randint(10,100)}x{random.randint(10,100)}",
-                'volume_cbm': round(random.uniform(0.001, 1.0), 3),
-                'is_hazmat': is_hazmat,
-                'hazmat_class': f"Class {random.randint(1,9)}" if is_hazmat else None,
-                'requires_temperature_control': requires_temp,
-                'min_temperature_celsius': random.randint(2, 8) if requires_temp else None,
-                'max_temperature_celsius': random.randint(15, 25) if requires_temp else None,
-                'shelf_life_days': random.randint(30, 365) if category == 'Food' else None,
-                'is_serialized': random.random() > 0.8,
-                'is_lot_controlled': random.random() > 0.7,
-                'reorder_point': random.randint(10, 100),
-                'reorder_quantity': random.randint(50, 500),
-                'lead_time_days': random.randint(7, 45),
-                'unit_cost': round(random.uniform(1.0, 500.0), 2),
-                'selling_price': round(random.uniform(2.0, 1000.0), 2),
-                'abc_classification': random.choice(abc_classes),
-                'is_active': True
+                "sku": f"SKU{str(i+1).zfill(6)}",
+                "product_name": f"{fake.company()} {fake.word().title()} {random.choice(['Pro', 'Plus', 'Elite', 'Basic'])}",
+                "product_description": fake.text(max_nb_chars=200),
+                "category": category,
+                "subcategory": f"{category} - {fake.word().title()}",
+                "brand": fake.company(),
+                "unit_of_measure": random.choice(uom_types),
+                "weight_kg": round(random.uniform(0.1, 50.0), 3),
+                "dimensions_lwh": f"{random.randint(10,100)}x{random.randint(10,100)}x{random.randint(10,100)}",
+                "volume_cbm": round(random.uniform(0.001, 1.0), 3),
+                "is_hazmat": is_hazmat,
+                "hazmat_class": f"Class {random.randint(1,9)}" if is_hazmat else None,
+                "requires_temperature_control": requires_temp,
+                "min_temperature_celsius": (
+                    random.randint(2, 8) if requires_temp else None
+                ),
+                "max_temperature_celsius": (
+                    random.randint(15, 25) if requires_temp else None
+                ),
+                "shelf_life_days": (
+                    random.randint(30, 365) if category == "Food" else None
+                ),
+                "is_serialized": random.random() > 0.8,
+                "is_lot_controlled": random.random() > 0.7,
+                "reorder_point": random.randint(10, 100),
+                "reorder_quantity": random.randint(50, 500),
+                "lead_time_days": random.randint(7, 45),
+                "unit_cost": round(random.uniform(1.0, 500.0), 2),
+                "selling_price": round(random.uniform(2.0, 1000.0), 2),
+                "abc_classification": random.choice(abc_classes),
+                "is_active": True,
             }
             products_data.append(product)
 
@@ -256,18 +290,24 @@ class LogisticsDataGenerator:
                 quantity_allocated = random.randint(0, min(200, quantity_on_hand))
 
                 inventory_data = {
-                    'warehouse_id': warehouse_id,
-                    'product_id': product_id,
-                    'quantity_on_hand': quantity_on_hand,
-                    'quantity_available': quantity_on_hand - quantity_allocated,
-                    'quantity_allocated': quantity_allocated,
-                    'quantity_in_transit': random.randint(0, 100),
-                    'quantity_damaged': random.randint(0, 10),
-                    'quantity_quarantine': random.randint(0, 5),
-                    'average_cost': round(random.uniform(10.0, 500.0), 4),
-                    'last_received_date': fake.date_time_between(start_date='-30d', end_date='now'),
-                    'last_counted_date': fake.date_time_between(start_date='-7d', end_date='now'),
-                    'last_shipped_date': fake.date_time_between(start_date='-3d', end_date='now')
+                    "warehouse_id": warehouse_id,
+                    "product_id": product_id,
+                    "quantity_on_hand": quantity_on_hand,
+                    "quantity_available": quantity_on_hand - quantity_allocated,
+                    "quantity_allocated": quantity_allocated,
+                    "quantity_in_transit": random.randint(0, 100),
+                    "quantity_damaged": random.randint(0, 10),
+                    "quantity_quarantine": random.randint(0, 5),
+                    "average_cost": round(random.uniform(10.0, 500.0), 4),
+                    "last_received_date": fake.date_time_between(
+                        start_date="-30d", end_date="now"
+                    ),
+                    "last_counted_date": fake.date_time_between(
+                        start_date="-7d", end_date="now"
+                    ),
+                    "last_shipped_date": fake.date_time_between(
+                        start_date="-3d", end_date="now"
+                    ),
                 }
 
                 insert_query = """
@@ -287,25 +327,44 @@ class LogisticsDataGenerator:
                 if random.random() > 0.3:  # 70% chance of having batch tracking
                     num_batches = random.randint(1, 5)
                     for _ in range(num_batches):
-                        manufacture_date = fake.date_between(start_date='-180d', end_date='-30d')
-                        expiry_date = manufacture_date + timedelta(days=random.randint(180, 730))
+                        manufacture_date = fake.date_between(
+                            start_date="-180d", end_date="-30d"
+                        )
+                        expiry_date = manufacture_date + timedelta(
+                            days=random.randint(180, 730)
+                        )
                         quantity_received = random.randint(50, 500)
 
                         batch_data = {
-                            'product_id': product_id,
-                            'warehouse_id': warehouse_id,
-                            'batch_number': f"BATCH{fake.random_number(digits=8)}",
-                            'lot_number': f"LOT{fake.random_number(digits=6)}",
-                            'serial_numbers': json.dumps([f"SN{fake.random_number(digits=10)}" for _ in range(min(5, quantity_received))]),
-                            'manufacture_date': manufacture_date,
-                            'expiry_date': expiry_date if random.random() > 0.5 else None,
-                            'received_date': fake.date_time_between(start_date=manufacture_date, end_date='now'),
-                            'quantity_received': quantity_received,
-                            'quantity_remaining': random.randint(0, quantity_received),
-                            'supplier_id': random.choice(self.supplier_ids) if self.supplier_ids else None,
-                            'quality_status': random.choice(['PASSED', 'PASSED', 'PASSED', 'CONDITIONAL']),
-                            'quality_certificate_url': f"https://qc.example.com/{fake.random_number(digits=8)}.pdf",
-                            'storage_conditions': 'Standard warehouse conditions'
+                            "product_id": product_id,
+                            "warehouse_id": warehouse_id,
+                            "batch_number": f"BATCH{fake.random_number(digits=8)}",
+                            "lot_number": f"LOT{fake.random_number(digits=6)}",
+                            "serial_numbers": json.dumps(
+                                [
+                                    f"SN{fake.random_number(digits=10)}"
+                                    for _ in range(min(5, quantity_received))
+                                ]
+                            ),
+                            "manufacture_date": manufacture_date,
+                            "expiry_date": (
+                                expiry_date if random.random() > 0.5 else None
+                            ),
+                            "received_date": fake.date_time_between(
+                                start_date=manufacture_date, end_date="now"
+                            ),
+                            "quantity_received": quantity_received,
+                            "quantity_remaining": random.randint(0, quantity_received),
+                            "supplier_id": (
+                                random.choice(self.supplier_ids)
+                                if self.supplier_ids
+                                else None
+                            ),
+                            "quality_status": random.choice(
+                                ["PASSED", "PASSED", "PASSED", "CONDITIONAL"]
+                            ),
+                            "quality_certificate_url": f"https://qc.example.com/{fake.random_number(digits=8)}.pdf",
+                            "storage_conditions": "Standard warehouse conditions",
                         }
 
                         insert_batch_query = """
@@ -327,31 +386,37 @@ class LogisticsDataGenerator:
     def generate_suppliers_and_customers(self):
         """Generate suppliers and customers."""
         # Generate suppliers
-        supplier_types = ['MANUFACTURER', 'DISTRIBUTOR', 'WHOLESALER', 'DROPSHIPPER']
-        for i in range(self.config['counts']['suppliers']):
+        supplier_types = ["MANUFACTURER", "DISTRIBUTOR", "WHOLESALER", "DROPSHIPPER"]
+        for i in range(self.config["counts"]["suppliers"]):
             supplier_data = {
-                'supplier_code': f"SUP{str(i+1).zfill(5)}",
-                'supplier_name': fake.company(),
-                'supplier_type': random.choice(supplier_types),
-                'tax_id': fake.ein(),
-                'address_line1': fake.street_address(),
-                'address_line2': fake.secondary_address() if random.random() > 0.7 else None,
-                'city': fake.city(),
-                'state_province': fake.state_abbr(),
-                'postal_code': fake.zipcode(),
-                'country_code': 'US',
-                'contact_name': fake.name(),
-                'contact_phone': fake.phone_number(),
-                'contact_email': fake.company_email(),
-                'payment_terms': random.choice(['NET30', 'NET60', 'NET90', '2/10 NET30']),
-                'currency_code': 'USD',
-                'credit_limit': round(random.uniform(10000, 1000000), 2),
-                'lead_time_days': random.randint(7, 45),
-                'minimum_order_value': round(random.uniform(100, 10000), 2),
-                'performance_score': round(random.uniform(3.0, 5.0), 2),
-                'is_preferred': random.random() > 0.7,
-                'is_active': True,
-                'certifications': json.dumps(['ISO9001', 'ISO14001'] if random.random() > 0.6 else [])
+                "supplier_code": f"SUP{str(i+1).zfill(5)}",
+                "supplier_name": fake.company(),
+                "supplier_type": random.choice(supplier_types),
+                "tax_id": fake.ein(),
+                "address_line1": fake.street_address(),
+                "address_line2": (
+                    fake.secondary_address() if random.random() > 0.7 else None
+                ),
+                "city": fake.city(),
+                "state_province": fake.state_abbr(),
+                "postal_code": fake.zipcode(),
+                "country_code": "US",
+                "contact_name": fake.name(),
+                "contact_phone": fake.phone_number(),
+                "contact_email": fake.company_email(),
+                "payment_terms": random.choice(
+                    ["NET30", "NET60", "NET90", "2/10 NET30"]
+                ),
+                "currency_code": "USD",
+                "credit_limit": round(random.uniform(10000, 1000000), 2),
+                "lead_time_days": random.randint(7, 45),
+                "minimum_order_value": round(random.uniform(100, 10000), 2),
+                "performance_score": round(random.uniform(3.0, 5.0), 2),
+                "is_preferred": random.random() > 0.7,
+                "is_active": True,
+                "certifications": json.dumps(
+                    ["ISO9001", "ISO14001"] if random.random() > 0.6 else []
+                ),
             }
 
             insert_query = """
@@ -371,36 +436,42 @@ class LogisticsDataGenerator:
             self.supplier_ids.append(self.cursor.lastrowid)
 
         # Generate customers
-        customer_types = ['B2B', 'B2C', 'MARKETPLACE', 'INTERNAL']
-        priority_levels = ['STANDARD', 'SILVER', 'GOLD', 'PLATINUM']
+        customer_types = ["B2B", "B2C", "MARKETPLACE", "INTERNAL"]
+        priority_levels = ["STANDARD", "SILVER", "GOLD", "PLATINUM"]
 
-        for i in range(self.config['counts']['customers']):
+        for i in range(self.config["counts"]["customers"]):
             customer_data = {
-                'customer_code': f"CUST{str(i+1).zfill(6)}",
-                'customer_name': fake.company() if random.random() > 0.3 else fake.name(),
-                'customer_type': random.choice(customer_types),
-                'tax_id': fake.ein() if random.random() > 0.5 else None,
-                'billing_address_line1': fake.street_address(),
-                'billing_address_line2': fake.secondary_address() if random.random() > 0.7 else None,
-                'billing_city': fake.city(),
-                'billing_state_province': fake.state_abbr(),
-                'billing_postal_code': fake.zipcode(),
-                'billing_country_code': 'US',
-                'shipping_same_as_billing': random.random() > 0.5,
-                'shipping_address_line1': fake.street_address(),
-                'shipping_address_line2': fake.secondary_address() if random.random() > 0.7 else None,
-                'shipping_city': fake.city(),
-                'shipping_state_province': fake.state_abbr(),
-                'shipping_postal_code': fake.zipcode(),
-                'shipping_country_code': 'US',
-                'contact_name': fake.name(),
-                'contact_phone': fake.phone_number(),
-                'contact_email': fake.email(),
-                'payment_terms': random.choice(['NET30', 'NET60', 'COD', 'PREPAID']),
-                'credit_limit': round(random.uniform(1000, 100000), 2),
-                'current_balance': round(random.uniform(0, 50000), 2),
-                'priority_level': random.choice(priority_levels),
-                'is_active': True
+                "customer_code": f"CUST{str(i+1).zfill(6)}",
+                "customer_name": (
+                    fake.company() if random.random() > 0.3 else fake.name()
+                ),
+                "customer_type": random.choice(customer_types),
+                "tax_id": fake.ein() if random.random() > 0.5 else None,
+                "billing_address_line1": fake.street_address(),
+                "billing_address_line2": (
+                    fake.secondary_address() if random.random() > 0.7 else None
+                ),
+                "billing_city": fake.city(),
+                "billing_state_province": fake.state_abbr(),
+                "billing_postal_code": fake.zipcode(),
+                "billing_country_code": "US",
+                "shipping_same_as_billing": random.random() > 0.5,
+                "shipping_address_line1": fake.street_address(),
+                "shipping_address_line2": (
+                    fake.secondary_address() if random.random() > 0.7 else None
+                ),
+                "shipping_city": fake.city(),
+                "shipping_state_province": fake.state_abbr(),
+                "shipping_postal_code": fake.zipcode(),
+                "shipping_country_code": "US",
+                "contact_name": fake.name(),
+                "contact_phone": fake.phone_number(),
+                "contact_email": fake.email(),
+                "payment_terms": random.choice(["NET30", "NET60", "COD", "PREPAID"]),
+                "credit_limit": round(random.uniform(1000, 100000), 2),
+                "current_balance": round(random.uniform(0, 50000), 2),
+                "priority_level": random.choice(priority_levels),
+                "is_active": True,
             }
 
             insert_query = """
@@ -424,28 +495,41 @@ class LogisticsDataGenerator:
             self.customer_ids.append(self.cursor.lastrowid)
 
         self.connection.commit()
-        print(f"Generated {len(self.supplier_ids)} suppliers and {len(self.customer_ids)} customers")
+        print(
+            f"Generated {len(self.supplier_ids)} suppliers and {len(self.customer_ids)} customers"
+        )
 
     def generate_orders(self):
         """Generate purchase and sales orders."""
         # Generate purchase orders
-        po_statuses = ['DRAFT', 'SUBMITTED', 'CONFIRMED', 'SHIPPED', 'RECEIVED', 'PARTIAL']
-        for i in range(self.config['counts']['purchase_orders']):
-            order_date = fake.date_between(start_date='-90d', end_date='today')
+        po_statuses = [
+            "DRAFT",
+            "SUBMITTED",
+            "CONFIRMED",
+            "SHIPPED",
+            "RECEIVED",
+            "PARTIAL",
+        ]
+        for i in range(self.config["counts"]["purchase_orders"]):
+            order_date = fake.date_between(start_date="-90d", end_date="today")
             expected_delivery = order_date + timedelta(days=random.randint(7, 30))
 
             po_data = {
-                'po_number': f"PO{datetime.now().year}{str(i+1).zfill(6)}",
-                'supplier_id': random.choice(self.supplier_ids),
-                'warehouse_id': random.choice(self.warehouse_ids),
-                'order_date': order_date,
-                'expected_delivery_date': expected_delivery,
-                'actual_delivery_date': expected_delivery + timedelta(days=random.randint(-2, 5)) if random.random() > 0.5 else None,
-                'total_amount': 0,  # Will update after items
-                'currency_code': 'USD',
-                'status': random.choice(po_statuses),
-                'payment_status': random.choice(['PENDING', 'PARTIAL', 'PAID']),
-                'notes': fake.text(max_nb_chars=100) if random.random() > 0.7 else None
+                "po_number": f"PO{datetime.now().year}{str(i+1).zfill(6)}",
+                "supplier_id": random.choice(self.supplier_ids),
+                "warehouse_id": random.choice(self.warehouse_ids),
+                "order_date": order_date,
+                "expected_delivery_date": expected_delivery,
+                "actual_delivery_date": (
+                    expected_delivery + timedelta(days=random.randint(-2, 5))
+                    if random.random() > 0.5
+                    else None
+                ),
+                "total_amount": 0,  # Will update after items
+                "currency_code": "USD",
+                "status": random.choice(po_statuses),
+                "payment_status": random.choice(["PENDING", "PARTIAL", "PAID"]),
+                "notes": fake.text(max_nb_chars=100) if random.random() > 0.7 else None,
             }
 
             insert_po_query = """
@@ -470,15 +554,21 @@ class LogisticsDataGenerator:
                 total_amount += line_total
 
                 po_item_data = {
-                    'po_id': po_id,
-                    'product_id': random.choice(self.product_ids),
-                    'quantity_ordered': quantity,
-                    'quantity_received': quantity if po_data['status'] == 'RECEIVED' else random.randint(0, quantity),
-                    'unit_price': unit_price,
-                    'line_total': line_total,
-                    'discount_percent': round(random.uniform(0, 10), 2) if random.random() > 0.7 else 0,
-                    'tax_amount': line_total * 0.08,
-                    'expected_delivery_date': expected_delivery
+                    "po_id": po_id,
+                    "product_id": random.choice(self.product_ids),
+                    "quantity_ordered": quantity,
+                    "quantity_received": (
+                        quantity
+                        if po_data["status"] == "RECEIVED"
+                        else random.randint(0, quantity)
+                    ),
+                    "unit_price": unit_price,
+                    "line_total": line_total,
+                    "discount_percent": (
+                        round(random.uniform(0, 10), 2) if random.random() > 0.7 else 0
+                    ),
+                    "tax_amount": line_total * 0.08,
+                    "expected_delivery_date": expected_delivery,
                 }
 
                 insert_item_query = """
@@ -493,38 +583,59 @@ class LogisticsDataGenerator:
                 self.cursor.execute(insert_item_query, po_item_data)
 
             # Update PO total
-            self.cursor.execute("UPDATE purchase_orders SET total_amount = %s WHERE po_id = %s", (total_amount, po_id))
+            self.cursor.execute(
+                "UPDATE purchase_orders SET total_amount = %s WHERE po_id = %s",
+                (total_amount, po_id),
+            )
 
         # Generate sales orders
-        so_statuses = ['PENDING', 'CONFIRMED', 'PICKING', 'PACKED', 'SHIPPED', 'DELIVERED']
-        for i in range(self.config['counts']['sales_orders']):
-            order_date = fake.date_time_between(start_date='-30d', end_date='now')
-            requested_delivery = fake.date_between(start_date='today', end_date='+14d')
+        so_statuses = [
+            "PENDING",
+            "CONFIRMED",
+            "PICKING",
+            "PACKED",
+            "SHIPPED",
+            "DELIVERED",
+        ]
+        for i in range(self.config["counts"]["sales_orders"]):
+            order_date = fake.date_time_between(start_date="-30d", end_date="now")
+            requested_delivery = fake.date_between(start_date="today", end_date="+14d")
 
             customer = random.choice(self.customer_ids)
 
             so_data = {
-                'so_number': f"SO{datetime.now().year}{str(i+1).zfill(6)}",
-                'customer_id': customer,
-                'order_date': order_date,
-                'requested_delivery_date': requested_delivery,
-                'promised_delivery_date': requested_delivery + timedelta(days=random.randint(0, 2)),
-                'actual_delivery_date': requested_delivery + timedelta(days=random.randint(-1, 3)) if random.random() > 0.6 else None,
-                'shipping_address_line1': fake.street_address(),
-                'shipping_city': fake.city(),
-                'shipping_state_province': fake.state_abbr(),
-                'shipping_postal_code': fake.zipcode(),
-                'shipping_country_code': 'US',
-                'subtotal_amount': 0,  # Will update
-                'discount_amount': 0,
-                'tax_amount': 0,
-                'shipping_cost': round(random.uniform(10, 100), 2),
-                'total_amount': 0,  # Will update
-                'currency_code': 'USD',
-                'status': random.choice(so_statuses),
-                'payment_status': random.choice(['PENDING', 'AUTHORIZED', 'CAPTURED', 'PAID']),
-                'fulfillment_priority': random.choice(['STANDARD', 'EXPRESS', 'URGENT']),
-                'special_instructions': fake.text(max_nb_chars=100) if random.random() > 0.8 else None
+                "so_number": f"SO{datetime.now().year}{str(i+1).zfill(6)}",
+                "customer_id": customer,
+                "order_date": order_date,
+                "requested_delivery_date": requested_delivery,
+                "promised_delivery_date": requested_delivery
+                + timedelta(days=random.randint(0, 2)),
+                "actual_delivery_date": (
+                    requested_delivery + timedelta(days=random.randint(-1, 3))
+                    if random.random() > 0.6
+                    else None
+                ),
+                "shipping_address_line1": fake.street_address(),
+                "shipping_city": fake.city(),
+                "shipping_state_province": fake.state_abbr(),
+                "shipping_postal_code": fake.zipcode(),
+                "shipping_country_code": "US",
+                "subtotal_amount": 0,  # Will update
+                "discount_amount": 0,
+                "tax_amount": 0,
+                "shipping_cost": round(random.uniform(10, 100), 2),
+                "total_amount": 0,  # Will update
+                "currency_code": "USD",
+                "status": random.choice(so_statuses),
+                "payment_status": random.choice(
+                    ["PENDING", "AUTHORIZED", "CAPTURED", "PAID"]
+                ),
+                "fulfillment_priority": random.choice(
+                    ["STANDARD", "EXPRESS", "URGENT"]
+                ),
+                "special_instructions": (
+                    fake.text(max_nb_chars=100) if random.random() > 0.8 else None
+                ),
             }
 
             insert_so_query = """
@@ -555,18 +666,30 @@ class LogisticsDataGenerator:
                 subtotal += line_total
 
                 so_item_data = {
-                    'so_id': so_id,
-                    'product_id': random.choice(self.product_ids),
-                    'warehouse_id': random.choice(self.warehouse_ids[:5]),  # From top 5 warehouses
-                    'quantity_ordered': quantity,
-                    'quantity_allocated': quantity if so_data['status'] in ['PICKING', 'PACKED', 'SHIPPED'] else 0,
-                    'quantity_picked': quantity if so_data['status'] in ['PACKED', 'SHIPPED'] else 0,
-                    'quantity_shipped': quantity if so_data['status'] == 'SHIPPED' else 0,
-                    'unit_price': unit_price,
-                    'discount_percent': round(random.uniform(0, 15), 2) if random.random() > 0.7 else 0,
-                    'tax_rate': 8.5,
-                    'line_total': line_total,
-                    'backorder_quantity': 0
+                    "so_id": so_id,
+                    "product_id": random.choice(self.product_ids),
+                    "warehouse_id": random.choice(
+                        self.warehouse_ids[:5]
+                    ),  # From top 5 warehouses
+                    "quantity_ordered": quantity,
+                    "quantity_allocated": (
+                        quantity
+                        if so_data["status"] in ["PICKING", "PACKED", "SHIPPED"]
+                        else 0
+                    ),
+                    "quantity_picked": (
+                        quantity if so_data["status"] in ["PACKED", "SHIPPED"] else 0
+                    ),
+                    "quantity_shipped": (
+                        quantity if so_data["status"] == "SHIPPED" else 0
+                    ),
+                    "unit_price": unit_price,
+                    "discount_percent": (
+                        round(random.uniform(0, 15), 2) if random.random() > 0.7 else 0
+                    ),
+                    "tax_rate": 8.5,
+                    "line_total": line_total,
+                    "backorder_quantity": 0,
                 }
 
                 insert_item_query = """
@@ -584,15 +707,20 @@ class LogisticsDataGenerator:
 
             # Update SO totals
             tax_amount = subtotal * 0.085
-            total_amount = subtotal + tax_amount + so_data['shipping_cost']
-            self.cursor.execute("""
+            total_amount = subtotal + tax_amount + so_data["shipping_cost"]
+            self.cursor.execute(
+                """
                 UPDATE sales_orders
                 SET subtotal_amount = %s, tax_amount = %s, total_amount = %s
                 WHERE so_id = %s
-            """, (subtotal, tax_amount, total_amount, so_id))
+            """,
+                (subtotal, tax_amount, total_amount, so_id),
+            )
 
         self.connection.commit()
-        print(f"Generated {self.config['counts']['purchase_orders']} purchase orders and {self.config['counts']['sales_orders']} sales orders")
+        print(
+            f"Generated {self.config['counts']['purchase_orders']} purchase orders and {self.config['counts']['sales_orders']} sales orders"
+        )
 
     def cleanup(self):
         """Close database connections."""
@@ -624,6 +752,7 @@ class LogisticsDataGenerator:
             raise
         finally:
             self.cleanup()
+
 
 if __name__ == "__main__":
     generator = LogisticsDataGenerator()

@@ -15,26 +15,23 @@ from pathlib import Path
 # Configuration - Adjust these values for your domain
 CONFIG = {
     # Core entities
-    "primary_entities": 1000,      # e.g., users, customers, products
-    "secondary_entities": 5000,    # e.g., orders, transactions, events
-
+    "primary_entities": 1000,  # e.g., users, customers, products
+    "secondary_entities": 5000,  # e.g., orders, transactions, events
     # Time series
-    "days_of_history": 30,         # Historical data generation period
-    "events_per_day": 100,         # Average daily event volume
-
+    "days_of_history": 30,  # Historical data generation period
+    "events_per_day": 100,  # Average daily event volume
     # Relationships
-    "avg_relationships": 10,       # Average relationships per entity
-    "max_relationships": 50,        # Maximum relationships per entity
-
+    "avg_relationships": 10,  # Average relationships per entity
+    "max_relationships": 50,  # Maximum relationships per entity
     # Business rules
-    "business_hours": (9, 17),     # Operating hours (if applicable)
-    "peak_hours": (11, 14),        # Peak activity hours
-    "weekend_factor": 0.3,         # Weekend activity multiplier
-
+    "business_hours": (9, 17),  # Operating hours (if applicable)
+    "peak_hours": (11, 14),  # Peak activity hours
+    "weekend_factor": 0.3,  # Weekend activity multiplier
     # Data quality
-    "null_percentage": 0.05,       # Percentage of optional fields to leave null
-    "error_rate": 0.01,            # Simulated error/anomaly rate
+    "null_percentage": 0.05,  # Percentage of optional fields to leave null
+    "error_rate": 0.01,  # Simulated error/anomaly rate
 }
+
 
 class YourDomainGenerator:
     """
@@ -61,11 +58,7 @@ class YourDomainGenerator:
         self.time_series_data = []
 
         # Statistics tracking
-        self.stats = {
-            "total_records": 0,
-            "tables_generated": 0,
-            "generation_time": 0
-        }
+        self.stats = {"total_records": 0, "tables_generated": 0, "generation_time": 0}
 
         # Output directory
         self.output_dir = Path("output")
@@ -102,19 +95,22 @@ class YourDomainGenerator:
             entity = {
                 "id": i + 1,
                 "uuid": self.fake.uuid4(),
-                "name": self.fake.company() if random.random() > 0.5 else self.fake.name(),
+                "name": (
+                    self.fake.company() if random.random() > 0.5 else self.fake.name()
+                ),
                 "email": self.fake.email(),
                 "phone": self.fake.phone_number(),
-                "address": self.fake.address().replace('\n', ', '),
+                "address": self.fake.address().replace("\n", ", "),
                 "created_at": self.fake.date_time_between(
-                    start_date=self.start_date,
-                    end_date=self.end_date
+                    start_date=self.start_date, end_date=self.end_date
                 ),
                 "status": random.choice(["active", "inactive", "pending"]),
-                "metadata": json.dumps({
-                    "source": random.choice(["web", "mobile", "api"]),
-                    "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}"
-                })
+                "metadata": json.dumps(
+                    {
+                        "source": random.choice(["web", "mobile", "api"]),
+                        "version": f"{random.randint(1, 5)}.{random.randint(0, 9)}",
+                    }
+                ),
             }
 
             # Add optional fields with null probability
@@ -130,7 +126,18 @@ class YourDomainGenerator:
             "01_primary_entities.sql",
             "primary_entities",
             self.primary_entities,
-            ["id", "uuid", "name", "email", "phone", "address", "created_at", "status", "metadata", "description"]
+            [
+                "id",
+                "uuid",
+                "name",
+                "email",
+                "phone",
+                "address",
+                "created_at",
+                "status",
+                "metadata",
+                "description",
+            ],
         )
 
     def generate_secondary_entities(self):
@@ -148,11 +155,12 @@ class YourDomainGenerator:
                 "value": round(random.uniform(10, 1000), 2),
                 "quantity": random.randint(1, 100),
                 "timestamp": self.fake.date_time_between(
-                    start_date=self.start_date,
-                    end_date=self.end_date
+                    start_date=self.start_date, end_date=self.end_date
                 ),
-                "status": random.choice(["pending", "processing", "completed", "cancelled"]),
-                "notes": self.fake.sentence() if random.random() > 0.7 else None
+                "status": random.choice(
+                    ["pending", "processing", "completed", "cancelled"]
+                ),
+                "notes": self.fake.sentence() if random.random() > 0.7 else None,
             }
 
             self.secondary_entities.append(entity)
@@ -161,7 +169,16 @@ class YourDomainGenerator:
             "02_secondary_entities.sql",
             "secondary_entities",
             self.secondary_entities,
-            ["id", "primary_entity_id", "type", "value", "quantity", "timestamp", "status", "notes"]
+            [
+                "id",
+                "primary_entity_id",
+                "type",
+                "value",
+                "quantity",
+                "timestamp",
+                "status",
+                "notes",
+            ],
         )
 
     def generate_relationships(self):
@@ -174,11 +191,13 @@ class YourDomainGenerator:
             # Generate random number of relationships
             num_relationships = min(
                 random.randint(1, CONFIG["avg_relationships"] * 2),
-                CONFIG["max_relationships"]
+                CONFIG["max_relationships"],
             )
 
             # Create relationships with other entities
-            possible_targets = [e["id"] for e in self.primary_entities if e["id"] != entity["id"]]
+            possible_targets = [
+                e["id"] for e in self.primary_entities if e["id"] != entity["id"]
+            ]
 
             if len(possible_targets) >= num_relationships:
                 targets = random.sample(possible_targets, num_relationships)
@@ -192,22 +211,31 @@ class YourDomainGenerator:
                 if rel_tuple not in relationship_set:
                     relationship_set.add(rel_tuple)
 
-                    self.relationships.append({
-                        "entity_a_id": rel_tuple[0],
-                        "entity_b_id": rel_tuple[1],
-                        "relationship_type": random.choice(["follows", "likes", "connects", "references"]),
-                        "strength": round(random.random(), 2),
-                        "created_at": self.fake.date_time_between(
-                            start_date=self.start_date,
-                            end_date=self.end_date
-                        )
-                    })
+                    self.relationships.append(
+                        {
+                            "entity_a_id": rel_tuple[0],
+                            "entity_b_id": rel_tuple[1],
+                            "relationship_type": random.choice(
+                                ["follows", "likes", "connects", "references"]
+                            ),
+                            "strength": round(random.random(), 2),
+                            "created_at": self.fake.date_time_between(
+                                start_date=self.start_date, end_date=self.end_date
+                            ),
+                        }
+                    )
 
         self.save_to_file(
             "03_relationships.sql",
             "entity_relationships",
             self.relationships,
-            ["entity_a_id", "entity_b_id", "relationship_type", "strength", "created_at"]
+            [
+                "entity_a_id",
+                "entity_b_id",
+                "relationship_type",
+                "strength",
+                "created_at",
+            ],
         )
 
     def generate_time_series_data(self):
@@ -222,10 +250,13 @@ class YourDomainGenerator:
             day_multiplier = CONFIG["weekend_factor"] if is_weekend else 1.0
 
             # Generate events for this day
-            num_events = int(random.randint(
-                int(CONFIG["events_per_day"] * 0.7),
-                int(CONFIG["events_per_day"] * 1.3)
-            ) * day_multiplier)
+            num_events = int(
+                random.randint(
+                    int(CONFIG["events_per_day"] * 0.7),
+                    int(CONFIG["events_per_day"] * 1.3),
+                )
+                * day_multiplier
+            )
 
             for _ in range(num_events):
                 # Distribute events throughout the day with peak hours
@@ -233,21 +264,29 @@ class YourDomainGenerator:
                 event_time = current_date.replace(
                     hour=hour,
                     minute=random.randint(0, 59),
-                    second=random.randint(0, 59)
+                    second=random.randint(0, 59),
                 )
 
                 event = {
                     "id": len(self.time_series_data) + 1,
                     "entity_id": random.choice(self.primary_entities)["id"],
-                    "event_type": random.choice(["view", "click", "action", "update", "delete"]),
+                    "event_type": random.choice(
+                        ["view", "click", "action", "update", "delete"]
+                    ),
                     "event_time": event_time,
-                    "value": round(random.uniform(0, 100), 2) if random.random() > 0.5 else None,
-                    "metadata": json.dumps({
-                        "ip": self.fake.ipv4(),
-                        "user_agent": self.fake.user_agent(),
-                        "session_id": self.fake.uuid4()
-                    }),
-                    "success": random.random() > CONFIG["error_rate"]
+                    "value": (
+                        round(random.uniform(0, 100), 2)
+                        if random.random() > 0.5
+                        else None
+                    ),
+                    "metadata": json.dumps(
+                        {
+                            "ip": self.fake.ipv4(),
+                            "user_agent": self.fake.user_agent(),
+                            "session_id": self.fake.uuid4(),
+                        }
+                    ),
+                    "success": random.random() > CONFIG["error_rate"],
                 }
 
                 self.time_series_data.append(event)
@@ -258,7 +297,15 @@ class YourDomainGenerator:
             "04_time_series_data.sql",
             "events",
             self.time_series_data,
-            ["id", "entity_id", "event_type", "event_time", "value", "metadata", "success"]
+            [
+                "id",
+                "entity_id",
+                "event_type",
+                "event_time",
+                "value",
+                "metadata",
+                "success",
+            ],
         )
 
     def generate_derived_data(self):
@@ -269,7 +316,9 @@ class YourDomainGenerator:
         aggregations = []
 
         for entity in self.primary_entities[:100]:  # Limit for performance
-            entity_events = [e for e in self.time_series_data if e["entity_id"] == entity["id"]]
+            entity_events = [
+                e for e in self.time_series_data if e["entity_id"] == entity["id"]
+            ]
 
             if entity_events:
                 aggregation = {
@@ -277,9 +326,11 @@ class YourDomainGenerator:
                     "total_events": len(entity_events),
                     "first_event": min(e["event_time"] for e in entity_events),
                     "last_event": max(e["event_time"] for e in entity_events),
-                    "success_rate": sum(1 for e in entity_events if e["success"]) / len(entity_events),
-                    "avg_value": sum(e["value"] for e in entity_events if e["value"]) / max(1, sum(1 for e in entity_events if e["value"])),
-                    "calculated_at": self.end_date
+                    "success_rate": sum(1 for e in entity_events if e["success"])
+                    / len(entity_events),
+                    "avg_value": sum(e["value"] for e in entity_events if e["value"])
+                    / max(1, sum(1 for e in entity_events if e["value"])),
+                    "calculated_at": self.end_date,
                 }
                 aggregations.append(aggregation)
 
@@ -288,7 +339,15 @@ class YourDomainGenerator:
                 "05_aggregations.sql",
                 "entity_aggregations",
                 aggregations,
-                ["entity_id", "total_events", "first_event", "last_event", "success_rate", "avg_value", "calculated_at"]
+                [
+                    "entity_id",
+                    "total_events",
+                    "first_event",
+                    "last_event",
+                    "success_rate",
+                    "avg_value",
+                    "calculated_at",
+                ],
             )
 
     def get_weighted_hour(self):
@@ -317,7 +376,7 @@ class YourDomainGenerator:
         """Save data to SQL file"""
         filepath = self.output_dir / filename
 
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(f"-- {table_name} table data\n")
             f.write(f"-- Generated: {datetime.now()}\n")
             f.write(f"-- Records: {len(data)}\n\n")
@@ -326,8 +385,10 @@ class YourDomainGenerator:
                 # Write INSERT statements in batches
                 batch_size = 100
                 for i in range(0, len(data), batch_size):
-                    batch = data[i:i + batch_size]
-                    f.write(f"INSERT INTO `{table_name}` ({', '.join([f'`{col}`' for col in columns])}) VALUES\n")
+                    batch = data[i : i + batch_size]
+                    f.write(
+                        f"INSERT INTO `{table_name}` ({', '.join([f'`{col}`' for col in columns])}) VALUES\n"
+                    )
 
                     for j, record in enumerate(batch):
                         values = []
@@ -341,7 +402,9 @@ class YourDomainGenerator:
                                 values.append(f"'{val.strftime('%Y-%m-%d %H:%M:%S')}'")
                             else:
                                 # Escape single quotes and handle special characters
-                                val_str = str(val).replace("'", "''").replace("\\", "\\\\")
+                                val_str = (
+                                    str(val).replace("'", "''").replace("\\", "\\\\")
+                                )
                                 values.append(f"'{val_str}'")
 
                         f.write(f"({', '.join(values)})")
@@ -375,9 +438,15 @@ class YourDomainGenerator:
         if self.time_series_data:
             success_events = sum(1 for e in self.time_series_data if e["success"])
             print(f"\nBusiness Metrics:")
-            print(f"  Success Rate: {(success_events/len(self.time_series_data)*100):.1f}%")
-            print(f"  Avg Events/Entity: {len(self.time_series_data)/len(self.primary_entities):.1f}")
-            print(f"  Avg Relationships/Entity: {len(self.relationships)*2/len(self.primary_entities):.1f}")
+            print(
+                f"  Success Rate: {(success_events/len(self.time_series_data)*100):.1f}%"
+            )
+            print(
+                f"  Avg Events/Entity: {len(self.time_series_data)/len(self.primary_entities):.1f}"
+            )
+            print(
+                f"  Avg Relationships/Entity: {len(self.relationships)*2/len(self.primary_entities):.1f}"
+            )
 
         print(f"{'='*50}\n")
 

@@ -21,18 +21,28 @@ from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass
 from enum import Enum
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor, IsolationForest
+from sklearn.ensemble import (
+    RandomForestClassifier,
+    RandomForestRegressor,
+    IsolationForest,
+)
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.decomposition import PCA
 from sklearn.metrics import (
-    accuracy_score, precision_recall_fscore_support, mean_squared_error,
-    mean_absolute_error, r2_score, silhouette_score, classification_report
+    accuracy_score,
+    precision_recall_fscore_support,
+    mean_squared_error,
+    mean_absolute_error,
+    r2_score,
+    silhouette_score,
+    classification_report,
 )
 import xgboost as xgb
 import lightgbm as lgb
@@ -44,6 +54,7 @@ try:
     import tensorflow as tf
     from tensorflow import keras
     from tensorflow.keras import layers, models, callbacks
+
     DEEP_LEARNING_AVAILABLE = True
 except ImportError:
     DEEP_LEARNING_AVAILABLE = False
@@ -51,8 +62,7 @@ except ImportError:
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -60,8 +70,10 @@ logger = logging.getLogger(__name__)
 # Core Classes
 # ==============================================================================
 
+
 class ModelType(Enum):
     """Supported ML model types"""
+
     CLASSIFICATION = "classification"
     REGRESSION = "regression"
     CLUSTERING = "clustering"
@@ -70,9 +82,11 @@ class ModelType(Enum):
     RECOMMENDATION = "recommendation"
     NLP = "nlp"
 
+
 @dataclass
 class ModelConfig:
     """Configuration for ML models"""
+
     model_type: ModelType
     algorithm: str
     hyperparameters: Dict[str, Any]
@@ -81,9 +95,11 @@ class ModelConfig:
     validation_split: float = 0.2
     random_state: int = 42
 
+
 @dataclass
 class ModelMetrics:
     """Container for model performance metrics"""
+
     model_name: str
     model_type: ModelType
     training_time: float
@@ -92,9 +108,11 @@ class ModelMetrics:
     confusion_matrix: Optional[np.ndarray] = None
     predictions: Optional[np.ndarray] = None
 
+
 # ==============================================================================
 # Base ML Pipeline
 # ==============================================================================
+
 
 class MLPipeline:
     """Base machine learning pipeline"""
@@ -141,15 +159,17 @@ class MLPipeline:
         df[numeric_columns] = df[numeric_columns].fillna(df[numeric_columns].median())
 
         # Categorical columns: fill with mode
-        categorical_columns = df.select_dtypes(include=['object']).columns
+        categorical_columns = df.select_dtypes(include=["object"]).columns
         for col in categorical_columns:
-            df[col] = df[col].fillna(df[col].mode()[0] if not df[col].mode().empty else 'unknown')
+            df[col] = df[col].fillna(
+                df[col].mode()[0] if not df[col].mode().empty else "unknown"
+            )
 
         return df
 
     def _encode_categorical(self, df: pd.DataFrame) -> pd.DataFrame:
         """Encode categorical variables"""
-        categorical_columns = df.select_dtypes(include=['object']).columns
+        categorical_columns = df.select_dtypes(include=["object"]).columns
 
         for col in categorical_columns:
             if col in self.config.feature_columns:
@@ -176,8 +196,10 @@ class MLPipeline:
         # Split data
         if self.config.model_type in [ModelType.CLASSIFICATION, ModelType.REGRESSION]:
             X_train, X_test, y_train, y_test = train_test_split(
-                X, y, test_size=self.config.validation_split,
-                random_state=self.config.random_state
+                X,
+                y,
+                test_size=self.config.validation_split,
+                random_state=self.config.random_state,
             )
         else:
             X_train, X_test = X, X
@@ -205,7 +227,7 @@ class MLPipeline:
             model_type=self.config.model_type,
             training_time=training_time,
             metrics=metrics,
-            feature_importance=feature_importance
+            feature_importance=feature_importance,
         )
 
         logger.info(f"Training completed in {training_time:.2f} seconds")
@@ -236,40 +258,48 @@ class MLPipeline:
         else:
             raise ValueError(f"Unknown algorithm: {self.config.algorithm}")
 
-    def _calculate_metrics(self, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+    def _calculate_metrics(
+        self, X_test: np.ndarray, y_test: np.ndarray
+    ) -> Dict[str, float]:
         """Calculate model performance metrics"""
         metrics = {}
 
         if self.config.model_type == ModelType.CLASSIFICATION and y_test is not None:
             y_pred = self.model.predict(X_test)
-            metrics['accuracy'] = accuracy_score(y_test, y_pred)
-            precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
-            metrics['precision'] = precision
-            metrics['recall'] = recall
-            metrics['f1_score'] = f1
+            metrics["accuracy"] = accuracy_score(y_test, y_pred)
+            precision, recall, f1, _ = precision_recall_fscore_support(
+                y_test, y_pred, average="weighted"
+            )
+            metrics["precision"] = precision
+            metrics["recall"] = recall
+            metrics["f1_score"] = f1
 
         elif self.config.model_type == ModelType.REGRESSION and y_test is not None:
             y_pred = self.model.predict(X_test)
-            metrics['mse'] = mean_squared_error(y_test, y_pred)
-            metrics['rmse'] = np.sqrt(metrics['mse'])
-            metrics['mae'] = mean_absolute_error(y_test, y_pred)
-            metrics['r2'] = r2_score(y_test, y_pred)
+            metrics["mse"] = mean_squared_error(y_test, y_pred)
+            metrics["rmse"] = np.sqrt(metrics["mse"])
+            metrics["mae"] = mean_absolute_error(y_test, y_pred)
+            metrics["r2"] = r2_score(y_test, y_pred)
 
         elif self.config.model_type == ModelType.CLUSTERING:
-            labels = self.model.labels_ if hasattr(self.model, 'labels_') else self.model.predict(X_test)
+            labels = (
+                self.model.labels_
+                if hasattr(self.model, "labels_")
+                else self.model.predict(X_test)
+            )
             if len(np.unique(labels)) > 1:
-                metrics['silhouette_score'] = silhouette_score(X_test, labels)
-            metrics['n_clusters'] = len(np.unique(labels))
+                metrics["silhouette_score"] = silhouette_score(X_test, labels)
+            metrics["n_clusters"] = len(np.unique(labels))
 
         elif self.config.model_type == ModelType.ANOMALY_DETECTION:
             predictions = self.model.predict(X_test)
-            metrics['anomaly_rate'] = (predictions == -1).mean()
+            metrics["anomaly_rate"] = (predictions == -1).mean()
 
         return metrics
 
     def _get_feature_importance(self) -> Optional[Dict[str, float]]:
         """Get feature importance if available"""
-        if hasattr(self.model, 'feature_importances_'):
+        if hasattr(self.model, "feature_importances_"):
             importance = self.model.feature_importances_
             return {
                 self.config.feature_columns[i]: importance[i]
@@ -284,7 +314,7 @@ class MLPipeline:
 
         X, _ = self.preprocess_data(df)
 
-        if hasattr(self.model, 'predict'):
+        if hasattr(self.model, "predict"):
             return self.model.predict(X)
         else:
             raise ValueError("Model does not support prediction")
@@ -295,35 +325,37 @@ class MLPipeline:
             raise ValueError("Model must be trained before saving")
 
         model_data = {
-            'model': self.model,
-            'scaler': self.scaler,
-            'encoder': self.encoder,
-            'config': self.config,
-            'metrics': self.metrics
+            "model": self.model,
+            "scaler": self.scaler,
+            "encoder": self.encoder,
+            "config": self.config,
+            "metrics": self.metrics,
         }
 
-        with open(path, 'wb') as f:
+        with open(path, "wb") as f:
             joblib.dump(model_data, f)
 
         logger.info(f"Model saved to {path}")
 
     def load_model(self, path: str):
         """Load trained model from disk"""
-        with open(path, 'rb') as f:
+        with open(path, "rb") as f:
             model_data = joblib.load(f)
 
-        self.model = model_data['model']
-        self.scaler = model_data['scaler']
-        self.encoder = model_data['encoder']
-        self.config = model_data['config']
-        self.metrics = model_data['metrics']
+        self.model = model_data["model"]
+        self.scaler = model_data["scaler"]
+        self.encoder = model_data["encoder"]
+        self.config = model_data["config"]
+        self.metrics = model_data["metrics"]
         self.is_trained = True
 
         logger.info(f"Model loaded from {path}")
 
+
 # ==============================================================================
 # Specialized ML Models
 # ==============================================================================
+
 
 class RecommendationSystem(MLPipeline):
     """Recommendation system using collaborative filtering"""
@@ -335,20 +367,19 @@ class RecommendationSystem(MLPipeline):
             algorithm=algorithm,
             hyperparameters={},
             feature_columns=[],
-            target_column=None
+            target_column=None,
         )
         super().__init__(config)
         self.user_item_matrix = None
         self.user_features = None
         self.item_features = None
 
-    def build_user_item_matrix(self, df: pd.DataFrame, user_col: str, item_col: str, rating_col: str):
+    def build_user_item_matrix(
+        self, df: pd.DataFrame, user_col: str, item_col: str, rating_col: str
+    ):
         """Build user-item interaction matrix"""
         self.user_item_matrix = df.pivot_table(
-            index=user_col,
-            columns=item_col,
-            values=rating_col,
-            fill_value=0
+            index=user_col, columns=item_col, values=rating_col, fill_value=0
         )
         return self.user_item_matrix
 
@@ -365,9 +396,13 @@ class RecommendationSystem(MLPipeline):
         reconstructed = np.dot(self.user_features, self.item_features.T)
         error = np.mean((self.user_item_matrix - reconstructed) ** 2)
 
-        logger.info(f"Collaborative filtering trained with reconstruction error: {error:.4f}")
+        logger.info(
+            f"Collaborative filtering trained with reconstruction error: {error:.4f}"
+        )
 
-    def get_recommendations(self, user_id: int, n_recommendations: int = 10) -> List[Tuple[int, float]]:
+    def get_recommendations(
+        self, user_id: int, n_recommendations: int = 10
+    ) -> List[Tuple[int, float]]:
         """Get recommendations for a user"""
         if user_id not in self.user_item_matrix.index:
             return []
@@ -392,32 +427,34 @@ class RecommendationSystem(MLPipeline):
         recommendations.sort(key=lambda x: x[1], reverse=True)
         return recommendations[:n_recommendations]
 
+
 class AnomalyDetector(MLPipeline):
     """Anomaly detection for fraud and outlier detection"""
 
     def __init__(self, algorithm: str = "isolation_forest"):
         """Initialize anomaly detector"""
-        hyperparameters = {
-            'contamination': 0.1,
-            'random_state': 42
-        }
+        hyperparameters = {"contamination": 0.1, "random_state": 42}
 
         config = ModelConfig(
             model_type=ModelType.ANOMALY_DETECTION,
             algorithm=algorithm,
             hyperparameters=hyperparameters,
             feature_columns=[],
-            target_column=None
+            target_column=None,
         )
         super().__init__(config)
 
-    def detect_anomalies(self, df: pd.DataFrame, sensitivity: float = 0.1) -> pd.DataFrame:
+    def detect_anomalies(
+        self, df: pd.DataFrame, sensitivity: float = 0.1
+    ) -> pd.DataFrame:
         """Detect anomalies in data"""
         # Update contamination based on sensitivity
-        self.config.hyperparameters['contamination'] = sensitivity
+        self.config.hyperparameters["contamination"] = sensitivity
 
         # Set feature columns
-        self.config.feature_columns = df.select_dtypes(include=[np.number]).columns.tolist()
+        self.config.feature_columns = df.select_dtypes(
+            include=[np.number]
+        ).columns.tolist()
 
         # Train model
         self.train(df)
@@ -428,10 +465,11 @@ class AnomalyDetector(MLPipeline):
         scores = self.model.score_samples(X)
 
         # Add results to dataframe
-        df['is_anomaly'] = predictions == -1
-        df['anomaly_score'] = scores
+        df["is_anomaly"] = predictions == -1
+        df["anomaly_score"] = scores
 
         return df
+
 
 class TimeSeriesForecaster:
     """Time series forecasting using Prophet and LSTM"""
@@ -442,12 +480,14 @@ class TimeSeriesForecaster:
         self.model = None
         self.scaler = None
 
-    def prepare_data(self, df: pd.DataFrame, date_col: str, value_col: str) -> pd.DataFrame:
+    def prepare_data(
+        self, df: pd.DataFrame, date_col: str, value_col: str
+    ) -> pd.DataFrame:
         """Prepare data for time series forecasting"""
         # Prophet requires specific column names
         ts_df = df[[date_col, value_col]].copy()
-        ts_df.columns = ['ds', 'y']
-        ts_df['ds'] = pd.to_datetime(ts_df['ds'])
+        ts_df.columns = ["ds", "y"]
+        ts_df["ds"] = pd.to_datetime(ts_df["ds"])
         return ts_df
 
     def train_prophet(self, df: pd.DataFrame, **kwargs):
@@ -463,35 +503,33 @@ class TimeSeriesForecaster:
 
         # Scale data
         self.scaler = MinMaxScaler()
-        scaled_data = self.scaler.fit_transform(df[['y']].values)
+        scaled_data = self.scaler.fit_transform(df[["y"]].values)
 
         # Create sequences
         X, y = [], []
         for i in range(sequence_length, len(scaled_data)):
-            X.append(scaled_data[i-sequence_length:i, 0])
+            X.append(scaled_data[i - sequence_length : i, 0])
             y.append(scaled_data[i, 0])
 
         X, y = np.array(X), np.array(y)
         X = np.reshape(X, (X.shape[0], X.shape[1], 1))
 
         # Build LSTM model
-        self.model = models.Sequential([
-            layers.LSTM(50, return_sequences=True, input_shape=(sequence_length, 1)),
-            layers.LSTM(50, return_sequences=False),
-            layers.Dense(25),
-            layers.Dense(1)
-        ])
+        self.model = models.Sequential(
+            [
+                layers.LSTM(
+                    50, return_sequences=True, input_shape=(sequence_length, 1)
+                ),
+                layers.LSTM(50, return_sequences=False),
+                layers.Dense(25),
+                layers.Dense(1),
+            ]
+        )
 
-        self.model.compile(optimizer='adam', loss='mean_squared_error')
+        self.model.compile(optimizer="adam", loss="mean_squared_error")
 
         # Train model
-        self.model.fit(
-            X, y,
-            batch_size=32,
-            epochs=10,
-            validation_split=0.2,
-            verbose=0
-        )
+        self.model.fit(X, y, batch_size=32, epochs=10, validation_split=0.2, verbose=0)
 
         logger.info("LSTM model trained successfully")
 
@@ -500,29 +538,27 @@ class TimeSeriesForecaster:
         if self.algorithm == "prophet":
             future = self.model.make_future_dataframe(periods=periods)
             forecast = self.model.predict(future)
-            return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
+            return forecast[["ds", "yhat", "yhat_lower", "yhat_upper"]]
         elif self.algorithm == "lstm":
             # LSTM forecasting logic
             pass
         else:
             raise ValueError(f"Unknown algorithm: {self.algorithm}")
 
+
 class CustomerSegmentation(MLPipeline):
     """Customer segmentation using clustering algorithms"""
 
     def __init__(self, algorithm: str = "kmeans", n_clusters: int = 5):
         """Initialize customer segmentation"""
-        hyperparameters = {
-            'n_clusters': n_clusters,
-            'random_state': 42
-        }
+        hyperparameters = {"n_clusters": n_clusters, "random_state": 42}
 
         config = ModelConfig(
             model_type=ModelType.CLUSTERING,
             algorithm=algorithm,
             hyperparameters=hyperparameters,
             feature_columns=[],
-            target_column=None
+            target_column=None,
         )
         super().__init__(config)
 
@@ -536,18 +572,20 @@ class CustomerSegmentation(MLPipeline):
 
         # Get cluster assignments
         X, _ = self.preprocess_data(df)
-        df['segment'] = self.model.predict(X)
+        df["segment"] = self.model.predict(X)
 
         # Calculate segment profiles
         for feature in features:
-            segment_means = df.groupby('segment')[feature].mean()
+            segment_means = df.groupby("segment")[feature].mean()
             logger.info(f"Segment means for {feature}: {segment_means.to_dict()}")
 
         return df
 
+
 # ==============================================================================
 # Use Case Specific Models
 # ==============================================================================
+
 
 class EcommercePredictiveAnalytics:
     """Predictive analytics for e-commerce"""
@@ -561,31 +599,27 @@ class EcommercePredictiveAnalytics:
         """Predict customer churn"""
         # Feature engineering
         features = [
-            'days_since_last_order',
-            'order_count',
-            'total_spent',
-            'avg_order_value',
-            'product_diversity',
-            'return_rate'
+            "days_since_last_order",
+            "order_count",
+            "total_spent",
+            "avg_order_value",
+            "product_diversity",
+            "return_rate",
         ]
 
         config = ModelConfig(
             model_type=ModelType.CLASSIFICATION,
             algorithm="xgboost_classifier",
-            hyperparameters={
-                'n_estimators': 100,
-                'max_depth': 5,
-                'learning_rate': 0.1
-            },
+            hyperparameters={"n_estimators": 100, "max_depth": 5, "learning_rate": 0.1},
             feature_columns=features,
-            target_column='churned'
+            target_column="churned",
         )
 
         self.churn_model = MLPipeline(config)
         metrics = self.churn_model.train(df)
 
         # Add predictions
-        df['churn_probability'] = self.churn_model.model.predict_proba(
+        df["churn_probability"] = self.churn_model.model.predict_proba(
             self.churn_model.preprocess_data(df)[0]
         )[:, 1]
 
@@ -594,32 +628,33 @@ class EcommercePredictiveAnalytics:
     def predict_ltv(self, df: pd.DataFrame) -> pd.DataFrame:
         """Predict customer lifetime value"""
         features = [
-            'age',
-            'order_count',
-            'avg_order_value',
-            'days_as_customer',
-            'product_categories_purchased'
+            "age",
+            "order_count",
+            "avg_order_value",
+            "days_as_customer",
+            "product_categories_purchased",
         ]
 
         config = ModelConfig(
             model_type=ModelType.REGRESSION,
             algorithm="lightgbm_regressor",
             hyperparameters={
-                'n_estimators': 100,
-                'num_leaves': 31,
-                'learning_rate': 0.1
+                "n_estimators": 100,
+                "num_leaves": 31,
+                "learning_rate": 0.1,
             },
             feature_columns=features,
-            target_column='lifetime_value'
+            target_column="lifetime_value",
         )
 
         self.ltv_model = MLPipeline(config)
         metrics = self.ltv_model.train(df)
 
         # Add predictions
-        df['predicted_ltv'] = self.ltv_model.predict(df)
+        df["predicted_ltv"] = self.ltv_model.predict(df)
 
         return df
+
 
 class FintechFraudDetection:
     """Fraud detection for fintech applications"""
@@ -631,47 +666,53 @@ class FintechFraudDetection:
     def detect_fraud(self, df: pd.DataFrame) -> pd.DataFrame:
         """Detect fraudulent transactions"""
         # Feature engineering
-        df['hour'] = pd.to_datetime(df['transaction_time']).dt.hour
-        df['day_of_week'] = pd.to_datetime(df['transaction_time']).dt.dayofweek
-        df['amount_zscore'] = (df['amount'] - df['amount'].mean()) / df['amount'].std()
+        df["hour"] = pd.to_datetime(df["transaction_time"]).dt.hour
+        df["day_of_week"] = pd.to_datetime(df["transaction_time"]).dt.dayofweek
+        df["amount_zscore"] = (df["amount"] - df["amount"].mean()) / df["amount"].std()
 
         # Anomaly detection
         detector = AnomalyDetector()
         df = detector.detect_anomalies(df, sensitivity=0.05)
 
         # Supervised fraud detection if labels available
-        if 'is_fraud' in df.columns:
+        if "is_fraud" in df.columns:
             features = [
-                'amount', 'amount_zscore', 'hour', 'day_of_week',
-                'merchant_risk_score', 'customer_risk_score',
-                'days_since_last_transaction'
+                "amount",
+                "amount_zscore",
+                "hour",
+                "day_of_week",
+                "merchant_risk_score",
+                "customer_risk_score",
+                "days_since_last_transaction",
             ]
 
             config = ModelConfig(
                 model_type=ModelType.CLASSIFICATION,
                 algorithm="xgboost_classifier",
                 hyperparameters={
-                    'n_estimators': 200,
-                    'max_depth': 6,
-                    'scale_pos_weight': 10  # Handle imbalanced data
+                    "n_estimators": 200,
+                    "max_depth": 6,
+                    "scale_pos_weight": 10,  # Handle imbalanced data
                 },
                 feature_columns=features,
-                target_column='is_fraud'
+                target_column="is_fraud",
             )
 
             self.fraud_detector = MLPipeline(config)
             self.fraud_detector.train(df)
 
             # Add fraud probability
-            df['fraud_probability'] = self.fraud_detector.model.predict_proba(
+            df["fraud_probability"] = self.fraud_detector.model.predict_proba(
                 self.fraud_detector.preprocess_data(df)[0]
             )[:, 1]
 
         return df
 
+
 # ==============================================================================
 # Model Serving and Deployment
 # ==============================================================================
+
 
 class ModelServer:
     """Model serving infrastructure"""
@@ -683,7 +724,9 @@ class ModelServer:
 
     def register_model(self, model_name: str, model: MLPipeline, version: str = "v1"):
         """Register a trained model"""
-        model_path = os.path.join(self.model_registry_path, f"{model_name}_{version}.pkl")
+        model_path = os.path.join(
+            self.model_registry_path, f"{model_name}_{version}.pkl"
+        )
         os.makedirs(self.model_registry_path, exist_ok=True)
         model.save_model(model_path)
         logger.info(f"Model {model_name} version {version} registered")
@@ -694,19 +737,23 @@ class ModelServer:
 
         if model_key not in self.loaded_models:
             model_path = os.path.join(self.model_registry_path, f"{model_key}.pkl")
-            model = MLPipeline(ModelConfig(
-                model_type=ModelType.CLASSIFICATION,
-                algorithm="placeholder",
-                hyperparameters={},
-                feature_columns=[],
-                target_column=None
-            ))
+            model = MLPipeline(
+                ModelConfig(
+                    model_type=ModelType.CLASSIFICATION,
+                    algorithm="placeholder",
+                    hyperparameters={},
+                    feature_columns=[],
+                    target_column=None,
+                )
+            )
             model.load_model(model_path)
             self.loaded_models[model_key] = model
 
         return self.loaded_models[model_key]
 
-    def predict(self, model_name: str, data: Union[pd.DataFrame, Dict], version: str = "v1"):
+    def predict(
+        self, model_name: str, data: Union[pd.DataFrame, Dict], version: str = "v1"
+    ):
         """Make prediction using registered model"""
         model = self.load_model(model_name, version)
 
@@ -720,17 +767,19 @@ class ModelServer:
         model = self.load_model(model_name, version)
 
         return {
-            'model_name': model_name,
-            'version': version,
-            'model_type': model.config.model_type.value,
-            'algorithm': model.config.algorithm,
-            'features': model.config.feature_columns,
-            'metrics': model.metrics.metrics if model.metrics else {}
+            "model_name": model_name,
+            "version": version,
+            "model_type": model.config.model_type.value,
+            "algorithm": model.config.algorithm,
+            "features": model.config.feature_columns,
+            "metrics": model.metrics.metrics if model.metrics else {},
         }
+
 
 # ==============================================================================
 # Main Execution
 # ==============================================================================
+
 
 def main():
     """Example usage of ML pipeline"""
@@ -740,16 +789,18 @@ def main():
     n_samples = 1000
 
     # E-commerce sample data
-    ecommerce_data = pd.DataFrame({
-        'customer_id': range(n_samples),
-        'days_since_last_order': np.random.exponential(30, n_samples),
-        'order_count': np.random.poisson(5, n_samples),
-        'total_spent': np.random.gamma(2, 100, n_samples),
-        'avg_order_value': np.random.normal(50, 15, n_samples),
-        'product_diversity': np.random.uniform(1, 10, n_samples),
-        'return_rate': np.random.beta(2, 10, n_samples),
-        'churned': np.random.binomial(1, 0.3, n_samples)
-    })
+    ecommerce_data = pd.DataFrame(
+        {
+            "customer_id": range(n_samples),
+            "days_since_last_order": np.random.exponential(30, n_samples),
+            "order_count": np.random.poisson(5, n_samples),
+            "total_spent": np.random.gamma(2, 100, n_samples),
+            "avg_order_value": np.random.normal(50, 15, n_samples),
+            "product_diversity": np.random.uniform(1, 10, n_samples),
+            "return_rate": np.random.beta(2, 10, n_samples),
+            "churned": np.random.binomial(1, 0.3, n_samples),
+        }
+    )
 
     # Customer churn prediction
     print("Training customer churn model...")
@@ -760,7 +811,7 @@ def main():
     # Customer segmentation
     print("\nPerforming customer segmentation...")
     segmentation = CustomerSegmentation(n_clusters=4)
-    features = ['order_count', 'total_spent', 'avg_order_value', 'product_diversity']
+    features = ["order_count", "total_spent", "avg_order_value", "product_diversity"]
     ecommerce_data = segmentation.segment_customers(ecommerce_data, features)
     print(f"Segments: {ecommerce_data['segment'].value_counts()}")
 
@@ -776,19 +827,24 @@ def main():
     server.register_model("churn_predictor", analytics.churn_model)
 
     # Test prediction
-    test_customer = pd.DataFrame([{
-        'days_since_last_order': 60,
-        'order_count': 2,
-        'total_spent': 150,
-        'avg_order_value': 75,
-        'product_diversity': 3,
-        'return_rate': 0.1
-    }])
+    test_customer = pd.DataFrame(
+        [
+            {
+                "days_since_last_order": 60,
+                "order_count": 2,
+                "total_spent": 150,
+                "avg_order_value": 75,
+                "product_diversity": 3,
+                "return_rate": 0.1,
+            }
+        ]
+    )
 
     prediction = server.predict("churn_predictor", test_customer)
     print(f"Churn prediction for test customer: {prediction[0]}")
 
     print("\nML Pipeline demonstration complete!")
+
 
 if __name__ == "__main__":
     main()

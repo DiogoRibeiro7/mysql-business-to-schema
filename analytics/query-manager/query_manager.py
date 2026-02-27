@@ -28,43 +28,44 @@ class QueryManager:
     def load_collections(self):
         """Load query collections from configuration file"""
         if self.config_path.exists():
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path, "r") as f:
                 data = yaml.safe_load(f) or {}
-                self.collections = data.get('collections', {})
-                self.templates = data.get('templates', {})
+                self.collections = data.get("collections", {})
+                self.templates = data.get("templates", {})
 
     def save_collections(self):
         """Save query collections to configuration file"""
         data = {
-            'collections': self.collections,
-            'templates': self.templates,
-            'metadata': {
-                'last_updated': datetime.now().isoformat(),
-                'version': '1.0.0'
-            }
+            "collections": self.collections,
+            "templates": self.templates,
+            "metadata": {
+                "last_updated": datetime.now().isoformat(),
+                "version": "1.0.0",
+            },
         }
 
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self.config_path, 'w') as f:
+        with open(self.config_path, "w") as f:
             yaml.dump(data, f, default_flow_style=False, sort_keys=False)
 
-    def create_collection(self, name: str, description: str,
-                         database: str, tags: List[str] = None) -> str:
+    def create_collection(
+        self, name: str, description: str, database: str, tags: List[str] = None
+    ) -> str:
         """Create a new query collection"""
         collection_id = self._generate_id(name)
 
         self.collections[collection_id] = {
-            'id': collection_id,
-            'name': name,
-            'description': description,
-            'database': database,
-            'tags': tags or [],
-            'queries': [],
-            'created_at': datetime.now().isoformat(),
-            'updated_at': datetime.now().isoformat(),
-            'version': 1,
-            'shared': False,
-            'author': 'system'
+            "id": collection_id,
+            "name": name,
+            "description": description,
+            "database": database,
+            "tags": tags or [],
+            "queries": [],
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "version": 1,
+            "shared": False,
+            "author": "system",
         }
 
         self.save_collections()
@@ -76,48 +77,49 @@ class QueryManager:
             raise ValueError(f"Collection {collection_id} not found")
 
         # Generate query ID
-        query_id = self._generate_id(query.get('name', query.get('sql', '')))
+        query_id = self._generate_id(query.get("name", query.get("sql", "")))
 
         # Prepare query object
         query_obj = {
-            'id': query_id,
-            'name': query.get('name', 'Unnamed Query'),
-            'description': query.get('description', ''),
-            'sql': query['sql'],
-            'tags': query.get('tags', []),
-            'parameters': self._extract_parameters(query['sql']),
-            'created_at': datetime.now().isoformat(),
-            'execution_stats': {
-                'avg_time_ms': None,
-                'execution_count': 0,
-                'last_executed': None
+            "id": query_id,
+            "name": query.get("name", "Unnamed Query"),
+            "description": query.get("description", ""),
+            "sql": query["sql"],
+            "tags": query.get("tags", []),
+            "parameters": self._extract_parameters(query["sql"]),
+            "created_at": datetime.now().isoformat(),
+            "execution_stats": {
+                "avg_time_ms": None,
+                "execution_count": 0,
+                "last_executed": None,
             },
-            'category': query.get('category', 'custom'),
-            'complexity': self._analyze_complexity(query['sql'])
+            "category": query.get("category", "custom"),
+            "complexity": self._analyze_complexity(query["sql"]),
         }
 
         # Add to collection
-        self.collections[collection_id]['queries'].append(query_obj)
-        self.collections[collection_id]['updated_at'] = datetime.now().isoformat()
-        self.collections[collection_id]['version'] += 1
+        self.collections[collection_id]["queries"].append(query_obj)
+        self.collections[collection_id]["updated_at"] = datetime.now().isoformat()
+        self.collections[collection_id]["version"] += 1
 
         self.save_collections()
         return query_id
 
-    def create_template(self, name: str, template_sql: str,
-                       description: str, variables: List[Dict]) -> str:
+    def create_template(
+        self, name: str, template_sql: str, description: str, variables: List[Dict]
+    ) -> str:
         """Create a reusable query template"""
         template_id = self._generate_id(name)
 
         self.templates[template_id] = {
-            'id': template_id,
-            'name': name,
-            'description': description,
-            'template_sql': template_sql,
-            'variables': variables,  # [{'name': 'table_name', 'type': 'string', 'default': ''}]
-            'examples': [],
-            'created_at': datetime.now().isoformat(),
-            'usage_count': 0
+            "id": template_id,
+            "name": name,
+            "description": description,
+            "template_sql": template_sql,
+            "variables": variables,  # [{'name': 'table_name', 'type': 'string', 'default': ''}]
+            "examples": [],
+            "created_at": datetime.now().isoformat(),
+            "usage_count": 0,
         }
 
         self.save_collections()
@@ -129,68 +131,72 @@ class QueryManager:
             raise ValueError(f"Template {template_id} not found")
 
         template = self.templates[template_id]
-        sql = template['template_sql']
+        sql = template["template_sql"]
 
         # Replace variables
-        for var in template['variables']:
-            var_name = var['name']
-            var_value = variables.get(var_name, var.get('default', ''))
+        for var in template["variables"]:
+            var_name = var["name"]
+            var_value = variables.get(var_name, var.get("default", ""))
 
             # Escape value based on type
-            if var['type'] == 'string':
+            if var["type"] == "string":
                 var_value = f"'{var_value}'"
-            elif var['type'] == 'identifier':
+            elif var["type"] == "identifier":
                 var_value = f"`{var_value}`"
 
             sql = sql.replace(f"{{{{{var_name}}}}}", str(var_value))
 
         # Update usage count
-        self.templates[template_id]['usage_count'] += 1
+        self.templates[template_id]["usage_count"] += 1
         self.save_collections()
 
         return sql
 
-    def search_queries(self, search_term: str,
-                      tags: List[str] = None,
-                      database: str = None) -> List[Dict]:
+    def search_queries(
+        self, search_term: str, tags: List[str] = None, database: str = None
+    ) -> List[Dict]:
         """Search for queries across collections"""
         results = []
         search_lower = search_term.lower()
 
         for collection in self.collections.values():
             # Filter by database if specified
-            if database and collection['database'] != database:
+            if database and collection["database"] != database:
                 continue
 
-            for query in collection['queries']:
+            for query in collection["queries"]:
                 # Search in query name, description, and SQL
-                if (search_lower in query['name'].lower() or
-                    search_lower in query['description'].lower() or
-                    search_lower in query['sql'].lower()):
+                if (
+                    search_lower in query["name"].lower()
+                    or search_lower in query["description"].lower()
+                    or search_lower in query["sql"].lower()
+                ):
 
                     # Filter by tags if specified
-                    if tags and not any(tag in query['tags'] for tag in tags):
+                    if tags and not any(tag in query["tags"] for tag in tags):
                         continue
 
-                    results.append({
-                        'collection': collection['name'],
-                        'collection_id': collection['id'],
-                        'query': query
-                    })
+                    results.append(
+                        {
+                            "collection": collection["name"],
+                            "collection_id": collection["id"],
+                            "query": query,
+                        }
+                    )
 
         return results
 
-    def export_collection(self, collection_id: str, format: str = 'json') -> str:
+    def export_collection(self, collection_id: str, format: str = "json") -> str:
         """Export a collection to various formats"""
         if collection_id not in self.collections:
             raise ValueError(f"Collection {collection_id} not found")
 
         collection = self.collections[collection_id]
 
-        if format == 'json':
+        if format == "json":
             return json.dumps(collection, indent=2, default=str)
 
-        elif format == 'sql':
+        elif format == "sql":
             # Export as SQL file with comments
             sql_content = f"""-- Query Collection: {collection['name']}
 -- Description: {collection['description']}
@@ -199,7 +205,7 @@ class QueryManager:
 -- Version: {collection['version']}
 
 """
-            for query in collection['queries']:
+            for query in collection["queries"]:
                 sql_content += f"""
 -- =====================================================
 -- Query: {query['name']}
@@ -213,7 +219,7 @@ class QueryManager:
 """
             return sql_content
 
-        elif format == 'markdown':
+        elif format == "markdown":
             # Export as Markdown documentation
             md_content = f"""# {collection['name']}
 
@@ -225,7 +231,7 @@ class QueryManager:
 ## Queries
 
 """
-            for i, query in enumerate(collection['queries'], 1):
+            for i, query in enumerate(collection["queries"], 1):
                 md_content += f"""
 ### {i}. {query['name']}
 
@@ -244,18 +250,18 @@ class QueryManager:
         else:
             raise ValueError(f"Unsupported export format: {format}")
 
-    def import_collection(self, data: str, format: str = 'json') -> str:
+    def import_collection(self, data: str, format: str = "json") -> str:
         """Import a collection from various formats"""
-        if format == 'json':
+        if format == "json":
             collection = json.loads(data)
-            collection_id = collection['id']
+            collection_id = collection["id"]
 
             # Check for conflicts
             if collection_id in self.collections:
                 # Generate new ID for imported collection
-                collection_id = self._generate_id(collection['name'] + '_imported')
-                collection['id'] = collection_id
-                collection['name'] = collection['name'] + ' (Imported)'
+                collection_id = self._generate_id(collection["name"] + "_imported")
+                collection["id"] = collection_id
+                collection["name"] = collection["name"] + " (Imported)"
 
             self.collections[collection_id] = collection
             self.save_collections()
@@ -275,44 +281,38 @@ class QueryManager:
                 f"{collection_id}{datetime.now().isoformat()}".encode()
             ).hexdigest()[:8]
 
-        self.collections[collection_id]['shared'] = True
-        self.collections[collection_id]['share_code'] = share_code
+        self.collections[collection_id]["shared"] = True
+        self.collections[collection_id]["share_code"] = share_code
         self.save_collections()
 
         return share_code
 
     def get_statistics(self) -> Dict[str, Any]:
         """Get statistics about query collections"""
-        total_queries = sum(
-            len(col['queries']) for col in self.collections.values()
-        )
+        total_queries = sum(len(col["queries"]) for col in self.collections.values())
 
-        databases = list(set(
-            col['database'] for col in self.collections.values()
-        ))
+        databases = list(set(col["database"] for col in self.collections.values()))
 
         all_tags = []
         for col in self.collections.values():
-            for query in col['queries']:
-                all_tags.extend(query['tags'])
+            for query in col["queries"]:
+                all_tags.extend(query["tags"])
 
         tag_frequency = {}
         for tag in all_tags:
             tag_frequency[tag] = tag_frequency.get(tag, 0) + 1
 
         return {
-            'total_collections': len(self.collections),
-            'total_queries': total_queries,
-            'total_templates': len(self.templates),
-            'databases': databases,
-            'popular_tags': sorted(
-                tag_frequency.items(),
-                key=lambda x: x[1],
-                reverse=True
+            "total_collections": len(self.collections),
+            "total_queries": total_queries,
+            "total_templates": len(self.templates),
+            "databases": databases,
+            "popular_tags": sorted(
+                tag_frequency.items(), key=lambda x: x[1], reverse=True
             )[:10],
-            'shared_collections': sum(
-                1 for col in self.collections.values() if col.get('shared')
-            )
+            "shared_collections": sum(
+                1 for col in self.collections.values() if col.get("shared")
+            ),
         }
 
     def _generate_id(self, text: str) -> str:
@@ -322,7 +322,7 @@ class QueryManager:
     def _extract_parameters(self, sql: str) -> List[str]:
         """Extract parameter placeholders from SQL"""
         # Find :param_name or @param_name patterns
-        params = re.findall(r'[:@](\w+)', sql)
+        params = re.findall(r"[:@](\w+)", sql)
         return list(set(params))
 
     def _analyze_complexity(self, sql: str) -> str:
@@ -330,17 +330,17 @@ class QueryManager:
         sql_upper = sql.upper()
 
         # Count various SQL features
-        join_count = sql_upper.count('JOIN')
-        subquery_count = sql_upper.count('SELECT') - 1
-        union_count = sql_upper.count('UNION')
+        join_count = sql_upper.count("JOIN")
+        subquery_count = sql_upper.count("SELECT") - 1
+        union_count = sql_upper.count("UNION")
 
         # Determine complexity level
         if join_count > 3 or subquery_count > 2 or union_count > 0:
-            return 'high'
+            return "high"
         elif join_count > 1 or subquery_count > 0:
-            return 'medium'
+            return "medium"
         else:
-            return 'low'
+            return "low"
 
 
 class QueryOptimizer:
@@ -366,51 +366,51 @@ class QueryOptimizer:
 
             for row in explain_results:
                 # Check for full table scans
-                if row.get('type') == 'ALL':
-                    issues.append({
-                        'type': 'full_table_scan',
-                        'table': row.get('table'),
-                        'severity': 'high'
-                    })
+                if row.get("type") == "ALL":
+                    issues.append(
+                        {
+                            "type": "full_table_scan",
+                            "table": row.get("table"),
+                            "severity": "high",
+                        }
+                    )
                     suggestions.append(
                         f"Consider adding an index on {row.get('table')}"
                     )
 
                 # Check for filesort
-                if 'Using filesort' in str(row.get('Extra', '')):
-                    issues.append({
-                        'type': 'filesort',
-                        'table': row.get('table'),
-                        'severity': 'medium'
-                    })
-                    suggestions.append(
-                        "Consider adding an index to support ORDER BY"
+                if "Using filesort" in str(row.get("Extra", "")):
+                    issues.append(
+                        {
+                            "type": "filesort",
+                            "table": row.get("table"),
+                            "severity": "medium",
+                        }
                     )
+                    suggestions.append("Consider adding an index to support ORDER BY")
 
                 # Check for temporary tables
-                if 'Using temporary' in str(row.get('Extra', '')):
-                    issues.append({
-                        'type': 'temporary_table',
-                        'table': row.get('table'),
-                        'severity': 'medium'
-                    })
+                if "Using temporary" in str(row.get("Extra", "")):
+                    issues.append(
+                        {
+                            "type": "temporary_table",
+                            "table": row.get("table"),
+                            "severity": "medium",
+                        }
+                    )
 
             cursor.close()
             conn.close()
 
             return {
-                'execution_plan': explain_results,
-                'issues': issues,
-                'suggestions': suggestions,
-                'estimated_rows': sum(row.get('rows', 0) for row in explain_results)
+                "execution_plan": explain_results,
+                "issues": issues,
+                "suggestions": suggestions,
+                "estimated_rows": sum(row.get("rows", 0) for row in explain_results),
             }
 
         except Error as e:
-            return {
-                'error': str(e),
-                'issues': [],
-                'suggestions': []
-            }
+            return {"error": str(e), "issues": [], "suggestions": []}
 
     def suggest_indexes(self, sql: str, table_schema: Dict) -> List[str]:
         """Suggest indexes based on query patterns"""
@@ -418,30 +418,32 @@ class QueryOptimizer:
         sql_upper = sql.upper()
 
         # Extract WHERE conditions
-        where_match = re.search(r'WHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)', sql_upper)
+        where_match = re.search(r"WHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)", sql_upper)
         if where_match:
             where_clause = where_match.group(1)
             # Extract column names from WHERE clause
-            columns = re.findall(r'(\w+)\s*[=<>]', where_clause)
+            columns = re.findall(r"(\w+)\s*[=<>]", where_clause)
             if columns:
                 suggestions.append(
                     f"CREATE INDEX idx_where ON table ({', '.join(set(columns))})"
                 )
 
         # Extract JOIN conditions
-        join_matches = re.findall(r'JOIN.*?ON\s+(.*?)(?:JOIN|WHERE|GROUP|ORDER|$)', sql_upper)
+        join_matches = re.findall(
+            r"JOIN.*?ON\s+(.*?)(?:JOIN|WHERE|GROUP|ORDER|$)", sql_upper
+        )
         for join_condition in join_matches:
-            columns = re.findall(r'(\w+)\s*=\s*\w+\.(\w+)', join_condition)
+            columns = re.findall(r"(\w+)\s*=\s*\w+\.(\w+)", join_condition)
             for col_pair in columns:
                 suggestions.append(
                     f"CREATE INDEX idx_join_{col_pair[0]} ON table ({col_pair[0]})"
                 )
 
         # Extract ORDER BY columns
-        order_match = re.search(r'ORDER\s+BY\s+(.*?)(?:LIMIT|$)', sql_upper)
+        order_match = re.search(r"ORDER\s+BY\s+(.*?)(?:LIMIT|$)", sql_upper)
         if order_match:
             order_clause = order_match.group(1)
-            columns = re.findall(r'(\w+)(?:\s+(?:ASC|DESC))?', order_clause)
+            columns = re.findall(r"(\w+)(?:\s+(?:ASC|DESC))?", order_clause)
             if columns:
                 suggestions.append(
                     f"CREATE INDEX idx_order ON table ({', '.join(columns)})"
@@ -459,13 +461,15 @@ def create_default_collections():
         name="Medical Clinic Analytics",
         description="Common queries for medical clinic database",
         database="clinic_db",
-        tags=["healthcare", "analytics", "reporting"]
+        tags=["healthcare", "analytics", "reporting"],
     )
 
-    manager.add_query(clinic_id, {
-        'name': 'Daily Appointment Summary',
-        'description': 'Get appointment counts and revenue by day',
-        'sql': """
+    manager.add_query(
+        clinic_id,
+        {
+            "name": "Daily Appointment Summary",
+            "description": "Get appointment counts and revenue by day",
+            "sql": """
 SELECT
     DATE(appointment_date) as date,
     COUNT(*) as total_appointments,
@@ -478,14 +482,17 @@ WHERE appointment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 GROUP BY DATE(appointment_date)
 ORDER BY date DESC;
         """,
-        'tags': ['reporting', 'revenue'],
-        'category': 'analytics'
-    })
+            "tags": ["reporting", "revenue"],
+            "category": "analytics",
+        },
+    )
 
-    manager.add_query(clinic_id, {
-        'name': 'Doctor Utilization Report',
-        'description': 'Analyze doctor appointment load and utilization',
-        'sql': """
+    manager.add_query(
+        clinic_id,
+        {
+            "name": "Doctor Utilization Report",
+            "description": "Analyze doctor appointment load and utilization",
+            "sql": """
 SELECT
     d.doctor_id,
     CONCAT(d.first_name, ' ', d.last_name) as doctor_name,
@@ -500,22 +507,25 @@ WHERE a.appointment_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
 GROUP BY d.doctor_id, s.name
 ORDER BY total_appointments DESC;
         """,
-        'tags': ['utilization', 'doctors', 'performance'],
-        'category': 'analytics'
-    })
+            "tags": ["utilization", "doctors", "performance"],
+            "category": "analytics",
+        },
+    )
 
     # IoT Bins Collection
     iot_id = manager.create_collection(
         name="IoT Waste Management Queries",
         description="Monitoring and analytics for smart waste bins",
         database="iot_bins",
-        tags=["iot", "monitoring", "smart-city"]
+        tags=["iot", "monitoring", "smart-city"],
     )
 
-    manager.add_query(iot_id, {
-        'name': 'Bins Requiring Collection',
-        'description': 'Find bins that need immediate collection',
-        'sql': """
+    manager.add_query(
+        iot_id,
+        {
+            "name": "Bins Requiring Collection",
+            "description": "Find bins that need immediate collection",
+            "sql": """
 SELECT
     b.bin_id,
     b.location,
@@ -536,22 +546,25 @@ WHERE r.fill_level > 75
    OR TIMESTAMPDIFF(HOUR, r.timestamp, NOW()) > 24
 ORDER BY r.fill_level DESC, r.battery_level ASC;
         """,
-        'tags': ['monitoring', 'operations', 'alerts'],
-        'category': 'operational'
-    })
+            "tags": ["monitoring", "operations", "alerts"],
+            "category": "operational",
+        },
+    )
 
     # E-Commerce Collection
     ecommerce_id = manager.create_collection(
         name="E-Commerce Analytics Suite",
         description="Sales, inventory, and customer analytics",
         database="ecommerce_db",
-        tags=["ecommerce", "sales", "analytics"]
+        tags=["ecommerce", "sales", "analytics"],
     )
 
-    manager.add_query(ecommerce_id, {
-        'name': 'Top Selling Products',
-        'description': 'Identify best-selling products by revenue and quantity',
-        'sql': """
+    manager.add_query(
+        ecommerce_id,
+        {
+            "name": "Top Selling Products",
+            "description": "Identify best-selling products by revenue and quantity",
+            "sql": """
 SELECT
     p.product_id,
     p.name as product_name,
@@ -572,9 +585,10 @@ GROUP BY p.product_id, c.name
 ORDER BY total_revenue DESC
 LIMIT 20;
         """,
-        'tags': ['sales', 'products', 'revenue'],
-        'category': 'analytics'
-    })
+            "tags": ["sales", "products", "revenue"],
+            "category": "analytics",
+        },
+    )
 
     # Create query templates
     manager.create_template(
@@ -592,12 +606,12 @@ WHERE {{date_column}} >= DATE_SUB(CURDATE(), INTERVAL {{days}} DAY);
         """,
         description="Get basic statistics for any table",
         variables=[
-            {'name': 'table_name', 'type': 'identifier', 'default': 'users'},
-            {'name': 'primary_key', 'type': 'identifier', 'default': 'id'},
-            {'name': 'date_column', 'type': 'identifier', 'default': 'created_at'},
-            {'name': 'text_column', 'type': 'identifier', 'default': 'description'},
-            {'name': 'days', 'type': 'number', 'default': 30}
-        ]
+            {"name": "table_name", "type": "identifier", "default": "users"},
+            {"name": "primary_key", "type": "identifier", "default": "id"},
+            {"name": "date_column", "type": "identifier", "default": "created_at"},
+            {"name": "text_column", "type": "identifier", "default": "description"},
+            {"name": "days", "type": "number", "default": 30},
+        ],
     )
 
     print("Default query collections created successfully!")

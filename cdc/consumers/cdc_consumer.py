@@ -26,48 +26,47 @@ from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 
 # Metrics
 cdc_events_processed = Counter(
-    'cdc_events_processed_total',
-    'Total number of CDC events processed',
-    ['database', 'table', 'operation']
+    "cdc_events_processed_total",
+    "Total number of CDC events processed",
+    ["database", "table", "operation"],
 )
 cdc_events_failed = Counter(
-    'cdc_events_failed_total',
-    'Total number of CDC events that failed processing',
-    ['database', 'table', 'error_type']
+    "cdc_events_failed_total",
+    "Total number of CDC events that failed processing",
+    ["database", "table", "error_type"],
 )
 cdc_processing_duration = Histogram(
-    'cdc_processing_duration_seconds',
-    'Duration of CDC event processing',
-    ['database', 'table', 'operation']
+    "cdc_processing_duration_seconds",
+    "Duration of CDC event processing",
+    ["database", "table", "operation"],
 )
 cdc_lag_seconds = Gauge(
-    'cdc_lag_seconds',
-    'Current lag in CDC processing',
-    ['database', 'table']
+    "cdc_lag_seconds", "Current lag in CDC processing", ["database", "table"]
 )
 
 
 class Operation(Enum):
     """CDC operation types"""
-    CREATE = 'c'
-    UPDATE = 'u'
-    DELETE = 'd'
-    READ = 'r'
-    TRUNCATE = 't'
-    MESSAGE = 'm'
+
+    CREATE = "c"
+    UPDATE = "u"
+    DELETE = "d"
+    READ = "r"
+    TRUNCATE = "t"
+    MESSAGE = "m"
 
 
 @dataclass
 class CDCEvent:
     """Represents a CDC event"""
+
     database: str
     table: str
     operation: Operation
@@ -136,16 +135,12 @@ class ElasticsearchProcessor(CDCProcessor):
         doc_id = self._get_document_id(event)
         document = {
             **event.after,
-            '_timestamp': event.timestamp.isoformat(),
-            '_source_db': event.database,
-            '_source_table': event.table
+            "_timestamp": event.timestamp.isoformat(),
+            "_source_db": event.database,
+            "_source_table": event.table,
         }
 
-        self.es.index(
-            index=index_name,
-            id=doc_id,
-            body=document
-        )
+        self.es.index(index=index_name, id=doc_id, body=document)
         return True
 
     async def handle_update(self, event: CDCEvent, index_name: str) -> bool:
@@ -153,14 +148,12 @@ class ElasticsearchProcessor(CDCProcessor):
         doc_id = self._get_document_id(event)
         document = {
             **event.after,
-            '_timestamp': event.timestamp.isoformat(),
-            '_updated_at': datetime.now().isoformat()
+            "_timestamp": event.timestamp.isoformat(),
+            "_updated_at": datetime.now().isoformat(),
         }
 
         self.es.update(
-            index=index_name,
-            id=doc_id,
-            body={'doc': document, 'doc_as_upsert': True}
+            index=index_name, id=doc_id, body={"doc": document, "doc_as_upsert": True}
         )
         return True
 
@@ -173,7 +166,7 @@ class ElasticsearchProcessor(CDCProcessor):
     def _get_document_id(self, event: CDCEvent) -> str:
         """Generate document ID from event key"""
         if event.key:
-            return '_'.join(str(v) for v in event.key.values())
+            return "_".join(str(v) for v in event.key.values())
         return str(event.timestamp.timestamp())
 
 
@@ -213,18 +206,18 @@ class RedisProcessor(CDCProcessor):
     async def _update_materialized_views(self, event: CDCEvent):
         """Update materialized views in Redis"""
         # Example: Update aggregated statistics
-        if event.table == 'appointments' and event.database == 'clinic_db':
-            if event.after and event.after.get('doctor_id'):
-                doctor_id = event.after['doctor_id']
+        if event.table == "appointments" and event.database == "clinic_db":
+            if event.after and event.after.get("doctor_id"):
+                doctor_id = event.after["doctor_id"]
                 key = f"stats:doctor:{doctor_id}:appointments"
-                self.redis.hincrby(key, datetime.now().strftime('%Y-%m-%d'), 1)
+                self.redis.hincrby(key, datetime.now().strftime("%Y-%m-%d"), 1)
 
     def _get_cache_key(self, event: CDCEvent) -> str:
         """Generate cache key"""
         key_parts = [event.database, event.table]
         if event.key:
             key_parts.extend(str(v) for v in event.key.values())
-        return ':'.join(key_parts)
+        return ":".join(key_parts)
 
 
 class PostgreSQLProcessor(CDCProcessor):
@@ -266,11 +259,11 @@ class PostgreSQLProcessor(CDCProcessor):
         values = [event.after[col] for col in columns]
 
         # Add CDC metadata columns
-        columns.extend(['_cdc_timestamp', '_cdc_operation', '_cdc_source'])
-        values.extend([event.timestamp, 'INSERT', event.database])
+        columns.extend(["_cdc_timestamp", "_cdc_operation", "_cdc_source"])
+        values.extend([event.timestamp, "INSERT", event.database])
 
-        placeholders = ','.join(['%s'] * len(values))
-        cols = ','.join(columns)
+        placeholders = ",".join(["%s"] * len(values))
+        cols = ",".join(columns)
 
         query = f"""
             INSERT INTO {schema}.{table} ({cols})
@@ -281,8 +274,8 @@ class PostgreSQLProcessor(CDCProcessor):
 
     async def _handle_update(self, cursor, schema: str, table: str, event: CDCEvent):
         """Handle UPDATE to PostgreSQL"""
-        set_clause = ','.join([f"{k} = %s" for k in event.after.keys()])
-        where_clause = ' AND '.join([f"{k} = %s" for k in event.key.keys()])
+        set_clause = ",".join([f"{k} = %s" for k in event.after.keys()])
+        where_clause = " AND ".join([f"{k} = %s" for k in event.key.keys()])
 
         values = list(event.after.values()) + list(event.key.values())
 
@@ -296,7 +289,7 @@ class PostgreSQLProcessor(CDCProcessor):
 
     async def _handle_delete(self, cursor, schema: str, table: str, event: CDCEvent):
         """Handle DELETE in PostgreSQL (soft delete)"""
-        where_clause = ' AND '.join([f"{k} = %s" for k in event.key.keys()])
+        where_clause = " AND ".join([f"{k} = %s" for k in event.key.keys()])
 
         query = f"""
             UPDATE {schema}.{table}
@@ -338,13 +331,13 @@ class MongoDBProcessor(CDCProcessor):
         """Insert document to MongoDB"""
         document = {
             **event.after,
-            '_cdc_metadata': {
-                'timestamp': event.timestamp,
-                'operation': 'INSERT',
-                'source_database': event.database,
-                'source_table': event.table,
-                'transaction_id': event.transaction_id
-            }
+            "_cdc_metadata": {
+                "timestamp": event.timestamp,
+                "operation": "INSERT",
+                "source_database": event.database,
+                "source_table": event.table,
+                "transaction_id": event.transaction_id,
+            },
         }
         collection.insert_one(document)
 
@@ -352,11 +345,11 @@ class MongoDBProcessor(CDCProcessor):
         """Update document in MongoDB"""
         filter_doc = self._build_filter(event.key)
         update_doc = {
-            '$set': {
+            "$set": {
                 **event.after,
-                '_cdc_metadata.timestamp': event.timestamp,
-                '_cdc_metadata.operation': 'UPDATE',
-                '_cdc_metadata.last_updated': datetime.now()
+                "_cdc_metadata.timestamp": event.timestamp,
+                "_cdc_metadata.operation": "UPDATE",
+                "_cdc_metadata.last_updated": datetime.now(),
             }
         }
         collection.update_one(filter_doc, update_doc, upsert=True)
@@ -366,10 +359,10 @@ class MongoDBProcessor(CDCProcessor):
         filter_doc = self._build_filter(event.key)
         # Soft delete
         update_doc = {
-            '$set': {
-                '_cdc_metadata.deleted': True,
-                '_cdc_metadata.deleted_at': event.timestamp,
-                '_cdc_metadata.operation': 'DELETE'
+            "$set": {
+                "_cdc_metadata.deleted": True,
+                "_cdc_metadata.deleted_at": event.timestamp,
+                "_cdc_metadata.operation": "DELETE",
             }
         }
         collection.update_one(filter_doc, update_doc)
@@ -398,16 +391,16 @@ class CDCConsumer:
 
         # Initialize Kafka consumer
         self.kafka_consumer = KafkaConsumer(
-            *self.config['topics'],
-            bootstrap_servers=self.config['kafka_servers'],
-            group_id=self.config.get('group_id', 'cdc-consumer-group'),
-            value_deserializer=lambda m: json.loads(m.decode('utf-8')),
-            key_deserializer=lambda m: json.loads(m.decode('utf-8')) if m else None,
-            auto_offset_reset='earliest',
+            *self.config["topics"],
+            bootstrap_servers=self.config["kafka_servers"],
+            group_id=self.config.get("group_id", "cdc-consumer-group"),
+            value_deserializer=lambda m: json.loads(m.decode("utf-8")),
+            key_deserializer=lambda m: json.loads(m.decode("utf-8")) if m else None,
+            auto_offset_reset="earliest",
             enable_auto_commit=False,
             max_poll_records=500,
             session_timeout_ms=30000,
-            heartbeat_interval_ms=10000
+            heartbeat_interval_ms=10000,
         )
 
         logger.info(f"Started CDC consumer for topics: {self.config['topics']}")
@@ -446,45 +439,39 @@ class CDCConsumer:
 
             # Calculate lag
             lag = (datetime.now() - event.timestamp).total_seconds()
-            cdc_lag_seconds.labels(
-                database=event.database,
-                table=event.table
-            ).set(lag)
+            cdc_lag_seconds.labels(database=event.database, table=event.table).set(lag)
 
             # Process through all processors
             with cdc_processing_duration.labels(
                 database=event.database,
                 table=event.table,
-                operation=event.operation.name
+                operation=event.operation.name,
             ).time():
-                tasks = [
-                    processor.process(event)
-                    for processor in self.processors
-                ]
+                tasks = [processor.process(event) for processor in self.processors]
                 results = await asyncio.gather(*tasks, return_exceptions=True)
 
                 # Track metrics
                 for i, result in enumerate(results):
                     if isinstance(result, Exception):
-                        logger.error(f"Processor {self.processors[i].name} failed: {result}")
+                        logger.error(
+                            f"Processor {self.processors[i].name} failed: {result}"
+                        )
                         cdc_events_failed.labels(
                             database=event.database,
                             table=event.table,
-                            error_type=type(result).__name__
+                            error_type=type(result).__name__,
                         ).inc()
                     elif result:
                         cdc_events_processed.labels(
                             database=event.database,
                             table=event.table,
-                            operation=event.operation.name
+                            operation=event.operation.name,
                         ).inc()
 
         except Exception as e:
             logger.error(f"Failed to process record: {e}")
             cdc_events_failed.labels(
-                database='unknown',
-                table='unknown',
-                error_type=type(e).__name__
+                database="unknown", table="unknown", error_type=type(e).__name__
             ).inc()
 
     def _parse_event(self, record) -> CDCEvent:
@@ -493,27 +480,27 @@ class CDCConsumer:
         key = record.key
 
         # Extract operation
-        op = value.get('op', 'r')
+        op = value.get("op", "r")
         operation = Operation(op)
 
         # Extract source metadata
-        source = value.get('source', {})
+        source = value.get("source", {})
 
         # Create CDCEvent
         return CDCEvent(
-            database=source.get('db'),
-            table=source.get('table'),
+            database=source.get("db"),
+            table=source.get("table"),
             operation=operation,
-            timestamp=datetime.fromtimestamp(
-                value.get('ts_ms', 0) / 1000
-            ),
-            before=value.get('before'),
-            after=value.get('after'),
+            timestamp=datetime.fromtimestamp(value.get("ts_ms", 0) / 1000),
+            before=value.get("before"),
+            after=value.get("after"),
             key=key or {},
             source=source,
-            transaction_id=value.get('transaction', {}).get('id'),
-            transaction_total_order=value.get('transaction', {}).get('total_order'),
-            transaction_data_collection_order=value.get('transaction', {}).get('data_collection_order')
+            transaction_id=value.get("transaction", {}).get("id"),
+            transaction_total_order=value.get("transaction", {}).get("total_order"),
+            transaction_data_collection_order=value.get("transaction", {}).get(
+                "data_collection_order"
+            ),
         )
 
     async def stop(self):
@@ -530,22 +517,22 @@ async def main():
 
     # Configuration
     config = {
-        'kafka_servers': ['localhost:29092'],
-        'topics': [
-            'cdc.clinic.patients',
-            'cdc.clinic.appointments',
-            'cdc.clinic.doctors',
-            'cdc.iot.sensor_readings',
-            'cdc.iot.alerts',
-            'cdc.ecommerce.orders',
-            'cdc.ecommerce.products'
+        "kafka_servers": ["localhost:29092"],
+        "topics": [
+            "cdc.clinic.patients",
+            "cdc.clinic.appointments",
+            "cdc.clinic.doctors",
+            "cdc.iot.sensor_readings",
+            "cdc.iot.alerts",
+            "cdc.ecommerce.orders",
+            "cdc.ecommerce.products",
         ],
-        'group_id': 'cdc-consumer-group-1'
+        "group_id": "cdc-consumer-group-1",
     }
 
     # Initialize processors
-    es_client = Elasticsearch(['http://localhost:9200'])
-    redis_client = redis.Redis(host='localhost', port=6379, decode_responses=True)
+    es_client = Elasticsearch(["http://localhost:9200"])
+    redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
 
     # Create consumer
     consumer = CDCConsumer(config)

@@ -12,21 +12,24 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class ConnectionPool:
     """
     Custom connection pool implementation with advanced features.
     """
 
-    def __init__(self,
-                 host: str,
-                 user: str,
-                 password: str,
-                 database: str,
-                 pool_size: int = 5,
-                 max_overflow: int = 10,
-                 timeout: int = 30,
-                 recycle: int = 3600,
-                 **kwargs):
+    def __init__(
+        self,
+        host: str,
+        user: str,
+        password: str,
+        database: str,
+        pool_size: int = 5,
+        max_overflow: int = 10,
+        timeout: int = 30,
+        recycle: int = 3600,
+        **kwargs,
+    ):
         """
         Initialize connection pool.
 
@@ -42,11 +45,11 @@ class ConnectionPool:
             **kwargs: Additional connection parameters
         """
         self.config = {
-            'host': host,
-            'user': user,
-            'password': password,
-            'database': database,
-            **kwargs
+            "host": host,
+            "user": user,
+            "password": password,
+            "database": database,
+            **kwargs,
         }
 
         self.pool_size = pool_size
@@ -75,10 +78,10 @@ class ConnectionPool:
             conn = mysql.connector.connect(**self.config)
             conn_id = id(conn)
             self._connections[conn_id] = {
-                'connection': conn,
-                'created_at': time.time(),
-                'last_used': time.time(),
-                'in_use': False
+                "connection": conn,
+                "created_at": time.time(),
+                "last_used": time.time(),
+                "in_use": False,
             }
             logger.debug(f"Created new connection {conn_id}")
             return conn
@@ -106,7 +109,7 @@ class ConnectionPool:
         conn_info = self._connections[conn_id]
 
         # Check if connection should be recycled
-        if time.time() - conn_info['created_at'] > self.recycle:
+        if time.time() - conn_info["created_at"] > self.recycle:
             logger.debug(f"Connection {conn_id} exceeded recycle time")
             return False
 
@@ -143,8 +146,8 @@ class ConnectionPool:
                 # Validate connection
                 if self._is_connection_valid(conn):
                     conn_id = id(conn)
-                    self._connections[conn_id]['in_use'] = True
-                    self._connections[conn_id]['last_used'] = time.time()
+                    self._connections[conn_id]["in_use"] = True
+                    self._connections[conn_id]["last_used"] = time.time()
                     logger.debug(f"Reusing connection {conn_id}")
                     return conn
                 else:
@@ -159,7 +162,7 @@ class ConnectionPool:
                     new_conn = self._create_connection()
                     if new_conn:
                         conn_id = id(new_conn)
-                        self._connections[conn_id]['in_use'] = True
+                        self._connections[conn_id]["in_use"] = True
                         return new_conn
 
             except queue.Empty:
@@ -171,8 +174,8 @@ class ConnectionPool:
                             conn = self._create_connection()
                             if conn:
                                 conn_id = id(conn)
-                                self._connections[conn_id]['in_use'] = True
-                                self._connections[conn_id]['is_overflow'] = True
+                                self._connections[conn_id]["in_use"] = True
+                                self._connections[conn_id]["is_overflow"] = True
                                 logger.debug(f"Created overflow connection {conn_id}")
                                 return conn
                         except:
@@ -199,8 +202,8 @@ class ConnectionPool:
             return
 
         conn_info = self._connections[conn_id]
-        conn_info['in_use'] = False
-        conn_info['last_used'] = time.time()
+        conn_info["in_use"] = False
+        conn_info["last_used"] = time.time()
 
         # Check if connection is still valid
         if not self._is_connection_valid(conn):
@@ -212,7 +215,7 @@ class ConnectionPool:
             del self._connections[conn_id]
 
             # Handle overflow connection
-            if conn_info.get('is_overflow', False):
+            if conn_info.get("is_overflow", False):
                 with self._lock:
                     self._overflow -= 1
             return
@@ -224,7 +227,7 @@ class ConnectionPool:
             pass
 
         # Return to pool or close if overflow
-        if conn_info.get('is_overflow', False):
+        if conn_info.get("is_overflow", False):
             logger.debug(f"Closing overflow connection {conn_id}")
             try:
                 conn.close()
@@ -261,7 +264,7 @@ class ConnectionPool:
         # Close any remaining tracked connections
         for conn_info in self._connections.values():
             try:
-                conn_info['connection'].close()
+                conn_info["connection"].close()
             except:
                 pass
 
@@ -276,28 +279,27 @@ class ConnectionPool:
             Dictionary with pool statistics
         """
         active_connections = sum(
-            1 for info in self._connections.values()
-            if info.get('in_use', False)
+            1 for info in self._connections.values() if info.get("in_use", False)
         )
 
         idle_connections = sum(
-            1 for info in self._connections.values()
-            if not info.get('in_use', False) and not info.get('is_overflow', False)
+            1
+            for info in self._connections.values()
+            if not info.get("in_use", False) and not info.get("is_overflow", False)
         )
 
         overflow_connections = sum(
-            1 for info in self._connections.values()
-            if info.get('is_overflow', False)
+            1 for info in self._connections.values() if info.get("is_overflow", False)
         )
 
         return {
-            'pool_size': self.pool_size,
-            'max_overflow': self.max_overflow,
-            'active_connections': active_connections,
-            'idle_connections': idle_connections,
-            'overflow_connections': overflow_connections,
-            'total_connections': len(self._connections),
-            'queue_size': self._pool.qsize()
+            "pool_size": self.pool_size,
+            "max_overflow": self.max_overflow,
+            "active_connections": active_connections,
+            "idle_connections": idle_connections,
+            "overflow_connections": overflow_connections,
+            "total_connections": len(self._connections),
+            "queue_size": self._pool.qsize(),
         }
 
     def health_check(self) -> Dict[str, Any]:
@@ -308,26 +310,25 @@ class ConnectionPool:
             Health check results
         """
         stats = self.get_stats()
-        health = {
-            'healthy': True,
-            'stats': stats,
-            'issues': []
-        }
+        health = {"healthy": True, "stats": stats, "issues": []}
 
         # Check if pool is exhausted
-        if stats['active_connections'] >= self.pool_size + self.max_overflow:
-            health['issues'].append("Connection pool exhausted")
-            health['healthy'] = False
+        if stats["active_connections"] >= self.pool_size + self.max_overflow:
+            health["issues"].append("Connection pool exhausted")
+            health["healthy"] = False
 
         # Check for stale connections
         current_time = time.time()
         stale_connections = [
-            conn_id for conn_id, info in self._connections.items()
-            if current_time - info['last_used'] > 3600  # 1 hour
+            conn_id
+            for conn_id, info in self._connections.items()
+            if current_time - info["last_used"] > 3600  # 1 hour
         ]
 
         if stale_connections:
-            health['issues'].append(f"{len(stale_connections)} stale connections detected")
+            health["issues"].append(
+                f"{len(stale_connections)} stale connections detected"
+            )
 
         # Test creating a new connection
         try:
@@ -335,11 +336,11 @@ class ConnectionPool:
             if test_conn:
                 test_conn.close()
             else:
-                health['issues'].append("Unable to create new connections")
-                health['healthy'] = False
+                health["issues"].append("Unable to create new connections")
+                health["healthy"] = False
         except Exception as e:
-            health['issues'].append(f"Connection test failed: {e}")
-            health['healthy'] = False
+            health["issues"].append(f"Connection test failed: {e}")
+            health["healthy"] = False
 
         return health
 
@@ -364,10 +365,7 @@ class MySQLConnectionPool:
     MySQL connection pool using mysql-connector-python's built-in pooling.
     """
 
-    def __init__(self,
-                 pool_name: str = "mypool",
-                 pool_size: int = 5,
-                 **config):
+    def __init__(self, pool_name: str = "mypool", pool_size: int = 5, **config):
         """
         Initialize MySQL connection pool.
 
@@ -377,10 +375,7 @@ class MySQLConnectionPool:
             **config: Database connection configuration
         """
         self.pool = pooling.MySQLConnectionPool(
-            pool_name=pool_name,
-            pool_size=pool_size,
-            pool_reset_session=True,
-            **config
+            pool_name=pool_name, pool_size=pool_size, pool_reset_session=True, **config
         )
         self.pool_name = pool_name
 
@@ -395,9 +390,9 @@ class MySQLConnectionPool:
         pass
 
 
-def create_pool(config: Dict[str, Any],
-               pool_type: str = "custom",
-               **pool_kwargs) -> Any:
+def create_pool(
+    config: Dict[str, Any], pool_type: str = "custom", **pool_kwargs
+) -> Any:
     """
     Factory function to create a connection pool.
 

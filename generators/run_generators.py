@@ -22,93 +22,94 @@ GENERATORS = {
         "name": "Medical Clinic Management",
         "example": "example_01",
         "tables": 18,
-        "description": "Healthcare facility with appointments and medical records"
+        "description": "Healthcare facility with appointments and medical records",
     },
     "ecommerce": {
         "name": "E-Commerce Platform",
         "example": "example_02",
         "tables": 16,
-        "description": "Online retail with orders, inventory, and reviews"
+        "description": "Online retail with orders, inventory, and reviews",
     },
     "education": {
         "name": "Education Platform",
         "example": "example_03",
         "tables": 13,
-        "description": "Online learning with courses and student progress"
+        "description": "Online learning with courses and student progress",
     },
     "real_estate": {
         "name": "Real Estate Management",
         "example": "example_04",
         "tables": 14,
-        "description": "Property listings and rental management"
+        "description": "Property listings and rental management",
     },
     "event_ticketing": {
         "name": "Event Ticketing System",
         "example": "example_05",
         "tables": 13,
-        "description": "Concert and event ticket sales platform"
+        "description": "Concert and event ticket sales platform",
     },
     "smart_agriculture": {
         "name": "Smart Agriculture",
         "example": "example_06",
         "tables": 21,
-        "description": "IoT-enabled farm management with sensors"
+        "description": "IoT-enabled farm management with sensors",
     },
     "fleet_management": {
         "name": "Fleet Management",
         "example": "example_07",
         "tables": 22,
-        "description": "Vehicle tracking and logistics management"
+        "description": "Vehicle tracking and logistics management",
     },
     "iot_bins": {
         "name": "Smart Waste Management",
         "example": "example_08",
         "tables": 15,
-        "description": "IoT waste collection optimization"
+        "description": "IoT waste collection optimization",
     },
     "streaming_ml": {
         "name": "Streaming ML Platform",
         "example": "example_09",
         "tables": 29,
-        "description": "Real-time machine learning pipeline"
+        "description": "Real-time machine learning pipeline",
     },
     "fintech": {
         "name": "FinTech Platform",
         "example": "example_10",
         "tables": 23,
-        "description": "Digital banking and payment processing"
+        "description": "Digital banking and payment processing",
     },
     "social_media": {
         "name": "Social Media Platform",
         "example": "example_11",
         "tables": 28,
-        "description": "Social network with posts and interactions"
+        "description": "Social network with posts and interactions",
     },
     "smart_energy": {
         "name": "Smart Energy Grid",
         "example": "example_12",
         "tables": 18,
-        "description": "Smart grid energy management system"
+        "description": "Smart grid energy management system",
     },
     "healthcare_iot": {
         "name": "Healthcare IoT",
         "example": "example_13",
         "tables": 24,
-        "description": "Remote patient monitoring with IoT devices"
+        "description": "Remote patient monitoring with IoT devices",
     },
     "logistics": {
         "name": "Logistics & Supply Chain",
         "example": "example_14",
         "tables": 24,
-        "description": "Warehouse and supply chain management"
+        "description": "Warehouse and supply chain management",
     },
     "industrial_iot": {
         "name": "Industrial IoT",
         "example": "example_15",
         "tables": 20,
-        "description": "Manufacturing and industrial monitoring"
-    }
+        "description": "Manufacturing and industrial monitoring",
+    },
 }
+
 
 class GeneratorRunner:
     """Manages execution of data generators"""
@@ -145,7 +146,9 @@ class GeneratorRunner:
 
         return spec, module
 
-    def run_generator(self, name: str, test_mode: bool = False) -> Tuple[bool, float, str]:
+    def run_generator(
+        self, name: str, test_mode: bool = False
+    ) -> Tuple[bool, float, str]:
         """
         Run a single generator
         Returns: (success, duration, message)
@@ -217,7 +220,7 @@ class GeneratorRunner:
             results[name] = {
                 "success": success,
                 "duration": duration,
-                "message": message
+                "message": message,
             }
 
             if success:
@@ -268,7 +271,9 @@ class GeneratorRunner:
 
             # Test mode
             print(f"  Running test mode...")
-            test_success, test_duration, test_msg = self.run_generator(name, test_mode=True)
+            test_success, test_duration, test_msg = self.run_generator(
+                name, test_mode=True
+            )
 
             # Full mode (optional - can be slow)
             full_success = False
@@ -279,13 +284,13 @@ class GeneratorRunner:
                 "test": {
                     "success": test_success,
                     "duration": test_duration,
-                    "message": test_msg
+                    "message": test_msg,
                 },
                 "full": {
                     "success": full_success,
                     "duration": full_duration,
-                    "message": full_msg
-                }
+                    "message": full_msg,
+                },
             }
 
             print(f"  Test mode: {test_duration:.2f}s - {test_msg}")
@@ -314,50 +319,42 @@ Examples:
 
   # Benchmark generators
   python run_generators.py --benchmark clinic fintech
-        """
+        """,
     )
 
     parser.add_argument(
         "generators",
         nargs="*",
         choices=list(GENERATORS.keys()),
-        help="Generators to run (leave empty with --all to run all)"
+        help="Generators to run (leave empty with --all to run all)",
     )
 
     parser.add_argument(
-        "--test", "-t",
+        "--test",
+        "-t",
         action="store_true",
-        help="Run in test mode (reduced data volume)"
+        help="Run in test mode (reduced data volume)",
+    )
+
+    parser.add_argument("--all", "-a", action="store_true", help="Run all generators")
+
+    parser.add_argument(
+        "--list", "-l", action="store_true", help="List all available generators"
     )
 
     parser.add_argument(
-        "--all", "-a",
-        action="store_true",
-        help="Run all generators"
-    )
-
-    parser.add_argument(
-        "--list", "-l",
-        action="store_true",
-        help="List all available generators"
-    )
-
-    parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         default="output",
-        help="Output directory for generated files (default: output)"
+        help="Output directory for generated files (default: output)",
     )
 
     parser.add_argument(
-        "--quiet", "-q",
-        action="store_true",
-        help="Reduce output verbosity"
+        "--quiet", "-q", action="store_true", help="Reduce output verbosity"
     )
 
     parser.add_argument(
-        "--benchmark", "-b",
-        action="store_true",
-        help="Benchmark specified generators"
+        "--benchmark", "-b", action="store_true", help="Benchmark specified generators"
     )
 
     args = parser.parse_args()
@@ -375,10 +372,7 @@ Examples:
         return 0
 
     # Initialize runner
-    runner = GeneratorRunner(
-        output_dir=args.output,
-        verbose=not args.quiet
-    )
+    runner = GeneratorRunner(output_dir=args.output, verbose=not args.quiet)
 
     # Determine which generators to run
     if args.all:
@@ -399,7 +393,7 @@ Examples:
                 results[name] = {
                     "success": success,
                     "duration": duration,
-                    "message": message
+                    "message": message,
                 }
     else:
         parser.print_help()

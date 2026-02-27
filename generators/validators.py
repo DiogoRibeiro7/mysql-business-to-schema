@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Optional, Any, Dict, List
 import json
 
+
 def validate_email(email: str) -> bool:
     """
     Validate email format.
@@ -17,8 +18,9 @@ def validate_email(email: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     return bool(re.match(pattern, email))
+
 
 def validate_phone(phone: str) -> bool:
     """
@@ -31,13 +33,14 @@ def validate_phone(phone: str) -> bool:
         True if valid, False otherwise
     """
     # Remove common separators
-    cleaned = re.sub(r'[\s\-\.\(\)]', '', phone)
+    cleaned = re.sub(r"[\s\-\.\(\)]", "", phone)
 
     # Check if it's a valid phone number (10-15 digits, optionally starting with +)
-    pattern = r'^\+?[1-9]\d{9,14}$'
+    pattern = r"^\+?[1-9]\d{9,14}$"
     return bool(re.match(pattern, cleaned))
 
-def validate_date(date_str: str, format: str = '%Y-%m-%d') -> bool:
+
+def validate_date(date_str: str, format: str = "%Y-%m-%d") -> bool:
     """
     Validate date string format.
 
@@ -53,6 +56,7 @@ def validate_date(date_str: str, format: str = '%Y-%m-%d') -> bool:
         return True
     except ValueError:
         return False
+
 
 def validate_json(json_str: str) -> bool:
     """
@@ -70,6 +74,7 @@ def validate_json(json_str: str) -> bool:
     except (json.JSONDecodeError, TypeError):
         return False
 
+
 def validate_sql_identifier(identifier: str) -> bool:
     """
     Validate SQL identifier (table/column name).
@@ -82,8 +87,9 @@ def validate_sql_identifier(identifier: str) -> bool:
     """
     # SQL identifiers should start with letter or underscore
     # and contain only letters, digits, and underscores
-    pattern = r'^[a-zA-Z_][a-zA-Z0-9_]*$'
+    pattern = r"^[a-zA-Z_][a-zA-Z0-9_]*$"
     return bool(re.match(pattern, identifier)) and len(identifier) <= 64
+
 
 def validate_ip_address(ip: str) -> bool:
     """
@@ -95,13 +101,14 @@ def validate_ip_address(ip: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    pattern = r'^(\d{1,3}\.){3}\d{1,3}$'
+    pattern = r"^(\d{1,3}\.){3}\d{1,3}$"
     if not re.match(pattern, ip):
         return False
 
     # Check each octet is 0-255
-    octets = ip.split('.')
+    octets = ip.split(".")
     return all(0 <= int(octet) <= 255 for octet in octets)
+
 
 def validate_url(url: str) -> bool:
     """
@@ -113,8 +120,9 @@ def validate_url(url: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    pattern = r'^https?://[^\s/$.?#].[^\s]*$'
+    pattern = r"^https?://[^\s/$.?#].[^\s]*$"
     return bool(re.match(pattern, url, re.IGNORECASE))
+
 
 def validate_uuid(uuid_str: str) -> bool:
     """
@@ -126,8 +134,9 @@ def validate_uuid(uuid_str: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+    pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
     return bool(re.match(pattern, uuid_str, re.IGNORECASE))
+
 
 def validate_credit_card(card_number: str) -> bool:
     """
@@ -140,7 +149,7 @@ def validate_credit_card(card_number: str) -> bool:
         True if valid, False otherwise
     """
     # Remove spaces and dashes
-    card_number = re.sub(r'[\s-]', '', card_number)
+    card_number = re.sub(r"[\s-]", "", card_number)
 
     # Check if it's all digits
     if not card_number.isdigit():
@@ -165,7 +174,8 @@ def validate_credit_card(card_number: str) -> bool:
 
     return luhn_check(card_number)
 
-def validate_postal_code(postal_code: str, country: str = 'US') -> bool:
+
+def validate_postal_code(postal_code: str, country: str = "US") -> bool:
     """
     Validate postal code format for different countries.
 
@@ -177,12 +187,12 @@ def validate_postal_code(postal_code: str, country: str = 'US') -> bool:
         True if valid, False otherwise
     """
     patterns = {
-        'US': r'^\d{5}(-\d{4})?$',  # 12345 or 12345-6789
-        'CA': r'^[A-Z]\d[A-Z]\s?\d[A-Z]\d$',  # K1A 0B1
-        'UK': r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$',  # SW1A 1AA
-        'DE': r'^\d{5}$',  # 12345
-        'FR': r'^\d{5}$',  # 75001
-        'JP': r'^\d{3}-?\d{4}$',  # 123-4567
+        "US": r"^\d{5}(-\d{4})?$",  # 12345 or 12345-6789
+        "CA": r"^[A-Z]\d[A-Z]\s?\d[A-Z]\d$",  # K1A 0B1
+        "UK": r"^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$",  # SW1A 1AA
+        "DE": r"^\d{5}$",  # 12345
+        "FR": r"^\d{5}$",  # 75001
+        "JP": r"^\d{3}-?\d{4}$",  # 123-4567
     }
 
     pattern = patterns.get(country.upper())
@@ -190,6 +200,7 @@ def validate_postal_code(postal_code: str, country: str = 'US') -> bool:
         return False
 
     return bool(re.match(pattern, postal_code.upper()))
+
 
 def validate_data_range(value: Any, min_val: Any = None, max_val: Any = None) -> bool:
     """
@@ -212,6 +223,7 @@ def validate_data_range(value: Any, min_val: Any = None, max_val: Any = None) ->
     except (TypeError, ValueError):
         return False
 
+
 def validate_enum(value: str, allowed_values: List[str]) -> bool:
     """
     Validate that a value is one of the allowed values.
@@ -224,6 +236,7 @@ def validate_enum(value: str, allowed_values: List[str]) -> bool:
         True if valid, False otherwise
     """
     return value in allowed_values
+
 
 def validate_schema(data: Dict, schema: Dict) -> tuple[bool, Optional[str]]:
     """
@@ -239,31 +252,40 @@ def validate_schema(data: Dict, schema: Dict) -> tuple[bool, Optional[str]]:
     try:
         for field, rules in schema.items():
             # Check required fields
-            if rules.get('required', False) and field not in data:
+            if rules.get("required", False) and field not in data:
                 return False, f"Required field '{field}' is missing"
 
             if field in data:
                 value = data[field]
 
                 # Check type
-                expected_type = rules.get('type')
+                expected_type = rules.get("type")
                 if expected_type and not isinstance(value, expected_type):
-                    return False, f"Field '{field}' must be of type {expected_type.__name__}"
+                    return (
+                        False,
+                        f"Field '{field}' must be of type {expected_type.__name__}",
+                    )
 
                 # Check length
-                if 'min_length' in rules and len(value) < rules['min_length']:
-                    return False, f"Field '{field}' must be at least {rules['min_length']} characters"
+                if "min_length" in rules and len(value) < rules["min_length"]:
+                    return (
+                        False,
+                        f"Field '{field}' must be at least {rules['min_length']} characters",
+                    )
 
-                if 'max_length' in rules and len(value) > rules['max_length']:
-                    return False, f"Field '{field}' must be at most {rules['max_length']} characters"
+                if "max_length" in rules and len(value) > rules["max_length"]:
+                    return (
+                        False,
+                        f"Field '{field}' must be at most {rules['max_length']} characters",
+                    )
 
                 # Check pattern
-                if 'pattern' in rules and not re.match(rules['pattern'], str(value)):
+                if "pattern" in rules and not re.match(rules["pattern"], str(value)):
                     return False, f"Field '{field}' does not match required pattern"
 
                 # Check custom validator
-                if 'validator' in rules:
-                    validator = rules['validator']
+                if "validator" in rules:
+                    validator = rules["validator"]
                     if not validator(value):
                         return False, f"Field '{field}' failed validation"
 
@@ -271,6 +293,7 @@ def validate_schema(data: Dict, schema: Dict) -> tuple[bool, Optional[str]]:
 
     except Exception as e:
         return False, f"Validation error: {str(e)}"
+
 
 class DataValidator:
     """
@@ -297,7 +320,7 @@ class DataValidator:
             value = data.get(field)
 
             # Check required
-            if field_rules.get('required', False) and value is None:
+            if field_rules.get("required", False) and value is None:
                 self.errors.append(f"{field} is required")
                 continue
 
@@ -309,44 +332,46 @@ class DataValidator:
 
         return len(self.errors) == 0
 
-    def _apply_rule(self, field: str, value: Any, rule_name: str, rule_value: Any) -> bool:
+    def _apply_rule(
+        self, field: str, value: Any, rule_name: str, rule_value: Any
+    ) -> bool:
         """Apply a single validation rule."""
-        if rule_name == 'type':
+        if rule_name == "type":
             if not isinstance(value, rule_value):
                 self.errors.append(f"{field} must be of type {rule_value.__name__}")
                 return False
 
-        elif rule_name == 'min':
+        elif rule_name == "min":
             if value < rule_value:
                 self.errors.append(f"{field} must be at least {rule_value}")
                 return False
 
-        elif rule_name == 'max':
+        elif rule_name == "max":
             if value > rule_value:
                 self.errors.append(f"{field} must be at most {rule_value}")
                 return False
 
-        elif rule_name == 'min_length':
+        elif rule_name == "min_length":
             if len(value) < rule_value:
                 self.errors.append(f"{field} must be at least {rule_value} characters")
                 return False
 
-        elif rule_name == 'max_length':
+        elif rule_name == "max_length":
             if len(value) > rule_value:
                 self.errors.append(f"{field} must be at most {rule_value} characters")
                 return False
 
-        elif rule_name == 'pattern':
+        elif rule_name == "pattern":
             if not re.match(rule_value, str(value)):
                 self.errors.append(f"{field} does not match required format")
                 return False
 
-        elif rule_name == 'in':
+        elif rule_name == "in":
             if value not in rule_value:
                 self.errors.append(f"{field} must be one of {rule_value}")
                 return False
 
-        elif rule_name == 'custom':
+        elif rule_name == "custom":
             if not rule_value(value):
                 self.errors.append(f"{field} failed custom validation")
                 return False

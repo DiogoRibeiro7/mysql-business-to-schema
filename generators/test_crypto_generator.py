@@ -18,19 +18,19 @@ from cryptocurrency_exchange_generator import CryptocurrencyExchangeGenerator
 def test_generator():
     """Test the cryptocurrency exchange generator with small data"""
 
-    print("="*70)
+    print("=" * 70)
     print("CRYPTOCURRENCY EXCHANGE GENERATOR TEST")
-    print("="*70)
+    print("=" * 70)
 
     # Initialize generator with test parameters
     # Note: Using default MySQL connection settings
     # Adjust these based on your local MySQL setup
     generator = CryptocurrencyExchangeGenerator(
-        host='localhost',
+        host="localhost",
         port=3306,  # Default MySQL port
-        user='root',
-        password='',  # Update with your MySQL root password
-        database='crypto_exchange_test'  # Test database
+        user="root",
+        password="",  # Update with your MySQL root password
+        database="crypto_exchange_test",  # Test database
     )
 
     try:
@@ -40,16 +40,18 @@ def test_generator():
 
         # Connect without database to create it
         conn = mysql.connector.connect(
-            host='localhost',
+            host="localhost",
             port=3306,
-            user='root',
-            password=''  # Update with your password
+            user="root",
+            password="",  # Update with your password
         )
         cursor = conn.cursor()
 
         # Create database
         cursor.execute("DROP DATABASE IF EXISTS crypto_exchange_test")
-        cursor.execute("CREATE DATABASE crypto_exchange_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
+        cursor.execute(
+            "CREATE DATABASE crypto_exchange_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+        )
         print("   ✓ Database created")
 
         # Create minimal schema for testing
@@ -59,7 +61,8 @@ def test_generator():
         print("\n2. Creating tables...")
 
         # Users table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE users (
                 user_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 email VARCHAR(255) UNIQUE NOT NULL,
@@ -90,11 +93,13 @@ def test_generator():
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB
-        """)
+        """
+        )
         print("   ✓ Users table created")
 
         # Currencies table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE currencies (
                 currency_id INT AUTO_INCREMENT PRIMARY KEY,
                 symbol VARCHAR(10) UNIQUE NOT NULL,
@@ -112,11 +117,13 @@ def test_generator():
                 max_supply DECIMAL(30,8),
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB
-        """)
+        """
+        )
         print("   ✓ Currencies table created")
 
         # Trading pairs table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE trading_pairs (
                 pair_id INT AUTO_INCREMENT PRIMARY KEY,
                 base_currency VARCHAR(10) NOT NULL,
@@ -131,11 +138,13 @@ def test_generator():
                 quantity_precision INT DEFAULT 8,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB
-        """)
+        """
+        )
         print("   ✓ Trading pairs table created")
 
         # Wallets table
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE wallets (
                 wallet_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT UNSIGNED NOT NULL,
@@ -147,12 +156,15 @@ def test_generator():
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             ) ENGINE=InnoDB
-        """)
+        """
+        )
         print("   ✓ Wallets table created")
 
         # Create other required tables (simplified)
         tables = [
-            ('kyc_documents', """
+            (
+                "kyc_documents",
+                """
                 CREATE TABLE kyc_documents (
                     document_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -165,8 +177,11 @@ def test_generator():
                     rejection_reason TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """),
-            ('orders', """
+            """,
+            ),
+            (
+                "orders",
+                """
                 CREATE TABLE orders (
                     order_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -183,8 +198,11 @@ def test_generator():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 )
-            """),
-            ('trades', """
+            """,
+            ),
+            (
+                "trades",
+                """
                 CREATE TABLE trades (
                     trade_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     order_id BIGINT,
@@ -197,8 +215,11 @@ def test_generator():
                     seller_fee DECIMAL(10,6),
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """),
-            ('transactions', """
+            """,
+            ),
+            (
+                "transactions",
+                """
                 CREATE TABLE transactions (
                     transaction_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -214,8 +235,11 @@ def test_generator():
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                     completed_at DATETIME
                 )
-            """),
-            ('price_history', """
+            """,
+            ),
+            (
+                "price_history",
+                """
                 CREATE TABLE price_history (
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     pair_id INT,
@@ -229,8 +253,11 @@ def test_generator():
                     trades INT,
                     INDEX idx_pair_time (pair_id, timestamp)
                 )
-            """),
-            ('staking_positions', """
+            """,
+            ),
+            (
+                "staking_positions",
+                """
                 CREATE TABLE staking_positions (
                     position_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -244,8 +271,11 @@ def test_generator():
                     unstaked_at DATETIME,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """),
-            ('api_keys', """
+            """,
+            ),
+            (
+                "api_keys",
+                """
                 CREATE TABLE api_keys (
                     key_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -260,8 +290,11 @@ def test_generator():
                     total_requests BIGINT DEFAULT 0,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """),
-            ('notifications', """
+            """,
+            ),
+            (
+                "notifications",
+                """
                 CREATE TABLE notifications (
                     notification_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -272,8 +305,11 @@ def test_generator():
                     is_read BOOLEAN DEFAULT FALSE,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """),
-            ('audit_logs', """
+            """,
+            ),
+            (
+                "audit_logs",
+                """
                 CREATE TABLE audit_logs (
                     log_id BIGINT AUTO_INCREMENT PRIMARY KEY,
                     user_id BIGINT UNSIGNED,
@@ -283,7 +319,8 @@ def test_generator():
                     details JSON,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """,
+            ),
         ]
 
         for table_name, create_sql in tables:
@@ -304,8 +341,8 @@ def test_generator():
 
         # Generate minimal test data
         generator.generate_all_data(
-            users=100,        # 100 users instead of 10000
-            orders_per_user=5  # 5 orders per user instead of 50
+            users=100,  # 100 users instead of 10000
+            orders_per_user=5,  # 5 orders per user instead of 50
         )
 
         # Print statistics
@@ -318,6 +355,7 @@ def test_generator():
     except Exception as e:
         print(f"\n❌ TEST FAILED: {e}")
         import traceback
+
         traceback.print_exc()
 
     finally:
@@ -328,7 +366,7 @@ def test_generator():
         print("\nTest completed.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Check for required packages
     try:
         import mysql.connector

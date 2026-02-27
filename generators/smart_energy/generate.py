@@ -21,17 +21,18 @@ import math
 from typing import List, Dict, Tuple, Any
 import numpy as np
 
+
 class SmartEnergyGenerator:
     def __init__(self, config_path: str):
         """Initialize generator with configuration"""
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
-        self.seed = self.config.get('seed', 42)
+        self.seed = self.config.get("seed", 42)
         random.seed(self.seed)
         np.random.seed(self.seed)
 
-        self.output_dir = Path(self.config['output_dir'])
+        self.output_dir = Path(self.config["output_dir"])
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Data containers
@@ -72,26 +73,33 @@ class SmartEnergyGenerator:
         # Generate SQL scripts
         self._generate_sql_scripts()
 
-        print(f"[OK] Generated data for {len(self.utilities)} utilities, "
-              f"{len(self.customers)} customers, {len(self.meters)} meters")
+        print(
+            f"[OK] Generated data for {len(self.utilities)} utilities, "
+            f"{len(self.customers)} customers, {len(self.meters)} meters"
+        )
         print(f"[OK] Generated {len(self.consumption_readings)} consumption readings")
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_utilities(self):
         """Generate utility companies"""
         utility_names = [
-            "Metro Power & Light", "Green Energy Co", "City Electric",
-            "Sustainable Power Inc", "Regional Energy Services"
+            "Metro Power & Light",
+            "Green Energy Co",
+            "City Electric",
+            "Sustainable Power Inc",
+            "Regional Energy Services",
         ]
 
-        for i in range(self.config['counts']['utilities']):
+        for i in range(self.config["counts"]["utilities"]):
             utility = {
-                'utility_id': i + 1,
-                'name': utility_names[i % len(utility_names)] + (f" {i//len(utility_names) + 1}" if i >= len(utility_names) else ""),
-                'type': random.choice(['municipal', 'cooperative', 'investor_owned']),
-                'service_area': f"Region_{i+1}",
-                'customer_count': 0,  # Will update later
-                'created_at': datetime.now() - timedelta(days=random.randint(365, 3650))
+                "utility_id": i + 1,
+                "name": utility_names[i % len(utility_names)]
+                + (f" {i//len(utility_names) + 1}" if i >= len(utility_names) else ""),
+                "type": random.choice(["municipal", "cooperative", "investor_owned"]),
+                "service_area": f"Region_{i+1}",
+                "customer_count": 0,  # Will update later
+                "created_at": datetime.now()
+                - timedelta(days=random.randint(365, 3650)),
             }
             self.utilities.append(utility)
 
@@ -99,18 +107,21 @@ class SmartEnergyGenerator:
         """Generate distribution transformers"""
         transformer_id = 1
         for utility in self.utilities:
-            num_transformers = self.config['counts']['transformers_per_utility']
+            num_transformers = self.config["counts"]["transformers_per_utility"]
 
             for t in range(num_transformers):
                 transformer = {
-                    'transformer_id': transformer_id,
-                    'utility_id': utility['utility_id'],
-                    'transformer_code': f"TR-{utility['utility_id']:02d}-{t+1:04d}",
-                    'location_lat': 40.7128 + random.uniform(-0.5, 0.5),
-                    'location_lon': -74.0060 + random.uniform(-0.5, 0.5),
-                    'capacity_kva': random.choice([25, 50, 75, 100, 150, 250]),
-                    'installation_date': datetime.now() - timedelta(days=random.randint(180, 1825)),
-                    'status': random.choices(['active', 'maintenance'], weights=[0.95, 0.05])[0]
+                    "transformer_id": transformer_id,
+                    "utility_id": utility["utility_id"],
+                    "transformer_code": f"TR-{utility['utility_id']:02d}-{t+1:04d}",
+                    "location_lat": 40.7128 + random.uniform(-0.5, 0.5),
+                    "location_lon": -74.0060 + random.uniform(-0.5, 0.5),
+                    "capacity_kva": random.choice([25, 50, 75, 100, 150, 250]),
+                    "installation_date": datetime.now()
+                    - timedelta(days=random.randint(180, 1825)),
+                    "status": random.choices(
+                        ["active", "maintenance"], weights=[0.95, 0.05]
+                    )[0],
                 }
                 self.transformers.append(transformer)
                 transformer_id += 1
@@ -120,42 +131,53 @@ class SmartEnergyGenerator:
         customer_id = 1
 
         for utility in self.utilities:
-            num_customers = self.config['counts']['customers_per_utility']
+            num_customers = self.config["counts"]["customers_per_utility"]
             utility_customer_count = 0
 
             for c in range(num_customers):
                 customer_type = random.choices(
-                    ['residential', 'commercial', 'industrial'],
-                    weights=[0.7, 0.25, 0.05]
+                    ["residential", "commercial", "industrial"],
+                    weights=[0.7, 0.25, 0.05],
                 )[0]
 
                 # Select a transformer for this customer
-                utility_transformers = [t for t in self.transformers if t['utility_id'] == utility['utility_id']]
+                utility_transformers = [
+                    t
+                    for t in self.transformers
+                    if t["utility_id"] == utility["utility_id"]
+                ]
                 transformer = random.choice(utility_transformers)
 
                 customer = {
-                    'customer_id': customer_id,
-                    'utility_id': utility['utility_id'],
-                    'transformer_id': transformer['transformer_id'],
-                    'account_number': f"ACC{customer_id:08d}",
-                    'customer_type': customer_type,
-                    'name': f"{random.choice(['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'])} "
-                            f"{random.choice(['Home', 'Residence', 'Corp', 'LLC', 'Inc'])}" if customer_type != 'residential'
-                            else f"Customer_{customer_id}",
-                    'address': f"{random.randint(1, 9999)} {random.choice(['Main', 'Oak', 'Elm', 'First'])} St",
-                    'rate_plan': self._get_rate_plan(customer_type),
-                    'contract_start': datetime.now() - timedelta(days=random.randint(90, 1095)),
-                    'status': random.choices(['active', 'inactive'], weights=[0.95, 0.05])[0],
-                    'has_solar': random.random() < 0.15,  # 15% have solar
-                    'has_ev': random.random() < 0.10,  # 10% have EV
-                    'enrolled_demand_response': random.random() < 0.30  # 30% in demand response
+                    "customer_id": customer_id,
+                    "utility_id": utility["utility_id"],
+                    "transformer_id": transformer["transformer_id"],
+                    "account_number": f"ACC{customer_id:08d}",
+                    "customer_type": customer_type,
+                    "name": (
+                        f"{random.choice(['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'])} "
+                        f"{random.choice(['Home', 'Residence', 'Corp', 'LLC', 'Inc'])}"
+                        if customer_type != "residential"
+                        else f"Customer_{customer_id}"
+                    ),
+                    "address": f"{random.randint(1, 9999)} {random.choice(['Main', 'Oak', 'Elm', 'First'])} St",
+                    "rate_plan": self._get_rate_plan(customer_type),
+                    "contract_start": datetime.now()
+                    - timedelta(days=random.randint(90, 1095)),
+                    "status": random.choices(
+                        ["active", "inactive"], weights=[0.95, 0.05]
+                    )[0],
+                    "has_solar": random.random() < 0.15,  # 15% have solar
+                    "has_ev": random.random() < 0.10,  # 10% have EV
+                    "enrolled_demand_response": random.random()
+                    < 0.30,  # 30% in demand response
                 }
                 self.customers.append(customer)
                 customer_id += 1
                 utility_customer_count += 1
 
             # Update utility customer count
-            utility['customer_count'] = utility_customer_count
+            utility["customer_count"] = utility_customer_count
 
     def _generate_meters(self):
         """Generate smart meters for customers"""
@@ -164,23 +186,31 @@ class SmartEnergyGenerator:
         for customer in self.customers:
             # Most customers have 1 meter, some commercial/industrial have multiple
             num_meters = 1
-            if customer['customer_type'] == 'commercial':
+            if customer["customer_type"] == "commercial":
                 num_meters = random.choices([1, 2, 3], weights=[0.7, 0.2, 0.1])[0]
-            elif customer['customer_type'] == 'industrial':
-                num_meters = random.choices([2, 3, 4, 5], weights=[0.3, 0.3, 0.2, 0.2])[0]
+            elif customer["customer_type"] == "industrial":
+                num_meters = random.choices([2, 3, 4, 5], weights=[0.3, 0.3, 0.2, 0.2])[
+                    0
+                ]
 
             for m in range(num_meters):
                 meter = {
-                    'meter_id': meter_id,
-                    'customer_id': customer['customer_id'],
-                    'meter_number': f"SM{meter_id:010d}",
-                    'meter_type': 'smart_meter',
-                    'model': random.choice(['GE_I210+', 'Landis_E650', 'Itron_OpenWay', 'Sensus_iCon']),
-                    'installation_date': customer['contract_start'] - timedelta(days=random.randint(0, 30)),
-                    'last_reading_time': datetime.now(),
-                    'firmware_version': f"{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,99)}",
-                    'communication_type': random.choice(['cellular', 'rf_mesh', 'plc']),
-                    'status': random.choices(['active', 'inactive', 'maintenance'], weights=[0.95, 0.03, 0.02])[0]
+                    "meter_id": meter_id,
+                    "customer_id": customer["customer_id"],
+                    "meter_number": f"SM{meter_id:010d}",
+                    "meter_type": "smart_meter",
+                    "model": random.choice(
+                        ["GE_I210+", "Landis_E650", "Itron_OpenWay", "Sensus_iCon"]
+                    ),
+                    "installation_date": customer["contract_start"]
+                    - timedelta(days=random.randint(0, 30)),
+                    "last_reading_time": datetime.now(),
+                    "firmware_version": f"{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,99)}",
+                    "communication_type": random.choice(["cellular", "rf_mesh", "plc"]),
+                    "status": random.choices(
+                        ["active", "inactive", "maintenance"],
+                        weights=[0.95, 0.03, 0.02],
+                    )[0],
                 }
                 self.meters.append(meter)
                 meter_id += 1
@@ -190,21 +220,23 @@ class SmartEnergyGenerator:
         panel_id = 1
 
         for customer in self.customers:
-            if not customer['has_solar']:
+            if not customer["has_solar"]:
                 continue
 
             # Get customer's meter
-            customer_meters = [m for m in self.meters if m['customer_id'] == customer['customer_id']]
+            customer_meters = [
+                m for m in self.meters if m["customer_id"] == customer["customer_id"]
+            ]
             if not customer_meters:
                 continue
 
             meter = customer_meters[0]
 
             # Residential systems are smaller
-            if customer['customer_type'] == 'residential':
+            if customer["customer_type"] == "residential":
                 capacity_kw = random.uniform(3.0, 10.0)
                 panel_count = random.randint(8, 30)
-            elif customer['customer_type'] == 'commercial':
+            elif customer["customer_type"] == "commercial":
                 capacity_kw = random.uniform(10.0, 100.0)
                 panel_count = random.randint(30, 300)
             else:  # industrial
@@ -212,18 +244,21 @@ class SmartEnergyGenerator:
                 panel_count = random.randint(300, 3000)
 
             solar_panel = {
-                'panel_id': panel_id,
-                'customer_id': customer['customer_id'],
-                'meter_id': meter['meter_id'],
-                'capacity_kw': round(capacity_kw, 2),
-                'panel_count': panel_count,
-                'panel_type': random.choice(['monocrystalline', 'polycrystalline', 'thin_film']),
-                'inverter_type': random.choice(['string', 'micro', 'power_optimizer']),
-                'installation_date': customer['contract_start'] + timedelta(days=random.randint(30, 365)),
-                'orientation': random.randint(150, 210),  # degrees (south-facing)
-                'tilt_angle': random.randint(15, 45),  # degrees
-                'efficiency_rating': random.uniform(0.15, 0.22),  # 15-22% efficiency
-                'status': 'active'
+                "panel_id": panel_id,
+                "customer_id": customer["customer_id"],
+                "meter_id": meter["meter_id"],
+                "capacity_kw": round(capacity_kw, 2),
+                "panel_count": panel_count,
+                "panel_type": random.choice(
+                    ["monocrystalline", "polycrystalline", "thin_film"]
+                ),
+                "inverter_type": random.choice(["string", "micro", "power_optimizer"]),
+                "installation_date": customer["contract_start"]
+                + timedelta(days=random.randint(30, 365)),
+                "orientation": random.randint(150, 210),  # degrees (south-facing)
+                "tilt_angle": random.randint(15, 45),  # degrees
+                "efficiency_rating": random.uniform(0.15, 0.22),  # 15-22% efficiency
+                "status": "active",
             }
             self.solar_panels.append(solar_panel)
             panel_id += 1
@@ -232,14 +267,20 @@ class SmartEnergyGenerator:
         """Generate high-frequency consumption readings"""
         print("  Generating consumption readings...")
 
-        start_date = datetime.now() - timedelta(days=self.config['date_ranges']['days_of_data'])
+        start_date = datetime.now() - timedelta(
+            days=self.config["date_ranges"]["days_of_data"]
+        )
         end_date = datetime.now()
 
-        for meter in self.meters[:self.config['counts'].get('meters_to_generate', 100)]:  # Limit for demo
-            if meter['status'] != 'active':
+        for meter in self.meters[
+            : self.config["counts"].get("meters_to_generate", 100)
+        ]:  # Limit for demo
+            if meter["status"] != "active":
                 continue
 
-            customer = next(c for c in self.customers if c['customer_id'] == meter['customer_id'])
+            customer = next(
+                c for c in self.customers if c["customer_id"] == meter["customer_id"]
+            )
 
             # Generate readings every 15 minutes
             current_time = start_date
@@ -250,7 +291,9 @@ class SmartEnergyGenerator:
                 month = current_time.month
 
                 # Get base consumption for customer type
-                base_consumption = self._get_base_consumption(customer['customer_type'], hour, day_of_week)
+                base_consumption = self._get_base_consumption(
+                    customer["customer_type"], hour, day_of_week
+                )
 
                 # Seasonal adjustment
                 seasonal_factor = self._get_seasonal_factor(month)
@@ -260,21 +303,26 @@ class SmartEnergyGenerator:
 
                 # EV charging spike
                 ev_consumption = 0
-                if customer['has_ev'] and hour >= 18 and hour <= 23:
+                if customer["has_ev"] and hour >= 18 and hour <= 23:
                     if random.random() < 0.3:  # 30% chance of charging
                         ev_consumption = random.uniform(3.0, 7.0)  # 3-7 kW
 
-                consumption_kw = max(0.1, (base_consumption * seasonal_factor * variation) + ev_consumption)
+                consumption_kw = max(
+                    0.1,
+                    (base_consumption * seasonal_factor * variation) + ev_consumption,
+                )
 
                 reading = {
-                    'meter_id': meter['meter_id'],
-                    'reading_time': current_time,
-                    'consumption_kwh': round(consumption_kw / 4, 3),  # 15 min = 1/4 hour
-                    'power_kw': round(consumption_kw, 2),
-                    'voltage': round(random.gauss(240, 2), 1),
-                    'current': round(consumption_kw / 0.24, 2),  # Assuming 240V
-                    'power_factor': round(random.uniform(0.85, 0.98), 2),
-                    'frequency': round(random.gauss(60, 0.1), 2)
+                    "meter_id": meter["meter_id"],
+                    "reading_time": current_time,
+                    "consumption_kwh": round(
+                        consumption_kw / 4, 3
+                    ),  # 15 min = 1/4 hour
+                    "power_kw": round(consumption_kw, 2),
+                    "voltage": round(random.gauss(240, 2), 1),
+                    "current": round(consumption_kw / 0.24, 2),  # Assuming 240V
+                    "power_factor": round(random.uniform(0.85, 0.98), 2),
+                    "frequency": round(random.gauss(60, 0.1), 2),
                 }
                 self.consumption_readings.append(reading)
 
@@ -287,7 +335,9 @@ class SmartEnergyGenerator:
         if not self.solar_panels:
             return
 
-        start_date = datetime.now() - timedelta(days=self.config['date_ranges']['days_of_data'])
+        start_date = datetime.now() - timedelta(
+            days=self.config["date_ranges"]["days_of_data"]
+        )
         end_date = datetime.now()
 
         for panel in self.solar_panels[:20]:  # Limit for demo
@@ -310,18 +360,27 @@ class SmartEnergyGenerator:
                     cloud_factor = random.uniform(0.3, 1.0)
 
                     # Calculate production
-                    production_kw = panel['capacity_kw'] * sun_factor * seasonal_factor * cloud_factor
+                    production_kw = (
+                        panel["capacity_kw"]
+                        * sun_factor
+                        * seasonal_factor
+                        * cloud_factor
+                    )
 
                 if production_kw > 0:
                     reading = {
-                        'panel_id': panel['panel_id'],
-                        'reading_time': current_time,
-                        'production_kwh': round(production_kw / 4, 3),  # 15 min interval
-                        'power_kw': round(production_kw, 2),
-                        'panel_temperature': round(25 + (production_kw / panel['capacity_kw']) * 20, 1),
-                        'inverter_efficiency': round(random.uniform(0.94, 0.98), 3),
-                        'dc_voltage': round(random.gauss(600, 10), 1),
-                        'dc_current': round(production_kw / 0.6, 2)
+                        "panel_id": panel["panel_id"],
+                        "reading_time": current_time,
+                        "production_kwh": round(
+                            production_kw / 4, 3
+                        ),  # 15 min interval
+                        "power_kw": round(production_kw, 2),
+                        "panel_temperature": round(
+                            25 + (production_kw / panel["capacity_kw"]) * 20, 1
+                        ),
+                        "inverter_efficiency": round(random.uniform(0.94, 0.98), 3),
+                        "dc_voltage": round(random.gauss(600, 10), 1),
+                        "dc_current": round(production_kw / 0.6, 2),
                     }
                     self.production_readings.append(reading)
 
@@ -331,26 +390,30 @@ class SmartEnergyGenerator:
         """Generate power quality metrics"""
         print("  Generating power quality readings...")
 
-        start_date = datetime.now() - timedelta(days=self.config['date_ranges']['days_of_data'])
+        start_date = datetime.now() - timedelta(
+            days=self.config["date_ranges"]["days_of_data"]
+        )
         end_date = datetime.now()
 
         for transformer in self.transformers[:20]:  # Limit for demo
             current_time = start_date
             while current_time <= end_date:
                 reading = {
-                    'transformer_id': transformer['transformer_id'],
-                    'reading_time': current_time,
-                    'voltage_l1': round(random.gauss(240, 3), 1),
-                    'voltage_l2': round(random.gauss(240, 3), 1),
-                    'voltage_l3': round(random.gauss(240, 3), 1),
-                    'current_l1': round(random.gauss(100, 20), 1),
-                    'current_l2': round(random.gauss(100, 20), 1),
-                    'current_l3': round(random.gauss(100, 20), 1),
-                    'thd_voltage': round(random.uniform(1.0, 5.0), 2),  # Total harmonic distortion %
-                    'thd_current': round(random.uniform(2.0, 8.0), 2),
-                    'power_factor': round(random.uniform(0.85, 0.99), 3),
-                    'frequency': round(random.gauss(60, 0.1), 2),
-                    'transformer_temp': round(random.gauss(65, 10), 1)
+                    "transformer_id": transformer["transformer_id"],
+                    "reading_time": current_time,
+                    "voltage_l1": round(random.gauss(240, 3), 1),
+                    "voltage_l2": round(random.gauss(240, 3), 1),
+                    "voltage_l3": round(random.gauss(240, 3), 1),
+                    "current_l1": round(random.gauss(100, 20), 1),
+                    "current_l2": round(random.gauss(100, 20), 1),
+                    "current_l3": round(random.gauss(100, 20), 1),
+                    "thd_voltage": round(
+                        random.uniform(1.0, 5.0), 2
+                    ),  # Total harmonic distortion %
+                    "thd_current": round(random.uniform(2.0, 8.0), 2),
+                    "power_factor": round(random.uniform(0.85, 0.99), 3),
+                    "frequency": round(random.gauss(60, 0.1), 2),
+                    "transformer_temp": round(random.gauss(65, 10), 1),
                 }
                 self.power_quality_readings.append(reading)
 
@@ -361,25 +424,33 @@ class SmartEnergyGenerator:
         print("  Generating demand response events...")
 
         event_id = 1
-        start_date = datetime.now() - timedelta(days=self.config['date_ranges']['days_of_data'])
+        start_date = datetime.now() - timedelta(
+            days=self.config["date_ranges"]["days_of_data"]
+        )
 
         # Generate a few events over the time period
-        for _ in range(self.config['counts'].get('demand_response_events', 10)):
-            event_date = start_date + timedelta(days=random.randint(0, self.config['date_ranges']['days_of_data']))
+        for _ in range(self.config["counts"].get("demand_response_events", 10)):
+            event_date = start_date + timedelta(
+                days=random.randint(0, self.config["date_ranges"]["days_of_data"])
+            )
 
             # Peak hours typically in afternoon
             start_hour = random.choice([14, 15, 16, 17])
 
             event = {
-                'event_id': event_id,
-                'utility_id': random.choice(self.utilities)['utility_id'],
-                'event_type': random.choice(['critical_peak', 'peak_day', 'emergency']),
-                'start_time': event_date.replace(hour=start_hour, minute=0, second=0),
-                'end_time': event_date.replace(hour=start_hour + random.randint(2, 4), minute=0, second=0),
-                'target_reduction_mw': round(random.uniform(5, 50), 1),
-                'incentive_per_kwh': round(random.uniform(0.10, 0.50), 2),
-                'notification_sent': event_date.replace(hour=start_hour - 2, minute=0, second=0),
-                'status': 'completed'
+                "event_id": event_id,
+                "utility_id": random.choice(self.utilities)["utility_id"],
+                "event_type": random.choice(["critical_peak", "peak_day", "emergency"]),
+                "start_time": event_date.replace(hour=start_hour, minute=0, second=0),
+                "end_time": event_date.replace(
+                    hour=start_hour + random.randint(2, 4), minute=0, second=0
+                ),
+                "target_reduction_mw": round(random.uniform(5, 50), 1),
+                "incentive_per_kwh": round(random.uniform(0.10, 0.50), 2),
+                "notification_sent": event_date.replace(
+                    hour=start_hour - 2, minute=0, second=0
+                ),
+                "status": "completed",
             }
             self.demand_response_events.append(event)
             event_id += 1
@@ -389,48 +460,69 @@ class SmartEnergyGenerator:
         print("  Generating outage events...")
 
         outage_id = 1
-        start_date = datetime.now() - timedelta(days=self.config['date_ranges']['days_of_data'])
+        start_date = datetime.now() - timedelta(
+            days=self.config["date_ranges"]["days_of_data"]
+        )
 
-        for _ in range(self.config['counts'].get('outages', 5)):
+        for _ in range(self.config["counts"].get("outages", 5)):
             outage_start = start_date + timedelta(
-                days=random.randint(0, self.config['date_ranges']['days_of_data']),
-                hours=random.randint(0, 23)
+                days=random.randint(0, self.config["date_ranges"]["days_of_data"]),
+                hours=random.randint(0, 23),
             )
 
             # Most outages are short
             duration_minutes = random.choices(
-                [random.randint(1, 30), random.randint(30, 120), random.randint(120, 480)],
-                weights=[0.6, 0.3, 0.1]
+                [
+                    random.randint(1, 30),
+                    random.randint(30, 120),
+                    random.randint(120, 480),
+                ],
+                weights=[0.6, 0.3, 0.1],
             )[0]
 
             affected_transformer = random.choice(self.transformers)
 
             outage = {
-                'outage_id': outage_id,
-                'transformer_id': affected_transformer['transformer_id'],
-                'start_time': outage_start,
-                'end_time': outage_start + timedelta(minutes=duration_minutes),
-                'cause': random.choice(['equipment_failure', 'weather', 'tree_contact', 'animal', 'unknown']),
-                'customers_affected': random.randint(10, 500),
-                'estimated_load_lost_mw': round(random.uniform(0.1, 5.0), 2),
-                'crew_dispatched': outage_start + timedelta(minutes=random.randint(5, 30)),
-                'status': 'resolved'
+                "outage_id": outage_id,
+                "transformer_id": affected_transformer["transformer_id"],
+                "start_time": outage_start,
+                "end_time": outage_start + timedelta(minutes=duration_minutes),
+                "cause": random.choice(
+                    [
+                        "equipment_failure",
+                        "weather",
+                        "tree_contact",
+                        "animal",
+                        "unknown",
+                    ]
+                ),
+                "customers_affected": random.randint(10, 500),
+                "estimated_load_lost_mw": round(random.uniform(0.1, 5.0), 2),
+                "crew_dispatched": outage_start
+                + timedelta(minutes=random.randint(5, 30)),
+                "status": "resolved",
             }
             self.outages.append(outage)
             outage_id += 1
 
     def _get_rate_plan(self, customer_type: str) -> str:
         """Get appropriate rate plan for customer type"""
-        if customer_type == 'residential':
-            return random.choice(['standard', 'time_of_use', 'tiered'])
-        elif customer_type == 'commercial':
-            return random.choice(['commercial_standard', 'commercial_tou', 'demand_charge'])
+        if customer_type == "residential":
+            return random.choice(["standard", "time_of_use", "tiered"])
+        elif customer_type == "commercial":
+            return random.choice(
+                ["commercial_standard", "commercial_tou", "demand_charge"]
+            )
         else:  # industrial
-            return random.choice(['industrial_demand', 'industrial_interruptible', 'custom_contract'])
+            return random.choice(
+                ["industrial_demand", "industrial_interruptible", "custom_contract"]
+            )
 
-    def _get_base_consumption(self, customer_type: str, hour: int, day_of_week: int) -> float:
+    def _get_base_consumption(
+        self, customer_type: str, hour: int, day_of_week: int
+    ) -> float:
         """Get base consumption in kW based on customer type and time"""
-        if customer_type == 'residential':
+        if customer_type == "residential":
             # Low at night, peaks in morning and evening
             if hour < 6:
                 return random.uniform(0.5, 1.5)
@@ -443,7 +535,7 @@ class SmartEnergyGenerator:
             else:
                 return random.uniform(0.5, 1.5)
 
-        elif customer_type == 'commercial':
+        elif customer_type == "commercial":
             # Business hours pattern
             if day_of_week >= 5:  # Weekend
                 return random.uniform(5, 15)
@@ -472,16 +564,19 @@ class SmartEnergyGenerator:
     def _write_all_csvs(self):
         """Write all data to CSV files"""
         datasets = [
-            ('utilities', self.utilities),
-            ('transformers', self.transformers),
-            ('customers', self.customers),
-            ('meters', self.meters),
-            ('solar_panels', self.solar_panels),
-            ('consumption_readings', self.consumption_readings[:10000]),  # Limit for file size
-            ('production_readings', self.production_readings[:10000]),
-            ('power_quality_readings', self.power_quality_readings[:5000]),
-            ('demand_response_events', self.demand_response_events),
-            ('outages', self.outages)
+            ("utilities", self.utilities),
+            ("transformers", self.transformers),
+            ("customers", self.customers),
+            ("meters", self.meters),
+            ("solar_panels", self.solar_panels),
+            (
+                "consumption_readings",
+                self.consumption_readings[:10000],
+            ),  # Limit for file size
+            ("production_readings", self.production_readings[:10000]),
+            ("power_quality_readings", self.power_quality_readings[:5000]),
+            ("demand_response_events", self.demand_response_events),
+            ("outages", self.outages),
         ]
 
         for filename, data in datasets:
@@ -489,7 +584,7 @@ class SmartEnergyGenerator:
                 continue
 
             filepath = self.output_dir / f"{filename}.csv"
-            with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            with open(filepath, "w", newline="", encoding="utf-8") as f:
                 if data:
                     writer = csv.DictWriter(f, fieldnames=data[0].keys())
                     writer.writeheader()
@@ -598,19 +693,21 @@ SELECT COUNT(*) as meters_count FROM meters;
 SELECT COUNT(*) as readings_count FROM consumption_readings;
 """
 
-        script_path = self.output_dir / 'load_data.sql'
-        with open(script_path, 'w') as f:
+        script_path = self.output_dir / "load_data.sql"
+        with open(script_path, "w") as f:
             f.write(load_script)
 
         print(f"  [OK] Generated SQL load script: load_data.sql")
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Generate Smart Energy Grid data')
-    parser.add_argument('--config', default='config.yaml', help='Path to config.yaml')
+    parser = argparse.ArgumentParser(description="Generate Smart Energy Grid data")
+    parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()
 
     generator = SmartEnergyGenerator(args.config)
     generator.generate_all()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

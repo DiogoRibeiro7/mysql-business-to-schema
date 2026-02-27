@@ -16,6 +16,7 @@ from pathlib import Path
 import subprocess
 import argparse
 
+
 class GeneratorBenchmark:
     """Benchmark utility for generator performance analysis"""
 
@@ -34,7 +35,9 @@ class GeneratorBenchmark:
         - cpu_percent: Average CPU usage
         - records_generated: Number of records created
         """
-        print(f"\nBenchmarking {generator_name} ({'TEST' if test_mode else 'FULL'} mode)...")
+        print(
+            f"\nBenchmarking {generator_name} ({'TEST' if test_mode else 'FULL'} mode)..."
+        )
 
         # Initial measurements
         self.process.cpu_percent()  # Initialize CPU monitoring
@@ -60,7 +63,7 @@ class GeneratorBenchmark:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
-                cwd=str(generator_dir)
+                cwd=str(generator_dir),
             )
 
             # Monitor while running
@@ -82,13 +85,23 @@ class GeneratorBenchmark:
                 "success": process.returncode == 0,
                 "duration": round(duration, 2),
                 "memory_initial_mb": round(initial_memory, 2),
-                "memory_peak_mb": round(max(memory_samples) if memory_samples else initial_memory, 2),
-                "memory_delta_mb": round((max(memory_samples) if memory_samples else initial_memory) - initial_memory, 2),
-                "cpu_average": round(sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0, 2),
+                "memory_peak_mb": round(
+                    max(memory_samples) if memory_samples else initial_memory, 2
+                ),
+                "memory_delta_mb": round(
+                    (max(memory_samples) if memory_samples else initial_memory)
+                    - initial_memory,
+                    2,
+                ),
+                "cpu_average": round(
+                    sum(cpu_samples) / len(cpu_samples) if cpu_samples else 0, 2
+                ),
                 "cpu_peak": round(max(cpu_samples) if cpu_samples else 0, 2),
                 "records_generated": records_generated,
-                "records_per_second": round(records_generated / duration if duration > 0 else 0, 2),
-                "timestamp": datetime.now().isoformat()
+                "records_per_second": round(
+                    records_generated / duration if duration > 0 else 0, 2
+                ),
+                "timestamp": datetime.now().isoformat(),
             }
 
             if process.returncode != 0:
@@ -102,17 +115,18 @@ class GeneratorBenchmark:
                 "mode": "test" if test_mode else "full",
                 "success": False,
                 "error": str(e),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
 
     def parse_records_count(self, output):
         """Extract total records count from generator output"""
         total = 0
-        for line in output.split('\n'):
+        for line in output.split("\n"):
             # Look for patterns like "Saved 1000 records" or "Generated 1000 users"
-            if 'records' in line.lower() or 'generated' in line.lower():
+            if "records" in line.lower() or "generated" in line.lower():
                 import re
-                numbers = re.findall(r'\d+', line)
+
+                numbers = re.findall(r"\d+", line)
                 if numbers:
                     # Take the largest number as it's likely the count
                     count = max(int(n) for n in numbers)
@@ -150,7 +164,7 @@ class GeneratorBenchmark:
 
     def save_results(self):
         """Save benchmark results to JSON file"""
-        with open(self.output_file, 'w') as f:
+        with open(self.output_file, "w") as f:
             json.dump(self.results, f, indent=2)
         print(f"\nResults saved to: {self.output_file}")
 
@@ -177,7 +191,9 @@ class GeneratorBenchmark:
 
         # Most efficient (records per second)
         print("\n📊 Most Efficient (records/second):")
-        by_efficiency = sorted(successful, key=lambda x: x["records_per_second"], reverse=True)[:5]
+        by_efficiency = sorted(
+            successful, key=lambda x: x["records_per_second"], reverse=True
+        )[:5]
         for i, r in enumerate(by_efficiency, 1):
             print(f"  {i}. {r['generator']:20} {r['records_per_second']:8.0f} rec/s")
 
@@ -191,7 +207,9 @@ class GeneratorBenchmark:
         print(f"\n📈 Overall Statistics:")
         avg_duration = sum(r["duration"] for r in successful) / len(successful)
         avg_memory = sum(r["memory_peak_mb"] for r in successful) / len(successful)
-        avg_efficiency = sum(r["records_per_second"] for r in successful) / len(successful)
+        avg_efficiency = sum(r["records_per_second"] for r in successful) / len(
+            successful
+        )
         total_records = sum(r["records_generated"] for r in successful)
 
         print(f"  Average Duration: {avg_duration:.2f}s")
@@ -226,7 +244,7 @@ class GeneratorBenchmark:
                 ("Duration (s)", "duration"),
                 ("Memory (MB)", "memory_peak_mb"),
                 ("Records", "records_generated"),
-                ("Records/sec", "records_per_second")
+                ("Records/sec", "records_per_second"),
             ]
 
             for label, key in metrics_to_compare:
@@ -241,38 +259,35 @@ class GeneratorBenchmark:
 
 def main():
     """CLI interface for benchmark utility"""
-    parser = argparse.ArgumentParser(
-        description="Benchmark MySQL data generators"
+    parser = argparse.ArgumentParser(description="Benchmark MySQL data generators")
+
+    parser.add_argument(
+        "generators", nargs="*", help="Generators to benchmark (leave empty for all)"
     )
 
     parser.add_argument(
-        "generators",
-        nargs="*",
-        help="Generators to benchmark (leave empty for all)"
+        "--test", "-t", action="store_true", help="Benchmark in test mode (default)"
     )
 
     parser.add_argument(
-        "--test", "-t",
+        "--full",
+        "-f",
         action="store_true",
-        help="Benchmark in test mode (default)"
+        help="Benchmark in full mode (warning: slow)",
     )
 
     parser.add_argument(
-        "--full", "-f",
-        action="store_true",
-        help="Benchmark in full mode (warning: slow)"
-    )
-
-    parser.add_argument(
-        "--compare", "-c",
+        "--compare",
+        "-c",
         metavar="GENERATOR",
-        help="Compare test vs full mode for a generator"
+        help="Compare test vs full mode for a generator",
     )
 
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         default="benchmark_results.json",
-        help="Output file for results (default: benchmark_results.json)"
+        help="Output file for results (default: benchmark_results.json)",
     )
 
     args = parser.parse_args()
@@ -280,7 +295,8 @@ def main():
     # Get list of all generators
     generators_dir = Path(__file__).parent
     all_generators = [
-        d.name for d in generators_dir.iterdir()
+        d.name
+        for d in generators_dir.iterdir()
         if d.is_dir() and (d / "generator.py").exists()
     ]
 

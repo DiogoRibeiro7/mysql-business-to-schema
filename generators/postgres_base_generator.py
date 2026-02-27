@@ -22,8 +22,11 @@ from faker import Faker
 import logging
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class PostgreSQLGenerator:
     """Base class for PostgreSQL data generation"""
@@ -41,41 +44,43 @@ class PostgreSQLGenerator:
 
         # Statistics
         self.stats = {
-            'tables_created': 0,
-            'records_inserted': {},
-            'errors': [],
-            'start_time': None,
-            'end_time': None
+            "tables_created": 0,
+            "records_inserted": {},
+            "errors": [],
+            "start_time": None,
+            "end_time": None,
         }
 
     def _get_default_config(self) -> Dict[str, Any]:
         """Get default configuration from environment"""
         return {
-            'host': os.getenv('POSTGRES_HOST', 'localhost'),
-            'port': int(os.getenv('POSTGRES_PORT', 5432)),
-            'database': os.getenv('POSTGRES_DATABASE', 'test_db'),
-            'user': os.getenv('POSTGRES_USER', 'postgres'),
-            'password': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-            'batch_size': int(os.getenv('BATCH_SIZE', 1000)),
-            'generator_mode': os.getenv('GENERATOR_MODE', 'test')
+            "host": os.getenv("POSTGRES_HOST", "localhost"),
+            "port": int(os.getenv("POSTGRES_PORT", 5432)),
+            "database": os.getenv("POSTGRES_DATABASE", "test_db"),
+            "user": os.getenv("POSTGRES_USER", "postgres"),
+            "password": os.getenv("POSTGRES_PASSWORD", "postgres"),
+            "batch_size": int(os.getenv("BATCH_SIZE", 1000)),
+            "generator_mode": os.getenv("GENERATOR_MODE", "test"),
         }
 
     def connect(self) -> bool:
         """Establish PostgreSQL connection"""
         try:
             self.connection = psycopg2.connect(
-                host=self.config['host'],
-                port=self.config['port'],
-                database=self.config['database'],
-                user=self.config['user'],
-                password=self.config['password']
+                host=self.config["host"],
+                port=self.config["port"],
+                database=self.config["database"],
+                user=self.config["user"],
+                password=self.config["password"],
             )
             self.cursor = self.connection.cursor()
-            logger.info(f"Connected to PostgreSQL: {self.config['database']}@{self.config['host']}")
+            logger.info(
+                f"Connected to PostgreSQL: {self.config['database']}@{self.config['host']}"
+            )
             return True
         except Exception as e:
             logger.error(f"Connection failed: {e}")
-            self.stats['errors'].append(str(e))
+            self.stats["errors"].append(str(e))
             return False
 
     def disconnect(self):
@@ -96,7 +101,7 @@ class PostgreSQLGenerator:
             logger.error(f"Query execution failed: {e}")
             logger.error(f"Query: {query[:200]}...")
             self.connection.rollback()
-            self.stats['errors'].append(str(e))
+            self.stats["errors"].append(str(e))
             return False
 
     def batch_insert(self, table: str, columns: List[str], data: List[Tuple]) -> int:
@@ -105,36 +110,39 @@ class PostgreSQLGenerator:
             return 0
 
         try:
-            placeholders = ','.join(['%s'] * len(columns))
+            placeholders = ",".join(["%s"] * len(columns))
             query = f"INSERT INTO {table} ({','.join(columns)}) VALUES ({placeholders})"
 
             # Use execute_batch for better performance
-            execute_batch(self.cursor, query, data, page_size=self.config['batch_size'])
+            execute_batch(self.cursor, query, data, page_size=self.config["batch_size"])
             self.connection.commit()
 
             count = len(data)
-            self.stats['records_inserted'][table] = self.stats['records_inserted'].get(table, 0) + count
+            self.stats["records_inserted"][table] = (
+                self.stats["records_inserted"].get(table, 0) + count
+            )
             logger.info(f"Inserted {count} records into {table}")
             return count
 
         except Exception as e:
             logger.error(f"Batch insert failed for {table}: {e}")
             self.connection.rollback()
-            self.stats['errors'].append(str(e))
+            self.stats["errors"].append(str(e))
             return 0
 
-    def copy_from_csv(self, table: str, csv_file: str, columns: List[str] = None) -> bool:
+    def copy_from_csv(
+        self, table: str, csv_file: str, columns: List[str] = None
+    ) -> bool:
         """Use COPY command for ultra-fast data loading"""
         try:
-            with open(csv_file, 'r') as f:
+            with open(csv_file, "r") as f:
                 if columns:
                     columns_str = f"({','.join(columns)})"
                 else:
                     columns_str = ""
 
                 self.cursor.copy_expert(
-                    f"COPY {table}{columns_str} FROM STDIN WITH CSV HEADER",
-                    f
+                    f"COPY {table}{columns_str} FROM STDIN WITH CSV HEADER", f
                 )
                 self.connection.commit()
                 logger.info(f"Loaded data from {csv_file} into {table}")
@@ -152,41 +160,43 @@ class PostgreSQLGenerator:
         if schema:
             data = {}
             for key, value_type in schema.items():
-                if value_type == 'string':
+                if value_type == "string":
                     data[key] = self.fake.word()
-                elif value_type == 'number':
+                elif value_type == "number":
                     data[key] = random.randint(1, 100)
-                elif value_type == 'boolean':
+                elif value_type == "boolean":
                     data[key] = random.choice([True, False])
-                elif value_type == 'array':
+                elif value_type == "array":
                     data[key] = [self.fake.word() for _ in range(random.randint(1, 5))]
-                elif value_type == 'object':
-                    data[key] = {'nested': self.fake.word()}
+                elif value_type == "object":
+                    data[key] = {"nested": self.fake.word()}
         else:
             # Generate random JSON structure
             data = {
-                'id': self.fake.uuid4(),
-                'name': self.fake.name(),
-                'metadata': {
-                    'created_at': datetime.now().isoformat(),
-                    'tags': [self.fake.word() for _ in range(3)],
-                    'score': random.random()
-                }
+                "id": self.fake.uuid4(),
+                "name": self.fake.name(),
+                "metadata": {
+                    "created_at": datetime.now().isoformat(),
+                    "tags": [self.fake.word() for _ in range(3)],
+                    "score": random.random(),
+                },
             }
 
         return Json(data)
 
-    def generate_array(self, element_type: str, min_size: int = 1, max_size: int = 10) -> List:
+    def generate_array(
+        self, element_type: str, min_size: int = 1, max_size: int = 10
+    ) -> List:
         """Generate PostgreSQL array data"""
         size = random.randint(min_size, max_size)
 
-        if element_type == 'integer':
+        if element_type == "integer":
             return [random.randint(1, 1000) for _ in range(size)]
-        elif element_type == 'text':
+        elif element_type == "text":
             return [self.fake.word() for _ in range(size)]
-        elif element_type == 'uuid':
+        elif element_type == "uuid":
             return [self.fake.uuid4() for _ in range(size)]
-        elif element_type == 'date':
+        elif element_type == "date":
             return [self.fake.date() for _ in range(size)]
         else:
             return []
@@ -222,8 +232,9 @@ class PostgreSQLGenerator:
 
     # Table creation helpers
 
-    def create_partitioned_table(self, table_name: str, partition_column: str,
-                                partition_type: str = 'RANGE') -> bool:
+    def create_partitioned_table(
+        self, table_name: str, partition_column: str, partition_type: str = "RANGE"
+    ) -> bool:
         """Create a partitioned table"""
         # This is a template - actual implementation depends on schema
         query = f"""
@@ -237,8 +248,9 @@ class PostgreSQLGenerator:
         """
         return self.execute_query(query)
 
-    def create_partition(self, parent_table: str, partition_name: str,
-                        start_value: str, end_value: str) -> bool:
+    def create_partition(
+        self, parent_table: str, partition_name: str, start_value: str, end_value: str
+    ) -> bool:
         """Create a partition for a partitioned table"""
         query = f"""
         CREATE TABLE IF NOT EXISTS {partition_name}
@@ -252,23 +264,33 @@ class PostgreSQLGenerator:
         if not index_name:
             index_name = f"idx_{table}_{column}_gin"
 
-        query = f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING GIN ({column});"
+        query = (
+            f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING GIN ({column});"
+        )
         return self.execute_query(query)
 
-    def create_gist_index(self, table: str, column: str, index_name: str = None) -> bool:
+    def create_gist_index(
+        self, table: str, column: str, index_name: str = None
+    ) -> bool:
         """Create GiST index for geometric or full-text search"""
         if not index_name:
             index_name = f"idx_{table}_{column}_gist"
 
-        query = f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING GIST ({column});"
+        query = (
+            f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING GIST ({column});"
+        )
         return self.execute_query(query)
 
-    def create_brin_index(self, table: str, column: str, index_name: str = None) -> bool:
+    def create_brin_index(
+        self, table: str, column: str, index_name: str = None
+    ) -> bool:
         """Create BRIN index for large tables with natural ordering"""
         if not index_name:
             index_name = f"idx_{table}_{column}_brin"
 
-        query = f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING BRIN ({column});"
+        query = (
+            f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} USING BRIN ({column});"
+        )
         return self.execute_query(query)
 
     # Utility methods
@@ -301,9 +323,9 @@ class PostgreSQLGenerator:
 
         if result:
             return {
-                'total_size': result[0],
-                'table_size': result[1],
-                'indexes_size': result[2]
+                "total_size": result[0],
+                "table_size": result[1],
+                "indexes_size": result[2],
             }
         return {}
 
@@ -325,27 +347,29 @@ class PostgreSQLGenerator:
 
     def print_statistics(self):
         """Print generation statistics"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("PostgreSQL Data Generation Statistics")
-        print("="*60)
+        print("=" * 60)
 
-        if self.stats['start_time'] and self.stats['end_time']:
-            duration = (self.stats['end_time'] - self.stats['start_time']).total_seconds()
+        if self.stats["start_time"] and self.stats["end_time"]:
+            duration = (
+                self.stats["end_time"] - self.stats["start_time"]
+            ).total_seconds()
             print(f"Duration: {duration:.2f} seconds")
 
         print(f"\nRecords Inserted:")
         total_records = 0
-        for table, count in self.stats['records_inserted'].items():
+        for table, count in self.stats["records_inserted"].items():
             print(f"  {table}: {count:,}")
             total_records += count
         print(f"  Total: {total_records:,}")
 
-        if self.stats['errors']:
+        if self.stats["errors"]:
             print(f"\nErrors ({len(self.stats['errors'])}):")
-            for error in self.stats['errors'][:5]:  # Show first 5 errors
+            for error in self.stats["errors"][:5]:  # Show first 5 errors
                 print(f"  - {error[:100]}")
 
-        print("="*60)
+        print("=" * 60)
 
 
 class PostgreSQLTestGenerator(PostgreSQLGenerator):
@@ -353,15 +377,15 @@ class PostgreSQLTestGenerator(PostgreSQLGenerator):
 
     def run(self):
         """Run test data generation"""
-        self.stats['start_time'] = datetime.now()
+        self.stats["start_time"] = datetime.now()
 
         if not self.connect():
             return False
 
         try:
             # Enable useful extensions
-            self.enable_extension('uuid-ossp')
-            self.enable_extension('pg_trgm')  # For similarity searches
+            self.enable_extension("uuid-ossp")
+            self.enable_extension("pg_trgm")  # For similarity searches
 
             # Generate test data
             self._generate_test_data()
@@ -372,10 +396,10 @@ class PostgreSQLTestGenerator(PostgreSQLGenerator):
         finally:
             self.disconnect()
 
-        self.stats['end_time'] = datetime.now()
+        self.stats["end_time"] = datetime.now()
         self.print_statistics()
 
-        return len(self.stats['errors']) == 0
+        return len(self.stats["errors"]) == 0
 
     def _generate_test_data(self):
         """Generate small test dataset"""
@@ -401,24 +425,33 @@ class PostgreSQLTestGenerator(PostgreSQLGenerator):
                 self.generate_uuid(),
                 self.fake.name(),
                 self.generate_jsonb(),
-                self.generate_array('text', 1, 5),
+                self.generate_array("text", 1, 5),
                 self.generate_point(),
                 self.generate_inet(),
                 datetime.now(),
-                self.generate_tsvector()
+                self.generate_tsvector(),
             )
             records.append(record)
 
         # Insert records
-        columns = ['id', 'name', 'metadata', 'tags', 'location',
-                  'ip_address', 'created_at', 'search_vector']
-        self.batch_insert('test_records', columns, records)
+        columns = [
+            "id",
+            "name",
+            "metadata",
+            "tags",
+            "location",
+            "ip_address",
+            "created_at",
+            "search_vector",
+        ]
+        self.batch_insert("test_records", columns, records)
 
         # Create indexes
-        self.create_gin_index('test_records', 'metadata')
-        self.create_gin_index('test_records', 'tags')
-        self.create_gist_index('test_records', 'search_vector')
+        self.create_gin_index("test_records", "metadata")
+        self.create_gin_index("test_records", "tags")
+        self.create_gist_index("test_records", "search_vector")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     generator = PostgreSQLTestGenerator()
     generator.run()

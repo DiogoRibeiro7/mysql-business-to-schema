@@ -13,10 +13,11 @@ from typing import List, Dict
 import sys
 
 # Fix encoding for Windows
-if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8')
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 fake = Faker()
+
 
 class DemoDataGenerator:
     """Generate demo SQL files for all schemas"""
@@ -39,7 +40,7 @@ class DemoDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert patients",
-            "INSERT INTO patients (first_name, last_name, date_of_birth, gender, email, phone, address, city, state, zip_code) VALUES"
+            "INSERT INTO patients (first_name, last_name, date_of_birth, gender, email, phone, address, city, state, zip_code) VALUES",
         ]
 
         values = []
@@ -54,12 +55,12 @@ class DemoDataGenerator:
             )
             values.append(patient)
 
-        sql_lines.append(',\n'.join(values) + ';')
+        sql_lines.append(",\n".join(values) + ";")
 
         # Save to file
-        output_file = os.path.join(self.output_dir, 'clinic_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "clinic_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count} patients)")
         return output_file
@@ -79,12 +80,12 @@ class DemoDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert products",
-            "INSERT INTO products (name, description, category, price, stock_quantity) VALUES"
+            "INSERT INTO products (name, description, category, price, stock_quantity) VALUES",
         ]
 
         # Generate products
         values = []
-        categories = ['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports']
+        categories = ["Electronics", "Clothing", "Books", "Home & Garden", "Sports"]
         for i in range(count):
             product_name = fake.catch_phrase().replace("'", "''")
             product_desc = fake.text(max_nb_chars=200).replace("'", "''")
@@ -97,11 +98,13 @@ class DemoDataGenerator:
             )
             values.append(product)
 
-        sql_lines.append(',\n'.join(values) + ';')
+        sql_lines.append(",\n".join(values) + ";")
 
         # Generate customers
         sql_lines.append("\n-- Insert customers")
-        sql_lines.append("INSERT INTO customers (first_name, last_name, email, phone, registration_date) VALUES")
+        sql_lines.append(
+            "INSERT INTO customers (first_name, last_name, email, phone, registration_date) VALUES"
+        )
 
         values = []
         for i in range(count // 2):
@@ -112,12 +115,12 @@ class DemoDataGenerator:
             )
             values.append(customer)
 
-        sql_lines.append(',\n'.join(values) + ';')
+        sql_lines.append(",\n".join(values) + ";")
 
         # Save to file
-        output_file = os.path.join(self.output_dir, 'ecommerce_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "ecommerce_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count} products, {count//2} customers)")
         return output_file
@@ -137,11 +140,11 @@ class DemoDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert sensors",
-            "INSERT INTO sensors (sensor_id, type, location, status) VALUES"
+            "INSERT INTO sensors (sensor_id, type, location, status) VALUES",
         ]
 
         # Generate sensors
-        sensor_types = ['temperature', 'humidity', 'pressure', 'motion', 'light']
+        sensor_types = ["temperature", "humidity", "pressure", "motion", "light"]
         values = []
         for i in range(count // 5):
             sensor_location = fake.address().replace("'", "''")
@@ -151,15 +154,17 @@ class DemoDataGenerator:
             )
             values.append(sensor)
 
-        sql_lines.append(',\n'.join(values) + ';')
+        sql_lines.append(",\n".join(values) + ";")
 
         # Generate readings
         sql_lines.append("\n-- Insert sensor readings")
-        sql_lines.append("INSERT INTO readings (sensor_id, timestamp, value, unit) VALUES")
+        sql_lines.append(
+            "INSERT INTO readings (sensor_id, timestamp, value, unit) VALUES"
+        )
 
         values = []
         for i in range(count):
-            sensor_id = f'SENSOR_{random.randint(1, count//5):06d}'
+            sensor_id = f"SENSOR_{random.randint(1, count//5):06d}"
             reading = (
                 f"('{sensor_id}', "
                 f"'{fake.date_time_between(start_date='-30d', end_date='now')}', "
@@ -168,21 +173,21 @@ class DemoDataGenerator:
             )
             values.append(reading)
 
-        sql_lines.append(',\n'.join(values) + ';')
+        sql_lines.append(",\n".join(values) + ";")
 
         # Save to file
-        output_file = os.path.join(self.output_dir, 'iot_bins_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "iot_bins_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count//5} sensors, {count} readings)")
         return output_file
 
     def generate_all(self, records_per_schema: int = 100):
         """Generate data for all main schemas"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("Demo Data Generation")
-        print("="*60 + "\n")
+        print("=" * 60 + "\n")
 
         files_created = []
 
@@ -192,8 +197,8 @@ class DemoDataGenerator:
         files_created.append(self.generate_iot_data(records_per_schema))
 
         # Create a master import script
-        master_script = os.path.join(self.output_dir, 'import_all.sql')
-        with open(master_script, 'w', encoding='utf-8') as f:
+        master_script = os.path.join(self.output_dir, "import_all.sql")
+        with open(master_script, "w", encoding="utf-8") as f:
             f.write("-- Master import script for all demo data\n")
             f.write("-- Run this after creating the database schemas\n\n")
             for file in files_created:
@@ -203,21 +208,21 @@ class DemoDataGenerator:
 
         # Create summary JSON
         summary = {
-            'generated_at': datetime.now().isoformat(),
-            'files_created': files_created,
-            'total_records': records_per_schema * 3,
-            'schemas': ['clinic_db', 'ecommerce_db', 'iot_bins_db']
+            "generated_at": datetime.now().isoformat(),
+            "files_created": files_created,
+            "total_records": records_per_schema * 3,
+            "schemas": ["clinic_db", "ecommerce_db", "iot_bins_db"],
         }
 
-        summary_file = os.path.join(self.output_dir, 'generation_summary.json')
-        with open(summary_file, 'w', encoding='utf-8') as f:
+        summary_file = os.path.join(self.output_dir, "generation_summary.json")
+        with open(summary_file, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
 
         print(f"  Created summary: {summary_file}")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("Demo Data Generation Complete!")
-        print("="*60)
+        print("=" * 60)
         print("\nTo use the generated data:")
         print("1. Ensure MySQL is running with the correct password")
         print("2. Create the schemas first (if not exists):")
@@ -229,20 +234,27 @@ class DemoDataGenerator:
         for file in files_created:
             print(f"   mysql -u root -p < {os.path.basename(file)}")
 
+
 def main():
     """Main execution"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Generate demo SQL data files')
-    parser.add_argument('--records', type=int, default=100,
-                       help='Number of records per schema (default: 100)')
-    parser.add_argument('--output', default='demo_data',
-                       help='Output directory (default: demo_data)')
+    parser = argparse.ArgumentParser(description="Generate demo SQL data files")
+    parser.add_argument(
+        "--records",
+        type=int,
+        default=100,
+        help="Number of records per schema (default: 100)",
+    )
+    parser.add_argument(
+        "--output", default="demo_data", help="Output directory (default: demo_data)"
+    )
 
     args = parser.parse_args()
 
     generator = DemoDataGenerator(args.output)
     generator.generate_all(args.records)
+
 
 if __name__ == "__main__":
     main()

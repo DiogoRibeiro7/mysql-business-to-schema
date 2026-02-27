@@ -24,13 +24,13 @@ np.random.seed(SEED)
 
 # Scaled down configuration for testing
 CONFIG = {
-    "customers": 100,        # Reduced from 10000
-    "products": 50,          # Reduced from 5000
-    "categories": 10,        # Reduced from 150
-    "brands": 10,            # Reduced from 200
-    "warehouses": 2,         # Reduced from 5
-    "orders_per_day": 5,     # Reduced from 500
-    "days_of_history": 30,   # Reduced from 365
+    "customers": 100,  # Reduced from 10000
+    "products": 50,  # Reduced from 5000
+    "categories": 10,  # Reduced from 150
+    "brands": 10,  # Reduced from 200
+    "warehouses": 2,  # Reduced from 5
+    "orders_per_day": 5,  # Reduced from 500
+    "days_of_history": 30,  # Reduced from 365
     "review_rate": 0.15,
     "cart_abandonment_rate": 0.70,
     "return_rate": 0.08,
@@ -45,18 +45,20 @@ print(f"  Days of history: {CONFIG['days_of_history']}")
 
 # Import the main generator
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent))
 from generator import EcommerceGenerator
 
 # Override the CONFIG in the imported module
 import generator
+
 generator.CONFIG = CONFIG
 generator.OUTPUT_DIR = OUTPUT_DIR
 
 if __name__ == "__main__":
-    print("\n" + "="*50)
+    print("\n" + "=" * 50)
     print("Starting TEST E-commerce Data Generation...")
-    print("="*50 + "\n")
+    print("=" * 50 + "\n")
 
     generator = EcommerceGenerator()
     generator.generate_all()

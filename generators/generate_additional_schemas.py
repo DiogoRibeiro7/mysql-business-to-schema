@@ -14,10 +14,11 @@ from typing import List, Dict
 import hashlib
 
 # Fix encoding for Windows
-if sys.platform == 'win32':
-    sys.stdout.reconfigure(encoding='utf-8')
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
 
 fake = Faker()
+
 
 class ComprehensiveDataGenerator:
     """Generate data for all business schemas"""
@@ -30,7 +31,7 @@ class ComprehensiveDataGenerator:
     def escape_sql(self, value):
         """Escape SQL special characters"""
         if value is None:
-            return 'NULL'
+            return "NULL"
         return str(value).replace("'", "''").replace("\\", "\\\\")
 
     def generate_fintech_data(self, count: int = 100):
@@ -49,7 +50,7 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert customers",
-            "INSERT INTO customers (customer_id, first_name, last_name, email, phone, ssn, date_of_birth, address, city, state, zip_code, kyc_status) VALUES"
+            "INSERT INTO customers (customer_id, first_name, last_name, email, phone, ssn, date_of_birth, address, city, state, zip_code, kyc_status) VALUES",
         ]
 
         # Generate customers
@@ -66,11 +67,13 @@ class ComprehensiveDataGenerator:
             )
             customer_values.append(customer)
 
-        sql_lines.append(',\n'.join(customer_values) + ';')
+        sql_lines.append(",\n".join(customer_values) + ";")
 
         # Generate accounts
         sql_lines.append("\n-- Insert accounts")
-        sql_lines.append("INSERT INTO accounts (account_number, customer_id, account_type, balance, currency, status, opened_date, interest_rate) VALUES")
+        sql_lines.append(
+            "INSERT INTO accounts (account_number, customer_id, account_type, balance, currency, status, opened_date, interest_rate) VALUES"
+        )
 
         account_values = []
         for i in range(count * 2):  # 2 accounts per customer average
@@ -84,11 +87,13 @@ class ComprehensiveDataGenerator:
             )
             account_values.append(account)
 
-        sql_lines.append(',\n'.join(account_values) + ';')
+        sql_lines.append(",\n".join(account_values) + ";")
 
         # Generate transactions
         sql_lines.append("\n-- Insert transactions")
-        sql_lines.append("INSERT INTO transactions (transaction_id, from_account, to_account, amount, transaction_type, status, timestamp, description) VALUES")
+        sql_lines.append(
+            "INSERT INTO transactions (transaction_id, from_account, to_account, amount, transaction_type, status, timestamp, description) VALUES"
+        )
 
         transaction_values = []
         for i in range(count * 5):  # 5 transactions per customer
@@ -102,14 +107,16 @@ class ComprehensiveDataGenerator:
             )
             transaction_values.append(transaction)
 
-        sql_lines.append(',\n'.join(transaction_values) + ';')
+        sql_lines.append(",\n".join(transaction_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'fintech_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "fintech_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
-        print(f"  Created: {output_file} ({count} customers, {count*2} accounts, {count*5} transactions)")
+        print(
+            f"  Created: {output_file} ({count} customers, {count*2} accounts, {count*5} transactions)"
+        )
         return output_file
 
     def generate_social_media_data(self, count: int = 100):
@@ -128,7 +135,7 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert users",
-            "INSERT INTO users (user_id, username, email, full_name, bio, profile_image, verified, followers_count, following_count, created_at) VALUES"
+            "INSERT INTO users (user_id, username, email, full_name, bio, profile_image, verified, followers_count, following_count, created_at) VALUES",
         ]
 
         # Generate users
@@ -146,18 +153,29 @@ class ComprehensiveDataGenerator:
             )
             user_values.append(user)
 
-        sql_lines.append(',\n'.join(user_values) + ';')
+        sql_lines.append(",\n".join(user_values) + ";")
 
         # Generate posts
         sql_lines.append("\n-- Insert posts")
-        sql_lines.append("INSERT INTO posts (post_id, user_id, content, media_url, likes_count, comments_count, shares_count, created_at) VALUES")
+        sql_lines.append(
+            "INSERT INTO posts (post_id, user_id, content, media_url, likes_count, comments_count, shares_count, created_at) VALUES"
+        )
 
         post_values = []
-        hashtags = ['#tech', '#life', '#food', '#travel', '#fitness', '#art', '#music', '#nature']
+        hashtags = [
+            "#tech",
+            "#life",
+            "#food",
+            "#travel",
+            "#fitness",
+            "#art",
+            "#music",
+            "#nature",
+        ]
         for i in range(count * 3):  # 3 posts per user average
             content = fake.text(max_nb_chars=280)
             # Add some hashtags
-            content += ' ' + ' '.join(random.sample(hashtags, k=random.randint(0, 3)))
+            content += " " + " ".join(random.sample(hashtags, k=random.randint(0, 3)))
             post = (
                 f"({i+1}, {random.randint(1, count)}, "
                 f"'{self.escape_sql(content)}', "
@@ -168,12 +186,12 @@ class ComprehensiveDataGenerator:
             )
             post_values.append(post)
 
-        sql_lines.append(',\n'.join(post_values) + ';')
+        sql_lines.append(",\n".join(post_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'social_media_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "social_media_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count} users, {count*3} posts)")
         return output_file
@@ -193,12 +211,19 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert properties",
-            "INSERT INTO properties (property_id, address, city, state, zip_code, property_type, bedrooms, bathrooms, square_feet, lot_size, year_built, price) VALUES"
+            "INSERT INTO properties (property_id, address, city, state, zip_code, property_type, bedrooms, bathrooms, square_feet, lot_size, year_built, price) VALUES",
         ]
 
         # Generate properties
         property_values = []
-        property_types = ['Single Family', 'Condo', 'Townhouse', 'Multi-Family', 'Land', 'Commercial']
+        property_types = [
+            "Single Family",
+            "Condo",
+            "Townhouse",
+            "Multi-Family",
+            "Land",
+            "Commercial",
+        ]
         for i in range(count):
             property = (
                 f"('PROP{i+1:06d}', '{self.escape_sql(fake.street_address())}', "
@@ -211,11 +236,13 @@ class ComprehensiveDataGenerator:
             )
             property_values.append(property)
 
-        sql_lines.append(',\n'.join(property_values) + ';')
+        sql_lines.append(",\n".join(property_values) + ";")
 
         # Generate agents
         sql_lines.append("\n-- Insert agents")
-        sql_lines.append("INSERT INTO agents (agent_id, first_name, last_name, email, phone, license_number, agency, commission_rate) VALUES")
+        sql_lines.append(
+            "INSERT INTO agents (agent_id, first_name, last_name, email, phone, license_number, agency, commission_rate) VALUES"
+        )
 
         agent_values = []
         for i in range(count // 5):  # Fewer agents than properties
@@ -227,12 +254,12 @@ class ComprehensiveDataGenerator:
             )
             agent_values.append(agent)
 
-        sql_lines.append(',\n'.join(agent_values) + ';')
+        sql_lines.append(",\n".join(agent_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'real_estate_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "real_estate_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count} properties, {count//5} agents)")
         return output_file
@@ -252,7 +279,7 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert warehouses",
-            "INSERT INTO warehouses (warehouse_id, name, address, city, state, capacity, current_inventory) VALUES"
+            "INSERT INTO warehouses (warehouse_id, name, address, city, state, capacity, current_inventory) VALUES",
         ]
 
         # Generate warehouses
@@ -267,22 +294,28 @@ class ComprehensiveDataGenerator:
             )
             warehouse_values.append(warehouse)
 
-        sql_lines.append(',\n'.join(warehouse_values) + ';')
+        sql_lines.append(",\n".join(warehouse_values) + ";")
 
         # Generate shipments
         sql_lines.append("\n-- Insert shipments")
-        sql_lines.append("INSERT INTO shipments (shipment_id, origin_warehouse, destination_address, status, shipped_date, estimated_delivery, actual_delivery, carrier, tracking_number) VALUES")
+        sql_lines.append(
+            "INSERT INTO shipments (shipment_id, origin_warehouse, destination_address, status, shipped_date, estimated_delivery, actual_delivery, carrier, tracking_number) VALUES"
+        )
 
         shipment_values = []
-        statuses = ['pending', 'in_transit', 'delivered', 'returned', 'lost']
-        carriers = ['FedEx', 'UPS', 'USPS', 'DHL', 'Amazon']
+        statuses = ["pending", "in_transit", "delivered", "returned", "lost"]
+        carriers = ["FedEx", "UPS", "USPS", "DHL", "Amazon"]
 
         for i in range(count):
-            shipped_date = fake.date_between(start_date='-30d', end_date='today')
+            shipped_date = fake.date_between(start_date="-30d", end_date="today")
             estimated = shipped_date + timedelta(days=random.randint(1, 7))
-            actual = estimated + timedelta(days=random.randint(-2, 3)) if random.random() > 0.3 else 'NULL'
+            actual = (
+                estimated + timedelta(days=random.randint(-2, 3))
+                if random.random() > 0.3
+                else "NULL"
+            )
 
-            actual_str = f"'{actual}'" if actual != 'NULL' else actual
+            actual_str = f"'{actual}'" if actual != "NULL" else actual
             shipment = (
                 f"('SHIP{i+1:08d}', 'WH{random.randint(1, 10):03d}', "
                 f"'{self.escape_sql(fake.address()[:255])}', "
@@ -293,12 +326,12 @@ class ComprehensiveDataGenerator:
             )
             shipment_values.append(shipment)
 
-        sql_lines.append(',\n'.join(shipment_values) + ';')
+        sql_lines.append(",\n".join(shipment_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'logistics_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "logistics_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} (10 warehouses, {count} shipments)")
         return output_file
@@ -318,13 +351,29 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert courses",
-            "INSERT INTO courses (course_id, course_code, title, description, credits, department, instructor, capacity, schedule) VALUES"
+            "INSERT INTO courses (course_id, course_code, title, description, credits, department, instructor, capacity, schedule) VALUES",
         ]
 
         # Generate courses
         course_values = []
-        departments = ['Computer Science', 'Mathematics', 'Physics', 'Biology', 'Chemistry', 'English', 'History', 'Business']
-        subjects = ['Introduction to', 'Advanced', 'Fundamentals of', 'Applied', 'Modern', 'Theoretical']
+        departments = [
+            "Computer Science",
+            "Mathematics",
+            "Physics",
+            "Biology",
+            "Chemistry",
+            "English",
+            "History",
+            "Business",
+        ]
+        subjects = [
+            "Introduction to",
+            "Advanced",
+            "Fundamentals of",
+            "Applied",
+            "Modern",
+            "Theoretical",
+        ]
 
         for i in range(count // 2):  # Fewer courses than students
             dept = random.choice(departments)
@@ -338,11 +387,13 @@ class ComprehensiveDataGenerator:
             )
             course_values.append(course)
 
-        sql_lines.append(',\n'.join(course_values) + ';')
+        sql_lines.append(",\n".join(course_values) + ";")
 
         # Generate students
         sql_lines.append("\n-- Insert students")
-        sql_lines.append("INSERT INTO students (student_id, first_name, last_name, email, phone, date_of_birth, enrollment_date, major, gpa, credits_completed) VALUES")
+        sql_lines.append(
+            "INSERT INTO students (student_id, first_name, last_name, email, phone, date_of_birth, enrollment_date, major, gpa, credits_completed) VALUES"
+        )
 
         student_values = []
         majors = departments  # Same as departments
@@ -360,14 +411,16 @@ class ComprehensiveDataGenerator:
             )
             student_values.append(student)
 
-        sql_lines.append(',\n'.join(student_values) + ';')
+        sql_lines.append(",\n".join(student_values) + ";")
 
         # Generate enrollments
         sql_lines.append("\n-- Insert enrollments")
-        sql_lines.append("INSERT INTO enrollments (student_id, course_id, semester, year, grade, status) VALUES")
+        sql_lines.append(
+            "INSERT INTO enrollments (student_id, course_id, semester, year, grade, status) VALUES"
+        )
 
         enrollment_values = []
-        grades = ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D', 'F', 'W']
+        grades = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F", "W"]
 
         for i in range(count * 3):  # 3 enrollments per student average
             enrollment = (
@@ -380,14 +433,16 @@ class ComprehensiveDataGenerator:
             )
             enrollment_values.append(enrollment)
 
-        sql_lines.append(',\n'.join(enrollment_values) + ';')
+        sql_lines.append(",\n".join(enrollment_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'education_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "education_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
-        print(f"  Created: {output_file} ({count//2} courses, {count} students, {count*3} enrollments)")
+        print(
+            f"  Created: {output_file} ({count//2} courses, {count} students, {count*3} enrollments)"
+        )
         return output_file
 
     def generate_food_delivery_data(self, count: int = 100):
@@ -406,12 +461,23 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert restaurants",
-            "INSERT INTO restaurants (restaurant_id, name, cuisine_type, address, city, rating, delivery_time, minimum_order, delivery_fee, is_open) VALUES"
+            "INSERT INTO restaurants (restaurant_id, name, cuisine_type, address, city, rating, delivery_time, minimum_order, delivery_fee, is_open) VALUES",
         ]
 
         # Generate restaurants
         restaurant_values = []
-        cuisines = ['Italian', 'Chinese', 'Mexican', 'Indian', 'Japanese', 'Thai', 'American', 'Mediterranean', 'Korean', 'Vietnamese']
+        cuisines = [
+            "Italian",
+            "Chinese",
+            "Mexican",
+            "Indian",
+            "Japanese",
+            "Thai",
+            "American",
+            "Mediterranean",
+            "Korean",
+            "Vietnamese",
+        ]
 
         for i in range(count // 3):  # Fewer restaurants
             restaurant = (
@@ -426,15 +492,28 @@ class ComprehensiveDataGenerator:
             )
             restaurant_values.append(restaurant)
 
-        sql_lines.append(',\n'.join(restaurant_values) + ';')
+        sql_lines.append(",\n".join(restaurant_values) + ";")
 
         # Generate menu items
         sql_lines.append("\n-- Insert menu items")
-        sql_lines.append("INSERT INTO menu_items (item_id, restaurant_id, name, description, category, price, is_available) VALUES")
+        sql_lines.append(
+            "INSERT INTO menu_items (item_id, restaurant_id, name, description, category, price, is_available) VALUES"
+        )
 
         menu_values = []
-        food_items = ['Pizza', 'Burger', 'Pasta', 'Salad', 'Sandwich', 'Soup', 'Rice Bowl', 'Noodles', 'Tacos', 'Sushi']
-        categories = ['Appetizers', 'Main Course', 'Desserts', 'Beverages', 'Sides']
+        food_items = [
+            "Pizza",
+            "Burger",
+            "Pasta",
+            "Salad",
+            "Sandwich",
+            "Soup",
+            "Rice Bowl",
+            "Noodles",
+            "Tacos",
+            "Sushi",
+        ]
+        categories = ["Appetizers", "Main Course", "Desserts", "Beverages", "Sides"]
 
         for i in range(count * 2):  # Many menu items
             item_name = f"{random.choice(['Special', 'Classic', 'Deluxe', 'Premium'])} {random.choice(food_items)}"
@@ -448,14 +527,16 @@ class ComprehensiveDataGenerator:
             )
             menu_values.append(menu)
 
-        sql_lines.append(',\n'.join(menu_values) + ';')
+        sql_lines.append(",\n".join(menu_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'food_delivery_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "food_delivery_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
-        print(f"  Created: {output_file} ({count//3} restaurants, {count*2} menu items)")
+        print(
+            f"  Created: {output_file} ({count//3} restaurants, {count*2} menu items)"
+        )
         return output_file
 
     def generate_gaming_data(self, count: int = 100):
@@ -474,13 +555,30 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert games",
-            "INSERT INTO games (game_id, title, genre, developer, publisher, release_date, rating, price, platform) VALUES"
+            "INSERT INTO games (game_id, title, genre, developer, publisher, release_date, rating, price, platform) VALUES",
         ]
 
         # Generate games
         game_values = []
-        genres = ['Action', 'Adventure', 'RPG', 'Strategy', 'Puzzle', 'Sports', 'Racing', 'Shooter', 'Simulation']
-        platforms = ['PC', 'PlayStation', 'Xbox', 'Nintendo Switch', 'Mobile', 'Cross-platform']
+        genres = [
+            "Action",
+            "Adventure",
+            "RPG",
+            "Strategy",
+            "Puzzle",
+            "Sports",
+            "Racing",
+            "Shooter",
+            "Simulation",
+        ]
+        platforms = [
+            "PC",
+            "PlayStation",
+            "Xbox",
+            "Nintendo Switch",
+            "Mobile",
+            "Cross-platform",
+        ]
 
         for i in range(count // 2):  # Fewer games
             game = (
@@ -495,11 +593,13 @@ class ComprehensiveDataGenerator:
             )
             game_values.append(game)
 
-        sql_lines.append(',\n'.join(game_values) + ';')
+        sql_lines.append(",\n".join(game_values) + ";")
 
         # Generate players
         sql_lines.append("\n-- Insert players")
-        sql_lines.append("INSERT INTO players (player_id, username, email, display_name, level, experience_points, total_playtime, created_at, last_login) VALUES")
+        sql_lines.append(
+            "INSERT INTO players (player_id, username, email, display_name, level, experience_points, total_playtime, created_at, last_login) VALUES"
+        )
 
         player_values = []
         for i in range(count):
@@ -515,12 +615,12 @@ class ComprehensiveDataGenerator:
             )
             player_values.append(player)
 
-        sql_lines.append(',\n'.join(player_values) + ';')
+        sql_lines.append(",\n".join(player_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'gaming_platform_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "gaming_platform_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count//2} games, {count} players)")
         return output_file
@@ -540,7 +640,7 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert customers",
-            "INSERT INTO customers (customer_id, first_name, last_name, email, phone, date_of_birth, address, risk_score) VALUES"
+            "INSERT INTO customers (customer_id, first_name, last_name, email, phone, date_of_birth, address, risk_score) VALUES",
         ]
 
         # Generate customers
@@ -556,17 +656,19 @@ class ComprehensiveDataGenerator:
             )
             customer_values.append(customer)
 
-        sql_lines.append(',\n'.join(customer_values) + ';')
+        sql_lines.append(",\n".join(customer_values) + ";")
 
         # Generate policies
         sql_lines.append("\n-- Insert policies")
-        sql_lines.append("INSERT INTO policies (policy_number, customer_id, policy_type, start_date, end_date, premium_monthly, coverage_amount, deductible, status) VALUES")
+        sql_lines.append(
+            "INSERT INTO policies (policy_number, customer_id, policy_type, start_date, end_date, premium_monthly, coverage_amount, deductible, status) VALUES"
+        )
 
         policy_values = []
-        policy_types = ['Auto', 'Home', 'Life', 'Health', 'Travel', 'Business']
+        policy_types = ["Auto", "Home", "Life", "Health", "Travel", "Business"]
 
         for i in range(count * 2):  # 2 policies per customer average
-            start_date = fake.date_between(start_date='-2y', end_date='today')
+            start_date = fake.date_between(start_date="-2y", end_date="today")
             end_date = start_date + timedelta(days=365)
 
             policy = (
@@ -580,12 +682,12 @@ class ComprehensiveDataGenerator:
             )
             policy_values.append(policy)
 
-        sql_lines.append(',\n'.join(policy_values) + ';')
+        sql_lines.append(",\n".join(policy_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'insurance_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "insurance_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
         print(f"  Created: {output_file} ({count} customers, {count*2} policies)")
         return output_file
@@ -606,16 +708,27 @@ class ComprehensiveDataGenerator:
             "SET FOREIGN_KEY_CHECKS = 1;",
             "",
             "-- Insert hotels",
-            "INSERT INTO hotels (hotel_id, name, address, city, state, country, stars, total_rooms, amenities) VALUES"
+            "INSERT INTO hotels (hotel_id, name, address, city, state, country, stars, total_rooms, amenities) VALUES",
         ]
 
         # Generate hotels
         hotel_values = []
-        hotel_chains = ['Grand', 'Royal', 'Plaza', 'Resort', 'Inn', 'Suites']
-        amenities_options = ['Pool', 'Gym', 'Spa', 'Restaurant', 'Bar', 'WiFi', 'Parking', 'Conference Room']
+        hotel_chains = ["Grand", "Royal", "Plaza", "Resort", "Inn", "Suites"]
+        amenities_options = [
+            "Pool",
+            "Gym",
+            "Spa",
+            "Restaurant",
+            "Bar",
+            "WiFi",
+            "Parking",
+            "Conference Room",
+        ]
 
         for i in range(20):  # Just 20 hotels
-            amenities = ', '.join(random.sample(amenities_options, k=random.randint(3, 7)))
+            amenities = ", ".join(
+                random.sample(amenities_options, k=random.randint(3, 7))
+            )
             hotel = (
                 f"({i+1}, '{random.choice(hotel_chains)} {fake.city()}', "
                 f"'{self.escape_sql(fake.street_address())}', "
@@ -625,11 +738,13 @@ class ComprehensiveDataGenerator:
             )
             hotel_values.append(hotel)
 
-        sql_lines.append(',\n'.join(hotel_values) + ';')
+        sql_lines.append(",\n".join(hotel_values) + ";")
 
         # Generate guests
         sql_lines.append("\n-- Insert guests")
-        sql_lines.append("INSERT INTO guests (guest_id, first_name, last_name, email, phone, passport_number, nationality, loyalty_points) VALUES")
+        sql_lines.append(
+            "INSERT INTO guests (guest_id, first_name, last_name, email, phone, passport_number, nationality, loyalty_points) VALUES"
+        )
 
         guest_values = []
         for i in range(count):
@@ -642,15 +757,17 @@ class ComprehensiveDataGenerator:
             )
             guest_values.append(guest)
 
-        sql_lines.append(',\n'.join(guest_values) + ';')
+        sql_lines.append(",\n".join(guest_values) + ";")
 
         # Generate bookings
         sql_lines.append("\n-- Insert bookings")
-        sql_lines.append("INSERT INTO bookings (booking_id, guest_id, hotel_id, room_number, check_in, check_out, total_amount, status, booking_date) VALUES")
+        sql_lines.append(
+            "INSERT INTO bookings (booking_id, guest_id, hotel_id, room_number, check_in, check_out, total_amount, status, booking_date) VALUES"
+        )
 
         booking_values = []
         for i in range(count * 2):  # 2 bookings per guest average
-            check_in = fake.date_between(start_date='-1y', end_date='+3m')
+            check_in = fake.date_between(start_date="-1y", end_date="+3m")
             check_out = check_in + timedelta(days=random.randint(1, 14))
 
             booking = (
@@ -663,21 +780,23 @@ class ComprehensiveDataGenerator:
             )
             booking_values.append(booking)
 
-        sql_lines.append(',\n'.join(booking_values) + ';')
+        sql_lines.append(",\n".join(booking_values) + ";")
 
         # Save file
-        output_file = os.path.join(self.output_dir, 'hotel_chain_db_data.sql')
-        with open(output_file, 'w', encoding='utf-8') as f:
-            f.write('\n'.join(sql_lines))
+        output_file = os.path.join(self.output_dir, "hotel_chain_db_data.sql")
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("\n".join(sql_lines))
 
-        print(f"  Created: {output_file} (20 hotels, {count} guests, {count*2} bookings)")
+        print(
+            f"  Created: {output_file} (20 hotels, {count} guests, {count*2} bookings)"
+        )
         return output_file
 
     def generate_all_additional(self, records_per_schema: int = 100):
         """Generate data for all additional schemas"""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("Generating Additional Schema Data")
-        print("="*60 + "\n")
+        print("=" * 60 + "\n")
 
         files_created = []
 
@@ -693,8 +812,8 @@ class ComprehensiveDataGenerator:
         files_created.append(self.generate_hotel_data(records_per_schema))
 
         # Create master import script
-        master_script = os.path.join(self.output_dir, 'import_additional.sql')
-        with open(master_script, 'w', encoding='utf-8') as f:
+        master_script = os.path.join(self.output_dir, "import_additional.sql")
+        with open(master_script, "w", encoding="utf-8") as f:
             f.write("-- Master import script for additional schema data\n")
             f.write("-- Run this after creating the database schemas\n\n")
             for file in files_created:
@@ -703,27 +822,33 @@ class ComprehensiveDataGenerator:
         print(f"\n  Created master script: {master_script}")
 
         # Update summary JSON
-        summary_file = os.path.join(self.output_dir, 'generation_summary.json')
+        summary_file = os.path.join(self.output_dir, "generation_summary.json")
         summary = {
-            'generated_at': datetime.now().isoformat(),
-            'files_created': files_created,
-            'schemas': [
-                'fintech_db', 'social_media_db', 'real_estate_db',
-                'logistics_db', 'education_db', 'food_delivery_db',
-                'gaming_platform_db', 'insurance_db', 'hotel_chain_db'
+            "generated_at": datetime.now().isoformat(),
+            "files_created": files_created,
+            "schemas": [
+                "fintech_db",
+                "social_media_db",
+                "real_estate_db",
+                "logistics_db",
+                "education_db",
+                "food_delivery_db",
+                "gaming_platform_db",
+                "insurance_db",
+                "hotel_chain_db",
             ],
-            'total_schemas': 12,  # Including the previous 3
-            'estimated_records': records_per_schema * 20
+            "total_schemas": 12,  # Including the previous 3
+            "estimated_records": records_per_schema * 20,
         }
 
-        with open(summary_file, 'w', encoding='utf-8') as f:
+        with open(summary_file, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2)
 
         print(f"  Updated summary: {summary_file}")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("Additional Schema Data Generation Complete!")
-        print("="*60)
+        print("=" * 60)
         print("\nGenerated data for 9 additional business domains:")
         for file in files_created:
             print(f"  - {os.path.basename(file)}")
@@ -733,20 +858,27 @@ class ComprehensiveDataGenerator:
         print("  mysql -u root -p < import_all.sql")
         print("  mysql -u root -p < import_additional.sql")
 
+
 def main():
     """Main execution"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Generate additional schema SQL data')
-    parser.add_argument('--records', type=int, default=100,
-                       help='Number of records per schema (default: 100)')
-    parser.add_argument('--output', default='demo_data',
-                       help='Output directory (default: demo_data)')
+    parser = argparse.ArgumentParser(description="Generate additional schema SQL data")
+    parser.add_argument(
+        "--records",
+        type=int,
+        default=100,
+        help="Number of records per schema (default: 100)",
+    )
+    parser.add_argument(
+        "--output", default="demo_data", help="Output directory (default: demo_data)"
+    )
 
     args = parser.parse_args()
 
     generator = ComprehensiveDataGenerator(args.output)
     generator.generate_all_additional(args.records)
+
 
 if __name__ == "__main__":
     main()

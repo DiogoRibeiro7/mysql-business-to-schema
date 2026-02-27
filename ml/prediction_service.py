@@ -35,7 +35,7 @@ from anomaly_detection import (
     QueryPerformancePredictor,
     TimeSeriesForecaster,
     IndexRecommendationML,
-    Anomaly
+    Anomaly,
 )
 
 # Configure logging
@@ -46,7 +46,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="MySQL ML Prediction Service",
     description="Real-time ML predictions for MySQL performance optimization",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # CORS configuration
@@ -55,30 +55,22 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"]
+    allow_headers=["*"],
 )
 
 # Metrics
 prediction_requests = Counter(
-    'ml_prediction_requests_total',
-    'Total number of prediction requests',
-    ['prediction_type']
+    "ml_prediction_requests_total",
+    "Total number of prediction requests",
+    ["prediction_type"],
 )
 prediction_latency = Histogram(
-    'ml_prediction_latency_seconds',
-    'Latency of ML predictions',
-    ['prediction_type']
+    "ml_prediction_latency_seconds", "Latency of ML predictions", ["prediction_type"]
 )
 anomalies_detected = Counter(
-    'ml_anomalies_detected_total',
-    'Total number of anomalies detected',
-    ['severity']
+    "ml_anomalies_detected_total", "Total number of anomalies detected", ["severity"]
 )
-model_accuracy = Gauge(
-    'ml_model_accuracy',
-    'Current model accuracy',
-    ['model_name']
-)
+model_accuracy = Gauge("ml_model_accuracy", "Current model accuracy", ["model_name"])
 
 # Global instances
 anomaly_detector = DatabaseAnomalyDetector()
@@ -168,14 +160,14 @@ async def startup_event():
 
     # Load pre-trained models if available
     try:
-        query_predictor.model = joblib.load('models/query_predictor.pkl')
-        query_predictor.scaler = joblib.load('models/query_scaler.pkl')
+        query_predictor.model = joblib.load("models/query_predictor.pkl")
+        query_predictor.scaler = joblib.load("models/query_scaler.pkl")
         logger.info("Loaded pre-trained query predictor")
     except FileNotFoundError:
         logger.warning("No pre-trained query predictor found")
 
     try:
-        index_recommender.model = joblib.load('models/index_recommender.pkl')
+        index_recommender.model = joblib.load("models/index_recommender.pkl")
         logger.info("Loaded pre-trained index recommender")
     except FileNotFoundError:
         logger.warning("No pre-trained index recommender found")
@@ -196,48 +188,47 @@ async def health_check():
         "models_loaded": {
             "anomaly_detector": anomaly_detector.models != {},
             "query_predictor": query_predictor.model is not None,
-            "index_recommender": index_recommender.model is not None
-        }
+            "index_recommender": index_recommender.model is not None,
+        },
     }
 
 
 @app.post("/predict/query", response_model=QueryPredictionResponse)
 async def predict_query_performance(request: QueryPredictionRequest):
     """Predict query execution time and provide optimization recommendations"""
-    prediction_requests.labels(prediction_type='query').inc()
+    prediction_requests.labels(prediction_type="query").inc()
 
-    with prediction_latency.labels(prediction_type='query').time():
+    with prediction_latency.labels(prediction_type="query").time():
         try:
             # Get prediction
-            prediction = query_predictor.predict(
-                request.query,
-                request.table_stats
-            )
+            prediction = query_predictor.predict(request.query, request.table_stats)
 
             # Analyze risk level
             risk_level = "low"
-            if prediction['predicted_time_ms'] > 5000:
+            if prediction["predicted_time_ms"] > 5000:
                 risk_level = "high"
-            elif prediction['predicted_time_ms'] > 1000:
+            elif prediction["predicted_time_ms"] > 1000:
                 risk_level = "medium"
 
             # Generate recommendations
             recommendations = []
-            if prediction['predicted_time_ms'] > 1000:
+            if prediction["predicted_time_ms"] > 1000:
                 recommendations.append("Consider adding indexes to improve performance")
-            if 'JOIN' in request.query.upper():
+            if "JOIN" in request.query.upper():
                 recommendations.append("Ensure join columns are properly indexed")
-            if 'SELECT *' in request.query.upper():
-                recommendations.append("Select only required columns instead of using SELECT *")
+            if "SELECT *" in request.query.upper():
+                recommendations.append(
+                    "Select only required columns instead of using SELECT *"
+                )
 
             return QueryPredictionResponse(
-                predicted_time_ms=prediction['predicted_time_ms'],
-                confidence=prediction['confidence'],
-                uncertainty_ms=prediction['uncertainty_ms'],
-                lower_bound_ms=prediction['lower_bound_ms'],
-                upper_bound_ms=prediction['upper_bound_ms'],
+                predicted_time_ms=prediction["predicted_time_ms"],
+                confidence=prediction["confidence"],
+                uncertainty_ms=prediction["uncertainty_ms"],
+                lower_bound_ms=prediction["lower_bound_ms"],
+                upper_bound_ms=prediction["upper_bound_ms"],
                 recommendations=recommendations,
-                risk_level=risk_level
+                risk_level=risk_level,
             )
 
         except Exception as e:
@@ -248,15 +239,14 @@ async def predict_query_performance(request: QueryPredictionRequest):
 @app.post("/detect/anomalies", response_model=AnomalyResponse)
 async def detect_anomalies(request: AnomalyDetectionRequest):
     """Detect anomalies in database metrics"""
-    prediction_requests.labels(prediction_type='anomaly').inc()
+    prediction_requests.labels(prediction_type="anomaly").inc()
 
-    with prediction_latency.labels(prediction_type='anomaly').time():
+    with prediction_latency.labels(prediction_type="anomaly").time():
         try:
             # Convert metrics to DataFrame
-            metrics_df = pd.DataFrame([{
-                **request.metrics,
-                'timestamp': request.timestamp
-            }])
+            metrics_df = pd.DataFrame(
+                [{**request.metrics, "timestamp": request.timestamp}]
+            )
 
             # Detect anomalies
             anomalies = anomaly_detector.detect_anomalies(metrics_df)
@@ -264,18 +254,18 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
             # Calculate risk score
             risk_score = 0.0
             for anomaly in anomalies:
-                if anomaly.severity == 'CRITICAL':
+                if anomaly.severity == "CRITICAL":
                     risk_score += 1.0
-                    anomalies_detected.labels(severity='critical').inc()
-                elif anomaly.severity == 'HIGH':
+                    anomalies_detected.labels(severity="critical").inc()
+                elif anomaly.severity == "HIGH":
                     risk_score += 0.7
-                    anomalies_detected.labels(severity='high').inc()
-                elif anomaly.severity == 'MEDIUM':
+                    anomalies_detected.labels(severity="high").inc()
+                elif anomaly.severity == "MEDIUM":
                     risk_score += 0.4
-                    anomalies_detected.labels(severity='medium').inc()
+                    anomalies_detected.labels(severity="medium").inc()
                 else:
                     risk_score += 0.1
-                    anomalies_detected.labels(severity='low').inc()
+                    anomalies_detected.labels(severity="low").inc()
 
             risk_score = min(1.0, risk_score / max(len(anomalies), 1))
 
@@ -287,9 +277,7 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
                 alert_level = "warning"
 
             # Extract recommendations
-            recommendations = list(set(
-                a.recommended_action for a in anomalies
-            ))
+            recommendations = list(set(a.recommended_action for a in anomalies))
 
             # Broadcast anomalies to WebSocket clients
             if anomalies and websocket_connections:
@@ -299,7 +287,7 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
                 anomalies=[asdict(a) for a in anomalies],
                 risk_score=risk_score,
                 recommendations=recommendations,
-                alert_level=alert_level
+                alert_level=alert_level,
             )
 
         except Exception as e:
@@ -310,31 +298,28 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
 @app.post("/forecast", response_model=ForecastResponse)
 async def generate_forecast(request: ForecastRequest):
     """Generate time series forecast for metrics"""
-    prediction_requests.labels(prediction_type='forecast').inc()
+    prediction_requests.labels(prediction_type="forecast").inc()
 
-    with prediction_latency.labels(prediction_type='forecast').time():
+    with prediction_latency.labels(prediction_type="forecast").time():
         try:
             # Prepare time series data
             ts_df = pd.DataFrame(request.historical_data)
-            ts_df = forecaster.prepare_timeseries_data(
-                ts_df,
-                request.metric_name
-            )
+            ts_df = forecaster.prepare_timeseries_data(ts_df, request.metric_name)
 
             # Train and forecast
             if request.metric_name not in forecaster.prophet_models:
                 forecaster.train_prophet_model(ts_df, request.metric_name)
 
             forecast_df = forecaster.forecast(
-                request.metric_name,
-                request.forecast_horizon
+                request.metric_name, request.forecast_horizon
             )
 
             # Analyze trend
             trend = "stable"
             if len(forecast_df) > 1:
-                trend_slope = (forecast_df['yhat'].iloc[-1] -
-                             forecast_df['yhat'].iloc[0]) / len(forecast_df)
+                trend_slope = (
+                    forecast_df["yhat"].iloc[-1] - forecast_df["yhat"].iloc[0]
+                ) / len(forecast_df)
                 if trend_slope > 0.1:
                     trend = "increasing"
                 elif trend_slope < -0.1:
@@ -343,18 +328,18 @@ async def generate_forecast(request: ForecastRequest):
             # Extract seasonality
             model = forecaster.prophet_models[request.metric_name]
             seasonality = {
-                "daily": model.seasonalities.get('daily', {}).get('period', 0),
-                "weekly": model.seasonalities.get('weekly', {}).get('period', 0)
+                "daily": model.seasonalities.get("daily", {}).get("period", 0),
+                "weekly": model.seasonalities.get("weekly", {}).get("period", 0),
             }
 
             return ForecastResponse(
-                forecast=forecast_df.to_dict('records'),
+                forecast=forecast_df.to_dict("records"),
                 confidence_interval={
-                    "lower": forecast_df['yhat_lower'].tolist(),
-                    "upper": forecast_df['yhat_upper'].tolist()
+                    "lower": forecast_df["yhat_lower"].tolist(),
+                    "upper": forecast_df["yhat_upper"].tolist(),
                 },
                 trend=trend,
-                seasonality=seasonality
+                seasonality=seasonality,
             )
 
         except Exception as e:
@@ -365,30 +350,32 @@ async def generate_forecast(request: ForecastRequest):
 @app.post("/recommend/indexes", response_model=IndexRecommendationResponse)
 async def recommend_indexes(request: IndexRecommendationRequest):
     """Recommend indexes using ML"""
-    prediction_requests.labels(prediction_type='index').inc()
+    prediction_requests.labels(prediction_type="index").inc()
 
-    with prediction_latency.labels(prediction_type='index').time():
+    with prediction_latency.labels(prediction_type="index").time():
         try:
             # Get recommendations
             recommendations = index_recommender.recommend_index(
-                request.query,
-                request.execution_plan,
-                request.table_schema
+                request.query, request.execution_plan, request.table_schema
             )
 
             # Calculate estimated improvement
             estimated_improvement = 0.0
             if recommendations:
-                estimated_improvement = np.mean([
-                    r['confidence'] for r in recommendations
-                ])
+                estimated_improvement = np.mean(
+                    [r["confidence"] for r in recommendations]
+                )
 
             # Perform impact analysis
             impact_analysis = {
                 "read_performance": "improved" if recommendations else "unchanged",
-                "write_performance": "slightly_degraded" if recommendations else "unchanged",
-                "storage_overhead": f"{len(recommendations) * 10}MB" if recommendations else "0MB",
-                "maintenance_cost": "low" if len(recommendations) <= 2 else "medium"
+                "write_performance": (
+                    "slightly_degraded" if recommendations else "unchanged"
+                ),
+                "storage_overhead": (
+                    f"{len(recommendations) * 10}MB" if recommendations else "0MB"
+                ),
+                "maintenance_cost": "low" if len(recommendations) <= 2 else "medium",
             }
 
             # Generate warnings
@@ -402,7 +389,7 @@ async def recommend_indexes(request: IndexRecommendationRequest):
                 recommendations=recommendations,
                 estimated_improvement=estimated_improvement,
                 impact_analysis=impact_analysis,
-                warnings=warnings
+                warnings=warnings,
             )
 
         except Exception as e:
@@ -422,41 +409,47 @@ async def recommend_autoscaling() -> List[AutoScalingRecommendation]:
             "cpu_usage": 85,
             "memory_usage": 70,
             "connection_count": 450,
-            "query_latency_p99": 2000
+            "query_latency_p99": 2000,
         }
 
         # CPU scaling recommendation
         if mock_metrics["cpu_usage"] > 80:
-            recommendations.append(AutoScalingRecommendation(
-                resource_type="cpu",
-                current_value=2,
-                recommended_value=4,
-                reason="High CPU usage detected",
-                confidence=0.9,
-                cost_impact=50.0
-            ))
+            recommendations.append(
+                AutoScalingRecommendation(
+                    resource_type="cpu",
+                    current_value=2,
+                    recommended_value=4,
+                    reason="High CPU usage detected",
+                    confidence=0.9,
+                    cost_impact=50.0,
+                )
+            )
 
         # Connection pool recommendation
         if mock_metrics["connection_count"] > 400:
-            recommendations.append(AutoScalingRecommendation(
-                resource_type="max_connections",
-                current_value=500,
-                recommended_value=750,
-                reason="Connection pool near capacity",
-                confidence=0.85,
-                cost_impact=0
-            ))
+            recommendations.append(
+                AutoScalingRecommendation(
+                    resource_type="max_connections",
+                    current_value=500,
+                    recommended_value=750,
+                    reason="Connection pool near capacity",
+                    confidence=0.85,
+                    cost_impact=0,
+                )
+            )
 
         # Memory recommendation
         if mock_metrics["memory_usage"] > 75:
-            recommendations.append(AutoScalingRecommendation(
-                resource_type="memory",
-                current_value=4,
-                recommended_value=8,
-                reason="Memory pressure detected",
-                confidence=0.8,
-                cost_impact=30.0
-            ))
+            recommendations.append(
+                AutoScalingRecommendation(
+                    resource_type="memory",
+                    current_value=4,
+                    recommended_value=8,
+                    reason="Memory pressure detected",
+                    confidence=0.8,
+                    cost_impact=30.0,
+                )
+            )
 
         return recommendations
 
@@ -488,7 +481,7 @@ async def broadcast_anomalies(anomalies: List[Anomaly]):
     message = {
         "type": "anomalies",
         "timestamp": datetime.now().isoformat(),
-        "data": [asdict(a) for a in anomalies]
+        "data": [asdict(a) for a in anomalies],
     }
 
     disconnected = set()
@@ -514,14 +507,11 @@ async def continuous_monitoring():
                 "queries": np.random.randint(100, 1000),
                 "slow_queries": np.random.randint(0, 10),
                 "connections": np.random.randint(10, 100),
-                "buffer_pool_hit_ratio": np.random.uniform(0.9, 1.0)
+                "buffer_pool_hit_ratio": np.random.uniform(0.9, 1.0),
             }
 
             # Detect anomalies
-            metrics_df = pd.DataFrame([{
-                **mock_metrics,
-                "timestamp": datetime.now()
-            }])
+            metrics_df = pd.DataFrame([{**mock_metrics, "timestamp": datetime.now()}])
 
             anomalies = anomaly_detector.detect_anomalies(metrics_df)
 
@@ -548,9 +538,9 @@ async def model_retraining_scheduler():
 
             # This would retrain models with new data in production
             # For now, just update accuracy metrics
-            model_accuracy.labels(model_name='query_predictor').set(0.85)
-            model_accuracy.labels(model_name='anomaly_detector').set(0.92)
-            model_accuracy.labels(model_name='index_recommender').set(0.78)
+            model_accuracy.labels(model_name="query_predictor").set(0.85)
+            model_accuracy.labels(model_name="anomaly_detector").set(0.92)
+            model_accuracy.labels(model_name="index_recommender").set(0.78)
 
             logger.info("Model retraining completed")
 
@@ -561,10 +551,7 @@ async def model_retraining_scheduler():
 @app.get("/metrics")
 async def get_metrics():
     """Prometheus metrics endpoint"""
-    return StreamingResponse(
-        generate_latest(),
-        media_type="text/plain"
-    )
+    return StreamingResponse(generate_latest(), media_type="text/plain")
 
 
 @app.post("/train/query-predictor")
@@ -578,13 +565,10 @@ async def train_query_predictor(training_data: List[Dict]):
         query_predictor.train(df)
 
         # Save model
-        joblib.dump(query_predictor.model, 'models/query_predictor.pkl')
-        joblib.dump(query_predictor.scaler, 'models/query_scaler.pkl')
+        joblib.dump(query_predictor.model, "models/query_predictor.pkl")
+        joblib.dump(query_predictor.scaler, "models/query_scaler.pkl")
 
-        return {
-            "status": "success",
-            "message": "Query predictor trained successfully"
-        }
+        return {"status": "success", "message": "Query predictor trained successfully"}
 
     except Exception as e:
         logger.error(f"Training failed: {e}")
@@ -592,9 +576,4 @@ async def train_query_predictor(training_data: List[Dict]):
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "prediction_service:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=True
-    )
+    uvicorn.run("prediction_service:app", host="0.0.0.0", port=8000, reload=True)

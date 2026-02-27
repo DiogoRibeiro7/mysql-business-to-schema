@@ -14,7 +14,7 @@ from pathlib import Path
 class GeneratorRefactorer:
     """Helper class to refactor existing generators to use BaseGenerator"""
 
-    def __init__(self, base_dir: str = '.'):
+    def __init__(self, base_dir: str = "."):
         self.base_dir = Path(base_dir)
         self.base_generator_import = """import sys
 import os
@@ -26,55 +26,57 @@ from base_generator import BaseGenerator
     def find_generators(self) -> List[Path]:
         """Find all generator.py files that need refactoring"""
         generators = []
-        exclude_dirs = ['__pycache__', '.git', 'base_generator.py']
+        exclude_dirs = ["__pycache__", ".git", "base_generator.py"]
 
         for root, dirs, files in os.walk(self.base_dir):
             # Skip excluded directories
             dirs[:] = [d for d in dirs if d not in exclude_dirs]
 
             for file in files:
-                if file == 'generator.py':
+                if file == "generator.py":
                     try:
-                        with open(os.path.join(root, file), 'r', encoding='utf-8') as f:
+                        with open(os.path.join(root, file), "r", encoding="utf-8") as f:
                             content = f.read()
-                            if 'BaseGenerator' not in content:
+                            if "BaseGenerator" not in content:
                                 generators.append(Path(root) / file)
                     except Exception as e:
-                        print(f"Warning: Could not read {os.path.join(root, file)}: {e}")
+                        print(
+                            f"Warning: Could not read {os.path.join(root, file)}: {e}"
+                        )
                         continue
 
         return generators
 
     def analyze_generator(self, file_path: Path) -> Dict:
         """Analyze a generator file to understand its structure"""
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         analysis = {
-            'file_path': file_path,
-            'class_name': None,
-            'has_config': 'config' in content.lower(),
-            'has_faker': 'faker' in content.lower(),
-            'tables': [],
-            'uses_sql_generation': 'INSERT INTO' in content,
-            'uses_csv': '.csv' in content,
-            'uses_json': 'json.dump' in content
+            "file_path": file_path,
+            "class_name": None,
+            "has_config": "config" in content.lower(),
+            "has_faker": "faker" in content.lower(),
+            "tables": [],
+            "uses_sql_generation": "INSERT INTO" in content,
+            "uses_csv": ".csv" in content,
+            "uses_json": "json.dump" in content,
         }
 
         # Find class name
-        class_match = re.search(r'class\s+(\w+Generator)', content)
+        class_match = re.search(r"class\s+(\w+Generator)", content)
         if class_match:
-            analysis['class_name'] = class_match.group(1)
+            analysis["class_name"] = class_match.group(1)
 
         # Find table names from INSERT statements
-        table_matches = re.findall(r'INSERT\s+INTO\s+(\w+)', content, re.IGNORECASE)
-        analysis['tables'] = list(set(table_matches))
+        table_matches = re.findall(r"INSERT\s+INTO\s+(\w+)", content, re.IGNORECASE)
+        analysis["tables"] = list(set(table_matches))
 
         return analysis
 
     def create_refactoring_template(self, analysis: Dict) -> str:
         """Create a template for refactoring based on the analysis"""
-        class_name = analysis['class_name'] or 'DataGenerator'
+        class_name = analysis["class_name"] or "DataGenerator"
 
         template = f'''#!/usr/bin/env python3
 """
@@ -128,7 +130,7 @@ class {class_name}(BaseGenerator):
 '''
 
         # Add placeholders for each table found
-        for table in analysis['tables']:
+        for table in analysis["tables"]:
             template += f"        self.{table} = []\n"
 
         template += '''
@@ -151,7 +153,7 @@ class {class_name}(BaseGenerator):
         return {
 '''
 
-        for table in analysis['tables']:
+        for table in analysis["tables"]:
             template += f"            '{table}': self.{table},\n"
 
         template += '''        }
@@ -299,7 +301,7 @@ self.disconnect()
 
         return guide
 
-    def refactor_all(self, output_dir: str = 'refactored'):
+    def refactor_all(self, output_dir: str = "refactored"):
         """Main method to analyze and create refactoring templates for all generators"""
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
@@ -319,7 +321,7 @@ self.disconnect()
             # Save template
             parent_name = gen_path.parent.name
             template_path = output_path / f"{parent_name}_generator_refactored.py"
-            with open(template_path, 'w', encoding='utf-8') as f:
+            with open(template_path, "w", encoding="utf-8") as f:
                 f.write(template)
 
             print(f"  [OK] Created template: {template_path}")
@@ -329,7 +331,7 @@ self.disconnect()
         # Create migration guide
         guide = self.create_migration_guide(analyses)
         guide_path = output_path / "REFACTORING_GUIDE.md"
-        with open(guide_path, 'w', encoding='utf-8') as f:
+        with open(guide_path, "w", encoding="utf-8") as f:
             f.write(guide)
 
         print(f"\n[SUCCESS] Refactoring templates created in {output_path}/")
@@ -342,12 +344,20 @@ def main():
     """Run the refactoring helper"""
     import argparse
 
-    parser = argparse.ArgumentParser(description='Refactor generators to use BaseGenerator')
-    parser.add_argument('--analyze-only', action='store_true',
-                       help='Only analyze generators without creating templates')
-    parser.add_argument('--output', default='refactored',
-                       help='Output directory for refactored templates')
-    parser.add_argument('--generator', help='Specific generator to refactor')
+    parser = argparse.ArgumentParser(
+        description="Refactor generators to use BaseGenerator"
+    )
+    parser.add_argument(
+        "--analyze-only",
+        action="store_true",
+        help="Only analyze generators without creating templates",
+    )
+    parser.add_argument(
+        "--output",
+        default="refactored",
+        help="Output directory for refactored templates",
+    )
+    parser.add_argument("--generator", help="Specific generator to refactor")
 
     args = parser.parse_args()
 
@@ -360,7 +370,7 @@ def main():
             analysis = refactorer.analyze_generator(gen)
             print(f"- {gen.parent.name}: {analysis['class_name']}")
             print(f"  Tables: {', '.join(analysis['tables'][:5])}")
-            if len(analysis['tables']) > 5:
+            if len(analysis["tables"]) > 5:
                 print(f"  ... and {len(analysis['tables']) - 5} more tables")
     else:
         analyses = refactorer.refactor_all(args.output)
@@ -371,7 +381,7 @@ def main():
         print("=" * 60)
         print(f"Total generators analyzed: {len(analyses)}")
 
-        total_tables = sum(len(a['tables']) for a in analyses)
+        total_tables = sum(len(a["tables"]) for a in analyses)
         print(f"Total tables found: {total_tables}")
 
         print("\nNext steps:")
@@ -382,5 +392,5 @@ def main():
         print("5. Replace original generators with refactored versions")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -6,6 +6,7 @@ Auto-generated refactoring template
 
 import sys
 import os
+
 # Add parent directory to path to import base_generator
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from base_generator import BaseGenerator
@@ -24,14 +25,14 @@ from faker import Faker
 class SmartAgricultureGenerator(BaseGenerator):
     """Refactored SmartAgricultureGenerator using BaseGenerator infrastructure"""
 
-    def __init__(self, config_path: str = 'config.yaml', **db_params):
+    def __init__(self, config_path: str = "config.yaml", **db_params):
         """Initialize the generator with configuration and database connection"""
         # Initialize base class with database connection parameters
         super().__init__(**db_params)
 
         # Load configuration
         if os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 self.config = yaml.safe_load(f)
         else:
             self.config = self.get_default_config()
@@ -42,10 +43,10 @@ class SmartAgricultureGenerator(BaseGenerator):
     def get_default_config(self) -> dict:
         """Return default configuration"""
         return {
-            'scale': {
-                'small': {'records': 100},
-                'medium': {'records': 1000},
-                'large': {'records': 10000}
+            "scale": {
+                "small": {"records": 100},
+                "medium": {"records": 1000},
+                "large": {"records": 10000},
             }
         }
 
@@ -53,9 +54,9 @@ class SmartAgricultureGenerator(BaseGenerator):
         """Initialize data storage containers"""
         # TODO: Add data containers for each table
 
-    def generate_data(self, scale: str = 'small'):
+    def generate_data(self, scale: str = "small"):
         """Generate all data based on scale"""
-        scale_config = self.config['scale'][scale]
+        scale_config = self.config["scale"][scale]
 
         print(f"\nGenerating {scale} scale data...")
         print("=" * 50)
@@ -69,8 +70,7 @@ class SmartAgricultureGenerator(BaseGenerator):
 
     def get_all_data(self) -> Dict:
         """Return all generated data"""
-        return {
-        }
+        return {}
 
     def insert_data_to_database(self):
         """Insert generated data into database using bulk operations"""
@@ -95,17 +95,21 @@ class SmartAgricultureGenerator(BaseGenerator):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Generate sample data')
-    parser.add_argument('--scale', choices=['small', 'medium', 'large'], default='small')
-    parser.add_argument('--format', choices=['database', 'json', 'sql'], default='database')
-    parser.add_argument('--config', default='config.yaml')
+    parser = argparse.ArgumentParser(description="Generate sample data")
+    parser.add_argument(
+        "--scale", choices=["small", "medium", "large"], default="small"
+    )
+    parser.add_argument(
+        "--format", choices=["database", "json", "sql"], default="database"
+    )
+    parser.add_argument("--config", default="config.yaml")
 
     # Database connection parameters
-    parser.add_argument('--host', default='localhost')
-    parser.add_argument('--port', type=int, default=3306)
-    parser.add_argument('--user', default='root')
-    parser.add_argument('--password', default='password')
-    parser.add_argument('--database', required=True)
+    parser.add_argument("--host", default="localhost")
+    parser.add_argument("--port", type=int, default=3306)
+    parser.add_argument("--user", default="root")
+    parser.add_argument("--password", default="password")
+    parser.add_argument("--database", required=True)
 
     args = parser.parse_args()
 
@@ -115,20 +119,20 @@ def main():
         port=args.port,
         user=args.user,
         password=args.password,
-        database=args.database
+        database=args.database,
     )
 
     # Generate data
     data = generator.generate_data(args.scale)
 
-    if args.format == 'database':
+    if args.format == "database":
         generator.insert_data_to_database()
-    elif args.format == 'json':
-        with open('output.json', 'w') as f:
+    elif args.format == "json":
+        with open("output.json", "w") as f:
             json.dump(data, f, indent=2, default=str)
 
     print("\n[DONE] Data generation complete!")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

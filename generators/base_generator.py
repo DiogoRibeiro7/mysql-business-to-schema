@@ -22,8 +22,14 @@ from typing import List, Dict, Any, Optional, Tuple
 class BaseGenerator:
     """Base class for all data generators"""
 
-    def __init__(self, host='localhost', port=3306, user='root',
-                 password='password', database='test_db'):
+    def __init__(
+        self,
+        host="localhost",
+        port=3306,
+        user="root",
+        password="password",
+        database="test_db",
+    ):
         """Initialize the base generator with database connection parameters"""
         self.host = host
         self.port = port
@@ -48,9 +54,9 @@ class BaseGenerator:
                 password=self.password,
                 database=self.database,
                 use_unicode=True,
-                charset='utf8mb4',
-                collation='utf8mb4_unicode_ci',
-                autocommit=False
+                charset="utf8mb4",
+                collation="utf8mb4_unicode_ci",
+                autocommit=False,
             )
             self.cursor = self.connection.cursor(dictionary=True)
             print(f"Successfully connected to database: {self.database}")
@@ -94,25 +100,28 @@ class BaseGenerator:
             self.connection.rollback()
             raise
 
-    def bulk_insert(self, table: str, data: List[Tuple], columns: List[str],
-                   batch_size: int = 1000):
+    def bulk_insert(
+        self, table: str, data: List[Tuple], columns: List[str], batch_size: int = 1000
+    ):
         """Perform bulk insert with batching"""
         if not data:
             return
 
-        placeholders = ', '.join(['%s'] * len(columns))
-        columns_str = ', '.join([f'`{col}`' for col in columns])
+        placeholders = ", ".join(["%s"] * len(columns))
+        columns_str = ", ".join([f"`{col}`" for col in columns])
         query = f"INSERT INTO `{table}` ({columns_str}) VALUES ({placeholders})"
 
         try:
             # Insert in batches
             for i in range(0, len(data), batch_size):
-                batch = data[i:i + batch_size]
+                batch = data[i : i + batch_size]
                 self.cursor.executemany(query, batch)
                 self.connection.commit()
 
                 if len(data) > batch_size:
-                    print(f"  Inserted batch {i//batch_size + 1} ({len(batch)} records) into {table}")
+                    print(
+                        f"  Inserted batch {i//batch_size + 1} ({len(batch)} records) into {table}"
+                    )
 
         except Error as e:
             print(f"Error in bulk insert to {table}: {e}")
@@ -161,14 +170,17 @@ class BaseGenerator:
         """Truncate all tables in the database"""
         try:
             # Get all tables
-            self.cursor.execute("""
+            self.cursor.execute(
+                """
                 SELECT table_name
                 FROM information_schema.tables
                 WHERE table_schema = %s
                 AND table_type = 'BASE TABLE'
-            """, (self.database,))
+            """,
+                (self.database,),
+            )
 
-            tables = [row['table_name'] for row in self.cursor.fetchall()]
+            tables = [row["table_name"] for row in self.cursor.fetchall()]
 
             # Disable foreign key checks
             self.cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
@@ -191,7 +203,9 @@ class BaseGenerator:
             password = self.faker.password()
         return hashlib.sha256(password.encode()).hexdigest()
 
-    def random_datetime_between(self, start_date: datetime, end_date: datetime) -> datetime:
+    def random_datetime_between(
+        self, start_date: datetime, end_date: datetime
+    ) -> datetime:
         """Generate random datetime between two dates"""
         time_delta = end_date - start_date
         random_days = random.randint(0, time_delta.days)
@@ -200,8 +214,8 @@ class BaseGenerator:
 
     def random_date_between(self, start_date: str, end_date: str) -> datetime:
         """Generate random date between two date strings"""
-        start = datetime.strptime(start_date, '%Y-%m-%d')
-        end = datetime.strptime(end_date, '%Y-%m-%d')
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        end = datetime.strptime(end_date, "%Y-%m-%d")
         return self.random_datetime_between(start, end).date()
 
     def get_table_count(self, table: str) -> int:
@@ -209,7 +223,7 @@ class BaseGenerator:
         try:
             self.cursor.execute(f"SELECT COUNT(*) as count FROM `{table}`")
             result = self.cursor.fetchone()
-            return result['count'] if result else 0
+            return result["count"] if result else 0
         except Error as e:
             print(f"Error counting records in {table}: {e}")
             return 0
@@ -218,19 +232,22 @@ class BaseGenerator:
         """Print statistics for all tables"""
         try:
             # Get all tables
-            self.cursor.execute("""
+            self.cursor.execute(
+                """
                 SELECT table_name
                 FROM information_schema.tables
                 WHERE table_schema = %s
                 AND table_type = 'BASE TABLE'
                 ORDER BY table_name
-            """, (self.database,))
+            """,
+                (self.database,),
+            )
 
-            tables = [row['table_name'] for row in self.cursor.fetchall()]
+            tables = [row["table_name"] for row in self.cursor.fetchall()]
 
-            print("\n" + "="*60)
+            print("\n" + "=" * 60)
             print(f"Database Statistics for: {self.database}")
-            print("="*60)
+            print("=" * 60)
 
             total_records = 0
             for table in tables:
@@ -239,9 +256,9 @@ class BaseGenerator:
                 if count > 0:
                     print(f"{table:30} : {count:,} records")
 
-            print("-"*60)
+            print("-" * 60)
             print(f"{'Total':30} : {total_records:,} records")
-            print("="*60 + "\n")
+            print("=" * 60 + "\n")
 
         except Error as e:
             print(f"Error getting statistics: {e}")

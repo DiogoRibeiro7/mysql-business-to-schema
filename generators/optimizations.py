@@ -11,9 +11,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def calculate_optimal_batch_size(total_records: int,
-                                max_memory_mb: int = 512,
-                                record_size_bytes: int = 1024) -> int:
+
+def calculate_optimal_batch_size(
+    total_records: int, max_memory_mb: int = 512, record_size_bytes: int = 1024
+) -> int:
     """
     Calculate optimal batch size based on available resources.
 
@@ -56,6 +57,7 @@ def calculate_optimal_batch_size(total_records: int,
     # Apply min/max constraints
     return max(min_batch, min(optimal, max_batch))
 
+
 def optimize_query(query: str) -> str:
     """
     Apply basic query optimizations.
@@ -70,23 +72,25 @@ def optimize_query(query: str) -> str:
 
     # Remove unnecessary whitespace
     import re
-    optimized = re.sub(r'\s+', ' ', optimized)
+
+    optimized = re.sub(r"\s+", " ", optimized)
 
     # Suggest index usage for WHERE clauses without indexes
-    if 'WHERE' in optimized.upper() and 'INDEX' not in optimized.upper():
+    if "WHERE" in optimized.upper() and "INDEX" not in optimized.upper():
         logger.info("Consider adding indexes for WHERE clause columns")
 
     # Warn about SELECT *
-    if 'SELECT *' in optimized.upper():
+    if "SELECT *" in optimized.upper():
         logger.warning("SELECT * detected - consider specifying columns")
 
     # Warn about missing LIMIT in large table queries
-    if 'LIMIT' not in optimized.upper() and any(
-        keyword in optimized.upper() for keyword in ['SELECT', 'DELETE', 'UPDATE']
+    if "LIMIT" not in optimized.upper() and any(
+        keyword in optimized.upper() for keyword in ["SELECT", "DELETE", "UPDATE"]
     ):
         logger.info("Consider adding LIMIT clause for large datasets")
 
     return optimized
+
 
 def get_query_execution_plan(connection, query: str) -> List[Dict]:
     """
@@ -105,6 +109,7 @@ def get_query_execution_plan(connection, query: str) -> List[Dict]:
     cursor.close()
     return plan
 
+
 def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
     """
     Analyze index usage for a table.
@@ -119,7 +124,8 @@ def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
     cursor = connection.cursor(dictionary=True)
 
     # Get table indexes
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         SELECT
             INDEX_NAME,
             COLUMN_NAME,
@@ -129,11 +135,13 @@ def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
         WHERE TABLE_SCHEMA = DATABASE()
         AND TABLE_NAME = '{table_name}'
         ORDER BY INDEX_NAME, SEQ_IN_INDEX
-    """)
+    """
+    )
     indexes = cursor.fetchall()
 
     # Get index statistics
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         SELECT
             index_name,
             rows_read,
@@ -141,15 +149,14 @@ def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
         FROM performance_schema.table_io_waits_summary_by_index_usage
         WHERE object_schema = DATABASE()
         AND object_name = '{table_name}'
-    """)
+    """
+    )
     stats = cursor.fetchall()
 
     cursor.close()
 
-    return {
-        'indexes': indexes,
-        'usage_stats': stats
-    }
+    return {"indexes": indexes, "usage_stats": stats}
+
 
 def suggest_indexes(connection, slow_queries: List[str]) -> List[str]:
     """
@@ -173,18 +180,17 @@ def suggest_indexes(connection, slow_queries: List[str]) -> List[str]:
 
             for row in plan:
                 # Check if full table scan
-                if row.get('type') == 'ALL' and row.get('key') is None:
-                    table = row.get('table')
+                if row.get("type") == "ALL" and row.get("key") is None:
+                    table = row.get("table")
                     # Parse WHERE clause to find columns
                     import re
-                    where_match = re.search(
-                        r'WHERE\s+(\w+)\s*=',
-                        query,
-                        re.IGNORECASE
-                    )
+
+                    where_match = re.search(r"WHERE\s+(\w+)\s*=", query, re.IGNORECASE)
                     if where_match:
                         column = where_match.group(1)
-                        suggestion = f"CREATE INDEX idx_{table}_{column} ON {table}({column})"
+                        suggestion = (
+                            f"CREATE INDEX idx_{table}_{column} ON {table}({column})"
+                        )
                         if suggestion not in suggestions:
                             suggestions.append(suggestion)
 
@@ -194,6 +200,7 @@ def suggest_indexes(connection, slow_queries: List[str]) -> List[str]:
     cursor.close()
     return suggestions
 
+
 class QueryOptimizer:
     """
     Query optimization helper class.
@@ -202,11 +209,7 @@ class QueryOptimizer:
     def __init__(self, connection):
         self.connection = connection
         self.cache = {}
-        self.stats = {
-            'cache_hits': 0,
-            'cache_misses': 0,
-            'total_queries': 0
-        }
+        self.stats = {"cache_hits": 0, "cache_misses": 0, "total_queries": 0}
 
     def execute_with_cache(self, query: str, cache_ttl: int = 60):
         """
@@ -219,18 +222,18 @@ class QueryOptimizer:
         Returns:
             Query results
         """
-        self.stats['total_queries'] += 1
+        self.stats["total_queries"] += 1
 
         # Check cache
         cache_key = query
         if cache_key in self.cache:
             cached_data, timestamp = self.cache[cache_key]
             if time.time() - timestamp < cache_ttl:
-                self.stats['cache_hits'] += 1
+                self.stats["cache_hits"] += 1
                 return cached_data
 
         # Execute query
-        self.stats['cache_misses'] += 1
+        self.stats["cache_misses"] += 1
         cursor = self.connection.cursor(dictionary=True)
         cursor.execute(query)
         results = cursor.fetchall()
@@ -248,7 +251,8 @@ class QueryOptimizer:
         """Clean expired cache entries."""
         current_time = time.time()
         expired_keys = [
-            key for key, (_, timestamp) in self.cache.items()
+            key
+            for key, (_, timestamp) in self.cache.items()
             if current_time - timestamp > ttl
         ]
         for key in expired_keys:
@@ -257,20 +261,18 @@ class QueryOptimizer:
     def get_stats(self) -> Dict[str, Any]:
         """Get cache statistics."""
         hit_rate = (
-            self.stats['cache_hits'] / self.stats['total_queries']
-            if self.stats['total_queries'] > 0
+            self.stats["cache_hits"] / self.stats["total_queries"]
+            if self.stats["total_queries"] > 0
             else 0
         )
-        return {
-            **self.stats,
-            'hit_rate': hit_rate,
-            'cache_size': len(self.cache)
-        }
+        return {**self.stats, "hit_rate": hit_rate, "cache_size": len(self.cache)}
+
 
 def profile_query(func):
     """
     Decorator to profile query execution time.
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -279,7 +281,9 @@ def profile_query(func):
         try:
             result = func(*args, **kwargs)
             execution_time = time.time() - start_time
-            memory_used = psutil.Process().memory_info().rss / 1024 / 1024 - start_memory
+            memory_used = (
+                psutil.Process().memory_info().rss / 1024 / 1024 - start_memory
+            )
 
             logger.info(
                 f"{func.__name__} - Time: {execution_time:.2f}s, "
@@ -288,7 +292,9 @@ def profile_query(func):
 
             # Warn if slow
             if execution_time > 1.0:
-                logger.warning(f"{func.__name__} took {execution_time:.2f}s - consider optimization")
+                logger.warning(
+                    f"{func.__name__} took {execution_time:.2f}s - consider optimization"
+                )
 
             return result
 
@@ -299,9 +305,12 @@ def profile_query(func):
 
     return wrapper
 
-def batch_processor(data: List[Any],
-                   batch_size: Optional[int] = None,
-                   processor_func: Optional[callable] = None) -> None:
+
+def batch_processor(
+    data: List[Any],
+    batch_size: Optional[int] = None,
+    processor_func: Optional[callable] = None,
+) -> None:
     """
     Process data in optimized batches.
 
@@ -316,7 +325,7 @@ def batch_processor(data: List[Any],
     total_batches = math.ceil(len(data) / batch_size)
 
     for i in range(0, len(data), batch_size):
-        batch = data[i:i + batch_size]
+        batch = data[i : i + batch_size]
         batch_num = i // batch_size + 1
 
         logger.info(f"Processing batch {batch_num}/{total_batches}")
@@ -325,6 +334,7 @@ def batch_processor(data: List[Any],
             processor_func(batch)
         else:
             yield batch
+
 
 class PerformanceMonitor:
     """
@@ -350,13 +360,15 @@ class PerformanceMonitor:
         current_memory = psutil.Process().memory_info().rss / 1024 / 1024
         current_cpu = psutil.cpu_percent(interval=0.1)
 
-        self.metrics.append({
-            'label': label,
-            'elapsed_time': current_time - self.start_time,
-            'memory_mb': current_memory,
-            'memory_delta_mb': current_memory - self.start_memory,
-            'cpu_percent': current_cpu
-        })
+        self.metrics.append(
+            {
+                "label": label,
+                "elapsed_time": current_time - self.start_time,
+                "memory_mb": current_memory,
+                "memory_delta_mb": current_memory - self.start_memory,
+                "cpu_percent": current_cpu,
+            }
+        )
 
     def get_report(self) -> Dict[str, Any]:
         """Get performance report."""
@@ -364,19 +376,24 @@ class PerformanceMonitor:
             return {}
 
         total_time = time.time() - self.start_time if self.start_time else 0
-        max_memory = max(m['memory_mb'] for m in self.metrics) if self.metrics else 0
-        avg_cpu = sum(m['cpu_percent'] for m in self.metrics) / len(self.metrics) if self.metrics else 0
+        max_memory = max(m["memory_mb"] for m in self.metrics) if self.metrics else 0
+        avg_cpu = (
+            sum(m["cpu_percent"] for m in self.metrics) / len(self.metrics)
+            if self.metrics
+            else 0
+        )
 
         return {
-            'total_time': total_time,
-            'max_memory_mb': max_memory,
-            'avg_cpu_percent': avg_cpu,
-            'checkpoints': self.metrics
+            "total_time": total_time,
+            "max_memory_mb": max_memory,
+            "avg_cpu_percent": avg_cpu,
+            "checkpoints": self.metrics,
         }
 
-def optimize_connection_pool(min_size: int = 1,
-                            max_size: int = 10,
-                            max_idle_time: int = 300) -> Dict[str, int]:
+
+def optimize_connection_pool(
+    min_size: int = 1, max_size: int = 10, max_idle_time: int = 300
+) -> Dict[str, int]:
     """
     Calculate optimal connection pool settings.
 
@@ -401,8 +418,8 @@ def optimize_connection_pool(min_size: int = 1,
     optimized_max = max(optimized_min, min(suggested_max, max_size))
 
     return {
-        'min_size': optimized_min,
-        'max_size': optimized_max,
-        'max_idle_time': max_idle_time,
-        'queue_timeout': 30
+        "min_size": optimized_min,
+        "max_size": optimized_max,
+        "max_idle_time": max_idle_time,
+        "queue_timeout": 30,
     }
