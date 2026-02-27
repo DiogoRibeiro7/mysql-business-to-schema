@@ -50,20 +50,29 @@ jobs:
 
     strategy:
       matrix:
-        image:
-          - web-demo
-          - data-generator
-          - analytics-service
-          - ml-service
-          - cdc-consumer
+        include:
+          - image: web-demo
+            context: web-demo
+            dockerfile: web-demo/Dockerfile
+          - image: data-generator
+            context: generators
+            dockerfile: generators/Dockerfile
+          - image: admin-dashboard-frontend
+            context: admin_dashboard/frontend
+            dockerfile: admin_dashboard/frontend/Dockerfile
+          - image: admin-dashboard-backend
+            context: admin_dashboard/backend
+            dockerfile: admin_dashboard/backend/Dockerfile
+          - image: schema-exporter
+            context: observability/exporters/schema-exporter
+            dockerfile: observability/exporters/schema-exporter/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Build Image
         run: |
-          docker build -t ${{ matrix.image }}:scan -f ${{ matrix.image }}/Dockerfile ${{ matrix.image }}/ || \
-          docker build -t ${{ matrix.image }}:scan .
+          docker build -t ${{ matrix.image }}:scan -f ${{ matrix.dockerfile }} ${{ matrix.context }}
 
       - name: Run Trivy Scanner
         uses: aquasecurity/trivy-action@master
