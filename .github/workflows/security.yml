@@ -95,7 +95,7 @@ jobs:
           output-file: '${{ matrix.image }}-sbom.spdx.json'
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sbom-${{ matrix.image }}
           path: '${{ matrix.image }}-sbom.spdx.json'
@@ -226,7 +226,7 @@ jobs:
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
 
       - name: Upload Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: vulnerability-reports
@@ -360,7 +360,7 @@ jobs:
             --output security-report.html
 
       - name: Upload Security Report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: security-report
           path: security-report.html
