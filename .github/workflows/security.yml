@@ -12,6 +12,9 @@ permissions:
   security-events: write
   actions: read
 
+env:
+  FOSSA_API_KEY: ${{ secrets.FOSSA_API_KEY }}
+
 jobs:
   # =====================================================
   # CodeQL Analysis
@@ -263,7 +266,7 @@ jobs:
 
       - name: FOSSA Scan
         uses: fossas/fossa-action@main
-        if: ${{ secrets.FOSSA_API_KEY != '' }}
+        if: ${{ env.FOSSA_API_KEY != '' }}
         with:
           api-key: ${{ secrets.FOSSA_API_KEY }}
 
