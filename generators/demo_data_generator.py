@@ -86,9 +86,11 @@ class DemoDataGenerator:
         values = []
         categories = ['Electronics', 'Clothing', 'Books', 'Home & Garden', 'Sports']
         for i in range(count):
+            product_name = fake.catch_phrase().replace("'", "''")
+            product_desc = fake.text(max_nb_chars=200).replace("'", "''")
             product = (
-                f"('{fake.catch_phrase().replace(\"'\", \"''\")}', "
-                f"'{fake.text(max_nb_chars=200).replace(\"'\", \"''\")}', "
+                f"('{product_name}', "
+                f"'{product_desc}', "
                 f"'{random.choice(categories)}', "
                 f"{round(random.uniform(9.99, 999.99), 2)}, "
                 f"{random.randint(0, 1000)})"
