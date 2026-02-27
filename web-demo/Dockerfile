@@ -1,13 +1,13 @@
 # Multi-stage Dockerfile for Web Demo
 
 # Stage 1: Build frontend
-FROM node:18-alpine as frontend-builder
+FROM node:18-alpine AS frontend-builder
 
 WORKDIR /app/frontend
 
 # Copy frontend package files
 COPY frontend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 
 # Copy frontend source
 COPY frontend/ .
@@ -16,19 +16,19 @@ COPY frontend/ .
 RUN npm run build
 
 # Stage 2: Build backend
-FROM node:18-alpine as backend-builder
+FROM node:18-alpine AS backend-builder
 
 WORKDIR /app/backend
 
 # Copy backend package files
 COPY backend/package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev --no-audit --no-fund --legacy-peer-deps
 
 # Copy backend source
 COPY backend/ .
 
 # Install dev dependencies for build
-RUN npm install --only=development
+RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 
 # Build backend
 RUN npm run build

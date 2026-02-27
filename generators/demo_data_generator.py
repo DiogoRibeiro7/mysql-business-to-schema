@@ -44,11 +44,12 @@ class DemoDataGenerator:
 
         values = []
         for i in range(count):
+            street_address = fake.street_address().replace("'", "''")
             patient = (
                 f"('{fake.first_name()}', '{fake.last_name()}', "
                 f"'{fake.date_of_birth()}', '{random.choice(['M', 'F'])}', "
                 f"'{fake.email()}', '{fake.phone_number()[:20]}', "
-                f"'{fake.street_address().replace(\"'\", \"''\")}', "
+                f"'{street_address}', "
                 f"'{fake.city()}', '{fake.state_abbr()}', '{fake.zipcode()}')"
             )
             values.append(patient)

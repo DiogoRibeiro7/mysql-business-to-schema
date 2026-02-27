@@ -8,16 +8,9 @@ on:
   release:
     types: [created]
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy to'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - development
-          - staging
-          - production
+
+permissions:
+  contents: read
 
 env:
   REGISTRY: ghcr.io
@@ -85,7 +78,7 @@ jobs:
       - name: JavaScript/TypeScript Linting
         working-directory: web-demo/frontend
         run: |
-          npm install --no-audit --no-fund
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm run lint || true
           npm run type-check || true
 
@@ -211,14 +204,14 @@ jobs:
       - name: Install and Test Frontend
         working-directory: web-demo/frontend
         run: |
-          npm install --no-audit --no-fund
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm run test:ci || true
           npm run test:e2e:ci || true
 
       - name: Install and Test Backend
         working-directory: web-demo/backend
         run: |
-          npm install --no-audit --no-fund
+          npm install --no-audit --no-fund --legacy-peer-deps
           npm run test:ci || true
 
       - name: Upload Test Results
@@ -293,7 +286,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -408,7 +401,7 @@ jobs:
           output: 'docker-scan-${{ matrix.image }}.sarif'
 
       - name: Upload Docker scan results
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'docker-scan-${{ matrix.image }}.sarif'
 
