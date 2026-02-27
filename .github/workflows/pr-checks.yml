@@ -143,8 +143,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pytest pytest-cov
-          pip install -r requirements.txt || true
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry config virtualenvs.create false
+          poetry install --no-root --with web,ml,dev
 
       - name: Run Coverage
         run: |

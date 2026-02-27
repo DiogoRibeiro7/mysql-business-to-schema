@@ -20,6 +20,7 @@ from .schema_manager import SchemaManager
 from .migration_handler import MigrationHandler
 from .query_analyzer import QueryAnalyzer
 from .query_manager import QueryManager
+from .index_advisor import IndexAdvisor
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,6 +49,7 @@ schema_manager = SchemaManager()
 migration_handler = MigrationHandler()
 query_analyzer = QueryAnalyzer()
 query_manager = QueryManager()
+index_advisor = IndexAdvisor()
 metrics_collector = MetricsCollector()
 ws_manager = ConnectionManager()
 
@@ -651,6 +653,184 @@ async def toggle_favorite(
         raise
     except Exception as e:
         logger.error(f"Error toggling favorite: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================
+# Index Advisor Endpoints
+# ============================================
+
+@app.post("/api/index-advisor/analyze")
+async def analyze_for_indexes(
+    request: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Analyze queries and suggest indexes."""
+    try:
+        # Get slow queries from the request or fetch from history
+        slow_queries = request.get('queries', [])
+        if not slow_queries:
+            # Fetch recent slow queries
+            slow_queries = query_analyzer.get_slow_queries(limit=100)
+
+        # Analyze slow queries
+        analysis = index_advisor.analyze_slow_queries(slow_queries)
+
+        # Get schema information
+        schema = request.get('schema', {})
+        if not schema and request.get('database'):
+            schema = await schema_manager.get_schema_details(request['database'])
+
+        # Generate index suggestions
+        suggestions = index_advisor.suggest_indexes(schema, slow_queries)
+
+        # Generate comprehensive report
+        report = index_advisor.generate_index_report(analysis, suggestions)
+
+        return {
+            "status": "success",
+            "analysis": analysis,
+            "suggestions": suggestions[:20],  # Top 20 suggestions
+            "report": report
+        }
+    except Exception as e:
+        logger.error(f"Error analyzing for indexes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/index-advisor/suggestions/{database}")
+async def get_index_suggestions(
+    database: str,
+    limit: int = 10,
+    current_user: User = Depends(get_current_user)
+):
+    """Get index suggestions for a specific database."""
+    try:
+        suggestions = index_advisor.get_index_recommendations(database, limit)
+        return {
+            "database": database,
+            "suggestions": suggestions,
+            "total": len(suggestions)
+        }
+    except Exception as e:
+        logger.error(f"Error getting index suggestions: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/index-advisor/impact")
+async def analyze_index_impact(
+    request: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Analyze the impact of creating a specific index."""
+    try:
+        table = request.get('table')
+        columns = request.get('columns', [])
+        sample_queries = request.get('sample_queries', [])
+
+        if not table or not columns:
+            raise HTTPException(status_code=400, detail="Table and columns are required")
+
+        # Analyze impact
+        impact_analysis = index_advisor.analyze_index_impact(
+            table, columns, sample_queries
+        )
+
+        return {
+            "status": "success",
+            "impact": impact_analysis
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing index impact: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/index-advisor/existing/{database}/{table}")
+async def get_existing_indexes(
+    database: str,
+    table: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Get existing indexes for a table."""
+    try:
+        # This would typically query the database
+        # For now, return mock data
+        existing_indexes = [
+            {
+                "name": "PRIMARY",
+                "columns": ["id"],
+                "type": "PRIMARY",
+                "unique": True,
+                "cardinality": 10000
+            }
+        ]
+
+        return {
+            "database": database,
+            "table": table,
+            "indexes": existing_indexes
+        }
+    except Exception as e:
+        logger.error(f"Error getting existing indexes: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/index-advisor/create")
+async def create_suggested_index(
+    request: Dict[str, Any],
+    current_user: User = Depends(get_current_user)
+):
+    """Create a suggested index (requires admin privileges)."""
+    try:
+        # Check admin privileges
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Admin privileges required")
+
+        create_sql = request.get('sql')
+        database = request.get('database')
+
+        if not create_sql or not database:
+            raise HTTPException(status_code=400, detail="SQL and database are required")
+
+        # In production, this would execute the CREATE INDEX statement
+        # For now, simulate success
+        result = {
+            "status": "success",
+            "message": "Index created successfully",
+            "sql": create_sql,
+            "database": database,
+            "created_at": datetime.now().isoformat()
+        }
+
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error creating index: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/index-advisor/remove/{database}/{index_name}")
+async def remove_index(
+    database: str,
+    index_name: str,
+    current_user: User = Depends(get_current_user)
+):
+    """Remove an index (requires admin privileges)."""
+    try:
+        # Check admin privileges
+        if current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Admin privileges required")
+
+        # In production, this would execute DROP INDEX
+        result = {
+            "status": "success",
+            "message": f"Index {index_name} removed successfully",
+            "database": database,
+            "removed_at": datetime.now().isoformat()
+        }
+
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error removing index: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 # ============================================

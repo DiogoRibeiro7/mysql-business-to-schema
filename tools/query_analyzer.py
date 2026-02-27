@@ -121,9 +121,12 @@ class QueryPerformanceAnalyzer:
 
             # Check for full table scans
             if row.get('type') in ['ALL', 'index']:
+                rows_value = row.get('rows', 0)
+                if rows_value is None:
+                    rows_value = 0
                 analysis["full_table_scans"].append({
                     "table": row.get('table'),
-                    "rows": row.get('rows', 0)
+                    "rows": int(rows_value)
                 })
 
             # Check for filesort
@@ -149,9 +152,10 @@ class QueryPerformanceAnalyzer:
         # Check for missing indexes
         if index_usage["full_table_scans"]:
             for scan in index_usage["full_table_scans"]:
-                if scan["rows"] > 1000:
+                rows = scan.get("rows") or 0
+                if rows > 1000:
                     recommendations.append(
-                        f"⚠️ Table '{scan['table']}' is doing a full scan of {scan['rows']} rows. "
+                        f"⚠️ Table '{scan['table']}' is doing a full scan of {rows} rows. "
                         f"Consider adding an index on the WHERE/JOIN columns."
                     )
 
