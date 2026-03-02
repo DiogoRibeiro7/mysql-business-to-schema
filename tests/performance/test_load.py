@@ -1,18 +1,13 @@
-"""
-Load and performance tests using Locust and custom benchmarking.
-"""
+"""Load and performance tests using Locust and custom benchmarking."""
 
 import pytest
 import time
 import statistics
 import concurrent.futures
 import mysql.connector
-from locust import HttpUser, task, between, events
+from locust import HttpUser, task, between
 from locust.env import Environment
-from locust.stats import StatsCSVFileWriter
 import psutil
-import json
-from pathlib import Path
 
 
 @pytest.mark.performance
@@ -68,8 +63,8 @@ class TestDatabasePerformance:
 
     def test_concurrent_read_performance(self, mysql_container):
         """Test concurrent read performance."""
-
         def read_worker(thread_id, num_queries):
+            """Handle read worker."""
             conn = mysql.connector.connect(
                 host=mysql_container["host"],
                 port=mysql_container["port"],
@@ -80,7 +75,7 @@ class TestDatabasePerformance:
             cursor = conn.cursor()
 
             query_times = []
-            for i in range(num_queries):
+            for _ in range(num_queries):
                 start = time.time()
                 cursor.execute(
                     """
@@ -211,7 +206,7 @@ class TestDatabasePerformance:
 
         # Insert large data
         large_text = "x" * 10000  # 10KB per row
-        for i in range(100):
+        for _ in range(100):
             mysql_cursor.execute(
                 "INSERT INTO memory_test (large_text) VALUES (%s)", (large_text,)
             )
@@ -219,7 +214,7 @@ class TestDatabasePerformance:
 
         # Query large dataset
         mysql_cursor.execute("SELECT * FROM memory_test")
-        results = mysql_cursor.fetchall()
+        _ = mysql_cursor.fetchall()
 
         peak_memory = process.memory_info().rss / 1024 / 1024  # MB
         memory_increase = peak_memory - initial_memory
@@ -315,7 +310,7 @@ class TestLoadTesting:
         # Get statistics
         stats = env.stats.total
 
-        print(f"\nLoad Test Results:")
+        print("\nLoad Test Results:")
         print(f"Total requests: {stats.num_requests}")
         print(f"Failure rate: {stats.fail_ratio:.1%}")
         print(f"Average response time: {stats.avg_response_time:.0f}ms")
@@ -362,7 +357,7 @@ class TestLoadTesting:
         response_times = []
         error_rates = []
 
-        for i in range(12):  # 2 minutes / 10 seconds
+        for _ in range(12):  # 2 minutes / 10 seconds
             time.sleep(10)
             stats = env.stats.total
             response_times.append(stats.avg_response_time)
@@ -413,7 +408,7 @@ class TestQueryOptimization:
             try:
                 mysql_cursor.execute(query)
                 mysql_cursor.fetchall()
-            except:
+            except Exception:
                 pass
             elapsed = time.time() - start
 
@@ -493,7 +488,7 @@ class TestQueryOptimization:
 
         # Test without connection pooling
         start = time.time()
-        for i in range(num_operations):
+        for _ in range(num_operations):
             conn = mysql.connector.connect(
                 host=mysql_container["host"],
                 port=mysql_container["port"],
@@ -522,7 +517,7 @@ class TestQueryOptimization:
         )
 
         start = time.time()
-        for i in range(num_operations):
+        for _ in range(num_operations):
             conn = pool.get_connection()
             cursor = conn.cursor()
             cursor.execute("SELECT 1")
@@ -533,7 +528,7 @@ class TestQueryOptimization:
 
         improvement = (no_pool_time - pool_time) / no_pool_time * 100
 
-        print(f"\nConnection Pool Performance:")
+        print("\nConnection Pool Performance:")
         print(f"  Without pool: {no_pool_time:.2f}s")
         print(f"  With pool: {pool_time:.2f}s")
         print(f"  Improvement: {improvement:.1f}%")

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL Examples Test Runner
+"""MySQL Examples Test Runner.
 
 Comprehensive testing framework for validating all database examples:
 - Schema creation and integrity
@@ -13,7 +12,6 @@ Comprehensive testing framework for validating all database examples:
 import argparse
 import json
 import logging
-import os
 import subprocess
 import sys
 import time
@@ -23,7 +21,6 @@ from typing import Dict, List, Tuple, Optional, Any
 import yaml
 import mysql.connector
 from mysql.connector import Error
-from tabulate import tabulate
 
 # Configure logging
 logging.basicConfig(
@@ -36,6 +33,7 @@ class TestResult:
     """Container for test results."""
 
     def __init__(self, test_name: str, test_type: str):
+        """Initialize the instance."""
         self.test_name = test_name
         self.test_type = test_type
         self.status = "pending"
@@ -46,24 +44,29 @@ class TestResult:
         self.warnings = []
 
     def passed(self, message: str = "Test passed", duration: float = 0):
+        """Handle passed."""
         self.status = "passed"
         self.message = message
         self.duration = duration
 
     def failed(self, message: str, error: str = None):
+        """Handle failed."""
         self.status = "failed"
         self.message = message
         if error:
             self.errors.append(error)
 
     def skipped(self, reason: str):
+        """Handle skipped."""
         self.status = "skipped"
         self.message = reason
 
     def add_warning(self, warning: str):
+        """Handle add warning."""
         self.warnings.append(warning)
 
     def to_dict(self) -> Dict:
+        """Handle to dict."""
         return {
             "test_name": self.test_name,
             "test_type": self.test_type,
@@ -77,9 +80,10 @@ class TestResult:
 
 
 class DatabaseTestSuite:
-    """Main test suite for database examples."""
+    """Run test suite for database examples."""
 
     def __init__(self, host="localhost", port=3306, user="root", password=""):
+        """Initialize the instance."""
         self.host = host
         self.port = port
         self.user = user
@@ -206,9 +210,9 @@ class DatabaseTestSuite:
                 duration = time.time() - start_time
 
                 if success:
-                    result.passed(f"Schema file executed successfully", duration)
+                    result.passed("Schema file executed successfully", duration)
                 else:
-                    result.failed(f"Schema file execution failed")
+                    result.failed("Schema file execution failed")
 
             results.append(result)
 
@@ -466,7 +470,7 @@ class DatabaseTestSuite:
                         duration = time.time() - start_time
 
                         if success:
-                            result.passed(f"Query executed successfully", duration)
+                            result.passed("Query executed successfully", duration)
                         else:
                             result.failed(f"Query execution failed: {result_data}")
                     else:
@@ -773,9 +777,9 @@ class DatabaseTestSuite:
         report_lines.append("\nSUMMARY")
         report_lines.append("-" * 40)
         report_lines.append(f"Total Tests: {total_tests}")
-        report_lines.append(f"Passed: {passed} ({100*passed//max(total_tests,1)}%)")
-        report_lines.append(f"Failed: {failed} ({100*failed//max(total_tests,1)}%)")
-        report_lines.append(f"Skipped: {skipped} ({100*skipped//max(total_tests,1)}%)")
+        report_lines.append(f"Passed: {passed} ({100*passed//max(total_tests, 1)}%)")
+        report_lines.append(f"Failed: {failed} ({100*failed//max(total_tests, 1)}%)")
+        report_lines.append(f"Skipped: {skipped} ({100*skipped//max(total_tests, 1)}%)")
 
         # Detailed results by example
         report_lines.append("\nDETAILED RESULTS BY EXAMPLE")
@@ -839,6 +843,7 @@ class DatabaseTestSuite:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="MySQL Examples Test Suite")
     parser.add_argument("--host", default="localhost", help="MySQL host")
     parser.add_argument("--port", type=int, default=3306, help="MySQL port")

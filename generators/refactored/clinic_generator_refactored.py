@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
-"""
-ClinicDataGenerator - Refactored with BaseGenerator
+"""ClinicDataGenerator - Refactored with BaseGenerator.
+
 Auto-generated refactoring template
 """
 
-import sys
 import os
 
-# Add parent directory to path to import base_generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from base_generator import BaseGenerator
+from generators.base_generator import BaseGenerator
 
 
-import random
 import json
 import yaml
 import argparse
-from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Tuple
-
-from faker import Faker
+from typing import List, Dict, Any
 
 
 class ClinicDataGenerator(BaseGenerator):
-    """Refactored ClinicDataGenerator using BaseGenerator infrastructure"""
+    """Refactored ClinicDataGenerator using BaseGenerator infrastructure."""
 
     def __init__(self, config_path: str = "config.yaml", **db_params):
-        """Initialize the generator with configuration and database connection"""
+        """Initialize the generator with configuration and database connection."""
         # Initialize base class with database connection parameters
         super().__init__(**db_params)
 
@@ -41,7 +34,7 @@ class ClinicDataGenerator(BaseGenerator):
         self.init_data_containers()
 
     def get_default_config(self) -> dict:
-        """Return default configuration"""
+        """Return default configuration."""
         return {
             "scale": {
                 "small": {"records": 100},
@@ -51,7 +44,7 @@ class ClinicDataGenerator(BaseGenerator):
         }
 
     def init_data_containers(self):
-        """Initialize data storage containers"""
+        """Initialize data storage containers."""
         # TODO: Add data containers for each table
         self.patients: List[Any] = []
         self.clinics: List[Any] = []
@@ -59,8 +52,8 @@ class ClinicDataGenerator(BaseGenerator):
         self.doctors: List[Any] = []
 
     def generate_data(self, scale: str = "small"):
-        """Generate all data based on scale"""
-        scale_config = self.config["scale"][scale]
+        """Generate all data based on scale."""
+        _ = self.config["scale"][scale]
 
         print(f"\nGenerating {scale} scale data...")
         print("=" * 50)
@@ -73,7 +66,7 @@ class ClinicDataGenerator(BaseGenerator):
         return self.get_all_data()
 
     def get_all_data(self) -> Dict:
-        """Return all generated data"""
+        """Return all generated data."""
         return {
             "patients": self.patients,
             "clinics": self.clinics,
@@ -82,7 +75,7 @@ class ClinicDataGenerator(BaseGenerator):
         }
 
     def insert_data_to_database(self):
-        """Insert generated data into database using bulk operations"""
+        """Insert generated data into database using bulk operations."""
         try:
             # Connect to database
             self.connect()
@@ -104,6 +97,7 @@ class ClinicDataGenerator(BaseGenerator):
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate sample data")
     parser.add_argument(
         "--scale", choices=["small", "medium", "large"], default="small"

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Streaming ML Platform Data Generator
+"""Streaming ML Platform Data Generator.
+
 Generates realistic data for machine learning pipelines with feature stores,
 model registry, experiments, and streaming data processing
 """
@@ -10,14 +10,12 @@ import json
 import random
 import hashlib
 import uuid
-from datetime import datetime, timedelta, date
-from decimal import Decimal
+from datetime import datetime, timedelta
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -43,8 +41,11 @@ CONFIG = {
 
 
 class StreamingMLGenerator:
+    """Represent StreamingMLGenerator."""
+
     def __init__(self):
         # Organizations and projects
+        """Initialize the instance."""
         self.organizations: List[Any] = []
         self.projects: List[Any] = []
 
@@ -125,9 +126,9 @@ class StreamingMLGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all streaming ML platform data"""
+        """Generate all streaming ML platform data."""
         print("Starting Streaming ML Platform Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Organizations: {CONFIG['organizations']}")
         print(
             f"  Total projects: {CONFIG['organizations'] * CONFIG['projects_per_org']}"
@@ -190,7 +191,7 @@ class StreamingMLGenerator:
         self.save_all()
 
     def generate_organizations(self):
-        """Generate organizations"""
+        """Generate organizations."""
         print(f"Generating {CONFIG['organizations']} organizations...")
 
         org_names = [
@@ -238,7 +239,7 @@ class StreamingMLGenerator:
             )
 
     def generate_projects(self):
-        """Generate ML projects"""
+        """Generate ML projects."""
         print("Generating ML projects...")
 
         project_types = [
@@ -328,7 +329,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_data_streams(self):
-        """Generate data stream configurations"""
+        """Generate data stream configurations."""
         print("Generating data streams...")
 
         stream_types = ["Kafka", "Kinesis", "PubSub", "WebSocket", "HTTP", "Database"]
@@ -398,7 +399,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_stream_pipelines(self):
-        """Generate stream processing pipelines"""
+        """Generate stream processing pipelines."""
         print("Generating stream pipelines...")
 
         processing_types = ["Batch", "Micro-batch", "Real-time"]
@@ -449,7 +450,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_stream_events(self):
-        """Generate stream events (limited for demo)"""
+        """Generate stream events (limited for demo)."""
         print("Generating stream events (limited for demo)...")
 
         # Generate events for active streams only, limited quantity
@@ -517,7 +518,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_feature_definitions(self):
-        """Generate feature definitions"""
+        """Generate feature definitions."""
         print("Generating feature definitions...")
 
         data_types = ["INT", "FLOAT", "STRING", "BOOLEAN", "TIMESTAMP", "ARRAY"]
@@ -607,7 +608,7 @@ class StreamingMLGenerator:
                     )
 
     def generate_raw_features(self):
-        """Generate raw feature values"""
+        """Generate raw feature values."""
         print("Generating raw features...")
 
         # Generate raw features for each feature definition (limited for demo)
@@ -647,7 +648,7 @@ class StreamingMLGenerator:
                 current_date += timedelta(hours=random.randint(1, 24))
 
     def generate_feature_computations(self):
-        """Generate feature computation jobs"""
+        """Generate feature computation jobs."""
         print("Generating feature computations...")
 
         computation_statuses = ["Running", "Completed", "Failed", "Scheduled"]
@@ -695,7 +696,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_feature_sets(self):
-        """Generate feature sets for training"""
+        """Generate feature sets for training."""
         print("Generating feature sets...")
 
         for project in self.projects:
@@ -736,7 +737,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_experiments(self):
-        """Generate ML experiments"""
+        """Generate ML experiments."""
         print("Generating experiments...")
 
         for project in self.projects:
@@ -808,7 +809,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_experiment_runs(self):
-        """Generate experiment runs"""
+        """Generate experiment runs."""
         print("Generating experiment runs...")
 
         for experiment in self.experiments:
@@ -856,7 +857,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_run_metrics(self):
-        """Generate metrics for experiment runs"""
+        """Generate metrics for experiment runs."""
         print("Generating run metrics...")
 
         for run in self.experiment_runs:
@@ -912,7 +913,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_models(self):
-        """Generate ML models"""
+        """Generate ML models."""
         print("Generating models...")
 
         for project in self.projects:
@@ -969,7 +970,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_model_evaluations(self):
-        """Generate model evaluations"""
+        """Generate model evaluations."""
         print("Generating model evaluations...")
 
         for model in self.models:
@@ -1017,7 +1018,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_model_comparisons(self):
-        """Generate model comparisons"""
+        """Generate model comparisons."""
         print("Generating model comparisons...")
 
         for project in self.projects:
@@ -1064,7 +1065,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_model_deployments(self):
-        """Generate model deployments"""
+        """Generate model deployments."""
         print("Generating model deployments...")
 
         deployment_environments = ["Production", "Staging", "Development", "Testing"]
@@ -1099,7 +1100,7 @@ class StreamingMLGenerator:
             )
 
     def generate_ab_tests(self):
-        """Generate A/B tests"""
+        """Generate A/B tests."""
         print("Generating A/B tests...")
 
         for project in self.projects:
@@ -1148,7 +1149,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_predictions(self):
-        """Generate model predictions (limited for demo)"""
+        """Generate model predictions (limited for demo)."""
         print("Generating predictions (limited for demo)...")
 
         # Generate predictions for deployed models
@@ -1199,7 +1200,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_ground_truth(self):
-        """Generate ground truth for predictions"""
+        """Generate ground truth for predictions."""
         print("Generating ground truth...")
 
         # Generate ground truth for some predictions
@@ -1241,7 +1242,7 @@ class StreamingMLGenerator:
             )
 
     def generate_drift_detection(self):
-        """Generate drift detection records"""
+        """Generate drift detection records."""
         print("Generating drift detection...")
 
         drift_types = ["Feature", "Prediction", "Concept", "Data Quality"]
@@ -1282,7 +1283,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_performance_metrics(self):
-        """Generate model performance metrics"""
+        """Generate model performance metrics."""
         print("Generating performance metrics...")
 
         for deployment in self.model_deployments:
@@ -1314,7 +1315,7 @@ class StreamingMLGenerator:
                 current += timedelta(days=1)
 
     def generate_model_alerts(self):
-        """Generate model alerts"""
+        """Generate model alerts."""
         print("Generating model alerts...")
 
         alert_types = [
@@ -1360,7 +1361,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_compute_resources(self):
-        """Generate compute resource definitions"""
+        """Generate compute resource definitions."""
         print("Generating compute resources...")
 
         resource_types = ["GPU", "CPU", "Memory", "Storage"]
@@ -1394,7 +1395,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_resource_allocations(self):
-        """Generate resource allocations"""
+        """Generate resource allocations."""
         print("Generating resource allocations...")
 
         for run in self.experiment_runs[:50]:  # Limit to 50 runs
@@ -1418,10 +1419,10 @@ class StreamingMLGenerator:
                 )
 
     def generate_data_lineage(self):
-        """Generate data lineage"""
+        """Generate data lineage."""
         print("Generating data lineage...")
 
-        entity_types = ["stream", "feature", "model", "dataset"]
+        _ = ["stream", "feature", "model", "dataset"]
 
         for feature in self.feature_definitions[:30]:  # Limit to 30 features
             self.lineage_id += 1
@@ -1445,7 +1446,7 @@ class StreamingMLGenerator:
             )
 
     def generate_data_quality_rules(self):
-        """Generate data quality rules"""
+        """Generate data quality rules."""
         print("Generating data quality rules...")
 
         rule_types = [
@@ -1490,7 +1491,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_data_quality_violations(self):
-        """Generate data quality violations"""
+        """Generate data quality violations."""
         print("Generating data quality violations...")
 
         for rule in self.data_quality_rules:
@@ -1519,7 +1520,7 @@ class StreamingMLGenerator:
                 )
 
     def generate_user_activity(self):
-        """Generate user activity logs"""
+        """Generate user activity logs."""
         print("Generating user activity...")
 
         activities = [
@@ -1554,7 +1555,7 @@ class StreamingMLGenerator:
             )
 
     def generate_api_usage(self):
-        """Generate API usage logs"""
+        """Generate API usage logs."""
         print("Generating API usage...")
 
         endpoints = [
@@ -1603,7 +1604,7 @@ class StreamingMLGenerator:
             current += timedelta(days=1)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1652,47 +1653,47 @@ class StreamingMLGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nStreaming ML Platform Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nStreaming ML Platform Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nOrganizations & Projects:")
+        print("\nOrganizations & Projects:")
         print(f"  Organizations: {len(self.organizations)}")
         print(f"  Projects: {len(self.projects)}")
         print(
             f"  Active Projects: {len([p for p in self.projects if p['status'] == 'Active'])}"
         )
 
-        print(f"\nData Streams:")
+        print("\nData Streams:")
         print(f"  Streams: {len(self.data_streams)}")
         print(f"  Pipelines: {len(self.stream_pipelines)}")
         print(f"  Stream Events: {len(self.stream_events):,}")
 
-        print(f"\nFeature Store:")
+        print("\nFeature Store:")
         print(f"  Feature Definitions: {len(self.feature_definitions)}")
         print(f"  Raw Features: {len(self.raw_features):,}")
         print(f"  Feature Sets: {len(self.feature_sets)}")
         print(f"  Computations: {len(self.feature_computations)}")
 
-        print(f"\nML Operations:")
+        print("\nML Operations:")
         print(f"  Experiments: {len(self.experiments)}")
         print(f"  Experiment Runs: {len(self.experiment_runs)}")
         print(f"  Models: {len(self.models)}")
         print(f"  Deployments: {len(self.model_deployments)}")
         print(f"  A/B Tests: {len(self.ab_tests)}")
 
-        print(f"\nMonitoring:")
+        print("\nMonitoring:")
         print(f"  Predictions: {len(self.predictions):,}")
         print(f"  Ground Truth: {len(self.ground_truth)}")
         print(f"  Drift Detections: {len(self.drift_detection)}")
         print(f"  Model Alerts: {len(self.model_alerts)}")
 
-        print(f"\nData Governance:")
+        print("\nData Governance:")
         print(f"  Quality Rules: {len(self.data_quality_rules)}")
         print(f"  Violations: {len(self.data_quality_violations)}")
         print(f"  Lineage Records: {len(self.data_lineage)}")
 
-        print(f"\nUsage:")
+        print("\nUsage:")
         print(f"  User Activities: {len(self.user_activity)}")
         print(f"  API Calls: {len(self.api_usage):,}")
 
@@ -1710,7 +1711,7 @@ class StreamingMLGenerator:
         )
         print(f"Active Model Deployments: {deployed_models}")
 
-        print(f"\nFiles Generated: 29")
+        print("\nFiles Generated: 29")
 
 
 if __name__ == "__main__":

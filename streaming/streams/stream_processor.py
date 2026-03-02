@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Kafka Streams Processor for MySQL Business-to-Schema
+"""Kafka Streams Processor for MySQL Business-to-Schema.
 
 Processes CDC events and performs:
 - Data enrichment
@@ -19,14 +18,6 @@ from enum import Enum
 
 from confluent_kafka import Consumer, Producer, KafkaError, KafkaException
 from confluent_kafka.schema_registry import SchemaRegistryClient
-from confluent_kafka.serialization import (
-    StringSerializer,
-    StringDeserializer,
-    SerializationContext,
-    MessageField,
-)
-from confluent_kafka.schema_registry.avro import AvroSerializer, AvroDeserializer
-import avro.schema
 
 # Configure logging
 logging.basicConfig(
@@ -36,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 
 class EventType(Enum):
-    """CDC Event Types"""
+    """CDC Event Types."""
 
     INSERT = "insert"
     UPDATE = "update"
@@ -46,7 +37,7 @@ class EventType(Enum):
 
 @dataclass
 class CDCEvent:
-    """Represents a Change Data Capture event"""
+    """Represents a Change Data Capture event."""
 
     event_type: EventType
     database: str
@@ -59,10 +50,10 @@ class CDCEvent:
 
 
 class StreamProcessor:
-    """Main stream processing application"""
+    """Run stream processing application."""
 
     def __init__(self, config: Dict[str, Any]):
-        """Initialize the stream processor"""
+        """Initialize the stream processor."""
         self.config = config
         self.running = False
 
@@ -106,7 +97,7 @@ class StreamProcessor:
         }
 
     def initialize(self):
-        """Initialize Kafka clients"""
+        """Initialize Kafka clients."""
         try:
             # Consumer configuration
             consumer_config = {
@@ -150,7 +141,7 @@ class StreamProcessor:
             raise
 
     def process_event(self, event: CDCEvent) -> Dict[str, Any]:
-        """Process a single CDC event"""
+        """Process a single CDC event."""
         processed = {
             "original_event": event.__dict__,
             "processing_timestamp": datetime.now().isoformat(),
@@ -178,7 +169,7 @@ class StreamProcessor:
         return processed
 
     def _process_order_event(self, event: CDCEvent, processed: Dict) -> Dict:
-        """Process order events"""
+        """Process order events."""
         if event.event_type == EventType.INSERT:
             # New order created
             order_data = event.after
@@ -224,7 +215,7 @@ class StreamProcessor:
         return processed
 
     def _process_customer_event(self, event: CDCEvent, processed: Dict) -> Dict:
-        """Process customer events"""
+        """Process customer events."""
         if event.event_type == EventType.INSERT:
             # New customer registered
             customer_data = event.after
@@ -258,7 +249,7 @@ class StreamProcessor:
         return processed
 
     def _process_product_event(self, event: CDCEvent, processed: Dict) -> Dict:
-        """Process product events"""
+        """Process product events."""
         if event.event_type == EventType.UPDATE:
             before = event.before
             after = event.after
@@ -291,7 +282,7 @@ class StreamProcessor:
         return processed
 
     def _process_transaction_event(self, event: CDCEvent, processed: Dict) -> Dict:
-        """Process financial transaction events"""
+        """Process financial transaction events."""
         if event.event_type == EventType.INSERT:
             transaction = event.after
             amount = transaction.get("amount", 0)
@@ -329,7 +320,7 @@ class StreamProcessor:
         return processed
 
     def _detect_anomalies(self, event: CDCEvent, processed: Dict) -> List[Dict]:
-        """Detect anomalies in the event stream"""
+        """Detect anomalies in the event stream."""
         anomalies = []
 
         # Example: Detect unusual patterns
@@ -365,11 +356,11 @@ class StreamProcessor:
         return anomalies
 
     def _get_customer_profile(self, customer_id: str) -> Optional[Dict]:
-        """Get customer profile from state store"""
+        """Get customer profile from state store."""
         return self.state["customer_profiles"].get(customer_id)
 
     def _get_customer_segment(self, customer: Dict) -> str:
-        """Determine customer segment based on behavior"""
+        """Determine customer segment based on behavior."""
         total_spent = customer.get("total_spent", 0)
         total_orders = customer.get("total_orders", 0)
 
@@ -383,7 +374,7 @@ class StreamProcessor:
             return "new"
 
     def _update_customer_ltv(self, customer_id: str, amount: float):
-        """Update customer lifetime value"""
+        """Update customer lifetime value."""
         if customer_id not in self.state["customer_profiles"]:
             self.state["customer_profiles"][customer_id] = {
                 "total_orders": 0,
@@ -396,22 +387,22 @@ class StreamProcessor:
         profile["last_activity"] = datetime.now().isoformat()
 
     def _get_last_transaction(self, customer_id: str) -> Optional[Dict]:
-        """Get last transaction for a customer"""
+        """Get last transaction for a customer."""
         # In production, query from database or cache
         return None
 
     def _is_unusual_location(self, customer_id: str, location: str) -> bool:
-        """Check if location is unusual for customer"""
+        """Check if location is unusual for customer."""
         # In production, implement location analysis
         return False
 
     def _get_average_order_value(self) -> float:
-        """Get average order value from aggregations"""
+        """Get average order value from aggregations."""
         aggregations = self.state.get("aggregations", {})
         return aggregations.get("avg_order_value", 100.0)
 
     def produce_output(self, topic: str, key: str, value: Dict):
-        """Produce message to output topic"""
+        """Produce a message to the output topic."""
         try:
             self.producer.produce(
                 topic=topic,
@@ -425,14 +416,14 @@ class StreamProcessor:
             self.metrics["errors"] += 1
 
     def _delivery_report(self, err, msg):
-        """Callback for message delivery reports"""
+        """Handle message delivery reports."""
         if err is not None:
             logger.error(f"Message delivery failed: {err}")
         else:
             logger.debug(f"Message delivered to {msg.topic()} [{msg.partition()}]")
 
     def run(self):
-        """Main processing loop"""
+        """Run processing loop."""
         self.running = True
         logger.info("Starting stream processor...")
 
@@ -490,7 +481,7 @@ class StreamProcessor:
             self.shutdown()
 
     def _parse_cdc_event(self, data: Dict) -> CDCEvent:
-        """Parse raw CDC event into CDCEvent object"""
+        """Parse raw CDC event into CDCEvent object."""
         # This depends on the CDC format (Debezium, etc.)
         return CDCEvent(
             event_type=EventType(data.get("op", "insert")),
@@ -504,7 +495,7 @@ class StreamProcessor:
         )
 
     def shutdown(self):
-        """Graceful shutdown"""
+        """Graceful shutdown."""
         logger.info("Shutting down stream processor...")
         self.running = False
 
@@ -517,7 +508,7 @@ class StreamProcessor:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     config = {
         "bootstrap_servers": os.getenv("BOOTSTRAP_SERVERS", "localhost:9092"),
         "schema_registry_url": os.getenv(

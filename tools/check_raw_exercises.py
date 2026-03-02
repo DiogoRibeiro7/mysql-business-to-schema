@@ -1,3 +1,5 @@
+"""Validate raw exercise data and report inconsistencies."""
+
 import sys
 from pathlib import Path
 
@@ -26,3 +28,4 @@ if missing:
     sys.exit(1)
 
 print("Normalization exercises present for all examples")
+"""Validate raw exercise data and report inconsistencies."""

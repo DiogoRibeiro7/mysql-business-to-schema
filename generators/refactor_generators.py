@@ -1,30 +1,28 @@
 #!/usr/bin/env python3
-"""
-Generator Refactoring Helper Script
+"""Generator Refactoring Helper Script.
+
 Helps automate the conversion of existing generators to use BaseGenerator
 """
 
 import os
 import re
-import shutil
-from typing import List, Dict, Tuple, Any
+from typing import List, Dict, Any
 from pathlib import Path
 
 
 class GeneratorRefactorer:
-    """Helper class to refactor existing generators to use BaseGenerator"""
+    """Helper class to refactor existing generators to use BaseGenerator."""
 
     def __init__(self, base_dir: str = "."):
+        """Initialize the instance."""
         self.base_dir = Path(base_dir)
         self.base_generator_import = """import sys
 import os
-# Add parent directory to path to import base_generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from base_generator import BaseGenerator
+from generators.base_generator import BaseGenerator
 """
 
     def find_generators(self) -> List[Path]:
-        """Find all generator.py files that need refactoring"""
+        """Find all generator.py files that need refactoring."""
         generators = []
         exclude_dirs = ["__pycache__", ".git", "base_generator.py"]
 
@@ -48,7 +46,7 @@ from base_generator import BaseGenerator
         return generators
 
     def analyze_generator(self, file_path: Path) -> Dict:
-        """Analyze a generator file to understand its structure"""
+        """Analyze a generator file to understand its structure."""
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
@@ -75,7 +73,7 @@ from base_generator import BaseGenerator
         return analysis
 
     def create_refactoring_template(self, analysis: Dict) -> str:
-        """Create a template for refactoring based on the analysis"""
+        """Create a template for refactoring based on the analysis."""
         class_name = analysis["class_name"] or "DataGenerator"
 
         template = f'''#!/usr/bin/env python3
@@ -223,7 +221,7 @@ if __name__ == '__main__':
         return template
 
     def create_migration_guide(self, analyses: List[Dict]) -> str:
-        """Create a migration guide document"""
+        """Create a migration guide document."""
         guide = """# Generator Refactoring Guide
 
 ## Overview
@@ -302,7 +300,7 @@ self.disconnect()
         return guide
 
     def refactor_all(self, output_dir: str = "refactored"):
-        """Main method to analyze and create refactoring templates for all generators"""
+        """Run method to analyze and create refactoring templates for all generators."""
         output_path = Path(output_dir)
         output_path.mkdir(exist_ok=True)
 
@@ -341,7 +339,7 @@ self.disconnect()
 
 
 def main():
-    """Run the refactoring helper"""
+    """Run the refactoring helper."""
     import argparse
 
     parser = argparse.ArgumentParser(

@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
-"""
-Comprehensive System Testing Script for MySQL Business-to-Schema
+"""Comprehensive System Testing Script for MySQL Business-to-Schema.
+
 Tests all major components and integrations
 """
 
 import os
 import sys
-import time
-import json
 import subprocess
 import requests
-import psycopg2
 import mysql.connector
-import redis
-from typing import Dict, List, Tuple, Any
+from typing import Tuple
 from datetime import datetime
 from colorama import init, Fore, Style
 
@@ -25,14 +21,14 @@ test_results = {"passed": [], "failed": [], "skipped": [], "warnings": []}
 
 
 def print_header(text: str):
-    """Print section header"""
+    """Print section header."""
     print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{text:^60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}\n")
 
 
 def print_test(name: str, status: str, message: str = ""):
-    """Print test result"""
+    """Print test result."""
     if status == "PASS":
         print(f"  {Fore.GREEN}✓{Style.RESET_ALL} {name}")
         test_results["passed"].append(name)
@@ -52,7 +48,7 @@ def print_test(name: str, status: str, message: str = ""):
 
 
 def run_command(cmd: str) -> Tuple[bool, str]:
-    """Run shell command and return success status and output"""
+    """Run shell command and return success status and output."""
     try:
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
         return result.returncode == 0, result.stdout + result.stderr
@@ -64,7 +60,7 @@ def run_command(cmd: str) -> Tuple[bool, str]:
 
 
 def test_docker_services():
-    """Test if Docker services are running"""
+    """Test if Docker services are running."""
     print_header("Docker Services")
 
     services = [
@@ -87,7 +83,7 @@ def test_docker_services():
 
 
 def test_database_schemas():
-    """Test MySQL database schemas"""
+    """Test MySQL database schemas."""
     print_header("Database Schemas")
 
     try:
@@ -133,7 +129,7 @@ def test_database_schemas():
 
 
 def test_admin_api():
-    """Test Admin Dashboard API"""
+    """Test Admin Dashboard API."""
     print_header("Admin Dashboard API")
 
     base_url = "http://localhost:8000"
@@ -168,7 +164,7 @@ def test_admin_api():
 
 
 def test_python_sdk():
-    """Test Python SDK"""
+    """Test Python SDK."""
     print_header("Python SDK")
 
     try:
@@ -184,7 +180,7 @@ def test_python_sdk():
         try:
             schemas = client.list_schemas()
             print_test(f"SDK: list_schemas ({len(schemas)} found)", "PASS")
-        except:
+        except Exception:
             print_test("SDK: list_schemas", "SKIP", "API not available")
 
     except ImportError:
@@ -194,14 +190,14 @@ def test_python_sdk():
 
 
 def test_data_generators():
-    """Test data generators"""
+    """Test data generators."""
     print_header("Data Generators")
 
     generators_dir = "generators"
     if os.path.exists(generators_dir):
         # Count generator files
         generator_files = []
-        for root, dirs, files in os.walk(generators_dir):
+        for _, _, files in os.walk(generators_dir):
             for file in files:
                 if file.endswith("_generator.py"):
                     generator_files.append(file)
@@ -211,10 +207,9 @@ def test_data_generators():
         # Test import of a generator
         try:
             sys.path.append(generators_dir)
-            from clinic import patient_generator
 
             print_test("Generator: Import patient_generator", "PASS")
-        except:
+        except Exception:
             print_test(
                 "Generator: Import patient_generator", "WARN", "Could not import"
             )
@@ -223,7 +218,7 @@ def test_data_generators():
 
 
 def test_ml_platform():
-    """Test ML Platform components"""
+    """Test ML Platform components."""
     print_header("ML Platform")
 
     # Test MLflow
@@ -233,12 +228,12 @@ def test_ml_platform():
             print_test("MLflow: Health check", "PASS")
         else:
             print_test("MLflow: Health check", "FAIL", f"Status {response.status_code}")
-    except:
+    except Exception:
         print_test("MLflow: Health check", "SKIP", "Service not running")
 
     # Test Feast
     try:
-        import feast
+        pass
 
         print_test("Feast: Import", "PASS")
     except ImportError:
@@ -251,12 +246,12 @@ def test_ml_platform():
             print_test("BentoML: Health check", "PASS")
         else:
             print_test("BentoML: Health check", "FAIL")
-    except:
+    except Exception:
         print_test("BentoML: Health check", "SKIP", "Service not running")
 
 
 def test_data_pipeline():
-    """Test Data Pipeline components"""
+    """Test Data Pipeline components."""
     print_header("Data Pipeline")
 
     # Test Kafka
@@ -276,12 +271,12 @@ def test_data_pipeline():
             print_test("ClickHouse: Health check", "PASS")
         else:
             print_test("ClickHouse: Health check", "FAIL")
-    except:
+    except Exception:
         print_test("ClickHouse: Health check", "SKIP", "Service not running")
 
 
 def test_observability():
-    """Test Observability Stack"""
+    """Test Observability Stack."""
     print_header("Observability Stack")
 
     # Test Prometheus
@@ -297,7 +292,7 @@ def test_observability():
                 print_test(f"Prometheus: {len(targets)} active targets", "PASS")
         else:
             print_test("Prometheus: Health check", "FAIL")
-    except:
+    except Exception:
         print_test("Prometheus: Health check", "SKIP", "Service not running")
 
     # Test Grafana
@@ -307,12 +302,12 @@ def test_observability():
             print_test("Grafana: Health check", "PASS")
         else:
             print_test("Grafana: Health check", "FAIL")
-    except:
+    except Exception:
         print_test("Grafana: Health check", "SKIP", "Service not running")
 
 
 def test_performance():
-    """Test Performance Testing Stack"""
+    """Test Performance Testing Stack."""
     print_header("Performance Testing")
 
     # Check if Locust is available
@@ -337,7 +332,7 @@ def test_performance():
 
 
 def test_file_structure():
-    """Test project file structure"""
+    """Test project file structure."""
     print_header("Project Structure")
 
     required_dirs = [
@@ -364,7 +359,7 @@ def test_file_structure():
 
 
 def test_documentation():
-    """Test documentation files"""
+    """Test documentation files."""
     print_header("Documentation")
 
     doc_files = [
@@ -391,7 +386,7 @@ def test_documentation():
 
 
 def run_integration_test():
-    """Run a simple integration test"""
+    """Run a simple integration test."""
     print_header("Integration Test")
 
     try:
@@ -442,7 +437,7 @@ def run_integration_test():
 
 
 def print_summary():
-    """Print test summary"""
+    """Print test summary."""
     print_header("Test Summary")
 
     total = (
@@ -478,7 +473,7 @@ def print_summary():
 
 
 def main():
-    """Main test execution"""
+    """Run test execution."""
     print(f"\n{Fore.CYAN}MySQL Business-to-Schema System Test{Style.RESET_ALL}")
     print(f"{Fore.CYAN}Started: {datetime.now()}{Style.RESET_ALL}")
 

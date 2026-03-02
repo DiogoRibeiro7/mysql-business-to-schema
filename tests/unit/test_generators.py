@@ -1,19 +1,11 @@
-"""
-Unit tests for data generators.
-"""
+"""Unit tests for data generators."""
 
 import pytest
-import json
-from pathlib import Path
-import sys
-
-sys.path.append(str(Path(__file__).parent.parent.parent))
-
 from generators.base_generator import BaseGenerator
 from generators.clinic_generator import ClinicDataGenerator
 from generators.iot_generator import IoTDataGenerator
 from generators.ecommerce_generator import EcommerceDataGenerator
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 
 @pytest.mark.unit
@@ -35,7 +27,7 @@ class TestBaseGenerator:
         mock_conn = Mock()
         mock_connect.return_value = mock_conn
 
-        generator = BaseGenerator(
+        _ = BaseGenerator(
             host="localhost", user="root", password="test", database="test_db"
         )
 
@@ -163,7 +155,7 @@ class TestIoTDataGenerator:
         generator = IoTDataGenerator("localhost", "root", "test", "iot_db")
 
         # Generate normal data
-        normal_data = generator.generate_sensor_readings(
+        _ = generator.generate_sensor_readings(
             device_ids=["sensor_001"], count=100, include_anomalies=False
         )
 
@@ -364,7 +356,7 @@ class TestPerformanceOptimizations:
 
         # Test acquiring connections
         connections = []
-        for i in range(5):
+        for _ in range(5):
             conn = pool.get_connection()
             assert conn is not None
             connections.append(conn)

@@ -1,36 +1,28 @@
 #!/usr/bin/env python3
-"""
-IoT Waste Management System Data Generator - Refactored with BaseGenerator
+"""IoT Waste Management System Data Generator - Refactored with BaseGenerator.
+
 Generates realistic data for smart garbage bin monitoring with IoT sensors
 """
 
-import sys
 import os
-import csv
 import json
 import random
-import hashlib
 from datetime import datetime, timedelta, time
-from decimal import Decimal
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Any
 import yaml
 import argparse
 
-# Add parent directory to path to import base_generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from base_generator import BaseGenerator
+from generators.base_generator import BaseGenerator
 
-from faker import Faker
 import numpy as np
 import math
 
 
 class IoTBinsGenerator(BaseGenerator):
-    """IoT Waste Management Data Generator using BaseGenerator infrastructure"""
+    """IoT Waste Management Data Generator using BaseGenerator infrastructure."""
 
     def __init__(self, config_path: str = "config.yaml", **db_params):
-        """Initialize the generator with configuration and database connection"""
+        """Initialize the generator with configuration and database connection."""
         # Initialize base class with database connection parameters
         super().__init__(**db_params)
 
@@ -75,7 +67,7 @@ class IoTBinsGenerator(BaseGenerator):
         )
 
     def get_default_config(self) -> dict:
-        """Return default configuration"""
+        """Return default configuration."""
         return {
             "districts": 12,
             "bins_per_district": 100,
@@ -91,7 +83,7 @@ class IoTBinsGenerator(BaseGenerator):
         }
 
     def generate_districts(self):
-        """Generate city districts"""
+        """Generate city districts."""
         print(f"Generating {self.config['districts']} districts...")
 
         district_names = [
@@ -128,7 +120,7 @@ class IoTBinsGenerator(BaseGenerator):
             self.districts.append(district)
 
     def generate_bins(self):
-        """Generate smart garbage bins"""
+        """Generate smart garbage bins."""
         total_bins = self.config["districts"] * self.config["bins_per_district"]
         print(f"Generating {total_bins} bins...")
 
@@ -206,7 +198,7 @@ class IoTBinsGenerator(BaseGenerator):
                 self.bins.append(bin_data)
 
     def generate_sensors(self):
-        """Generate sensors for bins"""
+        """Generate sensors for bins."""
         sensor_types = ["fill_level", "temperature", "battery"]
         sensor_id = 0
 
@@ -222,7 +214,7 @@ class IoTBinsGenerator(BaseGenerator):
                         ["SensorTech", "IoTDevices", "SmartSense", "TechMeasure"]
                     ),
                     "model": f"{sensor_type.upper()}-{random.choice(['100', '200', 'PRO', 'PLUS'])}",
-                    "firmware_version": f"{random.randint(1,3)}.{random.randint(0,9)}.{random.randint(0,99)}",
+                    "firmware_version": f"{random.randint(1, 3)}.{random.randint(0, 9)}.{random.randint(0, 99)}",
                     "battery_capacity": (
                         5000
                         if sensor_type == "battery"
@@ -241,7 +233,7 @@ class IoTBinsGenerator(BaseGenerator):
                 self.sensors.append(sensor)
 
     def generate_trucks(self):
-        """Generate collection trucks"""
+        """Generate collection trucks."""
         print(f"Generating {self.config['trucks']} trucks...")
 
         truck_types = [
@@ -277,7 +269,7 @@ class IoTBinsGenerator(BaseGenerator):
             self.trucks.append(truck)
 
     def generate_drivers(self):
-        """Generate drivers"""
+        """Generate drivers."""
         print(f"Generating {self.config['drivers']} drivers...")
 
         for i in range(self.config["drivers"]):
@@ -304,7 +296,7 @@ class IoTBinsGenerator(BaseGenerator):
             self.drivers.append(driver)
 
     def generate_routes(self):
-        """Generate collection routes"""
+        """Generate collection routes."""
         total_routes = self.config["districts"] * self.config["routes_per_district"]
         print(f"Generating {total_routes} routes...")
 
@@ -356,7 +348,7 @@ class IoTBinsGenerator(BaseGenerator):
                     self.route_assignments.append(assignment)
 
     def generate_sensor_readings_batch(self, batch_sensors, current_date):
-        """Generate sensor readings for a batch of sensors"""
+        """Generate sensor readings for a batch of sensors."""
         readings = []
 
         for sensor in batch_sensors:
@@ -392,7 +384,7 @@ class IoTBinsGenerator(BaseGenerator):
         return readings
 
     def insert_data_to_database(self):
-        """Insert generated data into database using bulk operations"""
+        """Insert generated data into database using bulk operations."""
         try:
             # Connect to database
             self.connect()
@@ -482,7 +474,7 @@ class IoTBinsGenerator(BaseGenerator):
                 # Process sensors in batches
                 batch_size = 100
                 for i in range(0, len(self.sensors), batch_size):
-                    batch_sensors = self.sensors[i : i + batch_size]
+                    batch_sensors = self.sensors[i: i + batch_size]
                     readings = self.generate_sensor_readings_batch(
                         batch_sensors, current_date
                     )
@@ -510,7 +502,7 @@ class IoTBinsGenerator(BaseGenerator):
             self.disconnect()
 
     def generate_data(self, scale: str = "small"):
-        """Main method to generate all data"""
+        """Run method to generate all data."""
         # Adjust configuration based on scale
         if scale == "small":
             self.config["districts"] = 3
@@ -527,7 +519,7 @@ class IoTBinsGenerator(BaseGenerator):
 
         print(f"\nGenerating {scale} scale data for IoT bins database...")
         print("=" * 60)
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Districts: {self.config['districts']}")
         print(f"  Bins per district: {self.config['bins_per_district']}")
         print(
@@ -544,7 +536,7 @@ class IoTBinsGenerator(BaseGenerator):
         self.generate_drivers()
         self.generate_routes()
 
-        print(f"\nGeneration Summary:")
+        print("\nGeneration Summary:")
         print(f"  Districts: {len(self.districts)}")
         print(f"  Bins: {len(self.bins)}")
         print(f"  Sensors: {len(self.sensors)}")
@@ -564,7 +556,7 @@ class IoTBinsGenerator(BaseGenerator):
         }
 
     def export_to_json(self, filename: str):
-        """Export generated data to JSON file"""
+        """Export generated data to JSON file."""
         data = self.generate_data()
         with open(filename, "w") as f:
             json.dump(data, f, indent=2, default=str)
@@ -572,6 +564,7 @@ class IoTBinsGenerator(BaseGenerator):
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate IoT Bins sample data")
     parser.add_argument(
         "--scale",
@@ -618,7 +611,7 @@ def main():
         generator.export_to_json(f"iot_bins_data_{args.scale}.json")
     else:  # csv
         # Generate data and save to CSV (not fully implemented in this example)
-        data = generator.generate_data(args.scale)
+        _ = generator.generate_data(args.scale)
         print("CSV export not yet implemented in refactored version")
 
     print("\n[DONE] IoT Bins data generation complete!")

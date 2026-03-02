@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Base Generator Class for MySQL Data Generation
+"""Base Generator Class for MySQL Data Generation.
 
 Provides common functionality for all data generators including:
 - Database connection management
@@ -15,12 +14,11 @@ from faker import Faker
 import random
 import hashlib
 from datetime import datetime, timedelta, date
-from decimal import Decimal
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Optional, Tuple
 
 
 class BaseGenerator:
-    """Base class for all data generators"""
+    """Base class for all data generators."""
 
     def __init__(
         self,
@@ -30,7 +28,7 @@ class BaseGenerator:
         password="password",
         database="test_db",
     ):
-        """Initialize the base generator with database connection parameters"""
+        """Initialize the base generator with database connection parameters."""
         self.host = host
         self.port = port
         self.user = user
@@ -45,7 +43,7 @@ class BaseGenerator:
         Faker.seed(42)
 
     def connect(self):
-        """Establish database connection"""
+        """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(
                 host=self.host,
@@ -71,7 +69,7 @@ class BaseGenerator:
             raise
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         try:
             if self.connection and self.connection.is_connected():
                 # Re-enable checks before disconnecting
@@ -87,7 +85,7 @@ class BaseGenerator:
             print(f"Error closing connection: {e}")
 
     def execute_query(self, query: str, params: Optional[Tuple] = None):
-        """Execute a single query"""
+        """Execute a single query."""
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -103,7 +101,7 @@ class BaseGenerator:
     def bulk_insert(
         self, table: str, data: List[Tuple], columns: List[str], batch_size: int = 1000
     ):
-        """Perform bulk insert with batching"""
+        """Perform bulk insert with batching."""
         if not data:
             return
 
@@ -114,7 +112,7 @@ class BaseGenerator:
         try:
             # Insert in batches
             for i in range(0, len(data), batch_size):
-                batch = data[i : i + batch_size]
+                batch = data[i: i + batch_size]
                 self.cursor.executemany(query, batch)
                 self.connection.commit()
 
@@ -131,7 +129,7 @@ class BaseGenerator:
             raise
 
     def fetch_all(self, query: str, params: Optional[Tuple] = None) -> List[Dict]:
-        """Fetch all results from a query"""
+        """Fetch all results from a query."""
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -144,7 +142,7 @@ class BaseGenerator:
             raise
 
     def fetch_one(self, query: str, params: Optional[Tuple] = None) -> Optional[Dict]:
-        """Fetch single result from a query"""
+        """Fetch single result from a query."""
         try:
             if params:
                 self.cursor.execute(query, params)
@@ -157,7 +155,7 @@ class BaseGenerator:
             raise
 
     def truncate_table(self, table: str):
-        """Truncate a table (delete all data)"""
+        """Truncate a table (delete all data)."""
         try:
             self.cursor.execute(f"TRUNCATE TABLE `{table}`")
             self.connection.commit()
@@ -167,7 +165,7 @@ class BaseGenerator:
             raise
 
     def truncate_all_tables(self):
-        """Truncate all tables in the database"""
+        """Truncate all tables in the database."""
         try:
             # Get all tables
             self.cursor.execute(
@@ -198,7 +196,7 @@ class BaseGenerator:
             raise
 
     def generate_password_hash(self, password: Optional[str] = None) -> str:
-        """Generate a password hash"""
+        """Generate a password hash."""
         if not password:
             password = self.faker.password()
         return hashlib.sha256(password.encode()).hexdigest()
@@ -206,20 +204,20 @@ class BaseGenerator:
     def random_datetime_between(
         self, start_date: datetime, end_date: datetime
     ) -> datetime:
-        """Generate random datetime between two dates"""
+        """Generate random datetime between two dates."""
         time_delta = end_date - start_date
         random_days = random.randint(0, time_delta.days)
         random_seconds = random.randint(0, 86400)
         return start_date + timedelta(days=random_days, seconds=random_seconds)
 
     def random_date_between(self, start_date: str, end_date: str) -> date:
-        """Generate random date between two date strings"""
+        """Generate random date between two date strings."""
         start = datetime.strptime(start_date, "%Y-%m-%d")
         end = datetime.strptime(end_date, "%Y-%m-%d")
         return self.random_datetime_between(start, end).date()
 
     def get_table_count(self, table: str) -> int:
-        """Get the count of records in a table"""
+        """Get the count of records in a table."""
         try:
             self.cursor.execute(f"SELECT COUNT(*) as count FROM `{table}`")
             result = self.cursor.fetchone()
@@ -229,7 +227,7 @@ class BaseGenerator:
             return 0
 
     def print_statistics(self):
-        """Print statistics for all tables"""
+        """Print statistics for all tables."""
         try:
             # Get all tables
             self.cursor.execute(

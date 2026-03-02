@@ -1,5 +1,4 @@
-"""
-MySQL Business-to-Schema Python SDK
+"""MySQL Business-to-Schema Python SDK.
 
 A comprehensive Python client library for interacting with MySQL Business-to-Schema system.
 """
@@ -66,8 +65,7 @@ def create_client(
     timeout: int = 30,
     **kwargs
 ) -> MySQLSchemaClient:
-    """
-    Create a MySQL Schema client instance.
+    """Create a MySQL Schema client instance.
 
     Args:
         host: API host address

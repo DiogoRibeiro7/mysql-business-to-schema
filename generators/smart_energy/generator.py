@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""
-Smart Energy Management System Data Generator
+"""Smart Energy Management System Data Generator.
+
 Generates realistic data for commercial building energy monitoring with renewables and optimization
 """
 
 import csv
 import json
 import random
-import hashlib
-from datetime import datetime, timedelta, time
-from decimal import Decimal
+from datetime import datetime, timedelta
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -41,7 +38,10 @@ CONFIG = {
 
 
 class SmartEnergyGenerator:
+    """Represent SmartEnergyGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.buildings: List[Any] = []
         self.floors: List[Any] = []
         self.zones: List[Any] = []
@@ -81,9 +81,9 @@ class SmartEnergyGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all smart energy data"""
+        """Generate all smart energy data."""
         print("Starting Smart Energy Management Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Buildings: {CONFIG['buildings']}")
         print(f"  Total floors: {CONFIG['buildings'] * CONFIG['floors_per_building']}")
         print(
@@ -120,7 +120,7 @@ class SmartEnergyGenerator:
         self.save_all()
 
     def generate_buildings(self):
-        """Generate commercial buildings"""
+        """Generate commercial buildings."""
         print(f"Generating {CONFIG['buildings']} buildings...")
 
         building_types = ["office", "retail", "mixed", "hotel", "hospital"]
@@ -153,7 +153,7 @@ class SmartEnergyGenerator:
             self.buildings.append(building)
 
     def generate_floors_and_zones(self):
-        """Generate floors and zones for buildings"""
+        """Generate floors and zones for buildings."""
         print("Generating floors and zones...")
 
         zone_types = [
@@ -234,7 +234,7 @@ class SmartEnergyGenerator:
                     self.zones.append(zone)
 
     def generate_tenants(self):
-        """Generate tenant organizations"""
+        """Generate tenant organizations."""
         print(f"Generating {CONFIG['tenants']} tenants...")
 
         for i in range(CONFIG["tenants"]):
@@ -283,7 +283,7 @@ class SmartEnergyGenerator:
                 self.tenant_assignments.append(assignment)
 
     def generate_meter_types(self):
-        """Generate meter type definitions"""
+        """Generate meter type definitions."""
         print("Generating meter types...")
 
         meter_type_configs = [
@@ -312,7 +312,7 @@ class SmartEnergyGenerator:
             self.meter_types.append(meter_type)
 
     def generate_energy_meters(self):
-        """Generate energy meters for buildings"""
+        """Generate energy meters for buildings."""
         print("Generating energy meters...")
 
         manufacturers = ["Schneider", "Siemens", "ABB", "Honeywell", "GE"]
@@ -426,7 +426,7 @@ class SmartEnergyGenerator:
                     self.energy_meters.append(meter)
 
     def generate_solar_systems(self):
-        """Generate solar PV systems for some buildings"""
+        """Generate solar PV systems for some buildings."""
         print(f"Generating {CONFIG['solar_systems']} solar systems...")
 
         # Only some buildings get solar
@@ -471,7 +471,7 @@ class SmartEnergyGenerator:
             self.solar_systems.append(system)
 
     def generate_battery_storage(self):
-        """Generate battery storage systems"""
+        """Generate battery storage systems."""
         print(f"Generating {CONFIG['battery_systems']} battery systems...")
 
         # Only buildings with solar get batteries
@@ -516,7 +516,7 @@ class SmartEnergyGenerator:
             self.battery_storage.append(battery)
 
     def generate_hvac_units(self):
-        """Generate HVAC units for buildings"""
+        """Generate HVAC units for buildings."""
         print("Generating HVAC units...")
 
         unit_types = ["ahu", "vav", "chiller", "boiler", "rooftop"]
@@ -579,7 +579,7 @@ class SmartEnergyGenerator:
                 self.hvac_units.append(unit)
 
     def generate_equipment(self):
-        """Generate equipment inventory"""
+        """Generate equipment inventory."""
         print("Generating equipment inventory...")
 
         equipment_types = [
@@ -643,7 +643,7 @@ class SmartEnergyGenerator:
                 self.equipment_inventory.append(equipment)
 
     def generate_energy_consumption(self):
-        """Generate energy consumption time series data"""
+        """Generate energy consumption time series data."""
         print("Generating energy consumption data (this may take a while)...")
 
         # Sample period
@@ -773,7 +773,7 @@ class SmartEnergyGenerator:
             self.energy_consumption_daily.extend(daily_consumptions)
 
     def generate_solar_and_battery_data(self):
-        """Generate solar production and battery status data"""
+        """Generate solar production and battery status data."""
         print("Generating solar and battery data...")
 
         sample_days = min(7, CONFIG["days_of_history"])
@@ -908,7 +908,7 @@ class SmartEnergyGenerator:
                 current_date += timedelta(days=1)
 
     def generate_hvac_telemetry(self):
-        """Generate HVAC telemetry data"""
+        """Generate HVAC telemetry data."""
         print("Generating HVAC telemetry...")
 
         sample_days = min(3, CONFIG["days_of_history"])
@@ -987,12 +987,12 @@ class SmartEnergyGenerator:
                 current_date += timedelta(days=1)
 
     def generate_demand_response_events(self):
-        """Generate demand response events"""
+        """Generate demand response events."""
         print("Generating demand response events...")
 
         event_types = ["voluntary", "mandatory", "test"]
 
-        for i in range(random.randint(5, 15)):
+        for _ in range(random.randint(5, 15)):
             self.event_id += 1
 
             event_date = fake.date_time_between(
@@ -1031,7 +1031,7 @@ class SmartEnergyGenerator:
             self.demand_response_events.append(event)
 
     def save_to_csv(self, table_name, data):
-        """Save data to CSV file"""
+        """Save data to CSV file."""
         if not data:
             return
 
@@ -1043,7 +1043,7 @@ class SmartEnergyGenerator:
             writer.writerows(data)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         print("\nSaving data to CSV files...")
 
         OUTPUT_DIR.mkdir(exist_ok=True)
@@ -1079,7 +1079,7 @@ class SmartEnergyGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
+        """Generate summary statistics."""
         total_consumption = sum(
             d["total_energy_kwh"] for d in self.energy_consumption_daily
         )

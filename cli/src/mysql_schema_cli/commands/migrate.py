@@ -1,6 +1,4 @@
-"""
-Migrate command - Database migration management
-"""
+"""Migrate command - Database migration management."""
 
 import click
 from rich.console import Console
@@ -11,7 +9,6 @@ console = Console()
 @click.group(name="migrate")
 def migrate_group():
     """Manage database migrations."""
-    pass
 
 
 @migrate_group.command(name="up")

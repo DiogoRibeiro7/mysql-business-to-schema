@@ -1,6 +1,4 @@
-"""
-Core utilities for MySQL Schema CLI
-"""
+"""Core utilities for MySQL Schema CLI."""
 
 import os
 import yaml
@@ -81,10 +79,12 @@ class CliContext:
 
     @property
     def is_verbose(self) -> bool:
+        """Handle is verbose."""
         return self.verbose > 0
 
     @property
     def is_debug(self) -> bool:
+        """Handle is debug."""
         return self.verbose > 1
 
     def get_connection_params(self) -> Dict[str, Any]:
@@ -101,8 +101,7 @@ class CliContext:
 
 
 def load_config(config_path: Optional[str] = None, profile: str = "default") -> Config:
-    """
-    Load configuration from file or environment.
+    """Load configuration from file or environment.
 
     Priority order:
     1. Command-line arguments
@@ -243,12 +242,13 @@ class ApiClient:
     """API client for MySQL Schema backend."""
 
     def __init__(self, context: CliContext):
+        """Initialize the instance."""
         self.context = context
         self.session = None
         self._setup_session()
 
     def _setup_session(self):
-        """Setup HTTP session with authentication."""
+        """Set up HTTP session with authentication."""
         import requests
 
         self.session = requests.Session()
@@ -277,7 +277,7 @@ class ApiClient:
                 self.session.headers["Authorization"] = f"Bearer {token}"
 
     def request(self, method: str, endpoint: str, **kwargs) -> Any:
-        """Make API request."""
+        """Make an API request."""
         url = f"{self.base_url}{endpoint}"
 
         response = self.session.request(

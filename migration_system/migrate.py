@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Database Migration CLI Tool
+"""Database Migration CLI Tool.
 
 A command-line interface for managing database migrations between different systems.
 Supports MySQL to PostgreSQL and MySQL to MongoDB migrations.
@@ -11,30 +10,27 @@ import sys
 import argparse
 import json
 from datetime import datetime
-from typing import List, Dict, Optional
 from tabulate import tabulate
 import colorama
 from colorama import Fore, Style
 
+from migration_system.migration_manager import MigrationManager, DatabaseType
+from migration_system.migration_executor import MigrationExecutor
+
 # Initialize colorama for cross-platform colored output
 colorama.init()
 
-# Add parent directory to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-from migration_manager import MigrationManager, DatabaseType
-from migration_executor import MigrationExecutor
-
 
 class MigrationCLI:
-    """Command-line interface for database migrations"""
+    """Command-line interface for database migrations."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.manager = MigrationManager()
         self.executor = MigrationExecutor()
 
     def create_migration(self, args):
-        """Create a new migration"""
+        """Create a new migration."""
         print(f"{Fore.CYAN}Creating migration...{Style.RESET_ALL}")
 
         # Validate source file exists
@@ -56,7 +52,7 @@ class MigrationCLI:
             print(f"{Fore.GREEN}✓ Migration created successfully!{Style.RESET_ALL}")
             print(f"\nMigration ID: {Fore.YELLOW}{migration.id}{Style.RESET_ALL}")
             print(f"Source: {args.source_type} → Target: {args.target_type}")
-            print(f"\nGenerated files:")
+            print("\nGenerated files:")
             print(f"  • Up script:   migrations/up/{migration.id}.sql")
             print(f"  • Down script: migrations/down/{migration.id}_rollback.sql")
             print(f"  • Metadata:    migrations/{migration.id}.json")
@@ -79,7 +75,7 @@ class MigrationCLI:
             return 1
 
     def list_migrations(self, args):
-        """List all migrations"""
+        """List all migrations."""
         migrations = self.manager.list_migrations()
 
         if not migrations:
@@ -132,7 +128,7 @@ class MigrationCLI:
         return 0
 
     def execute_migration(self, args):
-        """Execute a migration"""
+        """Execute a migration."""
         print(f"{Fore.CYAN}Executing migration: {args.migration_id}{Style.RESET_ALL}")
 
         # Check if migration exists
@@ -198,7 +194,7 @@ class MigrationCLI:
         return 0
 
     def rollback_migration(self, args):
-        """Rollback a migration"""
+        """Rollback a migration."""
         print(
             f"{Fore.YELLOW}Rolling back migration: {args.migration_id}{Style.RESET_ALL}"
         )
@@ -253,7 +249,7 @@ class MigrationCLI:
         return 0
 
     def show_migration(self, args):
-        """Show details of a specific migration"""
+        """Show details of a specific migration."""
         # Load migration metadata
         metadata_file = os.path.join("migrations", f"{args.migration_id}.json")
         if not os.path.exists(metadata_file):
@@ -311,7 +307,7 @@ class MigrationCLI:
 
 
 def main():
-    """Main CLI entry point"""
+    """Run CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Database Migration Tool - Migrate schemas between different database systems",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -357,7 +353,7 @@ Examples:
     )
 
     # List command
-    list_parser = subparsers.add_parser("list", help="List all migrations")
+    _ = subparsers.add_parser("list", help="List all migrations")
 
     # Execute command
     execute_parser = subparsers.add_parser("execute", help="Execute a migration")

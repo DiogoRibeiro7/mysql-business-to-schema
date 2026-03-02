@@ -1,38 +1,34 @@
-"""
-IoT and Smart City Machine Learning Models
+"""IoT and Smart City Machine Learning Models.
+
 Specialized ML for waste management, energy optimization, and urban analytics
 """
 
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingClassifier
-from sklearn.cluster import DBSCAN, KMeans
-from sklearn.preprocessing import StandardScaler
-from prophet import Prophet
 import warnings
 
-warnings.filterwarnings("ignore")
+import numpy as np
+import pandas as pd
+from sklearn.cluster import DBSCAN
+from sklearn.ensemble import RandomForestRegressor
 
 from ml_pipeline import (
     TimeSeriesForecaster,
     AnomalyDetector,
     MLPipeline,
-    CustomerSegmentation,
 )
+
+warnings.filterwarnings("ignore")
 
 
 class SmartWasteManagement:
-    """
-    ML models for intelligent waste collection and management
-    """
+    """ML models for intelligent waste collection and management."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.route_optimizer = None
 
     def predict_bin_fill_time(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict when waste bins will be full
+        """Predict when waste bins will be full.
 
         Args:
             df: DataFrame with bin sensor data
@@ -112,8 +108,7 @@ class SmartWasteManagement:
         return results
 
     def optimize_collection_routes(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Optimize waste collection routes using ML
+        """Optimize waste collection routes using ML.
 
         Args:
             df: DataFrame with bin locations and fill predictions
@@ -180,8 +175,7 @@ class SmartWasteManagement:
         return routes_df
 
     def detect_illegal_dumping(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Detect potential illegal dumping using anomaly detection
+        """Detect potential illegal dumping using anomaly detection.
 
         Args:
             df: DataFrame with bin sensor data over time
@@ -260,7 +254,7 @@ class SmartWasteManagement:
         return results
 
     def _nearest_neighbor_route(self, bins_df: pd.DataFrame) -> list:
-        """Simple nearest neighbor routing for bin collection"""
+        """Compute a nearest-neighbor route for bin collection."""
         if len(bins_df) == 0:
             return []
 
@@ -285,19 +279,17 @@ class SmartWasteManagement:
 
 
 class SmartEnergyOptimization:
-    """
-    ML models for smart grid and energy optimization
-    """
+    """ML models for smart grid and energy optimization."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.forecaster = None
 
     def forecast_energy_demand(
         self, df: pd.DataFrame, forecast_hours: int = 24
     ) -> pd.DataFrame:
-        """
-        Forecast energy demand for smart grid optimization
+        """Forecast energy demand for smart grid optimization.
 
         Args:
             df: DataFrame with historical energy consumption
@@ -361,12 +353,11 @@ class SmartEnergyOptimization:
             labels=["low", "normal", "high", "critical"],
         )
 
-        print(f"[OK] Energy demand forecast complete")
+        print("[OK] Energy demand forecast complete")
         return forecast
 
     def optimize_renewable_mix(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Optimize renewable energy source mix based on predictions
+        """Optimize renewable energy source mix based on predictions.
 
         Args:
             df: DataFrame with weather and energy data
@@ -449,12 +440,11 @@ class SmartEnergyOptimization:
             "activate_backup"
         )
 
-        print(f"[OK] Renewable mix optimization complete")
+        print("[OK] Renewable mix optimization complete")
         return results
 
     def detect_grid_anomalies(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Detect anomalies in power grid operation
+        """Detect anomalies in power grid operation.
 
         Args:
             df: DataFrame with grid sensor data
@@ -539,8 +529,7 @@ class SmartEnergyOptimization:
         return results
 
     def predict_equipment_failure(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict equipment failure in power grid
+        """Predict equipment failure in power grid.
 
         Args:
             df: DataFrame with equipment sensor data
@@ -626,16 +615,14 @@ class SmartEnergyOptimization:
 
 
 class UrbanTrafficOptimization:
-    """
-    ML models for urban traffic and transportation optimization
-    """
+    """ML models for urban traffic and transportation optimization."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
 
     def predict_traffic_flow(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict traffic flow patterns
+        """Predict traffic flow patterns.
 
         Args:
             df: DataFrame with traffic sensor data
@@ -724,8 +711,7 @@ class UrbanTrafficOptimization:
         return results
 
     def optimize_signal_timing(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Optimize traffic signal timing using ML
+        """Optimize traffic signal timing using ML.
 
         Args:
             df: DataFrame with intersection data
@@ -779,7 +765,7 @@ class UrbanTrafficOptimization:
 
 
 def main():
-    """Example usage of IoT and Smart City ML models"""
+    """Handle operation."""
     print("=" * 60)
     print("IoT and Smart City Machine Learning Models")
     print("=" * 60)

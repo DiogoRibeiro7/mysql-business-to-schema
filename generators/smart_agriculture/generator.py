@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-"""
-Smart Agriculture System Data Generator
+"""Smart Agriculture System Data Generator.
+
 Generates realistic data for precision farming with IoT sensors, crop management, and livestock
 """
 
 import csv
 import json
 import random
-import hashlib
 from datetime import datetime, timedelta, date
-from decimal import Decimal
 from pathlib import Path
 from faker import Faker
 import numpy as np
 import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -40,8 +38,11 @@ CONFIG = {
 
 
 class SmartAgricultureGenerator:
+    """Represent SmartAgricultureGenerator."""
+
     def __init__(self):
         # Core entities
+        """Initialize the instance."""
         self.farms: List[Any] = []
         self.fields: List[Any] = []
         self.zones: List[Any] = []
@@ -99,9 +100,9 @@ class SmartAgricultureGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all smart agriculture data"""
+        """Generate all smart agriculture data."""
         print("Starting Smart Agriculture Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Farms: {CONFIG['farms']}")
         print(f"  Total fields: {CONFIG['farms'] * CONFIG['fields_per_farm']}")
         print(
@@ -150,7 +151,7 @@ class SmartAgricultureGenerator:
         self.save_all()
 
     def generate_farms(self):
-        """Generate farm data"""
+        """Generate farm data."""
         print(f"Generating {CONFIG['farms']} farms...")
 
         farm_types = ["crop", "dairy", "mixed", "orchard", "greenhouse"]
@@ -186,7 +187,7 @@ class SmartAgricultureGenerator:
             )
 
     def generate_operators(self):
-        """Generate farm operators/workers"""
+        """Generate farm operators/workers."""
         print("Generating farm operators...")
 
         roles = [
@@ -218,7 +219,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_fields(self):
-        """Generate fields within farms"""
+        """Generate fields within farms."""
         print("Generating fields...")
 
         irrigation_types = ["drip", "sprinkler", "flood", "pivot", "none"]
@@ -266,7 +267,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_zones(self):
-        """Generate management zones within fields"""
+        """Generate management zones within fields."""
         print("Generating zones...")
 
         zone_types = ["productivity", "soil_type", "topography", "custom"]
@@ -301,7 +302,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_crops(self):
-        """Generate crop catalog"""
+        """Generate crop catalog."""
         print(f"Generating {CONFIG['crops']} crop types...")
 
         crop_data = [
@@ -570,7 +571,7 @@ class SmartAgricultureGenerator:
             )
 
     def generate_planting_records(self):
-        """Generate planting records for fields"""
+        """Generate planting records for fields."""
         print("Generating planting records...")
 
         varieties = {
@@ -579,7 +580,7 @@ class SmartAgricultureGenerator:
             "Soybeans": ["Roundup Ready", "Liberty Link", "Conventional"],
         }
 
-        statuses = ["planted", "growing", "harvested"]
+        _ = ["planted", "growing", "harvested"]
 
         for field in self.fields:
             # Each field can have multiple plantings over time
@@ -650,7 +651,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_growth_stages(self):
-        """Generate crop growth stage observations"""
+        """Generate crop growth stage observations."""
         print("Generating growth stages...")
 
         stages = [
@@ -700,7 +701,7 @@ class SmartAgricultureGenerator:
                     )
 
     def generate_sensors(self):
-        """Generate sensor deployments"""
+        """Generate sensor deployments."""
         print("Generating sensors...")
 
         sensor_types = [
@@ -755,10 +756,10 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_weather_stations(self):
-        """Generate weather stations"""
+        """Generate weather stations."""
         print(f"Generating {CONFIG['weather_stations']} weather stations...")
 
-        for i in range(CONFIG["weather_stations"]):
+        for _ in range(CONFIG["weather_stations"]):
             self.station_id += 1
             farm = random.choice(self.farms)
 
@@ -780,10 +781,10 @@ class SmartAgricultureGenerator:
             )
 
     def generate_irrigation_systems(self):
-        """Generate irrigation systems"""
+        """Generate irrigation systems."""
         print("Generating irrigation systems...")
 
-        system_types = ["drip", "sprinkler", "pivot", "flood"]
+        _ = ["drip", "sprinkler", "pivot", "flood"]
 
         for field in self.fields:
             if field["irrigation_type"] != "none":
@@ -809,7 +810,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_irrigation_schedules(self):
-        """Generate irrigation schedules"""
+        """Generate irrigation schedules."""
         print("Generating irrigation schedules...")
 
         for system in self.irrigation_systems:
@@ -838,7 +839,7 @@ class SmartAgricultureGenerator:
                     )
 
     def generate_sensor_data(self):
-        """Generate sensor readings"""
+        """Generate sensor readings."""
         print("Generating sensor data (this may take a while)...")
 
         current = self.start_date
@@ -888,7 +889,7 @@ class SmartAgricultureGenerator:
             current += timedelta(hours=1)
 
     def get_sensor_unit(self, sensor_type):
-        """Get unit for sensor type"""
+        """Get unit for sensor type."""
         units = {
             "soil_moisture": "%",
             "soil_temperature": "°C",
@@ -902,7 +903,7 @@ class SmartAgricultureGenerator:
         return units.get(sensor_type, "unit")
 
     def generate_weather_data(self):
-        """Generate weather data"""
+        """Generate weather data."""
         print("Generating weather data...")
 
         current = self.start_date
@@ -946,11 +947,11 @@ class SmartAgricultureGenerator:
             current += timedelta(hours=1)
 
     def generate_irrigation_events(self):
-        """Generate irrigation events"""
+        """Generate irrigation events."""
         print("Generating irrigation events...")
 
         for schedule in self.irrigation_schedules:
-            system = next(
+            _ = next(
                 s
                 for s in self.irrigation_systems
                 if s["system_id"] == schedule["system_id"]
@@ -989,7 +990,7 @@ class SmartAgricultureGenerator:
                 current += timedelta(days=1)
 
     def generate_fertilizer_applications(self):
-        """Generate fertilizer application records"""
+        """Generate fertilizer application records."""
         print("Generating fertilizer applications...")
 
         fertilizer_types = ["Urea", "DAP", "MOP", "NPK 15-15-15", "Ammonium Sulfate"]
@@ -1031,7 +1032,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_pesticide_applications(self):
-        """Generate pesticide application records"""
+        """Generate pesticide application records."""
         print("Generating pesticide applications...")
 
         pesticide_types = ["Herbicide", "Insecticide", "Fungicide"]
@@ -1079,7 +1080,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_harvest_records(self):
-        """Generate harvest records"""
+        """Generate harvest records."""
         print("Generating harvest records...")
 
         for planting in self.planting_records:
@@ -1105,7 +1106,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_yield_predictions(self):
-        """Generate yield predictions"""
+        """Generate yield predictions."""
         print("Generating yield predictions...")
 
         for planting in self.planting_records:
@@ -1144,7 +1145,7 @@ class SmartAgricultureGenerator:
                     current += timedelta(days=7)
 
     def generate_animals(self):
-        """Generate livestock for dairy/mixed farms"""
+        """Generate livestock for dairy/mixed farms."""
         print("Generating livestock...")
 
         for farm in self.farms:
@@ -1176,7 +1177,7 @@ class SmartAgricultureGenerator:
                     )
 
     def generate_health_records(self):
-        """Generate animal health records"""
+        """Generate animal health records."""
         print("Generating health records...")
 
         health_types = ["vaccination", "checkup", "treatment", "deworming"]
@@ -1213,7 +1214,7 @@ class SmartAgricultureGenerator:
                 )
 
     def generate_milk_production(self):
-        """Generate milk production records for dairy cows"""
+        """Generate milk production records for dairy cows."""
         print("Generating milk production records...")
 
         for animal in self.animals:
@@ -1249,7 +1250,7 @@ class SmartAgricultureGenerator:
                     current += timedelta(days=1)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1290,36 +1291,36 @@ class SmartAgricultureGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nSmart Agriculture Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nSmart Agriculture Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nFarm Infrastructure:")
+        print("\nFarm Infrastructure:")
         print(f"  Farms: {len(self.farms)}")
         print(f"  Fields: {len(self.fields)}")
         print(f"  Zones: {len(self.zones)}")
         print(f"  Operators: {len(self.operators)}")
 
-        print(f"\nCrop Management:")
+        print("\nCrop Management:")
         print(f"  Crop Types: {len(self.crops)}")
         print(f"  Plantings: {len(self.planting_records)}")
         print(f"  Growth Observations: {len(self.growth_stages)}")
         print(f"  Harvests: {len(self.harvest_records)}")
 
-        print(f"\nIoT & Monitoring:")
+        print("\nIoT & Monitoring:")
         print(f"  Sensors: {len(self.sensors)}")
         print(f"  Sensor Readings: {len(self.sensor_readings):,}")
         print(f"  Weather Stations: {len(self.weather_stations)}")
         print(f"  Weather Records: {len(self.weather_data):,}")
 
-        print(f"\nFarm Operations:")
+        print("\nFarm Operations:")
         print(f"  Irrigation Systems: {len(self.irrigation_systems)}")
         print(f"  Irrigation Events: {len(self.irrigation_events):,}")
         print(f"  Fertilizer Applications: {len(self.fertilizer_applications)}")
         print(f"  Pesticide Applications: {len(self.pesticide_applications)}")
 
         if self.animals:
-            print(f"\nLivestock:")
+            print("\nLivestock:")
             print(f"  Animals: {len(self.animals)}")
             print(f"  Health Records: {len(self.health_records)}")
             print(f"  Milk Production Records: {len(self.milk_production):,}")
@@ -1332,13 +1333,13 @@ class SmartAgricultureGenerator:
             else 0
         )
 
-        print(f"\nProduction Statistics:")
+        print("\nProduction Statistics:")
         print(f"  Total Farm Area: {total_area:,.2f} hectares")
         print(f"  Total Harvest: {total_yield:,.0f} kg")
         if self.harvest_records:
             print(f"  Average Yield: {total_yield / total_area:,.0f} kg/hectare")
 
-        print(f"\nFiles Generated: 21")
+        print("\nFiles Generated: 21")
 
 
 if __name__ == "__main__":

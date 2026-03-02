@@ -1,29 +1,19 @@
 #!/usr/bin/env python3
-"""
-Gaming Platform Data Generator
+"""Gaming Platform Data Generator.
 
 Generates realistic test data for the gaming platform database.
 Includes players, games, matches, tournaments, virtual economy, and social features.
 """
 
 import random
-import sys
-import os
 from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import List, Dict, Tuple, Optional
 import json
-import hashlib
-import secrets
-import string
 
-# Add parent directory to path for base generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from generators.base_generator import BaseGenerator
 
 
 class GamingPlatformGenerator(BaseGenerator):
-    """Generator for Gaming Platform data"""
+    """Generator for Gaming Platform data."""
 
     def __init__(
         self,
@@ -33,7 +23,7 @@ class GamingPlatformGenerator(BaseGenerator):
         password="gaming_pass_2024",
         database="gaming_platform",
     ):
-        """Initialize the gaming platform generator"""
+        """Initialize the gaming platform generator."""
         super().__init__(host, port, user, password, database)
 
         # Gaming data
@@ -115,7 +105,7 @@ class GamingPlatformGenerator(BaseGenerator):
     def generate_all_data(
         self, players: int = 10000, games: int = 50, matches_per_day: int = 5000
     ):
-        """Generate all gaming platform data"""
+        """Generate all gaming platform data."""
         print("Starting Gaming Platform data generation...")
 
         # Generate base data
@@ -161,7 +151,7 @@ class GamingPlatformGenerator(BaseGenerator):
         print("Generation complete!")
 
     def generate_players(self, count: int = 10000):
-        """Generate player accounts"""
+        """Generate player accounts."""
         players = []
 
         for i in range(count):
@@ -284,7 +274,7 @@ class GamingPlatformGenerator(BaseGenerator):
             )
 
     def generate_games(self, count: int = 50):
-        """Generate game titles"""
+        """Generate game titles."""
         games = []
 
         game_names = [
@@ -310,7 +300,7 @@ class GamingPlatformGenerator(BaseGenerator):
             "Star Colonies",
         ]
 
-        for i in range(min(count, len(game_names) * 3)):
+        for _ in range(min(count, len(game_names) * 3)):
             base_name = random.choice(game_names)
             suffix = random.choice(
                 ["", " II", " III", " Online", " VR", " Mobile", " Pro", " Ultimate"]
@@ -373,7 +363,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_player_profiles(self):
-        """Generate player profiles for different games"""
+        """Generate player profiles for different games."""
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 5000"
         )
@@ -459,7 +449,7 @@ class GamingPlatformGenerator(BaseGenerator):
             )
 
     def generate_social_connections(self):
-        """Generate friends and friend requests"""
+        """Generate friends and friend requests."""
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 2000"
         )
@@ -514,7 +504,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_matches(self, matches_per_day: int = 5000):
-        """Generate match history"""
+        """Generate match history."""
         games = self.fetch_all(
             "SELECT game_id, min_players, max_players FROM games WHERE has_multiplayer = 1"
         )
@@ -696,7 +686,7 @@ class GamingPlatformGenerator(BaseGenerator):
             )
 
     def generate_tournaments(self):
-        """Generate tournaments and participants"""
+        """Generate tournaments and participants."""
         games = self.fetch_all("SELECT game_id FROM games WHERE has_competitive = 1")
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 1000"
@@ -793,7 +783,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_achievements(self):
-        """Generate achievements for games"""
+        """Generate achievements for games."""
         games = self.fetch_all("SELECT game_id FROM games")
 
         achievements = []
@@ -893,7 +883,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_virtual_items(self):
-        """Generate virtual items for games"""
+        """Generate virtual items for games."""
         games = self.fetch_all("SELECT game_id FROM games")
 
         items = []
@@ -1016,7 +1006,7 @@ class GamingPlatformGenerator(BaseGenerator):
             )
 
     def generate_player_inventory(self):
-        """Generate player inventory items"""
+        """Generate player inventory items."""
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 2000"
         )
@@ -1082,7 +1072,7 @@ class GamingPlatformGenerator(BaseGenerator):
             )
 
     def generate_marketplace(self):
-        """Generate marketplace listings"""
+        """Generate marketplace listings."""
         tradeable_items = self.fetch_all(
             "SELECT item_id, price FROM virtual_items WHERE is_marketable = 1"
         )
@@ -1167,7 +1157,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_chat_messages(self):
-        """Generate chat messages"""
+        """Generate chat messages."""
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 500"
         )
@@ -1248,7 +1238,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_leaderboards(self):
-        """Generate leaderboard entries"""
+        """Generate leaderboard entries."""
         # Get top players per game
         top_players = self.fetch_all(
             """
@@ -1300,7 +1290,7 @@ class GamingPlatformGenerator(BaseGenerator):
         )
 
     def generate_player_reports(self):
-        """Generate player reports for moderation"""
+        """Generate player reports for moderation."""
         players = self.fetch_all(
             "SELECT player_id FROM players WHERE account_status = 'active' LIMIT 1000"
         )
@@ -1360,7 +1350,7 @@ class GamingPlatformGenerator(BaseGenerator):
 
 
 def main():
-    """Main function to run the generator"""
+    """Run function to run the generator."""
     import argparse
 
     parser = argparse.ArgumentParser(

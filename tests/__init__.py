@@ -1,6 +1,6 @@
 # Testing Suite for MySQL Business-to-Schema
-"""
-Comprehensive testing framework including:
+"""Comprehensive testing framework including:.
+
 - Unit tests
 - Integration tests
 - E2E tests

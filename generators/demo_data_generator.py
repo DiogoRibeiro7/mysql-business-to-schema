@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""
-Demo Data Generator - Creates sample SQL files
+"""Handle operation.
+
 Works without requiring MySQL connection
 """
 
 import os
 import json
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from faker import Faker
-from typing import List, Dict
 import sys
 
 # Fix encoding for Windows
@@ -21,14 +20,15 @@ fake = Faker()
 
 
 class DemoDataGenerator:
-    """Generate demo SQL files for all schemas"""
+    """Generate demo SQL files for all schemas."""
 
     def __init__(self, output_dir: str = "demo_data"):
+        """Initialize the instance."""
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
 
     def generate_clinic_data(self, count: int = 100):
-        """Generate clinic data"""
+        """Generate clinic data."""
         print("Generating clinic data...")
 
         sql_lines = [
@@ -45,7 +45,7 @@ class DemoDataGenerator:
         ]
 
         values = []
-        for i in range(count):
+        for _ in range(count):
             street_address = fake.street_address().replace("'", "''")
             patient = (
                 f"('{fake.first_name()}', '{fake.last_name()}', "
@@ -67,7 +67,7 @@ class DemoDataGenerator:
         return output_file
 
     def generate_ecommerce_data(self, count: int = 100):
-        """Generate e-commerce data"""
+        """Generate e-commerce data."""
         print("Generating e-commerce data...")
 
         sql_lines = [
@@ -87,7 +87,7 @@ class DemoDataGenerator:
         # Generate products
         values = []
         categories = ["Electronics", "Clothing", "Books", "Home & Garden", "Sports"]
-        for i in range(count):
+        for _ in range(count):
             product_name = fake.catch_phrase().replace("'", "''")
             product_desc = fake.text(max_nb_chars=200).replace("'", "''")
             product = (
@@ -108,7 +108,7 @@ class DemoDataGenerator:
         )
 
         values = []
-        for i in range(count // 2):
+        for _ in range(count // 2):
             customer = (
                 f"('{fake.first_name()}', '{fake.last_name()}', "
                 f"'{fake.email()}', '{fake.phone_number()[:20]}', "
@@ -127,7 +127,7 @@ class DemoDataGenerator:
         return output_file
 
     def generate_iot_data(self, count: int = 100):
-        """Generate IoT sensor data"""
+        """Generate IoT sensor data."""
         print("Generating IoT data...")
 
         sql_lines = [
@@ -164,7 +164,7 @@ class DemoDataGenerator:
         )
 
         values = []
-        for i in range(count):
+        for _ in range(count):
             sensor_id = f"SENSOR_{random.randint(1, count//5):06d}"
             reading = (
                 f"('{sensor_id}', "
@@ -185,7 +185,7 @@ class DemoDataGenerator:
         return output_file
 
     def generate_all(self, records_per_schema: int = 100):
-        """Generate data for all main schemas"""
+        """Generate data for all main schemas."""
         print("\n" + "=" * 60)
         print("Demo Data Generation")
         print("=" * 60 + "\n")
@@ -237,7 +237,7 @@ class DemoDataGenerator:
 
 
 def main():
-    """Main execution"""
+    """Run execution."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate demo SQL data files")

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-FinTech Platform Data Generator
+"""FinTech Platform Data Generator.
+
 Generates realistic data for a financial technology platform with double-entry accounting,
 KYC/AML compliance, fraud detection, and complete transaction processing
 """
@@ -10,7 +10,7 @@ import json
 import random
 import hashlib
 import uuid
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
 from faker import Faker
@@ -40,8 +40,11 @@ CONFIG = {
 
 
 class FinTechGenerator:
+    """Represent FinTechGenerator."""
+
     def __init__(self):
         # Customer entities
+        """Initialize the instance."""
         self.customers: List[Any] = []
         self.individual_customers: List[Any] = []
         self.business_customers: List[Any] = []
@@ -114,9 +117,9 @@ class FinTechGenerator:
         self.gl_balances: Dict[str, Any] = {}
 
     def generate_all(self):
-        """Generate all fintech data"""
+        """Generate all fintech data."""
         print("Starting FinTech Platform Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Customers: {CONFIG['customers']}")
         print(
             f"  Individual/Business ratio: {CONFIG['individual_ratio']:.0%}/{1-CONFIG['individual_ratio']:.0%}"
@@ -161,7 +164,7 @@ class FinTechGenerator:
         self.save_all()
 
     def setup_chart_of_accounts(self):
-        """Setup standard chart of accounts for double-entry bookkeeping"""
+        """Set up standard chart of accounts for double-entry bookkeeping."""
         print("Setting up chart of accounts...")
 
         # Standard accounts following accounting principles
@@ -237,7 +240,7 @@ class FinTechGenerator:
             self.gl_balances[account_code] = Decimal("0")
 
     def setup_currencies(self):
-        """Setup supported currencies"""
+        """Set up supported currencies."""
         print("Setting up currencies...")
 
         currencies_data = [
@@ -264,7 +267,7 @@ class FinTechGenerator:
             )
 
     def setup_risk_rules(self):
-        """Setup fraud detection and risk rules"""
+        """Set up fraud detection and risk rules."""
         print("Setting up risk rules...")
 
         rules = [
@@ -343,7 +346,7 @@ class FinTechGenerator:
             )
 
     def setup_fee_schedule(self):
-        """Setup fee schedule"""
+        """Set up fee schedule."""
         print("Setting up fee schedule...")
 
         fees = [
@@ -391,7 +394,7 @@ class FinTechGenerator:
             )
 
     def generate_customers(self):
-        """Generate customer data"""
+        """Generate customer data."""
         print(f"Generating {CONFIG['customers']} customers...")
 
         num_individual = int(CONFIG["customers"] * CONFIG["individual_ratio"])
@@ -525,7 +528,7 @@ class FinTechGenerator:
             )
 
     def generate_customer_addresses(self):
-        """Generate customer addresses"""
+        """Generate customer addresses."""
         print("Generating customer addresses...")
 
         for customer in self.customers:
@@ -569,7 +572,7 @@ class FinTechGenerator:
                 )
 
     def generate_kyc_documents(self):
-        """Generate KYC documents"""
+        """Generate KYC documents."""
         print("Generating KYC documents...")
 
         doc_types = [
@@ -621,7 +624,7 @@ class FinTechGenerator:
                     )
 
     def generate_accounts(self):
-        """Generate customer accounts"""
+        """Generate customer accounts."""
         print("Generating accounts...")
 
         for customer in self.customers:
@@ -719,7 +722,7 @@ class FinTechGenerator:
                 )
 
     def generate_payment_methods(self):
-        """Generate payment methods"""
+        """Generate payment methods."""
         print("Generating payment methods...")
 
         for customer in self.customers:
@@ -755,7 +758,7 @@ class FinTechGenerator:
                     )
 
     def generate_cards(self):
-        """Generate payment cards"""
+        """Generate payment cards."""
         print("Generating payment cards...")
 
         card_brands = ["Visa", "Mastercard", "Amex", "Discover"]
@@ -800,7 +803,7 @@ class FinTechGenerator:
                 self.cards.append(card)
 
     def generate_daily_transactions(self):
-        """Generate daily transactions with proper double-entry accounting"""
+        """Generate daily transactions with proper double-entry accounting."""
         print("Generating transactions and journal entries...")
 
         transaction_types = ["deposit", "withdrawal", "payment", "fee", "interest"]
@@ -940,7 +943,7 @@ class FinTechGenerator:
             current_date += timedelta(days=1)
 
     def generate_transfers(self):
-        """Generate account transfers"""
+        """Generate account transfers."""
         print("Generating transfers...")
 
         for _ in range(100):  # Generate 100 transfers
@@ -983,7 +986,7 @@ class FinTechGenerator:
                     "amount": amount,
                     "currency": "USD",
                     "transfer_date": transfer_time,
-                    "description": f"Transfer between accounts",
+                    "description": "Transfer between accounts",
                     "status": "completed",
                     "created_at": transfer_time,
                 }
@@ -1012,7 +1015,7 @@ class FinTechGenerator:
             )
 
     def generate_exchange_rates(self):
-        """Generate exchange rates"""
+        """Generate exchange rates."""
         print("Generating exchange rates...")
 
         base_rates = {
@@ -1052,7 +1055,7 @@ class FinTechGenerator:
             current_date += timedelta(days=1)
 
     def generate_loan_applications(self):
-        """Generate loan applications"""
+        """Generate loan applications."""
         print("Generating loan applications...")
 
         loan_purposes = [
@@ -1120,7 +1123,7 @@ class FinTechGenerator:
             )
 
     def generate_loan_accounts(self):
-        """Generate loan accounts for approved applications"""
+        """Generate loan accounts for approved applications."""
         print("Generating loan accounts...")
 
         approved_apps = [
@@ -1185,13 +1188,13 @@ class FinTechGenerator:
             )
 
     def calculate_monthly_payment(self, principal, rate, months):
-        """Calculate monthly loan payment"""
+        """Calculate monthly loan payment."""
         if rate == 0:
             return principal / months
         return (principal * rate * (1 + rate) ** months) / ((1 + rate) ** months - 1)
 
     def generate_aml_checks(self):
-        """Generate AML checks"""
+        """Generate AML checks."""
         print("Generating AML checks...")
 
         for customer in self.customers:
@@ -1224,7 +1227,7 @@ class FinTechGenerator:
                 check_date += timedelta(days=90)  # Quarterly checks
 
     def generate_fraud_alerts(self):
-        """Generate fraud alerts"""
+        """Generate fraud alerts."""
         print("Generating fraud alerts...")
 
         suspicious_transactions = random.sample(
@@ -1267,7 +1270,7 @@ class FinTechGenerator:
             )
 
     def generate_device_fingerprints(self):
-        """Generate device fingerprints"""
+        """Generate device fingerprints."""
         print("Generating device fingerprints...")
 
         device_types = ["ios", "android", "web"]
@@ -1315,7 +1318,7 @@ class FinTechGenerator:
                 )
 
     def generate_sar_reports(self):
-        """Generate Suspicious Activity Reports"""
+        """Generate Suspicious Activity Reports."""
         print("Generating SAR reports...")
 
         high_risk_customers = [
@@ -1354,7 +1357,7 @@ class FinTechGenerator:
             )
 
     def generate_notification_preferences(self):
-        """Generate notification preferences"""
+        """Generate notification preferences."""
         print("Generating notification preferences...")
 
         notification_types = ["transaction", "security", "marketing", "account_update"]
@@ -1387,7 +1390,7 @@ class FinTechGenerator:
                 )
 
     def generate_audit_logs(self):
-        """Generate audit logs"""
+        """Generate audit logs."""
         print("Generating audit logs...")
 
         actions = [
@@ -1432,7 +1435,7 @@ class FinTechGenerator:
             )
 
     def create_journal_entry(self, date, description, ref_type, ref_id, lines):
-        """Create journal entry with balanced debits and credits"""
+        """Create journal entry with balanced debits and credits."""
         self.journal_id += 1
 
         total_debits = sum(debit for _, debit, _ in lines)
@@ -1502,7 +1505,7 @@ class FinTechGenerator:
                     self.gl_balances[account_code] += credit - debit
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1548,17 +1551,17 @@ class FinTechGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nFinTech Platform Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nFinTech Platform Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nCustomers:")
+        print("\nCustomers:")
         print(f"  Total Customers: {len(self.customers)}")
         print(f"  Individual: {len(self.individual_customers)}")
         print(f"  Business: {len(self.business_customers)}")
         print(f"  KYC Documents: {len(self.kyc_documents)}")
 
-        print(f"\nAccounts:")
+        print("\nAccounts:")
         print(f"  Total Accounts: {len(self.accounts)}")
         print(
             f"  Checking: {len([a for a in self.accounts if a['account_type'] == 'checking'])}"
@@ -1570,12 +1573,12 @@ class FinTechGenerator:
             f"  Investment: {len([a for a in self.accounts if a['account_type'] == 'investment'])}"
         )
 
-        print(f"\nTransactions:")
+        print("\nTransactions:")
         print(f"  Total Transactions: {len(self.transactions):,}")
         print(f"  Transfers: {len(self.transfers)}")
         print(f"  Cards Issued: {len(self.cards)}")
 
-        print(f"\nAccounting:")
+        print("\nAccounting:")
         print(f"  Chart of Accounts: {len(self.chart_of_accounts)}")
         print(f"  Journal Entries: {len(self.journal_entries):,}")
         print(f"  Journal Lines: {len(self.journal_lines):,}")
@@ -1587,24 +1590,24 @@ class FinTechGenerator:
         print(f"  Total Credits: ${total_credits:,.2f}")
         print(f"  Balanced: {'YES' if total_debits == total_credits else 'NO'}")
 
-        print(f"\nLoans:")
+        print("\nLoans:")
         print(f"  Applications: {len(self.loan_applications)}")
         print(
-            f"  Approved: {len([l for l in self.loan_applications if l['status'] == 'approved'])}"
+            f"  Approved: {len([loan for loan in self.loan_applications if loan['status'] == 'approved'])}"
         )
         print(f"  Active Loans: {len(self.loan_accounts)}")
 
-        print(f"\nRisk & Compliance:")
+        print("\nRisk & Compliance:")
         print(f"  Risk Rules: {len(self.risk_rules)}")
         print(f"  Fraud Alerts: {len(self.fraud_alerts)}")
         print(f"  AML Checks: {len(self.aml_checks)}")
         print(f"  SAR Reports: {len(self.sar_reports)}")
 
-        print(f"\nAudit & Monitoring:")
+        print("\nAudit & Monitoring:")
         print(f"  Audit Logs: {len(self.audit_logs)}")
         print(f"  Device Fingerprints: {len(self.device_fingerprints)}")
 
-        print(f"\nFiles Generated: 26")
+        print("\nFiles Generated: 26")
 
 
 if __name__ == "__main__":

@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""
-Industrial IoT Manufacturing Data Generator
+"""Industrial IoT Manufacturing Data Generator.
+
 Generates realistic data for smart factory operations with IoT sensors, OEE metrics, and quality control
 """
 
 import csv
 import json
 import random
-import hashlib
-from datetime import datetime, timedelta, time
-from decimal import Decimal
+from datetime import datetime, timedelta
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -40,7 +37,10 @@ CONFIG = {
 
 
 class IndustrialIoTGenerator:
+    """Represent IndustrialIoTGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.factories: List[Any] = []
         self.production_lines: List[Any] = []
         self.machines: List[Any] = []
@@ -76,9 +76,9 @@ class IndustrialIoTGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all Industrial IoT data"""
+        """Generate all Industrial IoT data."""
         print("Starting Industrial IoT Manufacturing Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Factories: {CONFIG['factories']}")
         print(
             f"  Total production lines: {CONFIG['factories'] * CONFIG['lines_per_factory']}"
@@ -115,7 +115,7 @@ class IndustrialIoTGenerator:
         self.save_all()
 
     def generate_factories(self):
-        """Generate factory facilities"""
+        """Generate factory facilities."""
         print(f"Generating {CONFIG['factories']} factories...")
 
         factory_types = [
@@ -155,8 +155,8 @@ class IndustrialIoTGenerator:
             self.factories.append(factory)
 
     def generate_production_lines(self):
-        """Generate production lines for each factory"""
-        print(f"Generating production lines...")
+        """Generate production lines for each factory."""
+        print("Generating production lines...")
 
         line_types = ["assembly", "packaging", "processing", "testing", "mixed"]
 
@@ -207,8 +207,8 @@ class IndustrialIoTGenerator:
                 self.production_lines.append(line)
 
     def generate_machines(self):
-        """Generate machines for each production line"""
-        print(f"Generating machines...")
+        """Generate machines for each production line."""
+        print("Generating machines...")
 
         machine_types_by_line = {
             "assembly": [
@@ -295,8 +295,8 @@ class IndustrialIoTGenerator:
                 self.machines.append(machine)
 
     def generate_sensors(self):
-        """Generate IoT sensors for machines"""
-        print(f"Generating sensors...")
+        """Generate IoT sensors for machines."""
+        print("Generating sensors...")
 
         sensor_configs = {
             "temperature": {
@@ -398,7 +398,7 @@ class IndustrialIoTGenerator:
                 self.sensors.append(sensor)
 
     def generate_products(self):
-        """Generate product catalog"""
+        """Generate product catalog."""
         print(f"Generating {CONFIG['products']} products...")
 
         categories_by_factory = {
@@ -428,7 +428,7 @@ class IndustrialIoTGenerator:
             # Generate BOM (Bill of Materials)
             bom = []
             num_components = random.randint(3, 10)
-            for j in range(num_components):
+            for _ in range(num_components):
                 bom.append(
                     {
                         "component_id": f"CMP{random.randint(1000, 9999)}",
@@ -467,7 +467,7 @@ class IndustrialIoTGenerator:
             self.products.append(product)
 
     def generate_work_orders_and_runs(self):
-        """Generate work orders and production runs"""
+        """Generate work orders and production runs."""
         print("Generating work orders and production runs...")
 
         current_date = self.start_date
@@ -484,7 +484,11 @@ class IndustrialIoTGenerator:
                 # Select product and line
                 product = random.choice(self.products)
                 line = random.choice(
-                    [l for l in self.production_lines if l["status"] == "operational"]
+                    [
+                        line_item
+                        for line_item in self.production_lines
+                        if line_item["status"] == "operational"
+                    ]
                 )
 
                 # Plan production
@@ -567,7 +571,7 @@ class IndustrialIoTGenerator:
             current_date += timedelta(days=1)
 
     def generate_quality_inspections(self):
-        """Generate quality inspections and defects"""
+        """Generate quality inspections and defects."""
         print("Generating quality inspections...")
 
         defect_types = {
@@ -678,7 +682,7 @@ class IndustrialIoTGenerator:
                 self.defects.append(defect)
 
     def generate_maintenance(self):
-        """Generate maintenance schedules and records"""
+        """Generate maintenance schedules and records."""
         print("Generating maintenance schedules and records...")
 
         maintenance_types = ["preventive", "predictive", "corrective", "calibration"]
@@ -762,7 +766,7 @@ class IndustrialIoTGenerator:
                     self.maintenance_records.append(record)
 
     def generate_sensor_data_and_oee(self):
-        """Generate sensor readings and OEE metrics"""
+        """Generate sensor readings and OEE metrics."""
         print("Generating sensor data and OEE metrics (this may take a while)...")
 
         # Sample period for detailed generation
@@ -865,8 +869,7 @@ class IndustrialIoTGenerator:
                             self.sensor_readings.append(reading)
 
     def calculate_sensor_value(self, sensor, machine, is_running):
-        """Calculate realistic sensor value based on context"""
-
+        """Calculate realistic sensor value based on context."""
         if sensor["sensor_type"] == "temperature":
             # Base temperature depends on running state
             base_temp = 60 if is_running else 25
@@ -929,7 +932,7 @@ class IndustrialIoTGenerator:
         return value
 
     def generate_downtime_events(self):
-        """Generate downtime events"""
+        """Generate downtime events."""
         print("Generating downtime events...")
 
         reason_categories = [
@@ -976,7 +979,7 @@ class IndustrialIoTGenerator:
                 self.downtime_events.append(event)
 
     def generate_alerts(self):
-        """Generate system alerts"""
+        """Generate system alerts."""
         print("Generating alerts...")
 
         alert_configs = [
@@ -1076,7 +1079,7 @@ class IndustrialIoTGenerator:
             self.alerts.append(alert)
 
     def save_to_csv(self, table_name, data):
-        """Save data to CSV file"""
+        """Save data to CSV file."""
         if not data:
             return
 
@@ -1088,7 +1091,7 @@ class IndustrialIoTGenerator:
             writer.writerows(data)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         print("\nSaving data to CSV files...")
 
         OUTPUT_DIR.mkdir(exist_ok=True)
@@ -1121,7 +1124,7 @@ class IndustrialIoTGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
+        """Generate summary statistics."""
         # Calculate average OEE
         avg_oee = (
             sum(m["oee_percentage"] for m in self.oee_metrics) / len(self.oee_metrics)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Migration System Test Suite
+"""Migration System Test Suite.
+
 Tests the migration system with all database examples
 """
 
@@ -13,8 +13,6 @@ from pathlib import Path
 from datetime import datetime
 import logging
 
-# Add parent directory to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from migration_system.migration_manager import (
     MigrationManager,
     DatabaseType,
@@ -30,29 +28,30 @@ logger = logging.getLogger(__name__)
 
 
 class MigrationTester:
-    """Test suite for database migration system"""
+    """Test suite for database migration system."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.test_results = []
         self.examples_dir = Path("../")
         self.temp_dir = None
         self.manager = None
 
     def setup(self):
-        """Set up test environment"""
+        """Set up test environment."""
         # Create temporary directory for test migrations
         self.temp_dir = tempfile.mkdtemp(prefix="migration_test_")
         self.manager = MigrationManager(os.path.join(self.temp_dir, "migrations"))
         logger.info(f"Test environment created at: {self.temp_dir}")
 
     def teardown(self):
-        """Clean up test environment"""
+        """Clean up test environment."""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
             logger.info("Test environment cleaned up")
 
     def find_examples(self):
-        """Find all database examples"""
+        """Find all database examples."""
         examples = []
         for item in os.listdir(self.examples_dir):
             if item.startswith("example_") and os.path.isdir(self.examples_dir / item):
@@ -71,7 +70,7 @@ class MigrationTester:
         return examples
 
     def test_mysql_to_postgresql(self, example):
-        """Test MySQL to PostgreSQL migration"""
+        """Test MySQL to PostgreSQL migration."""
         test_name = f"MySQL->PostgreSQL: {example['name']}"
         logger.info(f"Testing {test_name}")
 
@@ -132,7 +131,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def test_mysql_to_mongodb(self, example):
-        """Test MySQL to MongoDB migration"""
+        """Test MySQL to MongoDB migration."""
         test_name = f"MySQL->MongoDB: {example['name']}"
         logger.info(f"Testing {test_name}")
 
@@ -180,7 +179,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def test_data_type_mapping(self):
-        """Test data type mapping functionality"""
+        """Test data type mapping functionality."""
         test_name = "Data Type Mapping"
         logger.info(f"Testing {test_name}")
 
@@ -245,7 +244,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def test_schema_parser(self, example):
-        """Test schema parsing functionality"""
+        """Test schema parsing functionality."""
         test_name = f"Schema Parser: {example['name']}"
         logger.info(f"Testing {test_name}")
 
@@ -288,7 +287,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def test_migration_metadata(self):
-        """Test migration metadata and listing"""
+        """Test migration metadata and listing."""
         test_name = "Migration Metadata"
         logger.info(f"Testing {test_name}")
 
@@ -352,7 +351,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def test_complex_schema_features(self):
-        """Test migration of complex schema features"""
+        """Test migration of complex schema features."""
         test_name = "Complex Schema Features"
         logger.info(f"Testing {test_name}")
 
@@ -434,7 +433,7 @@ class MigrationTester:
             logger.error(f"✗ {test_name} - FAILED: {e}")
 
     def run_all_tests(self):
-        """Run all migration tests"""
+        """Run all migration tests."""
         logger.info("=" * 60)
         logger.info("MIGRATION SYSTEM TEST SUITE")
         logger.info("=" * 60)
@@ -473,7 +472,7 @@ class MigrationTester:
         self.print_summary()
 
     def print_summary(self):
-        """Print test results summary"""
+        """Print test results summary."""
         logger.info("\n" + "=" * 60)
         logger.info("TEST RESULTS SUMMARY")
         logger.info("=" * 60)
@@ -520,7 +519,7 @@ class MigrationTester:
 
 
 def main():
-    """Run migration system tests"""
+    """Run migration system tests."""
     tester = MigrationTester()
     success = tester.run_all_tests()
 

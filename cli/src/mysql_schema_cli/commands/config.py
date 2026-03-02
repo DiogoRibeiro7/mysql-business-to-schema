@@ -1,4 +1,4 @@
-"""Config command - Configuration management"""
+"""Config command - Configuration management."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="config")
 def config_group():
     """Manage CLI configuration."""
-    pass
 
 
 @config_group.command(name="set")

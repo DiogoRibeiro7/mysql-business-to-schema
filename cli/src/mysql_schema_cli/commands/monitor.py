@@ -1,4 +1,4 @@
-"""Monitor command - System monitoring"""
+"""Monitor command - System monitoring."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="monitor")
 def monitor_group():
     """Monitor database performance and metrics."""
-    pass
 
 
 @monitor_group.command(name="status")

@@ -1,4 +1,4 @@
-"""Deploy command - Deployment management"""
+"""Deploy command - Deployment management."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="deploy")
 def deploy_group():
     """Deploy to various environments."""
-    pass
 
 
 @deploy_group.command(name="k8s")

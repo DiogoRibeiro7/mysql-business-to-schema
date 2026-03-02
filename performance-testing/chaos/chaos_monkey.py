@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""
-Chaos Monkey Implementation for MySQL Business-to-Schema
+"""Chaos Monkey Implementation for MySQL Business-to-Schema.
+
 Controlled chaos engineering for testing system resilience
 """
 
-import os
 import sys
 import time
 import random
@@ -13,9 +12,7 @@ import psutil
 import requests
 import threading
 import logging
-import json
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from dataclasses import dataclass
 from enum import Enum
 
@@ -44,7 +41,7 @@ docker_client = docker.from_env()
 
 
 class ChaosType(Enum):
-    """Types of chaos events"""
+    """Types of chaos events."""
 
     CONTAINER_KILL = "container_kill"
     CONTAINER_STOP = "container_stop"
@@ -65,7 +62,7 @@ class ChaosType(Enum):
 
 @dataclass
 class ChaosEvent:
-    """Chaos event configuration"""
+    """Chaos event configuration."""
 
     type: ChaosType
     target: str
@@ -76,9 +73,10 @@ class ChaosEvent:
 
 
 class ChaosMonkey:
-    """Main Chaos Monkey implementation"""
+    """Run Chaos Monkey implementation."""
 
     def __init__(self, config_path: str = "chaos_config.yaml"):
+        """Initialize the instance."""
         self.config = self.load_config(config_path)
         self.active_events = []
         self.docker_client = docker_client
@@ -86,7 +84,7 @@ class ChaosMonkey:
         self.dry_run = self.config.get("dry_run", True)
 
     def load_config(self, config_path: str) -> Dict:
-        """Load configuration from YAML file"""
+        """Load configuration from YAML file."""
         try:
             with open(config_path, "r") as f:
                 return yaml.safe_load(f)
@@ -95,7 +93,7 @@ class ChaosMonkey:
             return self.get_default_config()
 
     def get_default_config(self) -> Dict:
-        """Get default chaos configuration"""
+        """Get default chaos configuration."""
         return {
             "enabled": True,
             "dry_run": True,
@@ -130,7 +128,7 @@ class ChaosMonkey:
         }
 
     def get_target_containers(self) -> List[docker.models.containers.Container]:
-        """Get list of target containers based on patterns"""
+        """Get list of target containers based on patterns."""
         all_containers = self.docker_client.containers.list()
         target_containers = []
 
@@ -152,7 +150,7 @@ class ChaosMonkey:
         return target_containers
 
     def trigger_chaos(self, event: ChaosEvent):
-        """Trigger a chaos event"""
+        """Trigger a chaos event."""
         if random.random() > event.probability:
             logger.debug(f"Skipping {event.type} (probability check failed)")
             return
@@ -221,7 +219,7 @@ class ChaosMonkey:
 
     # Container chaos methods
     def kill_container(self, event: ChaosEvent):
-        """Kill a container"""
+        """Kill a container."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would kill container: {event.target}")
             return
@@ -240,7 +238,7 @@ class ChaosMonkey:
             logger.error(f"Container not found: {event.target}")
 
     def stop_container(self, event: ChaosEvent):
-        """Stop a container gracefully"""
+        """Stop a container gracefully."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would stop container: {event.target}")
             return
@@ -258,7 +256,7 @@ class ChaosMonkey:
             logger.error(f"Container not found: {event.target}")
 
     def pause_container(self, event: ChaosEvent):
-        """Pause a container"""
+        """Pause a container."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would pause container: {event.target}")
             return
@@ -277,7 +275,7 @@ class ChaosMonkey:
 
     # Network chaos methods
     def add_network_delay(self, event: ChaosEvent):
-        """Add network delay to container"""
+        """Add network delay to container."""
         delay = event.metadata.get("delay", "100ms")
         variance = event.metadata.get("variance", "50ms")
 
@@ -303,7 +301,7 @@ class ChaosMonkey:
             logger.error(f"Failed to add network delay: {e}")
 
     def add_packet_loss(self, event: ChaosEvent):
-        """Add packet loss to container"""
+        """Add packet loss to container."""
         loss_percent = int(event.intensity * 100)
 
         if self.dry_run:
@@ -326,7 +324,7 @@ class ChaosMonkey:
             logger.error(f"Failed to add packet loss: {e}")
 
     def corrupt_packets(self, event: ChaosEvent):
-        """Corrupt network packets"""
+        """Corrupt network packets."""
         corrupt_percent = int(event.intensity * 10)  # Max 10% corruption
 
         if self.dry_run:
@@ -349,7 +347,7 @@ class ChaosMonkey:
             logger.error(f"Failed to corrupt packets: {e}")
 
     def create_network_partition(self, event: ChaosEvent):
-        """Create network partition between containers"""
+        """Create network partition between containers."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would partition network for {event.target}")
             return
@@ -359,7 +357,7 @@ class ChaosMonkey:
 
     # Resource stress methods
     def stress_cpu(self, event: ChaosEvent):
-        """Stress CPU resources"""
+        """Stress CPU resources."""
         cpu_percent = int(event.intensity * 100)
 
         if self.dry_run:
@@ -378,7 +376,7 @@ class ChaosMonkey:
             logger.error(f"Failed to stress CPU: {e}")
 
     def stress_memory(self, event: ChaosEvent):
-        """Stress memory resources"""
+        """Stress memory resources."""
         memory_percent = int(event.intensity * 80)  # Max 80% memory
 
         if self.dry_run:
@@ -401,7 +399,7 @@ class ChaosMonkey:
             logger.error(f"Failed to stress memory: {e}")
 
     def stress_disk(self, event: ChaosEvent):
-        """Stress disk I/O"""
+        """Stress disk I/O."""
         io_workers = int(event.intensity * 10)
 
         if self.dry_run:
@@ -422,7 +420,7 @@ class ChaosMonkey:
 
     # Database chaos methods
     def slow_database(self, event: ChaosEvent):
-        """Slow down database queries"""
+        """Slow down database queries."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would slow database queries for {event.target}")
             return
@@ -431,7 +429,7 @@ class ChaosMonkey:
         logger.info(f"Slowing database queries for {event.target}")
 
     def lock_database_tables(self, event: ChaosEvent):
-        """Lock database tables"""
+        """Lock database tables."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would lock database tables for {event.target}")
             return
@@ -441,7 +439,7 @@ class ChaosMonkey:
 
     # API chaos methods
     def add_api_latency(self, event: ChaosEvent):
-        """Add latency to API endpoints"""
+        """Add latency to API endpoints."""
         latency_ms = int(event.intensity * 5000)  # Max 5 seconds
 
         if self.dry_run:
@@ -452,7 +450,7 @@ class ChaosMonkey:
         logger.info(f"Adding {latency_ms}ms latency to API endpoints")
 
     def inject_api_errors(self, event: ChaosEvent):
-        """Inject API errors"""
+        """Inject API errors."""
         error_rate = int(event.intensity * 50)  # Max 50% error rate
 
         if self.dry_run:
@@ -463,7 +461,7 @@ class ChaosMonkey:
         logger.info(f"Injecting {error_rate}% API error rate")
 
     def flush_cache(self, event: ChaosEvent):
-        """Flush cache systems"""
+        """Flush cache systems."""
         if self.dry_run:
             logger.info(f"[DRY RUN] Would flush cache for {event.target}")
             return
@@ -478,7 +476,7 @@ class ChaosMonkey:
             logger.error(f"Failed to flush cache: {e}")
 
     def send_notification(self, event: ChaosEvent, status: str):
-        """Send notification about chaos event"""
+        """Send notification about chaos event."""
         webhook_url = self.config.get("notification_webhook")
         if not webhook_url:
             return
@@ -514,7 +512,7 @@ class ChaosMonkey:
             logger.error(f"Failed to send notification: {e}")
 
     def check_system_health(self) -> float:
-        """Check overall system health"""
+        """Check overall system health."""
         health_score = 100.0
 
         # Check container health
@@ -545,7 +543,7 @@ class ChaosMonkey:
         return health_score
 
     def run(self):
-        """Main execution loop"""
+        """Run execution loop."""
         logger.info("Chaos Monkey started")
         self.running = True
 
@@ -566,7 +564,7 @@ class ChaosMonkey:
             time.sleep(1)
 
     def trigger_random_chaos(self, event_config: Dict):
-        """Trigger a random chaos event"""
+        """Trigger a random chaos event."""
         if not self.config.get("enabled", True):
             return
 
@@ -599,7 +597,7 @@ class ChaosMonkey:
         thread.start()
 
     def stop(self):
-        """Stop Chaos Monkey"""
+        """Stop Chaos Monkey."""
         logger.info("Stopping Chaos Monkey")
         self.running = False
 

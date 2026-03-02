@@ -1,19 +1,17 @@
-"""
-API Gateway for MySQL Business-to-Schema
+"""API Gateway for MySQL Business-to-Schema.
+
 Central entry point for all microservices with routing, authentication, and rate limiting
 """
 
-from fastapi import FastAPI, HTTPException, Depends, Request, status
+from fastapi import FastAPI, HTTPException, Depends, Request, status, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse
 import httpx
-import asyncio
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, Set
 from datetime import datetime, timedelta
 import jwt
 import redis
-from functools import wraps
 import logging
 from pydantic import BaseModel, Field
 import json
@@ -43,13 +41,14 @@ app.add_middleware(
 
 # Security
 security = HTTPBearer()
+security_dep = Depends(security)
 
 # Redis for caching and rate limiting
 try:
     redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True)
     redis_client.ping()
     REDIS_AVAILABLE = True
-except:
+except Exception:
     logger.warning("Redis not available - caching and rate limiting disabled")
     REDIS_AVAILABLE = False
     redis_client = None
@@ -86,17 +85,23 @@ JWT_EXPIRATION_HOURS = 24
 
 # Request/Response Models
 class AuthRequest(BaseModel):
+    """Represent AuthRequest."""
+
     username: str
     password: str
 
 
 class AuthResponse(BaseModel):
+    """Represent AuthResponse."""
+
     access_token: str
     token_type: str = "bearer"
     expires_in: int = 86400
 
 
 class ServiceRequest(BaseModel):
+    """Represent ServiceRequest."""
+
     service: str
     endpoint: str
     method: str = "GET"
@@ -105,6 +110,8 @@ class ServiceRequest(BaseModel):
 
 
 class ServiceResponse(BaseModel):
+    """Represent ServiceResponse."""
+
     success: bool
     data: Optional[Any] = None
     error: Optional[str] = None
@@ -113,7 +120,7 @@ class ServiceResponse(BaseModel):
 
 # Authentication
 def create_token(username: str) -> str:
-    """Create JWT token"""
+    """Create JWT token."""
     payload = {
         "sub": username,
         "exp": datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
@@ -122,8 +129,8 @@ def create_token(username: str) -> str:
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
-def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> str:
-    """Verify JWT token"""
+def verify_token(credentials: HTTPAuthorizationCredentials = security_dep) -> str:
+    """Verify JWT token."""
     token = credentials.credentials
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
@@ -146,12 +153,15 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) 
 
 # Rate Limiting
 class RateLimiter:
+    """Represent RateLimiter."""
+
     def __init__(self, max_requests: int = 100, window_seconds: int = 60):
+        """Initialize the instance."""
         self.max_requests = max_requests
         self.window_seconds = window_seconds
 
     async def check_rate_limit(self, client_id: str) -> bool:
-        """Check if client has exceeded rate limit"""
+        """Check if client has exceeded rate limit."""
         if not REDIS_AVAILABLE:
             return True  # Allow if Redis not available
 
@@ -170,24 +180,30 @@ rate_limiter = RateLimiter()
 
 
 async def check_rate_limit(request: Request):
-    """Rate limit dependency"""
+    """Rate limit dependency."""
     client_id = request.client.host
     if not await rate_limiter.check_rate_limit(client_id):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail="Rate limit exceeded"
         )
 
+verify_token_dep = Depends(verify_token)
+rate_limit_dep = Depends(check_rate_limit)
+
 
 # Circuit Breaker
 class CircuitBreaker:
+    """Represent CircuitBreaker."""
+
     def __init__(self, failure_threshold: int = 5, recovery_timeout: int = 60):
+        """Initialize the instance."""
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failures = {}
         self.last_failure_time = {}
 
     async def call(self, service: str, func, *args, **kwargs):
-        """Execute function with circuit breaker"""
+        """Execute function with circuit breaker."""
         # Check if circuit is open
         if service in self.failures:
             if self.failures[service] >= self.failure_threshold:
@@ -222,7 +238,7 @@ circuit_breaker = CircuitBreaker()
 
 # Service Discovery
 async def discover_service(service_name: str) -> Dict[str, Any]:
-    """Discover service endpoint and health"""
+    """Discover service endpoint and health."""
     if service_name not in MICROSERVICES:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -240,7 +256,7 @@ async def discover_service(service_name: str) -> Dict[str, Any]:
             service["status"] = (
                 "healthy" if response.status_code == 200 else "unhealthy"
             )
-        except:
+        except Exception:
             service["status"] = "unavailable"
 
     return service
@@ -255,7 +271,7 @@ async def route_request(
     params: Optional[Dict] = None,
     headers: Optional[Dict] = None,
 ) -> Dict[str, Any]:
-    """Route request to appropriate microservice"""
+    """Route request to appropriate microservice."""
     service = await discover_service(service_name)
 
     if service["status"] != "healthy":
@@ -317,7 +333,7 @@ async def route_request(
 
 @app.get("/")
 async def root():
-    """API Gateway root endpoint"""
+    """Return API gateway metadata."""
     return {
         "name": "MySQL Business-to-Schema API Gateway",
         "version": "1.0.0",
@@ -328,7 +344,7 @@ async def root():
 
 @app.post("/auth/login", response_model=AuthResponse)
 async def login(auth: AuthRequest):
-    """Authenticate and get access token"""
+    """Authenticate and get access token."""
     # Simplified authentication - in production use proper auth service
     if auth.username == "admin" and auth.password == "password":
         token = create_token(auth.username)
@@ -340,7 +356,7 @@ async def login(auth: AuthRequest):
 
 @app.get("/health")
 async def health_check():
-    """Gateway health check"""
+    """Gateway health check."""
     services_health = {}
 
     for service_name in MICROSERVICES:
@@ -358,10 +374,10 @@ async def health_check():
 
 
 @app.post(
-    "/service", response_model=ServiceResponse, dependencies=[Depends(check_rate_limit)]
+    "/service", response_model=ServiceResponse, dependencies=[rate_limit_dep]
 )
-async def call_service(request: ServiceRequest, username: str = Depends(verify_token)):
-    """Route request to a microservice"""
+async def call_service(request: ServiceRequest, username: str = verify_token_dep):
+    """Route request to a microservice."""
     try:
         result = await route_request(
             service_name=request.service,
@@ -379,55 +395,55 @@ async def call_service(request: ServiceRequest, username: str = Depends(verify_t
 
 
 # Database Operations
-@app.get("/api/v1/databases", dependencies=[Depends(check_rate_limit)])
-async def list_databases(username: str = Depends(verify_token)):
-    """List all available database examples"""
+@app.get("/api/v1/databases", dependencies=[rate_limit_dep])
+async def list_databases(username: str = verify_token_dep):
+    """List all available database examples."""
     return await route_request("database", "/databases")
 
 
-@app.get("/api/v1/databases/{db_name}/schema", dependencies=[Depends(check_rate_limit)])
-async def get_database_schema(db_name: str, username: str = Depends(verify_token)):
-    """Get schema for specific database"""
+@app.get("/api/v1/databases/{db_name}/schema", dependencies=[rate_limit_dep])
+async def get_database_schema(db_name: str, username: str = verify_token_dep):
+    """Get schema for specific database."""
     return await route_request("database", f"/databases/{db_name}/schema")
 
 
 @app.post(
-    "/api/v1/databases/{db_name}/generate", dependencies=[Depends(check_rate_limit)]
+    "/api/v1/databases/{db_name}/generate", dependencies=[rate_limit_dep]
 )
 async def generate_data(
-    db_name: str, rows: int = 1000, username: str = Depends(verify_token)
+    db_name: str, rows: int = 1000, username: str = verify_token_dep
 ):
-    """Generate sample data for database"""
+    """Generate sample data for database."""
     return await route_request(
         "database", f"/databases/{db_name}/generate", method="POST", data={"rows": rows}
     )
 
 
 # ML Operations
-@app.post("/api/v1/ml/predict", dependencies=[Depends(check_rate_limit)])
+@app.post("/api/v1/ml/predict", dependencies=[rate_limit_dep])
 async def ml_predict(
-    model_name: str, data: Dict[str, Any], username: str = Depends(verify_token)
+    model_name: str, data: Dict[str, Any], username: str = verify_token_dep
 ):
-    """Make ML prediction"""
+    """Make ML prediction."""
     return await route_request(
         "ml", f"/models/{model_name}/predict", method="POST", data=data
     )
 
 
-@app.get("/api/v1/ml/models", dependencies=[Depends(check_rate_limit)])
-async def list_ml_models(username: str = Depends(verify_token)):
-    """List available ML models"""
+@app.get("/api/v1/ml/models", dependencies=[rate_limit_dep])
+async def list_ml_models(username: str = verify_token_dep):
+    """List available ML models."""
     return await route_request("ml", "/models")
 
 
-@app.post("/api/v1/ml/train", dependencies=[Depends(check_rate_limit)])
+@app.post("/api/v1/ml/train", dependencies=[rate_limit_dep])
 async def train_model(
     model_name: str,
     dataset: str,
     parameters: Optional[Dict] = None,
-    username: str = Depends(verify_token),
+    username: str = verify_token_dep,
 ):
-    """Train ML model"""
+    """Train ML model."""
     return await route_request(
         "ml",
         f"/models/{model_name}/train",
@@ -437,31 +453,31 @@ async def train_model(
 
 
 # Streaming Operations
-@app.post("/api/v1/streaming/publish", dependencies=[Depends(check_rate_limit)])
+@app.post("/api/v1/streaming/publish", dependencies=[rate_limit_dep])
 async def publish_to_stream(
-    topic: str, message: Dict[str, Any], username: str = Depends(verify_token)
+    topic: str, message: Dict[str, Any], username: str = verify_token_dep
 ):
-    """Publish message to streaming topic"""
+    """Publish message to streaming topic."""
     return await route_request(
         "streaming", f"/topics/{topic}/publish", method="POST", data=message
     )
 
 
-@app.get("/api/v1/streaming/topics", dependencies=[Depends(check_rate_limit)])
-async def list_streaming_topics(username: str = Depends(verify_token)):
-    """List available streaming topics"""
+@app.get("/api/v1/streaming/topics", dependencies=[rate_limit_dep])
+async def list_streaming_topics(username: str = verify_token_dep):
+    """List available streaming topics."""
     return await route_request("streaming", "/topics")
 
 
 # Analytics Operations
-@app.get("/api/v1/analytics/metrics", dependencies=[Depends(check_rate_limit)])
+@app.get("/api/v1/analytics/metrics", dependencies=[rate_limit_dep])
 async def get_metrics(
     database: Optional[str] = None,
     start_date: Optional[str] = None,
     end_date: Optional[str] = None,
-    username: str = Depends(verify_token),
+    username: str = verify_token_dep,
 ):
-    """Get analytics metrics"""
+    """Get analytics metrics."""
     params = {}
     if database:
         params["database"] = database
@@ -473,33 +489,37 @@ async def get_metrics(
     return await route_request("analytics", "/metrics", params=params)
 
 
-@app.get("/api/v1/analytics/dashboards", dependencies=[Depends(check_rate_limit)])
-async def list_dashboards(username: str = Depends(verify_token)):
-    """List available analytics dashboards"""
+@app.get("/api/v1/analytics/dashboards", dependencies=[rate_limit_dep])
+async def list_dashboards(username: str = verify_token_dep):
+    """List available analytics dashboards."""
     return await route_request("analytics", "/dashboards")
 
 
 # WebSocket support for real-time updates
-from fastapi import WebSocket, WebSocketDisconnect
-from typing import Set
 
 
 class ConnectionManager:
+    """Represent ConnectionManager."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.active_connections: Set[WebSocket] = set()
 
     async def connect(self, websocket: WebSocket):
+        """Handle connect."""
         await websocket.accept()
         self.active_connections.add(websocket)
 
     def disconnect(self, websocket: WebSocket):
+        """Handle disconnect."""
         self.active_connections.discard(websocket)
 
     async def broadcast(self, message: str):
+        """Handle broadcast."""
         for connection in self.active_connections:
             try:
                 await connection.send_text(message)
-            except:
+            except Exception:
                 # Connection closed, remove it
                 self.active_connections.discard(connection)
 
@@ -509,7 +529,7 @@ manager = ConnectionManager()
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for real-time updates"""
+    """Handle websocket updates."""
     await manager.connect(websocket)
     try:
         while True:
@@ -540,7 +560,7 @@ async def websocket_endpoint(websocket: WebSocket):
 # Error handlers
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exc: HTTPException):
-    """Custom HTTP exception handler"""
+    """Handle HTTP exceptions."""
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -553,7 +573,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 @app.exception_handler(Exception)
 async def general_exception_handler(request: Request, exc: Exception):
-    """General exception handler"""
+    """Handle unhandled exceptions."""
     logger.error(f"Unhandled exception: {exc}")
     return JSONResponse(
         status_code=500,
@@ -568,7 +588,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 # Startup and shutdown events
 @app.on_event("startup")
 async def startup_event():
-    """Initialize services on startup"""
+    """Initialize services on startup."""
     logger.info("API Gateway starting up...")
 
     # Check microservices health
@@ -581,7 +601,7 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Cleanup on shutdown"""
+    """Cleanup on shutdown."""
     logger.info("API Gateway shutting down...")
 
     # Close Redis connection

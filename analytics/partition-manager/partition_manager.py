@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""
-Partition Manager for MySQL Time-Series Data
+"""Partition Manager for MySQL Time-Series Data.
+
 Automatically manages partitions for optimal performance
 """
 
 import mysql.connector
 from mysql.connector import Error
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 import logging
 import json
 import yaml
@@ -15,16 +15,16 @@ from pathlib import Path
 
 
 class PartitionManager:
-    """Manages MySQL partitions for time-series data"""
+    """Manages MySQL partitions for time-series data."""
 
     def __init__(self, connection_params: Dict[str, any]):
-        """Initialize Partition Manager"""
+        """Initialize Partition Manager."""
         self.connection_params = connection_params
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO)
 
     def analyze_table(self, database: str, table: str) -> Dict:
-        """Analyze a table to determine if it needs partitioning"""
+        """Analyze a table to determine if it needs partitioning."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor(dictionary=True)
@@ -34,7 +34,7 @@ class PartitionManager:
 
             # Get table information
             cursor.execute(
-                f"""
+                """
                 SELECT
                     TABLE_ROWS as row_count,
                     DATA_LENGTH as data_size,
@@ -51,7 +51,7 @@ class PartitionManager:
 
             # Check if table has date/timestamp columns
             cursor.execute(
-                f"""
+                """
                 SELECT
                     COLUMN_NAME,
                     DATA_TYPE,
@@ -70,7 +70,7 @@ class PartitionManager:
 
             # Check if table is already partitioned
             cursor.execute(
-                f"""
+                """
                 SELECT
                     PARTITION_NAME,
                     PARTITION_EXPRESSION,
@@ -135,7 +135,7 @@ class PartitionManager:
     def create_partitions(
         self, database: str, table: str, partition_config: Dict
     ) -> bool:
-        """Create partitions for a table"""
+        """Create partitions for a table."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor()
@@ -172,7 +172,7 @@ class PartitionManager:
     def add_partition(
         self, database: str, table: str, partition_name: str, partition_value: str
     ) -> bool:
-        """Add a new partition to an existing partitioned table"""
+        """Add a new partition to an existing partitioned table."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor()
@@ -200,7 +200,7 @@ class PartitionManager:
             return False
 
     def drop_partition(self, database: str, table: str, partition_name: str) -> bool:
-        """Drop a partition from a table"""
+        """Drop a partition from a table."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor()
@@ -230,7 +230,7 @@ class PartitionManager:
         old_partitions: List[str],
         new_partition_config: Dict,
     ) -> bool:
-        """Reorganize existing partitions"""
+        """Reorganize existing partitions."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor()
@@ -267,7 +267,7 @@ class PartitionManager:
         retention_days: int = 365,
         future_partitions: int = 3,
     ) -> Dict:
-        """Automatically maintain partitions (add future, drop old)"""
+        """Automatically maintain partitions (add future, drop old)."""
         results = {"added": [], "dropped": [], "errors": []}
 
         try:
@@ -278,7 +278,7 @@ class PartitionManager:
 
             # Get current partitions
             cursor.execute(
-                f"""
+                """
                 SELECT
                     PARTITION_NAME,
                     PARTITION_DESCRIPTION,
@@ -358,7 +358,7 @@ class PartitionManager:
         return results
 
     def get_partition_statistics(self, database: str, table: str) -> List[Dict]:
-        """Get detailed statistics for each partition"""
+        """Get detailed statistics for each partition."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor(dictionary=True)
@@ -367,7 +367,7 @@ class PartitionManager:
 
             # Get partition information
             cursor.execute(
-                f"""
+                """
                 SELECT
                     p.PARTITION_NAME,
                     p.PARTITION_EXPRESSION,
@@ -440,7 +440,7 @@ class PartitionManager:
     def _generate_recommendations(
         self, table_info: Dict, date_columns: List, partitions: List, distribution: Dict
     ) -> Dict:
-        """Generate partitioning recommendations"""
+        """Generate partitioning recommendations."""
         recommendations = {
             "should_partition": False,
             "reasons": [],
@@ -507,7 +507,7 @@ class PartitionManager:
         return recommendations
 
     def _create_range_partitions(self, table: str, column: str, config: Dict) -> str:
-        """Create RANGE partition SQL"""
+        """Create RANGE partition SQL."""
         interval = config.get("interval", "MONTHLY")
         start_date = config.get("start_date", "2020-01-01")
         num_partitions = config.get("num_partitions", 24)
@@ -516,7 +516,7 @@ class PartitionManager:
         partitions = []
         current_date = datetime.strptime(start_date, "%Y-%m-%d")
 
-        for i in range(num_partitions):
+        for _ in range(num_partitions):
             if interval == "MONTHLY":
                 next_date = current_date + timedelta(days=30)
                 partition_name = f"p{current_date.strftime('%Y%m')}"
@@ -549,7 +549,7 @@ PARTITION BY RANGE (TO_DAYS({column}))
         """
 
     def _create_list_partitions(self, table: str, column: str, config: Dict) -> str:
-        """Create LIST partition SQL"""
+        """Create LIST partition SQL."""
         values_map = config["values_map"]
 
         partitions = []
@@ -568,7 +568,7 @@ PARTITION BY LIST ({column})
         """
 
     def _create_hash_partitions(self, table: str, column: str, config: Dict) -> str:
-        """Create HASH partition SQL"""
+        """Create HASH partition SQL."""
         num_partitions = config.get("num_partitions", 4)
 
         return f"""
@@ -578,7 +578,7 @@ PARTITIONS {num_partitions}
         """
 
     def _build_partition_definitions(self, config: Dict) -> str:
-        """Build partition definitions for reorganization"""
+        """Build partition definitions for reorganization."""
         definitions = []
 
         for partition in config["partitions"]:
@@ -596,20 +596,20 @@ PARTITIONS {num_partitions}
 
 
 class PartitionAutomation:
-    """Automated partition management with scheduling"""
+    """Automated partition management with scheduling."""
 
     def __init__(self, config_file: str):
-        """Initialize automation from config file"""
+        """Initialize automation from config file."""
         self.config_file = Path(config_file)
         self.load_config()
 
     def load_config(self):
-        """Load automation configuration"""
+        """Load automation configuration."""
         with open(self.config_file, "r") as f:
             self.config = yaml.safe_load(f)
 
     def run_maintenance(self):
-        """Run maintenance for all configured tables"""
+        """Run maintenance for all configured tables."""
         results = {}
 
         for db_config in self.config["databases"]:
@@ -634,7 +634,7 @@ class PartitionAutomation:
         return results
 
     def analyze_all_tables(self):
-        """Analyze all configured tables for partition recommendations"""
+        """Analyze all configured tables for partition recommendations."""
         results = {}
 
         for db_config in self.config["databases"]:
@@ -653,7 +653,7 @@ class PartitionAutomation:
 
 
 def create_example_config():
-    """Create example configuration file"""
+    """Create example configuration file."""
     config = {
         "databases": [
             {

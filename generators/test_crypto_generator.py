@@ -1,23 +1,16 @@
 #!/usr/bin/env python3
-"""
-Test script for Cryptocurrency Exchange Generator
+
+"""Test script for Cryptocurrency Exchange Generator.
 
 This script tests the generator with a small dataset to verify functionality.
 """
 
 import sys
-import os
-
-# Add current directory to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
-# Import the generator
-from cryptocurrency_exchange_generator import CryptocurrencyExchangeGenerator
+from generators.cryptocurrency_exchange_generator import CryptocurrencyExchangeGenerator
 
 
 def test_generator():
-    """Test the cryptocurrency exchange generator with small data"""
-
+    """Test the cryptocurrency exchange generator with small data."""
     print("=" * 70)
     print("CRYPTOCURRENCY EXCHANGE GENERATOR TEST")
     print("=" * 70)
@@ -369,9 +362,8 @@ def test_generator():
 if __name__ == "__main__":
     # Check for required packages
     try:
-        import mysql.connector
-        import faker
-    except ImportError as e:
+        pass
+    except ImportError:
         print("Missing required package!")
         print("Please install required packages:")
         print("  pip install mysql-connector-python faker")

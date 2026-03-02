@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Clinic Patient Data Generator
+"""Clinic Patient Data Generator.
+
 Generates realistic patient data with medical history
 """
 
@@ -14,7 +14,7 @@ fake = Faker()
 
 
 class MedicalProvider(BaseProvider):
-    """Custom provider for medical data"""
+    """Custom provider for medical data."""
 
     blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
 
@@ -71,18 +71,23 @@ class MedicalProvider(BaseProvider):
     ]
 
     def blood_type(self):
+        """Handle blood type."""
         return self.random_element(self.blood_types)
 
     def allergy(self):
+        """Handle allergy."""
         return self.random_element(self.allergies)
 
     def chronic_condition(self):
+        """Handle chronic condition."""
         return self.random_element(self.chronic_conditions)
 
     def medication(self):
+        """Handle medication."""
         return self.random_element(self.medications)
 
     def medical_specialty(self):
+        """Handle medical specialty."""
         return self.random_element(self.specialties)
 
 
@@ -91,13 +96,14 @@ fake.add_provider(MedicalProvider)
 
 
 class PatientGenerator:
-    """Generate comprehensive patient data"""
+    """Generate comprehensive patient data."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.fake = fake
 
     def generate_patients(self, count: int) -> List[Dict]:
-        """Generate patient records"""
+        """Generate patient records."""
         patients = []
 
         for i in range(count):
@@ -170,7 +176,7 @@ class PatientGenerator:
         return patients
 
     def generate_doctors(self, count: int) -> List[Dict]:
-        """Generate doctor records"""
+        """Generate doctor records."""
         doctors = []
 
         for i in range(count):
@@ -210,7 +216,7 @@ class PatientGenerator:
     def generate_appointments(
         self, count: int, patient_ids: List[str], doctor_ids: List[str]
     ) -> List[Dict]:
-        """Generate appointment records"""
+        """Generate appointment records."""
         appointments = []
         appointment_types = [
             "Consultation",
@@ -252,7 +258,7 @@ class PatientGenerator:
     def generate_medical_records(
         self, count: int, patient_ids: List[str], doctor_ids: List[str]
     ) -> List[Dict]:
-        """Generate medical record entries"""
+        """Generate medical record entries."""
         records = []
         diagnoses = [
             "Common Cold",
@@ -317,7 +323,7 @@ class PatientGenerator:
     def generate_prescriptions(
         self, count: int, patient_ids: List[str], doctor_ids: List[str]
     ) -> List[Dict]:
-        """Generate prescription records"""
+        """Generate prescription records."""
         prescriptions = []
         dosages = ["5mg", "10mg", "20mg", "50mg", "100mg", "250mg", "500mg"]
         frequencies = [
@@ -363,7 +369,7 @@ class PatientGenerator:
 
 
 def main():
-    """Test the generator"""
+    """Test the generator."""
     generator = PatientGenerator()
 
     # Generate sample data
@@ -374,8 +380,8 @@ def main():
     doctor_ids = [d["doctor_id"] for d in doctors]
 
     appointments = generator.generate_appointments(10, patient_ids, doctor_ids)
-    medical_records = generator.generate_medical_records(15, patient_ids, doctor_ids)
-    prescriptions = generator.generate_prescriptions(20, patient_ids, doctor_ids)
+    _ = generator.generate_medical_records(15, patient_ids, doctor_ids)
+    _ = generator.generate_prescriptions(20, patient_ids, doctor_ids)
 
     # Display sample
     print("Sample Patient:")

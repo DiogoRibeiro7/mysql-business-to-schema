@@ -1,0 +1,556 @@
+.\admin_dashboard\backend\app.py:993:1: D403 First word of the first line should be properly capitalized
+.\admin_dashboard\backend\index_advisor.py:194:17: C401 Unnecessary generator - rewrite as a set comprehension.
+.\admin_dashboard\backend\main.py:13:1: E402 module level import not at top of file
+.\admin_dashboard\backend\monitoring.py:273:128: E501 line too long (138 > 127 characters)
+.\admin_dashboard\backend\schema_manager.py:29:17: F841 local variable 'schema_dir' is assigned to but never used
+.\analytics\index-advisor\index_advisor.py:389:18: C401 Unnecessary generator - rewrite as a set comprehension.
+.\analytics\index-advisor\index_advisor.py:719:13: F841 local variable 'total_queries_affected' is assigned to but never used
+.\analytics\index-advisor\index_advisor.py:872:1: D401 First line should be in imperative mood; try rephrasing
+.\analytics\index-advisor\index_advisor.py:910:13: F841 local variable 'recommendations' is assigned to but never used
+.\analytics\partition-manager\partition_manager.py:519:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\analytics\query-manager\query_manager.py:294:26: C401 Unnecessary generator - rewrite as a set comprehension.
+.\api\gateway.py:131:62: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:332:1: D401 First line should be in imperative mood; try rephrasing
+.\api\gateway.py:375:65: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:395:42: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:401:61: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:410:53: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:421:60: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:430:42: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:440:21: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:454:58: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:463:49: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:474:21: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:489:43: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\gateway.py:495:1: E402 module level import not at top of file
+.\api\gateway.py:496:1: E402 module level import not at top of file
+.\api\gateway.py:530:1: D403 First word of the first line should be properly capitalized
+.\api\gateway.py:561:1: D401 First line should be in imperative mood; try rephrasing
+.\api\services\database_service.py:273:9: F841 local variable 'generator' is assigned to but never used
+.\api\services\ml_service.py:23:1: E402 module level import not at top of file
+.\api\services\ml_service.py:29:1: E402 module level import not at top of file
+.\api\services\ml_service.py:34:1: E402 module level import not at top of file
+.\api\services\ml_service.py:39:1: E402 module level import not at top of file
+.\api\services\ml_service.py:391:34: E203 whitespace before ':'
+.\api\services\ml_service.py:519:24: B008 Do not perform function calls in argument defaults.  The call is performed only once at function definition time. All calls to your function will reuse the result of that definition-time function call.  If this is intended, assign the function call to a module-level variable and use that variable as a default value.
+.\api\services\ml_service.py:622:1: E402 module level import not at top of file
+.\benchmarks\index_analyzer.py:192:21: B007 Loop control variable 'key' not used within the loop body. If this is intended, start the name with an underscore.
+.\benchmarks\index_analyzer.py:204:13: B007 Loop control variable 'key' not used within the loop body. If this is intended, start the name with an underscore.
+.\benchmarks\index_analyzer.py:240:13: B007 Loop control variable 'key' not used within the loop body. If this is intended, start the name with an underscore.
+.\benchmarks\index_analyzer.py:267:17: F841 local variable 'log_file' is assigned to but never used
+.\benchmarks\index_analyzer.py:273:35: C401 Unnecessary generator - rewrite as a set comprehension.
+.\benchmarks\index_analyzer.py:472:1: D401 First line should be in imperative mood; try rephrasing
+.\benchmarks\query_performance.py:389:1: D401 First line should be in imperative mood; try rephrasing
+.\benchmarks\regression_detector.py:445:1: D401 First line should be in imperative mood; try rephrasing
+.\benchmarks\regression_detector.py:464:13: F841 local variable 'baseline_file' is assigned to but never used
+.\benchmarks\regression_detector.py:465:13: F841 local variable 'current_file' is assigned to but never used
+.\cdc\consumers\cdc_consumer.py:372:16: C416 Unnecessary dict comprehension - rewrite using dict().
+.\cdc\consumers\cdc_consumer.py:417:1: D401 First line should be in imperative mood; try rephrasing
+.\cdc\consumers\cdc_consumer.py:424:25: B007 Loop control variable 'topic_partition' not used within the loop body. If this is intended, start the name with an underscore.
+.\cdc\consumers\cdc_consumer.py:515:1: D401 First line should be in imperative mood; try rephrasing
+.\cli\src\mysql_schema_cli\commands\backup.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\config.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\deploy.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\docker.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\generate.py:369:5: F841 local variable 'cli_context' is assigned to but never used
+.\cli\src\mysql_schema_cli\commands\generate.py:376:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\generate.py:380:5: F841 local variable 'cli_context' is assigned to but never used
+.\cli\src\mysql_schema_cli\commands\migrate.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\monitor.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\query.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\commands\schema.py:13:1: E302 expected 2 blank lines, found 1
+.\cli\src\mysql_schema_cli\core.py:251:1: D401 First line should be in imperative mood; try rephrasing
+.\cli\src\mysql_schema_cli\main.py:27:20: C408 Unnecessary dict call - rewrite as a literal.
+.\cli\src\mysql_schema_cli\main.py:67:1: D403 First word of the first line should be properly capitalized
+.\cli\src\mysql_schema_cli\main.py:256:1: D401 First line should be in imperative mood; try rephrasing
+.\data-pipeline\spark\apps\etl_job.py:75:1: D401 First line should be in imperative mood; try rephrasing
+.\data-pipeline\spark\apps\etl_job.py:90:1: D401 First line should be in imperative mood; try rephrasing
+.\data-pipeline\spark\apps\etl_job.py:108:1: D401 First line should be in imperative mood; try rephrasing
+.\data-pipeline\spark\apps\etl_job.py:136:1: D401 First line should be in imperative mood; try rephrasing
+.\data-pipeline\spark\apps\etl_job.py:514:9: F841 local variable 'patient_query' is assigned to but never used
+.\data-pipeline\spark\apps\etl_job.py:518:9: F841 local variable 'order_query' is assigned to but never used
+.\data-pipeline\spark\apps\etl_job.py:522:9: F841 local variable 'iot_query' is assigned to but never used
+.\data-pipeline\stream-processors\app.py:488:1: D401 First line should be in imperative mood; try rephrasing
+.\generate_graphql_all.py:19:1: E402 module level import not at top of file
+.\generate_graphql_all.py:20:1: E402 module level import not at top of file
+.\generate_graphql_all.py:647:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\GENERATOR_TEMPLATE.py:68:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\GENERATOR_TEMPLATE.py:388:35: E203 whitespace before ':'
+.\generators\GENERATOR_TEMPLATE.py:455:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\base_generator.py:115:31: E203 whitespace before ':'
+.\generators\clinic\generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\clinic\generator_refactored.py:20:1: E402 module level import not at top of file
+.\generators\clinic\generator_refactored.py:436:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\clinic\generator_refactored.py:552:5: F841 local variable 'data' is assigned to but never used
+.\generators\clinic\patient_generator.py:287:128: E501 line too long (163 > 127 characters)
+.\generators\clinic\patient_generator.py:383:5: F841 local variable 'medical_records' is assigned to but never used
+.\generators\clinic\patient_generator.py:384:5: F841 local variable 'prescriptions' is assigned to but never used
+.\generators\connection_pool.py:384:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\cryptocurrency_exchange_generator.py:18:1: E402 module level import not at top of file
+.\generators\cryptocurrency_exchange_generator.py:1090:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\demo_data_generator.py:44:128: E501 line too long (135 > 127 characters)
+.\generators\demo_data_generator.py:48:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\demo_data_generator.py:90:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\demo_data_generator.py:111:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\demo_data_generator.py:167:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\demo_data_generator.py:240:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\ecommerce\generate.py:372:50: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:372:73: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:372:96: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:446:67: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:446:71: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:446:95: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:477:75: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:477:79: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:477:103: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:504:84: E231 missing whitespace after ','
+.\generators\ecommerce\generate.py:555:13: F841 local variable 'month' is assigned to but never used
+.\generators\ecommerce\generator.py:326:59: E231 missing whitespace after ','
+.\generators\ecommerce\generator.py:326:83: E231 missing whitespace after ','
+.\generators\ecommerce\generator.py:326:107: E231 missing whitespace after ','
+.\generators\ecommerce\generator.py:1613:128: E501 line too long (149 > 127 characters)
+.\generators\ecommerce\test_generator.py:42:1: E402 module level import not at top of file
+.\generators\ecommerce\test_generator.py:45:1: E402 module level import not at top of file
+.\generators\ecommerce\test_generator.py:48:1: E402 module level import not at top of file
+.\generators\education\generator.py:243:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\education\generator.py:349:128: E501 line too long (138 > 127 characters)
+.\generators\education\generator.py:633:128: E501 line too long (128 > 127 characters)
+.\generators\education\generator.py:1007:13: F841 local variable 'course' is assigned to but never used
+.\generators\education\generator.py:1439:128: E501 line too long (128 > 127 characters)
+.\generators\event_ticketing\generator.py:257:128: E501 line too long (130 > 127 characters)
+.\generators\event_ticketing\generator.py:480:128: E501 line too long (136 > 127 characters)
+.\generators\event_ticketing\generator.py:482:128: E501 line too long (142 > 127 characters)
+.\generators\event_ticketing\generator.py:563:128: E501 line too long (134 > 127 characters)
+.\generators\event_ticketing\generator.py:902:128: E501 line too long (130 > 127 characters)
+.\generators\event_ticketing\generator.py:1125:21: B007 Loop control variable 'row_id' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\fintech\generate.py:290:128: E501 line too long (150 > 127 characters)
+.\generators\fintech\generator.py:167:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\fintech\generator.py:243:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\fintech\generator.py:270:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\fintech\generator.py:349:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\fintech\generator.py:1596:39: E741 ambiguous variable name 'l'
+.\generators\fintech\test_generator.py:10:1: E402 module level import not at top of file
+.\generators\fleet_management\generate.py:662:13: F841 local variable 'last_service_odometer' is assigned to but never used
+.\generators\fleet_management\generator.py:448:9: F841 local variable 'route_types' is assigned to but never used
+.\generators\fleet_management\generator.py:450:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\fleet_management\generator.py:512:9: F841 local variable 'geofence_types' is assigned to but never used
+.\generators\fleet_management\generator.py:821:128: E501 line too long (129 > 127 characters)
+.\generators\food_delivery_generator.py:16:1: E402 module level import not at top of file
+.\generators\food_delivery_generator.py:1169:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\gaming_platform_generator.py:16:1: E402 module level import not at top of file
+.\generators\gaming_platform_generator.py:307:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\gaming_platform_generator.py:1357:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\generate_additional_schemas.py:53:128: E501 line too long (158 > 127 characters)
+.\generators\generate_additional_schemas.py:75:128: E501 line too long (140 > 127 characters)
+.\generators\generate_additional_schemas.py:79:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_additional_schemas.py:95:128: E501 line too long (146 > 127 characters)
+.\generators\generate_additional_schemas.py:138:128: E501 line too long (153 > 127 characters)
+.\generators\generate_additional_schemas.py:161:128: E501 line too long (132 > 127 characters)
+.\generators\generate_additional_schemas.py:214:128: E501 line too long (168 > 127 characters)
+.\generators\generate_additional_schemas.py:244:128: E501 line too long (128 > 127 characters)
+.\generators\generate_additional_schemas.py:302:128: E501 line too long (180 > 127 characters)
+.\generators\generate_additional_schemas.py:354:128: E501 line too long (139 > 127 characters)
+.\generators\generate_additional_schemas.py:395:128: E501 line too long (154 > 127 characters)
+.\generators\generate_additional_schemas.py:425:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_additional_schemas.py:464:128: E501 line too long (157 > 127 characters)
+.\generators\generate_additional_schemas.py:601:128: E501 line too long (149 > 127 characters)
+.\generators\generate_additional_schemas.py:643:128: E501 line too long (130 > 127 characters)
+.\generators\generate_additional_schemas.py:664:128: E501 line too long (159 > 127 characters)
+.\generators\generate_additional_schemas.py:746:128: E501 line too long (133 > 127 characters)
+.\generators\generate_additional_schemas.py:765:128: E501 line too long (144 > 127 characters)
+.\generators\generate_additional_schemas.py:863:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\generate_all_data.py:295:27: E203 whitespace before ':'
+.\generators\generate_all_data.py:408:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\generate_remaining_schemas.py:78:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_remaining_schemas.py:144:128: E501 line too long (138 > 127 characters)
+.\generators\generate_remaining_schemas.py:148:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_remaining_schemas.py:303:128: E501 line too long (151 > 127 characters)
+.\generators\generate_remaining_schemas.py:351:128: E501 line too long (135 > 127 characters)
+.\generators\generate_remaining_schemas.py:407:128: E501 line too long (180 > 127 characters)
+.\generators\generate_remaining_schemas.py:411:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_remaining_schemas.py:511:128: E501 line too long (128 > 127 characters)
+.\generators\generate_remaining_schemas.py:520:128: E501 line too long (138 > 127 characters)
+.\generators\generate_remaining_schemas.py:688:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\generate_remaining_schemas.py:767:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\healthcare_iot\generator.py:267:17: B007 Loop control variable 'staff_num' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\healthcare_iot\generator.py:491:17: B007 Loop control variable 'device_num' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\hotel_chain_generator.py:16:1: E402 module level import not at top of file
+.\generators\hotel_chain_generator.py:1959:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\industrial_iot\generator.py:431:17: B007 Loop control variable 'j' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\industrial_iot\generator.py:487:28: E741 ambiguous variable name 'l'
+.\generators\industrial_iot\test_generator.py:30:1: E402 module level import not at top of file
+.\generators\insurance_generator.py:17:1: E402 module level import not at top of file
+.\generators\insurance_generator.py:879:66: E203 whitespace before ':'
+.\generators\insurance_generator.py:1440:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\insurance_generator.py:1918:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\iot_bins\generate.py:22:1: E402 module level import not at top of file
+.\generators\iot_bins\generate.py:718:25: F402 import 'date' from line 15 shadowed by loop variable
+.\generators\iot_bins\generate.py:954:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\iot_bins\generator.py:302:60: E231 missing whitespace after ','
+.\generators\iot_bins\generator.py:302:82: E231 missing whitespace after ','
+.\generators\iot_bins\generator.py:302:104: E231 missing whitespace after ','
+.\generators\iot_bins\generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\iot_bins\generator_refactored.py:20:1: E402 module level import not at top of file
+.\generators\iot_bins\generator_refactored.py:21:1: E402 module level import not at top of file
+.\generators\iot_bins\generator_refactored.py:220:60: E231 missing whitespace after ','
+.\generators\iot_bins\generator_refactored.py:220:82: E231 missing whitespace after ','
+.\generators\iot_bins\generator_refactored.py:220:104: E231 missing whitespace after ','
+.\generators\iot_bins\generator_refactored.py:480:51: E203 whitespace before ':'
+.\generators\iot_bins\generator_refactored.py:508:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\iot_bins\generator_refactored.py:617:9: F841 local variable 'data' is assigned to but never used
+.\generators\iot_bins\test_generator.py:30:1: E402 module level import not at top of file
+.\generators\logistics\generate.py:172:94: E228 missing whitespace around modulo operator
+.\generators\logistics\generate.py:175:43: E228 missing whitespace around modulo operator
+.\generators\logistics\generate.py:179:64: E231 missing whitespace after ','
+.\generators\logistics\generate.py:179:90: E231 missing whitespace after ','
+.\generators\logistics\generate.py:179:116: E231 missing whitespace after ','
+.\generators\logistics\generate.py:234:55: E231 missing whitespace after ','
+.\generators\logistics\generate.py:234:80: E231 missing whitespace after ','
+.\generators\logistics\generate.py:234:105: E231 missing whitespace after ','
+.\generators\logistics\generate.py:237:58: E231 missing whitespace after ','
+.\generators\logistics\generate.py:380:128: E501 line too long (136 > 127 characters)
+.\generators\logistics\generate.py:489:128: E501 line too long (142 > 127 characters)
+.\generators\logistics\generate.py:725:128: E501 line too long (140 > 127 characters)
+.\generators\logistics\generator.py:483:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\logistics\generator.py:517:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\logistics\generator.py:569:9: F841 local variable 'statuses' is assigned to but never used
+.\generators\logistics\generator.py:657:9: F841 local variable 'statuses' is assigned to but never used
+.\generators\logistics\generator.py:924:21: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\logistics\generator.py:956:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\logistics\generator.py:965:128: E501 line too long (198 > 127 characters)
+.\generators\logistics\generator.py:1000:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\logistics\generator.py:1057:21: F841 local variable 'route_orders' is assigned to but never used
+.\generators\logistics\generator.py:1167:9: F841 local variable 'movement_types' is assigned to but never used
+.\generators\optimizations.py:263:1: D401 First line should be in imperative mood
+.\generators\optimizations.py:316:23: E203 whitespace before ':'
+.\generators\postgres_base_generator.py:361:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\postgres_base_generator.py:439:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\real_estate\generator.py:381:128: E501 line too long (155 > 127 characters)
+.\generators\real_estate\generator.py:777:128: E501 line too long (139 > 127 characters)
+.\generators\real_estate\generator.py:778:128: E501 line too long (149 > 127 characters)
+.\generators\real_estate\generator.py:882:128: E501 line too long (138 > 127 characters)
+.\generators\real_estate\generator.py:1043:9: F841 local variable 'sold_count' is assigned to but never used
+.\generators\real_estate\generator.py:1131:21: E741 ambiguous variable name 'l'
+.\generators\real_estate\generator.py:1263:34: E741 ambiguous variable name 'l'
+.\generators\real_estate\generator.py:1559:29: E741 ambiguous variable name 'l'
+.\generators\real_estate\generator.py:1560:27: E741 ambiguous variable name 'l'
+.\generators\real_estate\generator.py:1561:30: E741 ambiguous variable name 'l'
+.\generators\real_estate\generator.py:1619:43: E741 ambiguous variable name 'l'
+.\generators\refactor_generators.py:243:128: E501 line too long (154 > 127 characters)
+.\generators\refactor_generators.py:305:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\refactored\clinic_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\clinic_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\clinic_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\clinic_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\clinic_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\clinic_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\clinic_generator_refactored.py:60:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\ecommerce_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\ecommerce_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\ecommerce_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\ecommerce_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\ecommerce_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\ecommerce_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\ecommerce_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\education_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\education_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\education_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\education_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\education_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\education_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\education_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\event_ticketing_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\event_ticketing_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\event_ticketing_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\event_ticketing_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\event_ticketing_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\event_ticketing_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\event_ticketing_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\fintech_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\fintech_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\fintech_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\fintech_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\fintech_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\fintech_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\fintech_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\fleet_management_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\fleet_management_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\fleet_management_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\fleet_management_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\fleet_management_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\fleet_management_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\fleet_management_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\healthcare_iot_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\healthcare_iot_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\healthcare_iot_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\healthcare_iot_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\healthcare_iot_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\healthcare_iot_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\healthcare_iot_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\industrial_iot_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\industrial_iot_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\industrial_iot_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\industrial_iot_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\industrial_iot_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\industrial_iot_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\industrial_iot_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\iot_bins_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\iot_bins_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\iot_bins_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\iot_bins_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\iot_bins_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\iot_bins_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\iot_bins_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\logistics_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\logistics_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\logistics_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\logistics_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\logistics_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\logistics_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\logistics_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\real_estate_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\real_estate_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\real_estate_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\real_estate_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\real_estate_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\real_estate_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\real_estate_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\smart_agriculture_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\smart_agriculture_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\smart_agriculture_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\smart_agriculture_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\smart_agriculture_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\smart_agriculture_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\smart_agriculture_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\smart_energy_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\smart_energy_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\smart_energy_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\smart_energy_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\smart_energy_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\smart_energy_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\smart_energy_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\social_media_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\social_media_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\social_media_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\social_media_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\social_media_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\social_media_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\social_media_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\refactored\streaming_ml_generator_refactored.py:12:1: E402 module level import not at top of file
+.\generators\refactored\streaming_ml_generator_refactored.py:15:1: E402 module level import not at top of file
+.\generators\refactored\streaming_ml_generator_refactored.py:16:1: E402 module level import not at top of file
+.\generators\refactored\streaming_ml_generator_refactored.py:17:1: E402 module level import not at top of file
+.\generators\refactored\streaming_ml_generator_refactored.py:18:1: E402 module level import not at top of file
+.\generators\refactored\streaming_ml_generator_refactored.py:22:1: E303 too many blank lines (3)
+.\generators\refactored\streaming_ml_generator_refactored.py:56:9: F841 local variable 'scale_config' is assigned to but never used
+.\generators\run_generators.py:303:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\smart_agriculture\generate.py:256:17: F841 local variable 'sensor_config' is assigned to but never used
+.\generators\smart_agriculture\generate.py:637:21: C401 Unnecessary generator - rewrite as a set comprehension.
+.\generators\smart_agriculture\generator.py:583:9: F841 local variable 'statuses' is assigned to but never used
+.\generators\smart_agriculture\generator.py:762:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\smart_agriculture\generator.py:787:9: F841 local variable 'system_types' is assigned to but never used
+.\generators\smart_agriculture\generator.py:954:13: F841 local variable 'system' is assigned to but never used
+.\generators\smart_energy\generate.py:138:17: B007 Loop control variable 'c' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\smart_energy\generate.py:197:17: B007 Loop control variable 'm' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\smart_energy\generate.py:209:60: E231 missing whitespace after ','
+.\generators\smart_energy\generate.py:209:82: E231 missing whitespace after ','
+.\generators\smart_energy\generate.py:209:104: E231 missing whitespace after ','
+.\generators\smart_energy\generator.py:995:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\smart_energy\generator.py:1122:128: E501 line too long (145 > 127 characters)
+.\generators\smart_energy\test_generator.py:31:1: E402 module level import not at top of file
+.\generators\social_media\generator.py:177:9: F841 local variable 'account_types' is assigned to but never used
+.\generators\social_media\generator.py:186:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\social_media\generator.py:455:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\social_media\generator.py:664:13: F841 local variable 'post_author' is assigned to but never used
+.\generators\social_media\generator.py:904:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\generators\social_media\generator.py:1150:9: F841 local variable 'notification_types' is assigned to but never used
+.\generators\social_media\generator.py:1210:9: F841 local variable 'activities' is assigned to but never used
+.\generators\social_media\test_generator.py:10:1: E402 module level import not at top of file
+.\generators\streaming_ml\generate.py:556:34: C401 Unnecessary generator - rewrite as a set comprehension.
+.\generators\streaming_ml\generate.py:874:1: D401 First line should be in imperative mood; try rephrasing
+.\generators\streaming_ml\generate.py:919:21: C401 Unnecessary generator - rewrite as a set comprehension.
+.\generators\streaming_ml\generate.py:939:128: E501 line too long (146 > 127 characters)
+.\generators\streaming_ml\generator.py:1425:9: F841 local variable 'entity_types' is assigned to but never used
+.\generators\test_crypto_generator.py:14:1: E402 module level import not at top of file
+.\generators\test_crypto_generator.py:371:5: F841 local variable 'e' is assigned to but never used
+.\generators\validators.py:155:9: F841 local variable 'checksum' is assigned to but never used
+.\graphql\graphql_generator_advanced.py:180:17: F402 import 'field' from line 18 shadowed by loop variable
+.\graphql\graphql_generator_advanced.py:342:17: F402 import 'field' from line 18 shadowed by loop variable
+.\graphql\graphql_generator_advanced.py:365:17: F402 import 'field' from line 18 shadowed by loop variable
+.\graphql\graphql_generator_advanced.py:422:17: F402 import 'field' from line 18 shadowed by loop variable
+.\graphql\graphql_generator_advanced.py:471:17: F402 import 'field' from line 18 shadowed by loop variable
+.\graphql\graphql_generator_advanced.py:528:25: B007 Loop control variable 'table_info' not used within the loop body. If this is intended, start the name with an underscore.
+.\graphql\graphql_generator_advanced.py:567:25: B007 Loop control variable 'table_info' not used within the loop body. If this is intended, start the name with an underscore.
+.\graphql\graphql_generator_advanced.py:569:13: F841 local variable 'singular' is assigned to but never used
+.\graphql\graphql_generator_advanced.py:700:9: F841 local variable 'schema' is assigned to but never used
+.\graphql\graphql_generator_advanced.py:719:1: D401 First line should be in imperative mood; try rephrasing
+.\graphql\resolver_generator.py:149:128: E501 line too long (130 > 127 characters)
+.\graphql\resolver_generator.py:157:25: B007 Loop control variable 'table_info' not used within the loop body. If this is intended, start the name with an underscore.
+.\graphql\resolver_generator.py:309:25: B007 Loop control variable 'table_info' not used within the loop body. If this is intended, start the name with an underscore.
+.\graphql\resolver_generator.py:482:13: F841 local variable 'type_name' is assigned to but never used
+.\migration_system\cli.py:500:25: E999 SyntaxError: invalid syntax. Perhaps you forgot a comma?
+.\migration_system\demo_migration.py:16:1: E402 module level import not at top of file
+.\migration_system\demo_migration.py:247:15: B007 Loop control variable 'dirs' not used within the loop body. If this is intended, start the name with an underscore.
+.\migration_system\migrate.py:23:1: E402 module level import not at top of file
+.\migration_system\migrate.py:24:1: E402 module level import not at top of file
+.\migration_system\migrate.py:313:1: D401 First line should be in imperative mood; try rephrasing
+.\migration_system\migrate.py:359:5: F841 local variable 'list_parser' is assigned to but never used
+.\migration_system\migration_cli.py:22:1: E402 module level import not at top of file
+.\migration_system\migration_cli.py:491:1: D401 First line should be in imperative mood; try rephrasing
+.\migration_system\migration_executor.py:367:1: D403 First word of the first line should be properly capitalized
+.\migration_system\migration_executor.py:369:1: D403 First word of the first line should be properly capitalized
+.\migration_system\migration_executor.py:371:1: D403 First word of the first line should be properly capitalized
+.\migration_system\migration_executor.py:555:1: D401 First line should be in imperative mood; try rephrasing
+.\migration_system\migration_manager.py:252:128: E501 line too long (163 > 127 characters)
+.\migration_system\migration_manager.py:253:128: E501 line too long (206 > 127 characters)
+.\migration_system\migration_manager.py:741:1: D401 First line should be in imperative mood; try rephrasing
+.\migration_system\test_migrations.py:18:1: E402 module level import not at top of file
+.\ml-platform\airflow\dags\ml_training_pipeline.py:576:5: F841 local variable 'data_type' is assigned to but never used
+.\ml-platform\feast\feature_repo\features.py:17:1: F811 redefinition of unused 'FileSource' from line 7
+.\ml\anomaly_detection.py:623:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\anomaly_detection.py:633:5: F841 local variable 'query_predictor' is assigned to but never used
+.\ml\anomaly_detection.py:634:5: F841 local variable 'forecaster' is assigned to but never used
+.\ml\healthcare_ml.py:14:1: E402 module level import not at top of file
+.\ml\healthcare_ml.py:550:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\iot_smart_city_ml.py:14:1: E402 module level import not at top of file
+.\ml\iot_smart_city_ml.py:256:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\iot_smart_city_ml.py:767:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\ml_pipeline.py:23:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:24:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:25:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:26:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:27:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:32:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:33:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:41:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:42:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:43:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:44:1: E402 module level import not at top of file
+.\ml\ml_pipeline.py:503:53: E203 whitespace before ':'
+.\ml\ml_pipeline.py:612:9: F841 local variable 'metrics' is assigned to but never used
+.\ml\ml_pipeline.py:644:9: F841 local variable 'metrics' is assigned to but never used
+.\ml\ml_pipeline.py:779:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\prediction_service.py:290:36: C401 Unnecessary generator - rewrite as a set comprehension.
+.\ml\prediction_service.py:473:1: D403 First word of the first line should be properly capitalized
+.\ml\social_streaming_ml.py:14:1: E402 module level import not at top of file
+.\ml\social_streaming_ml.py:59:128: E501 line too long (131 > 127 characters)
+.\ml\social_streaming_ml.py:707:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\ml\social_streaming_ml.py:720:1: D401 First line should be in imperative mood; try rephrasing
+.\ml\test_ml_pipeline.py:180:9: F841 local variable 'metrics' is assigned to but never used
+.\ml\test_ml_pipeline.py:261:9: F841 local variable 'metrics' is assigned to but never used
+.\ml\test_ml_pipeline.py:262:9: F841 local variable 'anomalies' is assigned to but never used
+.\ml\test_ml_pipeline.py:308:9: F841 local variable 'metrics' is assigned to but never used
+.\ml\test_ml_pipeline.py:407:9: F841 local variable 'metrics' is assigned to but never used
+.\observability\exporters\schema-exporter\exporter.py:286:1: D401 First line should be in imperative mood; try rephrasing
+.\observability\exporters\schema-exporter\exporter.py:304:1: D401 First line should be in imperative mood; try rephrasing
+.\performance-testing\chaos\chaos_monkey.py:546:1: D401 First line should be in imperative mood; try rephrasing
+.\performance-testing\coordinator\app.py:266:13: F841 local variable 'response' is assigned to but never used
+.\performance-testing\coordinator\app.py:277:13: F841 local variable 'metrics' is assigned to but never used
+.\performance-testing\coordinator\app.py:323:13: F841 local variable 'result' is assigned to but never used
+.\performance-testing\coordinator\app.py:475:9: F841 local variable 'metrics_df' is assigned to but never used
+.\performance-testing\locust\locustfile.py:134:1: D401 First line should be in imperative mood
+.\performance-testing\locust\locustfile.py:155:1: D401 First line should be in imperative mood
+.\performance-testing\locust\locustfile.py:605:1: D401 First line should be in imperative mood; try rephrasing
+.\run_benchmarks.py:498:16: E999 SyntaxError: invalid syntax. Perhaps you forgot a comma?
+.\run_tests.py:18:1: D403 First word of the first line should be properly capitalized
+.\run_tests.py:229:1: D402 First line should not be the function's "signature"
+.\run_tests.py:284:5: F841 local variable 'verbose' is assigned to but never used
+.\run_tests.py:305:5: F841 local variable 'verbose' is assigned to but never used
+.\run_tests.py:325:128: E501 line too long (142 > 127 characters)
+.\scripts\verify_data.py:61:128: E501 line too long (147 > 127 characters)
+.\scripts\verify_data.py:271:1: D401 First line should be in imperative mood; try rephrasing
+.\sdks\python\src\mysql_business_schema\cli.py:24:1: D403 First word of the first line should be properly capitalized
+.\sdks\python\src\mysql_business_schema\cli.py:192:1: D401 First line should be in imperative mood; try rephrasing
+.\sdks\python\src\mysql_business_schema\cli.py:347:13: F841 local variable 'result' is assigned to but never used
+.\sdks\python\src\mysql_business_schema\cli.py:385:1: D401 First line should be in imperative mood; try rephrasing
+.\sdks\python\src\mysql_business_schema\exceptions.py:7:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:18:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:26:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:34:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:45:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:58:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:71:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:84:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:95:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:108:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\exceptions.py:121:5: B042 Exception class with `__init__` should pass all args to `super().__init__()` in order to work with `copy.copy()`. It should also not take any kwargs.
+.\sdks\python\src\mysql_business_schema\migrations.py:56:9: F841 local variable 'checksum' is assigned to but never used
+.\streaming\stream_manager.py:90:13: F841 local variable 'result' is assigned to but never used
+.\streaming\stream_manager.py:104:13: F841 local variable 'result' is assigned to but never used
+.\streaming\streams\stream_processor.py:419:1: D401 First line should be in imperative mood; try rephrasing
+.\streaming\streams\stream_processor.py:426:1: D401 First line should be in imperative mood; try rephrasing
+.\streaming\streams\stream_processor.py:511:1: D401 First line should be in imperative mood; try rephrasing
+.\test_all_components.py:526:1: D401 First line should be in imperative mood; try rephrasing
+.\test_system.py:200:13: B007 Loop control variable 'root' not used within the loop body. If this is intended, start the name with an underscore.
+.\test_system.py:200:19: B007 Loop control variable 'dirs' not used within the loop body. If this is intended, start the name with an underscore.
+.\test_system.py:476:1: D401 First line should be in imperative mood; try rephrasing
+.\tests\chaos\test_chaos_engineering.py:23:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:35:17: F841 local variable 'extra_conn' is assigned to but never used
+.\tests\chaos\test_chaos_engineering.py:80:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:143:9: F841 local variable 'e' is assigned to but never used
+.\tests\chaos\test_chaos_engineering.py:168:25: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:268:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:321:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:403:21: F841 local variable 'result' is assigned to but never used
+.\tests\chaos\test_chaos_engineering.py:577:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\chaos\test_chaos_engineering.py:579:17: F841 local variable 'result' is assigned to but never used
+.\tests\conftest.py:46:1: D403 First word of the first line should be properly capitalized
+.\tests\conftest.py:69:1: D403 First word of the first line should be properly capitalized
+.\tests\conftest.py:83:1: D403 First word of the first line should be properly capitalized
+.\tests\conftest.py:126:1: D403 First word of the first line should be properly capitalized
+.\tests\conftest.py:207:1: D403 First word of the first line should be properly capitalized
+.\tests\conftest.py:267:1: D401 First line should be in imperative mood
+.\tests\e2e\test_web_demo.py:21:1: D401 First line should be in imperative mood; try rephrasing
+.\tests\e2e\test_web_demo.py:65:9: F841 local variable 'tables_container' is assigned to but never used
+.\tests\e2e\test_web_demo.py:96:9: F841 local variable 'results' is assigned to but never used
+.\tests\e2e\test_web_demo.py:171:1: D403 First word of the first line should be properly capitalized
+.\tests\e2e\test_web_demo.py:407:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\e2e\test_web_demo.py:448:1: D401 First line should be in imperative mood
+.\tests\performance\test_load.py:78:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\performance\test_load.py:209:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\performance\test_load.py:217:9: F841 local variable 'results' is assigned to but never used
+.\tests\performance\test_load.py:360:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\performance\test_load.py:491:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\performance\test_load.py:520:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tests\unit\test_generators.py:9:1: E402 module level import not at top of file
+.\tests\unit\test_generators.py:10:1: E402 module level import not at top of file
+.\tests\unit\test_generators.py:11:1: E402 module level import not at top of file
+.\tests\unit\test_generators.py:12:1: E402 module level import not at top of file
+.\tests\unit\test_generators.py:13:1: E402 module level import not at top of file
+.\tests\unit\test_generators.py:35:9: F841 local variable 'generator' is assigned to but never used
+.\tests\unit\test_generators.py:163:9: F841 local variable 'normal_data' is assigned to but never used
+.\tests\unit\test_generators.py:364:13: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:151:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:186:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:230:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:269:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:353:29: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark.py:463:128: E501 line too long (129 > 127 characters)
+.\tools\benchmark.py:545:9: F841 local variable 'e' is assigned to but never used
+.\tools\benchmark.py:612:1: D401 First line should be in imperative mood; try rephrasing
+.\tools\benchmark_generators.py:105:25: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\benchmark_generators.py:259:128: E501 line too long (128 > 127 characters)
+.\tools\benchmark_generators.py:353:1: D401 First line should be in imperative mood; try rephrasing
+.\tools\check_raw_exercises.py:1:1: D100 Missing docstring in public module
+.\tools\graphql_generator.py:396:13: F841 local variable 'single_name' is assigned to but never used
+.\tools\graphql_generator.py:478:1: D401 First line should be in imperative mood; try rephrasing
+.\tools\mysql_to_mongodb.py:352:29: C420 Unnecessary dict comprehension - rewrite using dict.fromkeys().
+.\tools\mysql_to_mongodb.py:379:29: C420 Unnecessary dict comprehension - rewrite using dict.fromkeys().
+.\tools\mysql_to_mongodb.py:620:1: D401 First line should be in imperative mood; try rephrasing
+.\tools\mysql_to_postgres.py:390:128: E501 line too long (162 > 127 characters)
+.\tools\mysql_to_postgres.py:511:1: D401 First line should be in imperative mood; try rephrasing
+.\tools\query_analyzer.py:76:17: B007 Loop control variable 'i' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\query_analyzer.py:365:17: B007 Loop control variable 'file_name' not used within the loop body. If this is intended, start the name with an underscore.
+.\tools\schema_validator.py:202:25: C401 Unnecessary generator - rewrite as a set comprehension.
+.\tools\test_runner.py:780:77: E231 missing whitespace after ','
+.\tools\test_runner.py:781:77: E231 missing whitespace after ','
+.\tools\test_runner.py:782:80: E231 missing whitespace after ','
+.\tools\update_badges.py:1:1: D100 Missing docstring in public module
+.\web_interface\analytics.py:15:1: E402 module level import not at top of file
+.\web_interface\analytics.py:16:1: E402 module level import not at top of file
+.\web_interface\analytics.py:394:128: E501 line too long (138 > 127 characters)
+.\web_interface\app.py:427:1: D401 First line should be in imperative mood; try rephrasing
+.\web_interface\app.py:559:1: D401 First line should be in imperative mood; try rephrasing
+.\web_interface\app.py:565:1: D401 First line should be in imperative mood; try rephrasing
+.\web_interface\app.py:615:1: D401 First line should be in imperative mood; try rephrasing
+.\web_interface\app.py:638:1: D401 First line should be in imperative mood

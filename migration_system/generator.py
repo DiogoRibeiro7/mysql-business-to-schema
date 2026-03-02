@@ -1,13 +1,9 @@
-"""
-Migration generator - automatically creates migrations from schema changes.
-"""
+"""Migration generator - automatically creates migrations from schema changes."""
 
-import difflib
 import re
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
-import mysql.connector
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,6 +13,7 @@ class SchemaInspector:
     """Inspects database schema structure."""
 
     def __init__(self, connection):
+        """Initialize the instance."""
         self.connection = connection
 
     def get_schema(self, database: Optional[str] = None) -> Dict[str, Any]:
@@ -199,13 +196,13 @@ class SchemaDiffer:
     """Compares two schemas and generates differences."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.differences = []
 
     def compare_schemas(
         self, source_schema: Dict[str, Any], target_schema: Dict[str, Any]
     ) -> List[Dict[str, Any]]:
-        """
-        Compare two schemas and return differences.
+        """Compare two schemas and return differences.
 
         Args:
             source_schema: Current database schema
@@ -466,9 +463,10 @@ class SchemaDiffer:
 
 
 class MigrationGenerator:
-    """Generates migration files from schema differences."""
+    """Generate migration files from schema differences."""
 
     def __init__(self, migrations_path: str = "migrations"):
+        """Initialize the instance."""
         self.migrations_path = Path(migrations_path)
         self.migrations_path.mkdir(exist_ok=True)
 
@@ -478,8 +476,7 @@ class MigrationGenerator:
         description: str,
         version: Optional[str] = None,
     ) -> Tuple[str, str]:
-        """
-        Generate migration from differences.
+        """Generate migration from differences.
 
         Args:
             differences: List of schema differences
@@ -781,8 +778,7 @@ class MigrationGenerator:
     def generate_from_sql_file(
         self, sql_file: Path, description: str, include_rollback: bool = False
     ) -> Tuple[str, str]:
-        """
-        Generate migration from SQL file.
+        """Generate migration from SQL file.
 
         Args:
             sql_file: Path to SQL file

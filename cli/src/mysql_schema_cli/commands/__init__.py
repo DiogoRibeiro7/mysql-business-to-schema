@@ -1,5 +1,4 @@
-"""
-CLI Commands Package
+"""CLI Commands Package.
 
 This module contains all command implementations for the MySQL Schema CLI.
 """

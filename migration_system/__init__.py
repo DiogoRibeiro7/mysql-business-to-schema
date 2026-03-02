@@ -1,5 +1,4 @@
-"""
-Database Migration System for MySQL Business-to-Schema.
+"""Database Migration System for MySQL Business-to-Schema.
 
 A comprehensive migration framework providing:
 - Version control for database schemas

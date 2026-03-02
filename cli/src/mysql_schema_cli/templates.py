@@ -1,8 +1,5 @@
-"""
-Template management for CLI
-"""
+"""Template management for CLI."""
 
-from pathlib import Path
 from jinja2 import Template
 
 

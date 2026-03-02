@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
-"""
-Main entry point for the Admin Dashboard FastAPI application
-"""
+"""Run entry point for the Admin Dashboard FastAPI application."""
 
 import uvicorn
 import logging
 from pathlib import Path
 import sys
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-# Import the FastAPI app from app.py
-from admin_dashboard.backend.app import app
 
 # Configure logging
 logging.basicConfig(
@@ -22,8 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    """Run the FastAPI application"""
+    """Run the FastAPI application."""
     logger.info("Starting Admin Dashboard Backend Server...")
+
+    # Add parent directory to path for imports
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+    # Import the FastAPI app from app.py
+    from admin_dashboard.backend.app import app
 
     # Configuration for uvicorn
     config = {

@@ -1,27 +1,21 @@
 #!/usr/bin/env python3
-"""
-Cryptocurrency Exchange Data Generator
+"""Cryptocurrency Exchange Data Generator.
 
 Generates realistic test data for the cryptocurrency exchange database.
 Includes users, KYC data, wallets, orders, trades, and market data.
 """
 
 import random
-import sys
-import os
 from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Any
 import hashlib
 import secrets
 
-# Add parent directory to path for base generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from generators.base_generator import BaseGenerator
 
 
 class CryptocurrencyExchangeGenerator(BaseGenerator):
-    """Generator for Cryptocurrency Exchange data"""
+    """Generator for Cryptocurrency Exchange data."""
 
     def __init__(
         self,
@@ -31,7 +25,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         password="crypto_pass_2024",
         database="crypto_exchange",
     ):
-        """Initialize the cryptocurrency exchange generator"""
+        """Initialize the cryptocurrency exchange generator."""
         super().__init__(host, port, user, password, database)
 
         # Cryptocurrency pairs and data
@@ -83,7 +77,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         self.volatility = {"BTC": 0.03, "ETH": 0.04, "default": 0.05}
 
     def generate_all_data(self, users: int = 10000, orders_per_user: int = 50):
-        """Generate all cryptocurrency exchange data"""
+        """Generate all cryptocurrency exchange data."""
         print("Starting Cryptocurrency Exchange data generation...")
 
         # Generate base data
@@ -122,7 +116,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         print("Generation complete!")
 
     def generate_users(self, count: int = 10000):
-        """Generate cryptocurrency exchange users"""
+        """Generate cryptocurrency exchange users."""
         users = []
 
         for i in range(count):
@@ -266,7 +260,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
             )
 
     def generate_kyc_data(self):
-        """Generate KYC verification data"""
+        """Generate KYC verification data."""
         # Get verified users
         verified_users = self.fetch_all(
             """
@@ -328,7 +322,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_currencies(self):
-        """Generate cryptocurrency and fiat currency data"""
+        """Generate cryptocurrency and fiat currency data."""
         currencies = []
 
         # Add cryptocurrencies
@@ -406,7 +400,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_trading_pairs(self):
-        """Generate trading pairs"""
+        """Generate trading pairs."""
         pairs = []
 
         for pair in self.trading_pairs[:50]:  # Limit to 50 most popular pairs
@@ -465,7 +459,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_wallets(self):
-        """Generate user wallets"""
+        """Generate user wallets."""
         users = self.fetch_all("SELECT user_id FROM users")
         currencies = self.fetch_all("SELECT symbol FROM currencies WHERE is_active = 1")
 
@@ -526,7 +520,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_price_history(self):
-        """Generate historical price data"""
+        """Generate historical price data."""
         pairs = self.fetch_all(
             "SELECT pair_id, symbol, base_currency FROM trading_pairs WHERE is_active = 1"
         )
@@ -619,7 +613,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
             )
 
     def generate_orders_and_trades(self, orders_per_user: int = 50):
-        """Generate orders and trades"""
+        """Generate orders and trades."""
         users = self.fetch_all(
             "SELECT user_id FROM users WHERE status = 'active' LIMIT 1000"
         )
@@ -808,7 +802,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
             )
 
     def generate_transactions(self):
-        """Generate deposit and withdrawal transactions"""
+        """Generate deposit and withdrawal transactions."""
         wallets = self.fetch_all(
             """
             SELECT w.*, u.user_id
@@ -904,7 +898,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_staking(self):
-        """Generate staking positions"""
+        """Generate staking positions."""
         # Only certain currencies support staking
         stakeable = ["ADA", "DOT", "SOL", "ATOM", "ALGO"]
 
@@ -950,7 +944,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_api_keys(self):
-        """Generate API keys for users"""
+        """Generate API keys for users."""
         users = self.fetch_all(
             "SELECT user_id FROM users WHERE kyc_verified = 1 LIMIT 100"
         )
@@ -1005,7 +999,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_notifications(self):
-        """Generate user notifications"""
+        """Generate user notifications."""
         users = self.fetch_all(
             "SELECT user_id FROM users WHERE status = 'active' LIMIT 500"
         )
@@ -1051,7 +1045,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
         )
 
     def generate_audit_logs(self):
-        """Generate audit logs"""
+        """Generate audit logs."""
         users = self.fetch_all("SELECT user_id FROM users LIMIT 200")
 
         audit_logs = []
@@ -1089,7 +1083,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
 
 
 def main():
-    """Main function to run the generator"""
+    """Run function to run the generator."""
     import argparse
 
     parser = argparse.ArgumentParser(

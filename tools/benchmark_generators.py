@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generator Performance Benchmarking Tool
+"""Generator Performance Benchmarking Tool.
 
 Benchmarks all data generators and produces performance reports.
 """
@@ -13,16 +12,17 @@ import argparse
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List
 import statistics
 import multiprocessing
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 
 class BenchmarkResult:
-    """Container for benchmark results"""
+    """Container for benchmark results."""
 
     def __init__(self, name: str):
+        """Initialize the instance."""
         self.name = name
         self.start_time = 0
         self.end_time = 0
@@ -34,6 +34,7 @@ class BenchmarkResult:
         self.output_lines = []
 
     def to_dict(self) -> Dict:
+        """Handle to dict."""
         return {
             "name": self.name,
             "duration": round(self.duration, 2),
@@ -48,7 +49,7 @@ class BenchmarkResult:
 def benchmark_generator(
     generator_path: Path, mode: str = "test", timeout: int = 300
 ) -> BenchmarkResult:
-    """Benchmark a single generator"""
+    """Benchmark a single generator."""
     generator_name = generator_path.name
     result = BenchmarkResult(generator_name)
 
@@ -101,7 +102,7 @@ def benchmark_generator(
                 ):
                     # Try to extract number
                     parts = line.split()
-                    for i, part in enumerate(parts):
+                    for _, part in enumerate(parts):
                         if part.replace(",", "").isdigit():
                             num = int(part.replace(",", ""))
                             # Check if this looks like a row count (not a year or ID)
@@ -127,9 +128,10 @@ def benchmark_generator(
 
 
 class BenchmarkSuite:
-    """Orchestrate benchmarking of all generators"""
+    """Orchestrate benchmarking of all generators."""
 
     def __init__(self, project_root: Path):
+        """Initialize the instance."""
         self.project_root = project_root
         self.generators_dir = project_root / "generators"
         self.results = []
@@ -137,7 +139,7 @@ class BenchmarkSuite:
         self.end_time = None
 
     def discover_generators(self) -> List[Path]:
-        """Find all generator directories"""
+        """Find all generator directories."""
         generators = []
         for item in self.generators_dir.iterdir():
             if item.is_dir() and not item.name.startswith("_"):
@@ -151,7 +153,7 @@ class BenchmarkSuite:
     def run(
         self, generators: List[str] = None, mode: str = "test", parallel: bool = False
     ):
-        """Run benchmarks"""
+        """Run benchmarks."""
         self.start_time = datetime.now()
 
         # Discover generators
@@ -183,7 +185,7 @@ class BenchmarkSuite:
         self._print_summary()
 
     def _run_sequential(self, generators: List[Path], mode: str):
-        """Run benchmarks one at a time"""
+        """Run benchmarks one at a time."""
         for i, gen_path in enumerate(generators, 1):
             gen_name = gen_path.name
             print(f"[{i}/{len(generators)}] Benchmarking {gen_name}...", end=" ")
@@ -199,7 +201,7 @@ class BenchmarkSuite:
                 )
 
     def _run_parallel(self, generators: List[Path], mode: str):
-        """Run benchmarks in parallel"""
+        """Run benchmarks in parallel."""
         max_workers = min(4, multiprocessing.cpu_count())
 
         with ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -222,7 +224,7 @@ class BenchmarkSuite:
                     print(f"[{completed}/{len(generators)}] {gen_name}: [ERROR] {e}")
 
     def _print_summary(self):
-        """Print benchmark summary"""
+        """Print benchmark summary."""
         duration = (self.end_time - self.start_time).total_seconds()
 
         print()
@@ -288,7 +290,7 @@ class BenchmarkSuite:
         self._save_results()
 
     def _save_results(self):
-        """Save results to JSON file"""
+        """Save results to JSON file."""
         output_dir = self.project_root / "benchmark_results"
         output_dir.mkdir(exist_ok=True)
 
@@ -308,7 +310,7 @@ class BenchmarkSuite:
         print(f"Results saved to: {output_file}")
 
     def compare_modes(self):
-        """Compare test vs production mode performance"""
+        """Compare test vs production mode performance."""
         print("Comparing Test vs Production Modes")
         print("=" * 60)
 
@@ -348,7 +350,7 @@ class BenchmarkSuite:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     parser = argparse.ArgumentParser(description="Benchmark MySQL data generators")
     parser.add_argument(
         "--generators", nargs="+", help="Specific generators to benchmark"

@@ -1,11 +1,11 @@
-"""
-Query Analyzer for Admin Dashboard
+"""Query Analyzer for Admin Dashboard.
+
 Analyzes and optimizes SQL queries
 """
 
 import logging
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime, timedelta
+from typing import List, Dict, Any
+from datetime import datetime
 import re
 import hashlib
 
@@ -13,16 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class QueryAnalyzer:
-    """Analyzes SQL queries for performance and optimization"""
+    """Analyze SQL queries for performance and optimization."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.query_cache = {}
         self.slow_query_threshold_ms = 100
         self.query_history = []
         self.optimization_rules = self._load_optimization_rules()
 
     def _load_optimization_rules(self) -> List[Dict[str, Any]]:
-        """Load query optimization rules"""
+        """Load query optimization rules."""
         return [
             {
                 "id": "missing_index",
@@ -57,7 +58,7 @@ class QueryAnalyzer:
         ]
 
     def analyze_query(self, query: str) -> Dict[str, Any]:
-        """Analyze a SQL query for performance issues"""
+        """Analyze a SQL query for performance issues."""
         query_hash = hashlib.md5(query.encode()).hexdigest()
 
         # Check cache
@@ -97,7 +98,7 @@ class QueryAnalyzer:
         return analysis
 
     def _detect_query_type(self, query: str) -> str:
-        """Detect the type of SQL query"""
+        """Detect the type of SQL query."""
         query_upper = query.strip().upper()
         if query_upper.startswith("SELECT"):
             return "SELECT"
@@ -117,7 +118,7 @@ class QueryAnalyzer:
             return "OTHER"
 
     def _extract_tables(self, query: str) -> List[str]:
-        """Extract table names from query"""
+        """Extract table names from query."""
         tables = []
 
         # Extract from FROM clause
@@ -133,7 +134,7 @@ class QueryAnalyzer:
         return list(set(tables))
 
     def _extract_columns(self, query: str) -> List[str]:
-        """Extract column names from query"""
+        """Extract column names from query."""
         columns = []
 
         # Extract from SELECT clause
@@ -158,7 +159,7 @@ class QueryAnalyzer:
         return list(set(columns))
 
     def _extract_conditions(self, query: str) -> List[str]:
-        """Extract WHERE conditions from query"""
+        """Extract WHERE conditions from query."""
         conditions = []
 
         where_pattern = r"WHERE\s+(.*?)(?:GROUP|ORDER|LIMIT|$)"
@@ -175,7 +176,7 @@ class QueryAnalyzer:
         return conditions
 
     def _estimate_cost(self, query: str) -> int:
-        """Estimate query cost (simplified)"""
+        """Estimate query cost (simplified)."""
         cost = 10  # Base cost
 
         # Add cost for joins
@@ -197,7 +198,7 @@ class QueryAnalyzer:
         return cost
 
     def _calculate_complexity(self, query: str) -> str:
-        """Calculate query complexity level"""
+        """Calculate query complexity level."""
         cost = self._estimate_cost(query)
 
         if cost < 30:
@@ -210,7 +211,7 @@ class QueryAnalyzer:
             return "very_complex"
 
     def get_slow_queries(self, limit: int = 10) -> List[Dict[str, Any]]:
-        """Get list of slow queries"""
+        """Get list of slow queries."""
         # Simulate slow queries for demo
         slow_queries = []
 
@@ -231,7 +232,7 @@ class QueryAnalyzer:
         return slow_queries
 
     def optimize_query(self, query: str) -> Dict[str, Any]:
-        """Suggest optimizations for a query"""
+        """Suggest optimizations for a query."""
         analysis = self.analyze_query(query)
 
         optimized_query = query
@@ -267,7 +268,7 @@ class QueryAnalyzer:
         }
 
     def get_query_plan(self, query: str) -> Dict[str, Any]:
-        """Get execution plan for a query (simulated)"""
+        """Get execution plan for a query (simulated)."""
         return {
             "query": query,
             "plan": {
@@ -288,7 +289,7 @@ class QueryAnalyzer:
         }
 
     def get_index_suggestions(self, schema_name: str) -> List[Dict[str, Any]]:
-        """Get index suggestions for a schema"""
+        """Get index suggestions for a schema."""
         suggestions = []
 
         # Analyze recent queries for this schema

@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-"""
-Index Effectiveness Analyzer
+"""Index Effectiveness Analyzer.
 
 This tool analyzes index usage and effectiveness across database schemas,
 providing recommendations for index optimization.
 """
 
 import mysql.connector
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 from dataclasses import dataclass, field
 from datetime import datetime
 import json
@@ -17,7 +16,7 @@ import statistics
 
 @dataclass
 class IndexStats:
-    """Statistics for a single index"""
+    """Statistics for a single index."""
 
     table_name: str
     index_name: str
@@ -31,7 +30,7 @@ class IndexStats:
     recommendations: List[str] = field(default_factory=list)
 
     def to_dict(self) -> Dict:
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization."""
         return {
             "table_name": self.table_name,
             "index_name": self.index_name,
@@ -47,9 +46,10 @@ class IndexStats:
 
 
 class IndexAnalyzer:
-    """Analyze index effectiveness and provide optimization recommendations"""
+    """Analyze index effectiveness and provide optimization recommendations."""
 
     def __init__(self, connection_params: Dict):
+        """Initialize the instance."""
         self.connection_params = connection_params
         self.connection = None
         self.cursor = None
@@ -59,7 +59,7 @@ class IndexAnalyzer:
         self.missing_indexes = []
 
     def connect(self) -> bool:
-        """Establish database connection"""
+        """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(**self.connection_params)
             self.cursor = self.connection.cursor(dictionary=True)
@@ -69,14 +69,14 @@ class IndexAnalyzer:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
             self.connection.close()
 
     def analyze_all_indexes(self) -> Dict:
-        """Perform comprehensive index analysis"""
+        """Perform comprehensive index analysis."""
         print("Starting index analysis...")
 
         # Collect all indexes
@@ -103,7 +103,7 @@ class IndexAnalyzer:
         return self._compile_report()
 
     def _collect_indexes(self):
-        """Collect all indexes from the database"""
+        """Collect all indexes from the database."""
         self.cursor.execute(
             """
             SELECT
@@ -132,7 +132,7 @@ class IndexAnalyzer:
             self.indexes[f"{row['TABLE_NAME']}.{row['INDEX_NAME']}"] = index_stats
 
     def _get_index_size(self, table_name: str, index_name: str) -> int:
-        """Get the size of an index in bytes"""
+        """Get the size of an index in bytes."""
         try:
             self.cursor.execute(
                 """
@@ -146,11 +146,11 @@ class IndexAnalyzer:
 
             result = self.cursor.fetchone()
             return result["SIZE_BYTES"] if result else 0
-        except:
+        except Exception:
             return 0
 
     def _analyze_index_usage(self):
-        """Analyze how often each index is being used"""
+        """Analyze how often each index is being used."""
         try:
             # Check if performance_schema is available
             self.cursor.execute(
@@ -189,7 +189,7 @@ class IndexAnalyzer:
                         )
 
                 # Find unused indexes
-                for key, index in self.indexes.items():
+                for _, index in self.indexes.items():
                     if index.usage_count == 0 and index.index_name != "PRIMARY":
                         self.unused_indexes.append(index)
         except Exception as e:
@@ -198,10 +198,10 @@ class IndexAnalyzer:
             )
 
     def _find_duplicate_indexes(self):
-        """Find duplicate or redundant indexes"""
+        """Find duplicate or redundant indexes."""
         index_signatures = {}
 
-        for key, index in self.indexes.items():
+        for _, index in self.indexes.items():
             # Create signature based on table and columns
             signature = f"{index.table_name}:{','.join(index.column_names)}"
 
@@ -236,8 +236,8 @@ class IndexAnalyzer:
                     )
 
     def _analyze_cardinality(self):
-        """Analyze index cardinality and selectivity"""
-        for key, index in self.indexes.items():
+        """Analyze index cardinality and selectivity."""
+        for _, index in self.indexes.items():
             # Get total row count
             self.cursor.execute(f"SELECT COUNT(*) as total FROM {index.table_name}")
             total_rows = self.cursor.fetchone()["total"]
@@ -255,7 +255,7 @@ class IndexAnalyzer:
                     )
 
     def _find_missing_indexes(self):
-        """Analyze slow query log to find potentially missing indexes"""
+        """Analyze slow query log to find potentially missing indexes."""
         try:
             # Check if slow query log is enabled
             self.cursor.execute("SHOW VARIABLES LIKE 'slow_query_log'")
@@ -264,19 +264,19 @@ class IndexAnalyzer:
             if slow_log and slow_log["Value"] == "ON":
                 # Get slow query log file location
                 self.cursor.execute("SHOW VARIABLES LIKE 'slow_query_log_file'")
-                log_file = self.cursor.fetchone()
+                _ = self.cursor.fetchone()
 
                 # Note: In production, you'd parse the slow query log
                 # For now, we'll check for common patterns
 
                 # Check for WHERE clauses without indexes
-                for table_name in set(idx.table_name for idx in self.indexes.values()):
+                for table_name in {idx.table_name for idx in self.indexes.values()}:
                     self._check_table_for_missing_indexes(table_name)
         except Exception as e:
             print(f"Warning: Could not analyze slow query log: {e}")
 
     def _check_table_for_missing_indexes(self, table_name: str):
-        """Check if a table might benefit from additional indexes"""
+        """Check if a table might benefit from additional indexes."""
         try:
             # Get columns that are frequently used in WHERE clauses
             # This is a simplified check - in production, analyze actual queries
@@ -319,7 +319,7 @@ class IndexAnalyzer:
             )
 
     def _calculate_efficiency_scores(self):
-        """Calculate efficiency score for each index"""
+        """Calculate efficiency score for each index."""
         for index in self.indexes.values():
             score = 0
 
@@ -347,7 +347,7 @@ class IndexAnalyzer:
             index.efficiency_score = min(score, 100)
 
     def _generate_recommendations(self):
-        """Generate specific recommendations for each index"""
+        """Generate specific recommendations for each index."""
         for index in self.indexes.values():
             # Unused indexes
             if index.usage_count == 0 and index.index_name != "PRIMARY":
@@ -368,7 +368,7 @@ class IndexAnalyzer:
                 )
 
     def _compile_report(self) -> Dict:
-        """Compile comprehensive analysis report"""
+        """Compile comprehensive analysis report."""
         report = {
             "timestamp": datetime.now().isoformat(),
             "database": self.connection_params["database"],
@@ -399,7 +399,7 @@ class IndexAnalyzer:
         return report
 
     def _get_top_recommendations(self) -> List[Dict]:
-        """Get top actionable recommendations"""
+        """Get top actionable recommendations."""
         recommendations = []
 
         # Recommend dropping unused indexes
@@ -441,7 +441,7 @@ class IndexAnalyzer:
         return recommendations
 
     def export_report(self, output_file: Path):
-        """Export analysis report to JSON file"""
+        """Export analysis report to JSON file."""
         report = self.analyze_all_indexes()
 
         with open(output_file, "w") as f:
@@ -469,7 +469,7 @@ class IndexAnalyzer:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     # Example usage
     connection_params = {
         "host": "localhost",

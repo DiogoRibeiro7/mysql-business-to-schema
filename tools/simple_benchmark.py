@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
-"""
-Simple Generator Benchmark - Tests all generators quickly
-"""
+"""Simple Generator Benchmark - Tests all generators quickly."""
 
-import os
 import sys
 import time
 import subprocess
@@ -12,7 +9,7 @@ from datetime import datetime
 
 
 def benchmark_generator(gen_path, timeout=30):
-    """Run a generator and measure its performance"""
+    """Run a generator and measure its performance."""
     gen_name = gen_path.name
     test_file = gen_path / "test_generator.py"
 
@@ -72,6 +69,7 @@ def benchmark_generator(gen_path, timeout=30):
 
 def main():
     # Get project root
+    """Handle main."""
     script_dir = Path(__file__).parent
     project_root = script_dir.parent
     generators_dir = project_root / "generators"
@@ -88,7 +86,7 @@ def main():
     print("MySQL Business-to-Schema - Quick Generator Benchmark")
     print("=" * 60)
     print(f"Found {len(generators)} generators")
-    print(f"Timeout: 30 seconds per generator")
+    print("Timeout: 30 seconds per generator")
     print("=" * 60)
     print()
 

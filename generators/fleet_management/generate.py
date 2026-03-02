@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Fleet Management Data Generator
+"""Fleet Management Data Generator.
 
 Generates realistic fleet tracking data including:
 - High-frequency GPS positions
@@ -18,15 +17,15 @@ import yaml
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
-import math
 from typing import List, Dict, Tuple, Any
-import uuid
 from faker import Faker
 
 
 class FleetManagementGenerator:
+    """Represent FleetManagementGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -62,7 +61,7 @@ class FleetManagementGenerator:
         self.dvir_id_counter = 1
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating Fleet Management data...")
 
         # Master data
@@ -94,7 +93,7 @@ class FleetManagementGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_depots(self):
-        """Generate depot/facility locations"""
+        """Generate depot/facility locations."""
         cities = self.config["geographic_distribution"]["cities"]
 
         for i in range(self.config["counts"]["depots"]):
@@ -120,7 +119,7 @@ class FleetManagementGenerator:
             self.depots.append(depot)
 
     def _generate_vehicles(self):
-        """Generate vehicle fleet"""
+        """Generate vehicle fleet."""
         vehicle_id = 1
 
         for _ in range(self.config["counts"]["vehicles"]):
@@ -195,7 +194,7 @@ class FleetManagementGenerator:
             vehicle_id += 1
 
     def _generate_drivers(self):
-        """Generate driver profiles"""
+        """Generate driver profiles."""
         driver_id = 1
 
         for _ in range(self.config["counts"]["drivers"]):
@@ -259,7 +258,7 @@ class FleetManagementGenerator:
             driver_id += 1
 
     def _generate_routes(self):
-        """Generate predefined routes"""
+        """Generate predefined routes."""
         route_id = 1
 
         for _ in range(self.config["counts"]["routes"]):
@@ -304,7 +303,7 @@ class FleetManagementGenerator:
             route_id += 1
 
     def _generate_trips(self):
-        """Generate trip records"""
+        """Generate trip records."""
         print("  Generating trips...")
 
         start_date = datetime.strptime(
@@ -385,7 +384,7 @@ class FleetManagementGenerator:
             current_date += timedelta(days=1)
 
     def _generate_trip_stops(self, trip: Dict, vehicle_type: str):
-        """Generate stops for a trip"""
+        """Generate stops for a trip."""
         stop_range = self.config["driving_patterns"]["stops_per_trip"].get(
             vehicle_type, [1, 5]
         )
@@ -431,7 +430,7 @@ class FleetManagementGenerator:
             self.stop_id_counter += 1
 
     def _generate_gps_positions(self):
-        """Generate high-frequency GPS tracking data"""
+        """Generate high-frequency GPS tracking data."""
         print("  Generating GPS positions (this may take a moment)...")
 
         gps_freq = self.config["counts"]["gps_frequency_seconds"]
@@ -519,7 +518,7 @@ class FleetManagementGenerator:
                 current_time += timedelta(seconds=gps_freq)
 
     def _generate_driver_events(self):
-        """Generate driver behavior events"""
+        """Generate driver behavior events."""
         print("  Generating driver events...")
 
         for trip in self.trips:
@@ -577,7 +576,7 @@ class FleetManagementGenerator:
                     self.event_id_counter += 1
 
     def _generate_engine_diagnostics(self):
-        """Generate OBD-II diagnostic data"""
+        """Generate OBD-II diagnostic data."""
         print("  Generating engine diagnostics...")
 
         for trip in self.trips[:100]:  # Limit for performance
@@ -619,7 +618,7 @@ class FleetManagementGenerator:
                 self.diagnostic_codes.append(dtc)
 
     def _generate_fuel_readings(self):
-        """Generate fuel consumption data"""
+        """Generate fuel consumption data."""
         print("  Generating fuel readings...")
 
         for trip in self.trips:
@@ -654,13 +653,13 @@ class FleetManagementGenerator:
                 current_time += timedelta(minutes=15)
 
     def _generate_maintenance_records(self):
-        """Generate maintenance history"""
+        """Generate maintenance history."""
         print("  Generating maintenance records...")
 
         for vehicle in self.vehicles:
             # Generate historical maintenance
             current_odometer = vehicle["current_odometer_km"]
-            last_service_odometer = vehicle["last_service_odometer_km"]
+            _ = vehicle["last_service_odometer_km"]
 
             # Oil changes
             oil_interval = self.config["maintenance"]["service_intervals"]["oil_change"]
@@ -692,7 +691,7 @@ class FleetManagementGenerator:
                 self.maintenance_id_counter += 1
 
     def _generate_compliance_data(self):
-        """Generate HOS and DVIR compliance data"""
+        """Generate HOS and DVIR compliance data."""
         print("  Generating compliance data...")
 
         for trip in self.trips:
@@ -753,7 +752,7 @@ class FleetManagementGenerator:
 
     # Helper methods
     def _get_city_coordinates(self, city_name: str) -> Tuple[float, float]:
-        """Get approximate coordinates for major cities"""
+        """Get approximate coordinates for major cities."""
         coords = {
             "New York": (40.7128, -74.0060),
             "Los Angeles": (34.0522, -118.2437),
@@ -769,15 +768,15 @@ class FleetManagementGenerator:
         return coords.get(city_name, (40.7128, -74.0060))
 
     def _generate_vin(self) -> str:
-        """Generate a valid-looking VIN"""
+        """Generate a valid-looking VIN."""
         return "".join(random.choices("ABCDEFGHJKLMNPRSTUVWXYZ0123456789", k=17))
 
     def _generate_plate(self) -> str:
-        """Generate a license plate number"""
+        """Generate a license plate number."""
         return f"{random.choice(['ABC', 'XYZ', 'DEF'])}-{random.randint(1000, 9999)}"
 
     def _get_vehicle_capacity(self, vehicle_type: str) -> int:
-        """Get vehicle cargo capacity in kg"""
+        """Get vehicle cargo capacity in kg."""
         capacities = {
             "delivery_van": 1500,
             "box_truck": 5000,
@@ -790,7 +789,7 @@ class FleetManagementGenerator:
     def _calculate_fuel_consumption(
         self, vehicle_type: str, distance_km: float
     ) -> float:
-        """Calculate fuel consumption for a trip"""
+        """Calculate fuel consumption for a trip."""
         mpg_range = self.config["fuel_consumption"]["mpg_ranges"].get(
             vehicle_type, [10, 15]
         )
@@ -799,7 +798,7 @@ class FleetManagementGenerator:
         return round((distance_km / 100) * liters_per_100km, 2)
 
     def _calculate_fuel_consumption_rate(self, vehicle_type: str) -> float:
-        """Calculate fuel consumption rate in liters per 15 minutes"""
+        """Calculate fuel consumption rate in liters per 15 minutes."""
         mpg_range = self.config["fuel_consumption"]["mpg_ranges"].get(
             vehicle_type, [10, 15]
         )
@@ -810,7 +809,7 @@ class FleetManagementGenerator:
         return (km_per_15min / 100) * liters_per_100km
 
     def _get_event_value(self, event_type: str) -> float:
-        """Get value for driver event"""
+        """Get value for driver event."""
         values = {
             "harsh_brake": random.uniform(-8, -4),  # deceleration m/s²
             "harsh_acceleration": random.uniform(4, 8),  # acceleration m/s²
@@ -821,7 +820,7 @@ class FleetManagementGenerator:
         return round(values.get(event_type, 0), 2)
 
     def _get_diagnostic_value(self, parameter: str, vehicle_id: int) -> float:
-        """Get diagnostic parameter value"""
+        """Get diagnostic parameter value."""
         values = {
             "engine_rpm": random.gauss(2000, 500),
             "vehicle_speed": random.uniform(0, 120),
@@ -835,7 +834,7 @@ class FleetManagementGenerator:
         return round(values.get(parameter, 0), 2)
 
     def _get_parameter_unit(self, parameter: str) -> str:
-        """Get unit for diagnostic parameter"""
+        """Get unit for diagnostic parameter."""
         units = {
             "engine_rpm": "rpm",
             "vehicle_speed": "km/h",
@@ -849,7 +848,7 @@ class FleetManagementGenerator:
         return units.get(parameter, "")
 
     def _get_dtc_description(self, dtc_code: str) -> str:
-        """Get description for diagnostic trouble code"""
+        """Get description for diagnostic trouble code."""
         descriptions = {
             "P0300": "Random/Multiple Cylinder Misfire Detected",
             "P0171": "System Too Lean (Bank 1)",
@@ -860,7 +859,7 @@ class FleetManagementGenerator:
         return descriptions.get(dtc_code, "Generic fault code")
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("depots", self.depots),
             ("vehicles", self.vehicles),
@@ -892,7 +891,7 @@ class FleetManagementGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated Fleet Management data
 -- Generated on {datetime.now()}
 
@@ -964,10 +963,11 @@ SELECT COUNT(*) as gps_count FROM gps_positions;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Fleet Management data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

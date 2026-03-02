@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-"""
-Test Script for the Four Additional Generators
+"""Test Script for the Four Additional Generators.
+
 Tests food delivery, gaming platform, insurance, and hotel chain generators
 """
 
 import sys
 import os
-import json
 import argparse
-from datetime import datetime
 
 # Add parent directory to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
 def test_generator(generator_name, generator_class, database_name, scale="test"):
-    """Test a single generator"""
+    """Test a single generator."""
     print(f"\n{'='*60}")
     print(f"Testing {generator_name} Generator")
     print("=" * 60)
@@ -67,19 +65,19 @@ def test_generator(generator_name, generator_class, database_name, scale="test")
 
         # Test data generation methods
         if hasattr(generator, "generate_all_data"):
-            print(f"[OK] Has generate_all_data() method")
+            print("[OK] Has generate_all_data() method")
 
             # Try to generate a small amount of test data
             if scale == "test":
                 # Just test that methods exist and can be called
                 if hasattr(generator, "connect"):
-                    print(f"[OK] Has connect() method")
+                    print("[OK] Has connect() method")
                 if hasattr(generator, "disconnect"):
-                    print(f"[OK] Has disconnect() method")
+                    print("[OK] Has disconnect() method")
                 if hasattr(generator, "bulk_insert"):
-                    print(f"[OK] Has bulk_insert() method")
+                    print("[OK] Has bulk_insert() method")
                 if hasattr(generator, "print_statistics"):
-                    print(f"[OK] Has print_statistics() method")
+                    print("[OK] Has print_statistics() method")
 
                 # Check for specific generation methods
                 methods_to_check = [
@@ -103,7 +101,7 @@ def test_generator(generator_name, generator_class, database_name, scale="test")
                 )
                 return True
         else:
-            print(f"[WARNING] Missing generate_all_data() method")
+            print("[WARNING] Missing generate_all_data() method")
             return False
 
     except ImportError as e:
@@ -115,7 +113,7 @@ def test_generator(generator_name, generator_class, database_name, scale="test")
 
 
 def test_all_missing_generators():
-    """Test all four missing generators"""
+    """Test all four missing generators."""
     print("=" * 60)
     print("TESTING MISSING GENERATORS")
     print("=" * 60)
@@ -179,7 +177,7 @@ def test_all_missing_generators():
 
 
 def demonstrate_generator_usage():
-    """Show how to use the generators"""
+    """Show how to use the generators."""
     print("\n" + "=" * 60)
     print("GENERATOR USAGE EXAMPLES")
     print("=" * 60)
@@ -243,6 +241,7 @@ def demonstrate_generator_usage():
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Test missing generators")
     parser.add_argument(
         "--generator",

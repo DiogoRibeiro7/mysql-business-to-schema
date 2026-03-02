@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-"""
-Performance Test Coordinator for MySQL Business-to-Schema
+"""Performance Test Coordinator for MySQL Business-to-Schema.
+
 Central coordination and reporting for all performance tests
 """
 
 import os
-import sys
 import time
 import json
 import uuid
 import threading
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, asdict
 from enum import Enum
@@ -18,12 +17,10 @@ from enum import Enum
 import docker
 import psycopg2
 import redis
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from prometheus_client import CollectorRegistry, Gauge, Counter, generate_latest
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
 from plotly.subplots import make_subplots
 
 # Initialize Flask app
@@ -52,7 +49,7 @@ test_status = Gauge(
 
 
 class TestType(Enum):
-    """Types of performance tests"""
+    """Types of performance tests."""
 
     LOCUST = "locust"
     K6 = "k6"
@@ -62,7 +59,7 @@ class TestType(Enum):
 
 
 class TestStatus(Enum):
-    """Test execution status"""
+    """Test execution status."""
 
     PENDING = "pending"
     RUNNING = "running"
@@ -73,7 +70,7 @@ class TestStatus(Enum):
 
 @dataclass
 class TestConfiguration:
-    """Test configuration"""
+    """Test configuration."""
 
     test_id: str
     test_type: TestType
@@ -90,7 +87,7 @@ class TestConfiguration:
 
 @dataclass
 class TestResult:
-    """Test execution result"""
+    """Test execution result."""
 
     test_id: str
     status: TestStatus
@@ -102,15 +99,16 @@ class TestResult:
 
 
 class TestCoordinator:
-    """Main test coordinator"""
+    """Run test coordinator."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.active_tests = {}
         self.test_history = []
         self.init_database()
 
     def init_database(self):
-        """Initialize PostgreSQL database"""
+        """Initialize PostgreSQL database."""
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
 
@@ -162,7 +160,7 @@ class TestCoordinator:
         conn.close()
 
     def create_test(self, config: TestConfiguration) -> str:
-        """Create a new test run"""
+        """Create a new test run."""
         test_id = str(uuid.uuid4())
         config.test_id = test_id
 
@@ -204,7 +202,7 @@ class TestCoordinator:
         return test_id
 
     def run_test(self, test_id: str) -> TestResult:
-        """Execute a test run"""
+        """Execute a test run."""
         config = self.active_tests.get(test_id)
         if not config:
             raise ValueError(f"Test {test_id} not found")
@@ -233,7 +231,7 @@ class TestCoordinator:
         return result
 
     def run_locust_test(self, config: TestConfiguration) -> TestResult:
-        """Run Locust test"""
+        """Run Locust test."""
         try:
             # Start Locust master
             master = docker_client.containers.run(
@@ -265,7 +263,7 @@ class TestCoordinator:
             # Trigger test via API
             import requests
 
-            response = requests.post(
+            _ = requests.post(
                 f"http://{master.name}:8089/swarm",
                 json={
                     "user_count": config.users,
@@ -276,7 +274,7 @@ class TestCoordinator:
 
             # Monitor test
             start_time = datetime.utcnow()
-            metrics = self.monitor_locust_test(master, config.duration)
+            _ = self.monitor_locust_test(master, config.duration)
 
             # Stop test
             requests.get(f"http://{master.name}:8089/stop")
@@ -319,10 +317,10 @@ class TestCoordinator:
             )
 
     def run_k6_test(self, config: TestConfiguration) -> TestResult:
-        """Run K6 test"""
+        """Run K6 test."""
         try:
             # Run K6 container
-            result = docker_client.containers.run(
+            _ = docker_client.containers.run(
                 "grafana/k6",
                 command=f"run /scripts/load-test.js --duration {config.duration}s --vus {config.users}",
                 volumes={
@@ -338,7 +336,7 @@ class TestCoordinator:
             )
 
             # Parse results
-            with open(f"/opt/results/results.json", "r") as f:
+            with open("/opt/results/results.json", "r") as f:
                 k6_results = json.load(f)
 
             return TestResult(
@@ -363,22 +361,19 @@ class TestCoordinator:
             )
 
     def run_gatling_test(self, config: TestConfiguration) -> TestResult:
-        """Run Gatling test"""
+        """Run Gatling test."""
         # Implementation for Gatling
-        pass
 
     def run_jmeter_test(self, config: TestConfiguration) -> TestResult:
-        """Run JMeter test"""
+        """Run JMeter test."""
         # Implementation for JMeter
-        pass
 
     def run_custom_test(self, config: TestConfiguration) -> TestResult:
-        """Run custom test"""
+        """Run custom test."""
         # Implementation for custom tests
-        pass
 
     def monitor_locust_test(self, container, duration: int) -> Dict[str, Any]:
-        """Monitor running Locust test"""
+        """Monitor running Locust test."""
         metrics = []
         end_time = time.time() + duration
 
@@ -398,7 +393,7 @@ class TestCoordinator:
                         "users": stats.get("user_count", 0),
                     }
                 )
-            except:
+            except Exception:
                 pass
 
             time.sleep(5)
@@ -406,7 +401,7 @@ class TestCoordinator:
         return {"timeline": metrics}
 
     def update_test_status(self, test_id: str, status: TestStatus):
-        """Update test status"""
+        """Update test status."""
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
 
@@ -435,7 +430,7 @@ class TestCoordinator:
         test_status.labels(test_id=test_id).set(status.value == TestStatus.RUNNING)
 
     def store_test_results(self, result: TestResult):
-        """Store test results in database"""
+        """Store test results in database."""
         conn = psycopg2.connect(DATABASE_URL)
         cur = conn.cursor()
 
@@ -464,7 +459,7 @@ class TestCoordinator:
         conn.close()
 
     def generate_report(self, test_id: str) -> str:
-        """Generate test report"""
+        """Generate test report."""
         conn = psycopg2.connect(DATABASE_URL)
 
         # Get test info
@@ -477,7 +472,7 @@ class TestCoordinator:
         )
 
         # Get metrics
-        metrics_df = pd.read_sql(
+        _ = pd.read_sql(
             """
             SELECT * FROM test_metrics WHERE test_id = %s ORDER BY timestamp
         """,
@@ -525,13 +520,13 @@ coordinator = TestCoordinator()
 # Flask routes
 @app.route("/health")
 def health():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return jsonify({"status": "healthy"})
 
 
 @app.route("/api/tests", methods=["POST"])
 def create_test():
-    """Create new test"""
+    """Create new test."""
     data = request.json
 
     config = TestConfiguration(
@@ -555,7 +550,7 @@ def create_test():
 
 @app.route("/api/tests/<test_id>/run", methods=["POST"])
 def run_test(test_id):
-    """Run a test"""
+    """Run a test."""
     # Run in background thread
     thread = threading.Thread(target=coordinator.run_test, args=(test_id,))
     thread.start()
@@ -565,7 +560,7 @@ def run_test(test_id):
 
 @app.route("/api/tests/<test_id>/status")
 def get_test_status(test_id):
-    """Get test status"""
+    """Get test status."""
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
 
@@ -597,7 +592,7 @@ def get_test_status(test_id):
 
 @app.route("/api/tests/<test_id>/results")
 def get_test_results(test_id):
-    """Get test results"""
+    """Get test results."""
     conn = psycopg2.connect(DATABASE_URL)
 
     # Get metrics
@@ -619,14 +614,14 @@ def get_test_results(test_id):
 
 @app.route("/reports/<test_id>")
 def get_report(test_id):
-    """Get test report"""
+    """Get test report."""
     report_path = coordinator.generate_report(test_id)
     return send_file(report_path, mimetype="text/html")
 
 
 @app.route("/metrics")
 def metrics():
-    """Prometheus metrics endpoint"""
+    """Prometheus metrics endpoint."""
     return generate_latest(registry), 200, {"Content-Type": "text/plain"}
 
 

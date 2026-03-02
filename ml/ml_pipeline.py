@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Machine Learning Pipeline for MySQL Business-to-Schema
+"""Machine Learning Pipeline for MySQL Business-to-Schema.
 
 Provides ML capabilities for all database examples including:
 - Predictive analytics
@@ -12,21 +11,16 @@ Provides ML capabilities for all database examples including:
 """
 
 import os
-import sys
-import json
-import pickle
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Dict, List, Any, Optional, Tuple, Union
 from dataclasses import dataclass
 from enum import Enum
 import warnings
 
-warnings.filterwarnings("ignore")
-
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder, MinMaxScaler
 from sklearn.ensemble import (
     RandomForestClassifier,
@@ -34,7 +28,6 @@ from sklearn.ensemble import (
     IsolationForest,
 )
 from sklearn.cluster import KMeans, DBSCAN
-from sklearn.decomposition import PCA
 from sklearn.metrics import (
     accuracy_score,
     precision_recall_fscore_support,
@@ -42,18 +35,17 @@ from sklearn.metrics import (
     mean_absolute_error,
     r2_score,
     silhouette_score,
-    classification_report,
 )
 import xgboost as xgb
 import lightgbm as lgb
 from prophet import Prophet
 import joblib
 
+warnings.filterwarnings("ignore")
+
 # Deep Learning imports (optional)
 try:
-    import tensorflow as tf
-    from tensorflow import keras
-    from tensorflow.keras import layers, models, callbacks
+    from tensorflow.keras import layers, models
 
     DEEP_LEARNING_AVAILABLE = True
 except ImportError:
@@ -72,7 +64,7 @@ logger = logging.getLogger(__name__)
 
 
 class ModelType(Enum):
-    """Supported ML model types"""
+    """Supported ML model types."""
 
     CLASSIFICATION = "classification"
     REGRESSION = "regression"
@@ -85,7 +77,7 @@ class ModelType(Enum):
 
 @dataclass
 class ModelConfig:
-    """Configuration for ML models"""
+    """Configuration for ML models."""
 
     model_type: ModelType
     algorithm: str
@@ -98,7 +90,7 @@ class ModelConfig:
 
 @dataclass
 class ModelMetrics:
-    """Container for model performance metrics"""
+    """Container for model performance metrics."""
 
     model_name: str
     model_type: ModelType
@@ -115,10 +107,10 @@ class ModelMetrics:
 
 
 class MLPipeline:
-    """Base machine learning pipeline"""
+    """Base machine learning pipeline."""
 
     def __init__(self, config: ModelConfig):
-        """Initialize ML pipeline"""
+        """Initialize ML pipeline."""
         self.config = config
         self.model = None
         self.scaler = None
@@ -128,7 +120,7 @@ class MLPipeline:
         self.is_trained = False
 
     def preprocess_data(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        """Preprocess data for training"""
+        """Preprocess data for training."""
         logger.info("Preprocessing data...")
 
         # Handle missing values
@@ -153,7 +145,7 @@ class MLPipeline:
         return X, y
 
     def _handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Handle missing values in dataframe"""
+        """Handle missing values in dataframe."""
         # Numeric columns: fill with median
         numeric_columns = df.select_dtypes(include=[np.number]).columns
         df[numeric_columns] = df[numeric_columns].fillna(df[numeric_columns].median())
@@ -168,7 +160,7 @@ class MLPipeline:
         return df
 
     def _encode_categorical(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Encode categorical variables"""
+        """Encode categorical variables."""
         categorical_columns = df.select_dtypes(include=["object"]).columns
 
         for col in categorical_columns:
@@ -185,7 +177,7 @@ class MLPipeline:
         return df
 
     def train(self, df: pd.DataFrame) -> ModelMetrics:
-        """Train the model"""
+        """Train the model."""
         logger.info(f"Training {self.config.algorithm} model...")
 
         start_time = datetime.now()
@@ -236,7 +228,7 @@ class MLPipeline:
         return self.metrics
 
     def _initialize_model(self):
-        """Initialize the ML model based on configuration"""
+        """Initialize the ML model based on configuration."""
         if self.config.algorithm == "random_forest_classifier":
             return RandomForestClassifier(**self.config.hyperparameters)
         elif self.config.algorithm == "random_forest_regressor":
@@ -261,7 +253,7 @@ class MLPipeline:
     def _calculate_metrics(
         self, X_test: np.ndarray, y_test: np.ndarray
     ) -> Dict[str, float]:
-        """Calculate model performance metrics"""
+        """Calculate model performance metrics."""
         metrics = {}
 
         if self.config.model_type == ModelType.CLASSIFICATION and y_test is not None:
@@ -298,7 +290,7 @@ class MLPipeline:
         return metrics
 
     def _get_feature_importance(self) -> Optional[Dict[str, float]]:
-        """Get feature importance if available"""
+        """Get feature importance if available."""
         if hasattr(self.model, "feature_importances_"):
             importance = self.model.feature_importances_
             return {
@@ -308,7 +300,7 @@ class MLPipeline:
         return None
 
     def predict(self, df: pd.DataFrame) -> np.ndarray:
-        """Make predictions on new data"""
+        """Make predictions on new data."""
         if not self.is_trained:
             raise ValueError("Model must be trained before making predictions")
 
@@ -320,7 +312,7 @@ class MLPipeline:
             raise ValueError("Model does not support prediction")
 
     def save_model(self, path: str):
-        """Save trained model to disk"""
+        """Save trained model to disk."""
         if not self.is_trained:
             raise ValueError("Model must be trained before saving")
 
@@ -338,7 +330,7 @@ class MLPipeline:
         logger.info(f"Model saved to {path}")
 
     def load_model(self, path: str):
-        """Load trained model from disk"""
+        """Load trained model from disk."""
         with open(path, "rb") as f:
             model_data = joblib.load(f)
 
@@ -358,10 +350,10 @@ class MLPipeline:
 
 
 class RecommendationSystem(MLPipeline):
-    """Recommendation system using collaborative filtering"""
+    """Recommendation system using collaborative filtering."""
 
     def __init__(self, algorithm: str = "matrix_factorization"):
-        """Initialize recommendation system"""
+        """Initialize recommendation system."""
         config = ModelConfig(
             model_type=ModelType.RECOMMENDATION,
             algorithm=algorithm,
@@ -377,14 +369,14 @@ class RecommendationSystem(MLPipeline):
     def build_user_item_matrix(
         self, df: pd.DataFrame, user_col: str, item_col: str, rating_col: str
     ):
-        """Build user-item interaction matrix"""
+        """Build user-item interaction matrix."""
         self.user_item_matrix = df.pivot_table(
             index=user_col, columns=item_col, values=rating_col, fill_value=0
         )
         return self.user_item_matrix
 
     def train_collaborative_filtering(self, n_factors: int = 50):
-        """Train collaborative filtering model using matrix factorization"""
+        """Train collaborative filtering model using matrix factorization."""
         from sklearn.decomposition import NMF
 
         # Apply NMF for matrix factorization
@@ -403,7 +395,7 @@ class RecommendationSystem(MLPipeline):
     def get_recommendations(
         self, user_id: int, n_recommendations: int = 10
     ) -> List[Tuple[int, float]]:
-        """Get recommendations for a user"""
+        """Get recommendations for a user."""
         if user_id not in self.user_item_matrix.index:
             return []
 
@@ -429,10 +421,10 @@ class RecommendationSystem(MLPipeline):
 
 
 class AnomalyDetector(MLPipeline):
-    """Anomaly detection for fraud and outlier detection"""
+    """Anomaly detection for fraud and outlier detection."""
 
     def __init__(self, algorithm: str = "isolation_forest"):
-        """Initialize anomaly detector"""
+        """Initialize anomaly detector."""
         hyperparameters = {"contamination": 0.1, "random_state": 42}
 
         config = ModelConfig(
@@ -447,7 +439,7 @@ class AnomalyDetector(MLPipeline):
     def detect_anomalies(
         self, df: pd.DataFrame, sensitivity: float = 0.1
     ) -> pd.DataFrame:
-        """Detect anomalies in data"""
+        """Detect anomalies in data."""
         # Update contamination based on sensitivity
         self.config.hyperparameters["contamination"] = sensitivity
 
@@ -472,10 +464,10 @@ class AnomalyDetector(MLPipeline):
 
 
 class TimeSeriesForecaster:
-    """Time series forecasting using Prophet and LSTM"""
+    """Time series forecasting using Prophet and LSTM."""
 
     def __init__(self, algorithm: str = "prophet"):
-        """Initialize time series forecaster"""
+        """Initialize time series forecaster."""
         self.algorithm = algorithm
         self.model = None
         self.scaler = None
@@ -483,7 +475,7 @@ class TimeSeriesForecaster:
     def prepare_data(
         self, df: pd.DataFrame, date_col: str, value_col: str
     ) -> pd.DataFrame:
-        """Prepare data for time series forecasting"""
+        """Prepare data for time series forecasting."""
         # Prophet requires specific column names
         ts_df = df[[date_col, value_col]].copy()
         ts_df.columns = ["ds", "y"]
@@ -491,13 +483,13 @@ class TimeSeriesForecaster:
         return ts_df
 
     def train_prophet(self, df: pd.DataFrame, **kwargs):
-        """Train Prophet model"""
+        """Train Prophet model."""
         self.model = Prophet(**kwargs)
         self.model.fit(df)
         logger.info("Prophet model trained successfully")
 
     def train_lstm(self, df: pd.DataFrame, sequence_length: int = 30):
-        """Train LSTM model for time series"""
+        """Train LSTM model for time series."""
         if not DEEP_LEARNING_AVAILABLE:
             raise ImportError("TensorFlow is required for LSTM models")
 
@@ -508,7 +500,7 @@ class TimeSeriesForecaster:
         # Create sequences
         X, y = [], []
         for i in range(sequence_length, len(scaled_data)):
-            X.append(scaled_data[i - sequence_length : i, 0])
+            X.append(scaled_data[i - sequence_length: i, 0])
             y.append(scaled_data[i, 0])
 
         X, y = np.array(X), np.array(y)
@@ -534,7 +526,7 @@ class TimeSeriesForecaster:
         logger.info("LSTM model trained successfully")
 
     def forecast(self, periods: int) -> pd.DataFrame:
-        """Generate forecast"""
+        """Generate forecast."""
         if self.algorithm == "prophet":
             future = self.model.make_future_dataframe(periods=periods)
             forecast = self.model.predict(future)
@@ -547,10 +539,10 @@ class TimeSeriesForecaster:
 
 
 class CustomerSegmentation(MLPipeline):
-    """Customer segmentation using clustering algorithms"""
+    """Customer segmentation using clustering algorithms."""
 
     def __init__(self, algorithm: str = "kmeans", n_clusters: int = 5):
-        """Initialize customer segmentation"""
+        """Initialize customer segmentation."""
         hyperparameters = {"n_clusters": n_clusters, "random_state": 42}
 
         config = ModelConfig(
@@ -563,7 +555,7 @@ class CustomerSegmentation(MLPipeline):
         super().__init__(config)
 
     def segment_customers(self, df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
-        """Segment customers based on features"""
+        """Segment customers based on features."""
         # Set feature columns
         self.config.feature_columns = features
 
@@ -588,15 +580,16 @@ class CustomerSegmentation(MLPipeline):
 
 
 class EcommercePredictiveAnalytics:
-    """Predictive analytics for e-commerce"""
+    """Predictive analytics for e-commerce."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.churn_model = None
         self.ltv_model = None
         self.demand_forecaster = None
 
     def predict_churn(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Predict customer churn"""
+        """Predict customer churn."""
         # Feature engineering
         features = [
             "days_since_last_order",
@@ -616,7 +609,7 @@ class EcommercePredictiveAnalytics:
         )
 
         self.churn_model = MLPipeline(config)
-        metrics = self.churn_model.train(df)
+        _ = self.churn_model.train(df)
 
         # Add predictions
         df["churn_probability"] = self.churn_model.model.predict_proba(
@@ -626,7 +619,7 @@ class EcommercePredictiveAnalytics:
         return df
 
     def predict_ltv(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Predict customer lifetime value"""
+        """Predict customer lifetime value."""
         features = [
             "age",
             "order_count",
@@ -648,7 +641,7 @@ class EcommercePredictiveAnalytics:
         )
 
         self.ltv_model = MLPipeline(config)
-        metrics = self.ltv_model.train(df)
+        _ = self.ltv_model.train(df)
 
         # Add predictions
         df["predicted_ltv"] = self.ltv_model.predict(df)
@@ -657,14 +650,15 @@ class EcommercePredictiveAnalytics:
 
 
 class FintechFraudDetection:
-    """Fraud detection for fintech applications"""
+    """Fraud detection for fintech applications."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.fraud_detector = None
         self.risk_scorer = None
 
     def detect_fraud(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Detect fraudulent transactions"""
+        """Detect fraudulent transactions."""
         # Feature engineering
         df["hour"] = pd.to_datetime(df["transaction_time"]).dt.hour
         df["day_of_week"] = pd.to_datetime(df["transaction_time"]).dt.dayofweek
@@ -715,15 +709,15 @@ class FintechFraudDetection:
 
 
 class ModelServer:
-    """Model serving infrastructure"""
+    """Model serving infrastructure."""
 
     def __init__(self, model_registry_path: str = "./models"):
-        """Initialize model server"""
+        """Initialize model server."""
         self.model_registry_path = model_registry_path
         self.loaded_models = {}
 
     def register_model(self, model_name: str, model: MLPipeline, version: str = "v1"):
-        """Register a trained model"""
+        """Register a trained model."""
         model_path = os.path.join(
             self.model_registry_path, f"{model_name}_{version}.pkl"
         )
@@ -732,7 +726,7 @@ class ModelServer:
         logger.info(f"Model {model_name} version {version} registered")
 
     def load_model(self, model_name: str, version: str = "v1") -> MLPipeline:
-        """Load a registered model"""
+        """Load a registered model."""
         model_key = f"{model_name}_{version}"
 
         if model_key not in self.loaded_models:
@@ -754,7 +748,7 @@ class ModelServer:
     def predict(
         self, model_name: str, data: Union[pd.DataFrame, Dict], version: str = "v1"
     ):
-        """Make prediction using registered model"""
+        """Make prediction using registered model."""
         model = self.load_model(model_name, version)
 
         if isinstance(data, dict):
@@ -763,7 +757,7 @@ class ModelServer:
         return model.predict(data)
 
     def get_model_info(self, model_name: str, version: str = "v1") -> Dict:
-        """Get model information"""
+        """Get model information."""
         model = self.load_model(model_name, version)
 
         return {
@@ -782,8 +776,7 @@ class ModelServer:
 
 
 def main():
-    """Example usage of ML pipeline"""
-
+    """Handle operation."""
     # Generate sample data
     np.random.seed(42)
     n_samples = 1000

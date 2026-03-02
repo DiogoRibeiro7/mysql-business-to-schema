@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Real Estate Platform Data Generator
+"""Real Estate Platform Data Generator.
+
 Generates realistic sample data for the real estate database schema
 with market dynamics, seasonal patterns, and realistic property distributions
 """
@@ -8,13 +8,9 @@ with market dynamics, seasonal patterns, and realistic property distributions
 import random
 import json
 import csv
-import os
-import sys
-import math
 import argparse
 from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Tuple, Optional
-from decimal import Decimal
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 
 # Required: pip install faker
@@ -31,8 +27,10 @@ from faker.providers import (
 
 
 class RealEstateDataGenerator:
+    """Represent RealEstateDataGenerator."""
+
     def __init__(self, config_path: str = "config.json"):
-        """Initialize the generator with configuration"""
+        """Initialize the generator with configuration."""
         self.fake = Faker("en_US")
         self.fake.add_provider(person)
         self.fake.add_provider(address)
@@ -290,7 +288,7 @@ class RealEstateDataGenerator:
         ]
 
     def generate_location_hierarchy(self):
-        """Generate countries, states, cities, zip codes, and neighborhoods"""
+        """Generate countries, states, cities, zip codes, and neighborhoods."""
         # Generate country (USA)
         country_id = self.counters["country"]
         self.counters["country"] += 1
@@ -394,13 +392,13 @@ class RealEstateDataGenerator:
                     )
 
     def _calculate_neighborhood_price(self, city_median_income: int) -> int:
-        """Calculate neighborhood median home price based on city income"""
+        """Calculate neighborhood median home price based on city income."""
         base_multiplier = 3.5  # Home price to income ratio
         neighborhood_variance = random.uniform(0.7, 1.5)
         return int(city_median_income * base_multiplier * neighborhood_variance)
 
     def generate_property_types(self):
-        """Generate property type hierarchy"""
+        """Generate property type hierarchy."""
         for category, subcategories in self.property_type_hierarchy.items():
             # Parent category
             parent_id = self.counters["property_type"]
@@ -444,7 +442,7 @@ class RealEstateDataGenerator:
                     )
 
     def generate_brokerages(self):
-        """Generate real estate brokerages"""
+        """Generate real estate brokerages."""
         brokerage_names = [
             "Realty",
             "Properties",
@@ -494,7 +492,7 @@ class RealEstateDataGenerator:
             )
 
     def generate_agents(self):
-        """Generate real estate agents"""
+        """Generate real estate agents."""
         specializations = [
             "Residential Sales",
             "Commercial Sales",
@@ -562,7 +560,7 @@ class RealEstateDataGenerator:
             brokerage["total_agents"] += 1
 
     def generate_users(self):
-        """Generate platform users (buyers, sellers, renters, investors)"""
+        """Generate platform users (buyers, sellers, renters, investors)."""
         user_types = ["buyer", "seller", "investor", "renter"]
         user_type_weights = [0.5, 0.2, 0.1, 0.2]  # More buyers than sellers
 
@@ -603,7 +601,7 @@ class RealEstateDataGenerator:
                 self._generate_user_preferences(user_id, user_type)
 
     def _generate_user_preferences(self, user_id: int, user_type: str):
-        """Generate search preferences for a user"""
+        """Generate search preferences for a user."""
         preference_id = self.counters["preference"]
         self.counters["preference"] += 1
 
@@ -658,7 +656,7 @@ class RealEstateDataGenerator:
         )
 
     def generate_properties(self):
-        """Generate property listings with realistic distributions"""
+        """Generate property listings with realistic distributions."""
         for _ in range(self.config["counts"]["properties"]):
             property_id = self.counters["property"]
             self.counters["property"] += 1
@@ -820,7 +818,7 @@ class RealEstateDataGenerator:
             self._generate_property_taxes(property_id, tax_assessed)
 
     def _generate_property_features(self, property_id: int, category: str, sqft: int):
-        """Generate features for a property"""
+        """Generate features for a property."""
         # Determine number of features based on property size/value
         if category == "residential":
             num_features = (
@@ -852,7 +850,7 @@ class RealEstateDataGenerator:
     def _generate_property_rooms(
         self, property_id: int, bedrooms: int, bathrooms: float
     ):
-        """Generate room details for a property"""
+        """Generate room details for a property."""
         rooms = []
 
         # Bedrooms
@@ -861,7 +859,7 @@ class RealEstateDataGenerator:
             self.counters["room"] += 1
 
             is_master = i == 0
-            room_type = "Master Bedroom" if is_master else f"Bedroom"
+            room_type = "Master Bedroom" if is_master else "Bedroom"
 
             rooms.append(
                 {
@@ -958,7 +956,7 @@ class RealEstateDataGenerator:
         self.property_rooms.extend(rooms)
 
     def _generate_property_photos(self, property_id: int):
-        """Generate photo records for a property"""
+        """Generate photo records for a property."""
         photo_types = [
             "Front Exterior",
             "Back Exterior",
@@ -1000,7 +998,7 @@ class RealEstateDataGenerator:
             )
 
     def _generate_property_taxes(self, property_id: int, assessed_value: float):
-        """Generate property tax history"""
+        """Generate property tax history."""
         tax_rate = random.uniform(0.005, 0.02)  # 0.5% to 2% tax rate
 
         for year in range(2020, 2025):
@@ -1028,7 +1026,7 @@ class RealEstateDataGenerator:
             )
 
     def generate_listings(self):
-        """Generate property listings with realistic status distributions"""
+        """Generate property listings with realistic status distributions."""
         # Select properties to list (not all properties are currently listed)
         num_total_listings = (
             self.config["counts"]["active_listings"]
@@ -1042,7 +1040,7 @@ class RealEstateDataGenerator:
 
         # Distribute listing statuses
         active_count = self.config["counts"]["active_listings"]
-        sold_count = self.config["counts"]["sold_listings"]
+        _ = self.config["counts"]["sold_listings"]
         pending_count = self.config["counts"]["pending_listings"]
 
         for i, property_data in enumerate(listed_properties):
@@ -1130,9 +1128,9 @@ class RealEstateDataGenerator:
             # Update agent's listing count
             agent["active_listings"] = sum(
                 1
-                for l in self.listings
-                if l["listing_agent_id"] == agent["agent_id"]
-                and l["status"] == "active"
+                for listing in self.listings
+                if listing["listing_agent_id"] == agent["agent_id"]
+                and listing["status"] == "active"
             )
 
             # Generate listing status history
@@ -1143,7 +1141,7 @@ class RealEstateDataGenerator:
                 self._generate_price_changes(listing_id, list_price, list_date)
 
     def _generate_showing_instructions(self) -> str:
-        """Generate showing instructions for a listing"""
+        """Generate showing instructions for a listing."""
         instructions = [
             "Call listing agent to schedule showing",
             "Use showing time app to schedule",
@@ -1163,7 +1161,7 @@ class RealEstateDataGenerator:
         current_status: str,
         sold_date: Optional[date],
     ):
-        """Generate status history for a listing"""
+        """Generate status history for a listing."""
         statuses = []
 
         # Initial listing
@@ -1226,7 +1224,7 @@ class RealEstateDataGenerator:
     def _generate_price_changes(
         self, listing_id: int, current_price: float, list_date: date
     ):
-        """Generate price change history for a listing"""
+        """Generate price change history for a listing."""
         num_changes = random.randint(1, 3)
         price = current_price * 1.1  # Start higher
 
@@ -1261,8 +1259,10 @@ class RealEstateDataGenerator:
             )
 
     def generate_viewings_and_offers(self):
-        """Generate property viewings and offers"""
-        active_listings = [l for l in self.listings if l["status"] == "active"]
+        """Generate property viewings and offers."""
+        active_listings = [
+            listing for listing in self.listings if listing["status"] == "active"
+        ]
 
         # Generate viewings for active listings
         for listing in active_listings:
@@ -1318,7 +1318,7 @@ class RealEstateDataGenerator:
                     self._generate_offer(listing, viewer["user_id"])
 
     def _generate_viewing_feedback(self, viewing_id: int, user_id: int):
-        """Generate feedback for a viewing"""
+        """Generate feedback for a viewing."""
         feedback_id = self.counters["feedback"]
         self.counters["feedback"] += 1
 
@@ -1336,7 +1336,7 @@ class RealEstateDataGenerator:
         )
 
     def _generate_offer(self, listing: Dict, user_id: int):
-        """Generate an offer on a property"""
+        """Generate an offer on a property."""
         offer_id = self.counters["offer"]
         self.counters["offer"] += 1
 
@@ -1400,7 +1400,7 @@ class RealEstateDataGenerator:
                 )
 
     def generate_market_trends(self):
-        """Generate market trend data"""
+        """Generate market trend data."""
         # Generate monthly trends for each city
         for city in self.cities:
             for year in [2023, 2024]:
@@ -1449,7 +1449,7 @@ class RealEstateDataGenerator:
                     )
 
     def save_to_csv(self, output_dir: Optional[str] = None):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         if output_dir is None:
             output_dir = self.config["output_dir"]
 
@@ -1518,7 +1518,7 @@ class RealEstateDataGenerator:
                 print(f"  Saved {len(data)} records to {table_name}.csv")
 
     def generate_all_data(self):
-        """Generate all data in the correct sequence"""
+        """Generate all data in the correct sequence."""
         print("Real Estate Data Generator Starting...")
         print(
             f"   Using configuration: {self.config['counts']['properties']} properties"
@@ -1558,9 +1558,9 @@ class RealEstateDataGenerator:
 
         print("\n7. Generating listings...")
         self.generate_listings()
-        active = len([l for l in self.listings if l["status"] == "active"])
-        sold = len([l for l in self.listings if l["status"] == "sold"])
-        pending = len([l for l in self.listings if l["status"] == "pending"])
+        active = len([listing for listing in self.listings if listing["status"] == "active"])
+        sold = len([listing for listing in self.listings if listing["status"] == "sold"])
+        pending = len([listing for listing in self.listings if listing["status"] == "pending"])
         print(f"   - {len(self.listings)} total listings")
         print(f"   - {active} active, {pending} pending, {sold} sold")
         print(f"   - {len(self.price_changes)} price changes")
@@ -1580,6 +1580,7 @@ class RealEstateDataGenerator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="Generate real estate platform sample data"
     )
@@ -1617,7 +1618,7 @@ def main():
     print("\n[SUMMARY] Summary Statistics:")
     print(f"   Properties: {len(generator.properties):,}")
     print(
-        f"   Active Listings: {len([l for l in generator.listings if l['status'] == 'active']):,}"
+        f"   Active Listings: {len([listing for listing in generator.listings if listing['status'] == 'active']):,}"
     )
     print(f"   Agents: {len(generator.agents):,}")
     print(f"   Users: {len(generator.users):,}")

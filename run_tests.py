@@ -1,23 +1,18 @@
 #!/usr/bin/env python3
-"""
-Test runner script for MySQL Business-to-Schema project.
-Provides an interactive CLI for running different test suites.
-"""
+"""Run the MySQL Business-to-Schema test runner."""
 
 import click
 import subprocess
 import sys
 import time
 from pathlib import Path
-import json
-import os
 
 
 @click.group()
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.pass_context
 def cli(ctx, verbose):
-    """MySQL Business-to-Schema Test Runner"""
+    """Run the MySQL Business-to-Schema test runner."""
     ctx.ensure_object(dict)
     ctx.obj["verbose"] = verbose
 
@@ -228,7 +223,7 @@ def clean(ctx):
 @click.option("--start/--stop", default=True, help="Start or stop services")
 @click.pass_context
 def services(ctx, start):
-    """Manage test services (MySQL, Redis, Kafka)."""
+    """Manage test services such as MySQL, Redis, and Kafka."""
     verbose = ctx.obj["verbose"]
 
     if start:
@@ -283,7 +278,7 @@ def benchmark(ctx, save, compare):
 @click.pass_context
 def debug(ctx, test_path, debug):
     """Debug specific test."""
-    verbose = ctx.obj["verbose"]
+    _ = ctx.obj["verbose"]
 
     if not test_path:
         test_path = click.prompt(
@@ -304,7 +299,7 @@ def debug(ctx, test_path, debug):
 @click.pass_context
 def watch(ctx):
     """Watch for file changes and run tests."""
-    verbose = ctx.obj["verbose"]
+    _ = ctx.obj["verbose"]
 
     click.echo("👀 Watching for file changes...")
     click.echo("Press Ctrl+C to stop")

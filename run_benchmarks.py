@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Comprehensive Benchmark Runner for MySQL Business-to-Schema
+"""Comprehensive Benchmark Runner for MySQL Business-to-Schema.
 
 This script orchestrates all benchmarking tools to provide complete
 performance analysis across all database examples.
@@ -22,17 +21,16 @@ sys.path.append(str(Path(__file__).parent / "benchmarks"))
 
 # Import benchmark modules
 try:
-    from benchmarks.query_performance import QueryPerformanceBenchmark
-    from benchmarks.index_analyzer import IndexAnalyzer
-    from benchmarks.regression_detector import RegressionDetector
+    pass
 except ImportError:
     print("Warning: Some benchmark modules not found")
 
 
 class BenchmarkRunner:
-    """Orchestrates all benchmark operations"""
+    """Orchestrates all benchmark operations."""
 
     def __init__(self, project_root: Path, config: Dict = None):
+        """Initialize the instance."""
         self.project_root = project_root
         self.results_dir = project_root / "benchmark_results"
         self.results_dir.mkdir(exist_ok=True)
@@ -53,14 +51,14 @@ class BenchmarkRunner:
         }
 
     def run_all(self) -> Dict:
-        """Run all configured benchmarks"""
+        """Run all configured benchmarks."""
         start_time = time.time()
 
         print("\n" + "=" * 70)
         print("MySQL Business-to-Schema Performance Benchmark Suite")
         print("=" * 70)
         print(f"Start Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  - Parallel: {self.config['parallel']}")
         print(f"  - Benchmarks: {', '.join(self.config['benchmarks'])}")
         print(f"  - Docker: {self.config['docker']}")
@@ -103,7 +101,7 @@ class BenchmarkRunner:
         duration = end_time - start_time
 
         print(f"\n{'=' * 70}")
-        print(f"Benchmark Complete")
+        print("Benchmark Complete")
         print(f"Total Duration: {duration:.2f} seconds")
         print(f"Results saved to: {self.results_dir}")
         print(f"{'=' * 70}\n")
@@ -111,7 +109,7 @@ class BenchmarkRunner:
         return self.results
 
     def _get_examples(self) -> List[Path]:
-        """Get list of examples to benchmark"""
+        """Get list of examples to benchmark."""
         if self.config["examples"]:
             # Specific examples requested
             examples = []
@@ -130,7 +128,7 @@ class BenchmarkRunner:
         return examples
 
     def _setup_docker_environments(self, examples: List[Path]):
-        """Ensure Docker containers are running for examples"""
+        """Ensure Docker containers are running for examples."""
         print("Setting up Docker environments...")
 
         for example in examples:
@@ -156,10 +154,10 @@ class BenchmarkRunner:
                     # Wait for MySQL to be ready
                     time.sleep(10)
                 else:
-                    print(f"    Containers already running")
+                    print("    Containers already running")
 
     def _run_sequential(self, examples: List[Path]):
-        """Run benchmarks sequentially"""
+        """Run benchmarks sequentially."""
         for i, example in enumerate(examples, 1):
             example_name = example.name
             print(f"[{i}/{len(examples)}] Benchmarking {example_name}")
@@ -176,7 +174,7 @@ class BenchmarkRunner:
                 print(f"  ✗ Failed - {result.get('error', 'Unknown error')}")
 
     def _run_parallel(self, examples: List[Path]):
-        """Run benchmarks in parallel"""
+        """Run benchmarks in parallel."""
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
             future_to_example = {
                 executor.submit(self._benchmark_example, ex): ex for ex in examples
@@ -202,7 +200,7 @@ class BenchmarkRunner:
                     }
 
     def _benchmark_example(self, example_dir: Path) -> Dict:
-        """Benchmark a single example"""
+        """Benchmark a single example."""
         example_name = example_dir.name
         result = {
             "name": example_name,
@@ -235,7 +233,7 @@ class BenchmarkRunner:
         return result
 
     def _benchmark_generator(self, example_dir: Path) -> Dict:
-        """Benchmark data generator for an example"""
+        """Benchmark data generator for an example."""
         generator_name = example_dir.name.replace("example_", "").split("_", 1)[1]
         generator_dir = self.project_root / "generators" / generator_name
 
@@ -294,7 +292,7 @@ class BenchmarkRunner:
             return {"success": False, "error": str(e)}
 
     def _benchmark_queries(self, example_dir: Path) -> Dict:
-        """Benchmark query performance for an example"""
+        """Benchmark query performance for an example."""
         # Get connection parameters from docker-compose
         connection_params = self._get_connection_params(example_dir)
 
@@ -334,7 +332,7 @@ class BenchmarkRunner:
             return {"success": False, "error": str(e)}
 
     def _analyze_indexes(self, example_dir: Path) -> Dict:
-        """Analyze index effectiveness for an example"""
+        """Analyze index effectiveness for an example."""
         connection_params = self._get_connection_params(example_dir)
 
         if not connection_params:
@@ -366,7 +364,7 @@ class BenchmarkRunner:
             return {"success": False, "error": str(e)}
 
     def _get_connection_params(self, example_dir: Path) -> Optional[Dict]:
-        """Extract database connection parameters from docker-compose.yml"""
+        """Extract database connection parameters from docker-compose.yml."""
         docker_compose = example_dir / "docker-compose.yml"
 
         if not docker_compose.exists():
@@ -400,7 +398,7 @@ class BenchmarkRunner:
             return None
 
     def _calculate_summary(self):
-        """Calculate summary statistics across all benchmarks"""
+        """Calculate summary statistics across all benchmarks."""
         successful = sum(
             1 for ex in self.results["examples"].values() if ex.get("success")
         )
@@ -450,11 +448,11 @@ class BenchmarkRunner:
         }
 
     def _check_regressions(self):
-        """Check for performance regressions compared to previous runs"""
+        """Check for performance regressions compared to previous runs."""
         try:
             from benchmarks.regression_detector import RegressionDetector
 
-            detector = RegressionDetector(str(self.results_dir))
+            RegressionDetector(str(self.results_dir))
 
             # Check if we have previous results
             previous_results = sorted(self.results_dir.glob("benchmark_*.json"))
@@ -480,7 +478,7 @@ class BenchmarkRunner:
             self.results["regression_check"] = {"performed": False, "error": str(e)}
 
     def _save_results(self):
-        """Save benchmark results to file"""
+        """Save benchmark results to file."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         output_file = self.results_dir / f"benchmark_{timestamp}.json"
 
@@ -490,30 +488,30 @@ class BenchmarkRunner:
         print(f"\n💾 Results saved to: {output_file}")
 
     def _generate_report(self):
-        """Generate and display summary report"""
+        """Generate and display summary report."""
         summary = self.results["summary"]
 
         print("\n" + "=" * 70)
         print("BENCHMARK SUMMARY REPORT")
         print("=" * 70)
 
-        print(f"\n📊 Overall Statistics:")
+        print("\n📊 Overall Statistics:")
         print(f"  Total Examples: {summary['total_examples']}")
         print(f"  Successful: {summary['successful']}")
         print(f"  Failed: {summary['failed']}")
 
         if summary.get("total_generator_time"):
-            print(f"\n⚡ Generator Performance:")
+            print("\n⚡ Generator Performance:")
             print(f"  Total Time: {summary['total_generator_time']:.2f}s")
             print(f"  Average Time: {summary['avg_generator_time']:.2f}s")
             print(f"  Total Rows: {summary['total_rows_generated']:,}")
 
         if summary.get("total_queries_benchmarked"):
-            print(f"\n🔍 Query Performance:")
+            print("\n🔍 Query Performance:")
             print(f"  Queries Benchmarked: {summary['total_queries_benchmarked']}")
 
         if summary.get("total_indexes_analyzed"):
-            print(f"\n📇 Index Analysis:")
+            print("\n📇 Index Analysis:")
             print(f"  Total Indexes: {summary['total_indexes_analyzed']}")
             print(f"  Unused Indexes: {summary['total_unused_indexes']}")
 
@@ -529,7 +527,7 @@ class BenchmarkRunner:
             )
 
             if sorted_examples:
-                print(f"\n🏆 Top 5 Fastest Generators:")
+                print("\n🏆 Top 5 Fastest Generators:")
                 for i, (name, data) in enumerate(sorted_examples[:5], 1):
                     time = data.get("generator_time", 0)
                     rows = (
@@ -547,7 +545,7 @@ class BenchmarkRunner:
 
 
 def main():
-    """Main entry point"""
+    """Run the benchmark CLI."""
     parser = argparse.ArgumentParser(
         description="Run comprehensive performance benchmarks"
     )

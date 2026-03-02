@@ -1,12 +1,9 @@
-"""
-Integration tests for database operations.
-"""
+"""Integration tests for database operations."""
 
 import pytest
 import mysql.connector
 from pathlib import Path
 import time
-import json
 
 
 @pytest.mark.integration
@@ -194,6 +191,7 @@ class TestDataOperations:
         results = queue.Queue()
 
         def write_data(thread_id):
+            """Handle write data."""
             try:
                 conn = mysql.connector.connect(
                     host=mysql_container["host"],
@@ -399,7 +397,6 @@ class TestReplication:
         """Test master-slave replication setup."""
         # This would require setting up multiple MySQL containers
         # Skipped in basic tests but important for production
-        pass
 
     def test_read_write_splitting(self, mysql_cursor, mysql_connection):
         """Test read/write query splitting logic."""

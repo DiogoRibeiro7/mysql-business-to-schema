@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Additional Schema Data Generator
+"""Additional Schema Data Generator.
+
 Generates data for all 20 business schemas
 """
 
@@ -10,8 +10,6 @@ import json
 import random
 from datetime import datetime, timedelta
 from faker import Faker
-from typing import List, Dict
-import hashlib
 
 # Fix encoding for Windows
 if sys.platform == "win32":
@@ -22,21 +20,22 @@ fake = Faker()
 
 
 class ComprehensiveDataGenerator:
-    """Generate data for all business schemas"""
+    """Generate data for all business schemas."""
 
     def __init__(self, output_dir: str = "demo_data"):
+        """Initialize the instance."""
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         self.fake = Faker()
 
     def escape_sql(self, value):
-        """Escape SQL special characters"""
+        """Escape SQL special characters."""
         if value is None:
             return "NULL"
         return str(value).replace("'", "''").replace("\\", "\\\\")
 
     def generate_fintech_data(self, count: int = 100):
-        """Generate fintech/banking data"""
+        """Generate fintech/banking data."""
         print("Generating fintech data...")
 
         sql_lines = [
@@ -77,7 +76,7 @@ class ComprehensiveDataGenerator:
         )
 
         account_values = []
-        for i in range(count * 2):  # 2 accounts per customer average
+        for _ in range(count * 2):  # 2 accounts per customer average
             account = (
                 f"('{fake.iban()}', 'CUST{random.randint(1, count):08d}', "
                 f"'{random.choice(['checking', 'savings', 'investment', 'credit'])}', "
@@ -121,7 +120,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_social_media_data(self, count: int = 100):
-        """Generate social media data"""
+        """Generate social media data."""
         print("Generating social media data...")
 
         sql_lines = [
@@ -198,7 +197,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_real_estate_data(self, count: int = 100):
-        """Generate real estate data"""
+        """Generate real estate data."""
         print("Generating real estate data...")
 
         sql_lines = [
@@ -266,7 +265,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_logistics_data(self, count: int = 100):
-        """Generate logistics/shipping data"""
+        """Generate logistics/shipping data."""
         print("Generating logistics data...")
 
         sql_lines = [
@@ -338,7 +337,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_education_data(self, count: int = 100):
-        """Generate education/learning data"""
+        """Generate education/learning data."""
         print("Generating education data...")
 
         sql_lines = [
@@ -423,7 +422,7 @@ class ComprehensiveDataGenerator:
         enrollment_values = []
         grades = ["A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D", "F", "W"]
 
-        for i in range(count * 3):  # 3 enrollments per student average
+        for _ in range(count * 3):  # 3 enrollments per student average
             enrollment = (
                 f"('STU{random.randint(1, count):06d}', "
                 f"{random.randint(1, count//2)}, "
@@ -447,7 +446,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_food_delivery_data(self, count: int = 100):
-        """Generate food delivery data"""
+        """Generate food delivery data."""
         print("Generating food delivery data...")
 
         sql_lines = [
@@ -541,7 +540,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_gaming_data(self, count: int = 100):
-        """Generate gaming platform data"""
+        """Generate gaming platform data."""
         print("Generating gaming platform data...")
 
         sql_lines = [
@@ -627,7 +626,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_insurance_data(self, count: int = 100):
-        """Generate insurance data"""
+        """Generate insurance data."""
         print("Generating insurance data...")
 
         sql_lines = [
@@ -694,7 +693,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_hotel_data(self, count: int = 100):
-        """Generate hotel chain data"""
+        """Generate hotel chain data."""
         print("Generating hotel chain data...")
 
         sql_lines = [
@@ -794,7 +793,7 @@ class ComprehensiveDataGenerator:
         return output_file
 
     def generate_all_additional(self, records_per_schema: int = 100):
-        """Generate data for all additional schemas"""
+        """Generate data for all additional schemas."""
         print("\n" + "=" * 60)
         print("Generating Additional Schema Data")
         print("=" * 60 + "\n")
@@ -861,7 +860,7 @@ class ComprehensiveDataGenerator:
 
 
 def main():
-    """Main execution"""
+    """Run execution."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate additional schema SQL data")

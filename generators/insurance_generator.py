@@ -1,26 +1,20 @@
 #!/usr/bin/env python3
-"""
-Insurance Management Platform Data Generator
+"""Insurance Management Platform Data Generator.
 
 Generates realistic test data for the insurance platform database.
 Includes customers, policies, claims, agents, underwriting, and reinsurance.
 """
 
 import random
-import sys
-import os
-from datetime import datetime, timedelta, date
-from decimal import Decimal
-from typing import List, Dict, Tuple, Optional
+from datetime import timedelta, date
+from typing import Optional
 import json
 
-# Add parent directory to path for base generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from generators.base_generator import BaseGenerator
 
 
 class InsuranceGenerator(BaseGenerator):
-    """Generator for Insurance Management Platform data"""
+    """Generator for Insurance Management Platform data."""
 
     def __init__(
         self,
@@ -30,7 +24,7 @@ class InsuranceGenerator(BaseGenerator):
         password="insurance_pass_2024",
         database="insurance_platform",
     ):
-        """Initialize the insurance generator"""
+        """Initialize the insurance generator."""
         super().__init__(host, port, user, password, database)
 
         # Insurance specific data
@@ -99,7 +93,7 @@ class InsuranceGenerator(BaseGenerator):
         agents: int = 500,
         policies_per_customer: float = 1.5,
     ):
-        """Generate all insurance platform data"""
+        """Generate all insurance platform data."""
         print("Starting Insurance Platform data generation...")
 
         # Generate base data
@@ -156,7 +150,7 @@ class InsuranceGenerator(BaseGenerator):
         print("Generation complete!")
 
     def generate_customers(self, count: int = 10000):
-        """Generate insurance customers"""
+        """Generate insurance customers."""
         customers = []
 
         for i in range(count):
@@ -316,7 +310,7 @@ class InsuranceGenerator(BaseGenerator):
             )
 
     def calculate_risk_category(self, age: Optional[int], customer_type: str) -> str:
-        """Calculate risk category based on age and type"""
+        """Calculate risk category based on age and type."""
         if customer_type == "corporate":
             return random.choice(["low", "medium", "high"])
 
@@ -333,7 +327,7 @@ class InsuranceGenerator(BaseGenerator):
             return random.choice(["high", "very_high"])
 
     def generate_beneficiaries(self):
-        """Generate beneficiaries for customers"""
+        """Generate beneficiaries for customers."""
         customers = self.fetch_all(
             """
             SELECT customer_id FROM customers
@@ -395,7 +389,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_agencies_and_agents(self, total_agents: int = 500):
-        """Generate insurance agencies and agents"""
+        """Generate insurance agencies and agents."""
         # Generate agencies
         agencies = []
         num_agencies = 20
@@ -540,7 +534,7 @@ class InsuranceGenerator(BaseGenerator):
             )
 
     def generate_brokers(self):
-        """Generate insurance brokers"""
+        """Generate insurance brokers."""
         brokers = []
 
         for i in range(50):
@@ -593,7 +587,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_products(self):
-        """Generate insurance products"""
+        """Generate insurance products."""
         products = []
 
         # Define products by type
@@ -682,7 +676,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_underwriting(self):
-        """Generate underwriting applications"""
+        """Generate underwriting applications."""
         customers = self.fetch_all(
             "SELECT customer_id, risk_category FROM customers LIMIT 2000"
         )
@@ -807,7 +801,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_policies(self, count: int = 15000):
-        """Generate insurance policies"""
+        """Generate insurance policies."""
         # Get approved underwriting applications
         approved_apps = self.fetch_all(
             """
@@ -878,7 +872,7 @@ class InsuranceGenerator(BaseGenerator):
 
         # Insert remaining policies
         if len(policies) % 1000 != 0:
-            remaining_policies = policies[-(len(policies) % 1000) :]
+            remaining_policies = policies[-(len(policies) % 1000):]
             self.bulk_insert(
                 "policies",
                 remaining_policies,
@@ -916,7 +910,7 @@ class InsuranceGenerator(BaseGenerator):
     def create_policy_from_application(
         self, app: dict, agents: list, brokers: list
     ) -> tuple:
-        """Create a policy from an approved underwriting application"""
+        """Create a policy from an approved underwriting application."""
         policy_number = (
             f"POL{str(random.randint(100000, 999999))}-{app['product_code']}"
         )
@@ -986,7 +980,7 @@ class InsuranceGenerator(BaseGenerator):
     def create_direct_policy(
         self, customer: dict, product: dict, agents: list, brokers: list
     ) -> tuple:
-        """Create a direct policy without underwriting application"""
+        """Create a direct policy without underwriting application."""
         policy_number = (
             f"POL{str(random.randint(100000, 999999))}-{product['product_code']}"
         )
@@ -1066,7 +1060,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_policy_items(self):
-        """Generate policy items (vehicles, properties, etc.)"""
+        """Generate policy items (vehicles, properties, etc.)."""
         # Get auto and home policies
         auto_policies = self.fetch_all(
             """
@@ -1141,7 +1135,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_policy_beneficiaries(self):
-        """Generate policy beneficiaries for life insurance"""
+        """Generate policy beneficiaries for life insurance."""
         life_policies = self.fetch_all(
             """
             SELECT p.policy_id, p.customer_id
@@ -1216,7 +1210,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_billing_schedules(self):
-        """Generate billing schedules for active policies"""
+        """Generate billing schedules for active policies."""
         active_policies = self.fetch_all(
             """
             SELECT policy_id, premium_amount, payment_frequency
@@ -1276,7 +1270,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_claims(self):
-        """Generate insurance claims"""
+        """Generate insurance claims."""
         policies = self.fetch_all(
             """
             SELECT p.policy_id, p.customer_id, p.coverage_amount, pr.product_type
@@ -1411,7 +1405,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def get_claim_type_for_product(self, product_type: str) -> str:
-        """Get appropriate claim type for product type"""
+        """Get appropriate claim type for product type."""
         claim_type_map = {
             "life": ["death", "disability"],
             "health": ["illness", "medical", "dental", "vision"],
@@ -1421,7 +1415,7 @@ class InsuranceGenerator(BaseGenerator):
         return random.choice(claim_type_map.get(product_type, ["other"]))
 
     def generate_claim_activities(self):
-        """Generate claim activity logs"""
+        """Generate claim activity logs."""
         claims = self.fetch_all("SELECT claim_id, status FROM claims LIMIT 500")
 
         activities = []
@@ -1439,7 +1433,7 @@ class InsuranceGenerator(BaseGenerator):
                 "customer_contact",
             ]
 
-            for i in range(num_activities):
+            for _ in range(num_activities):
                 activity = (
                     claim["claim_id"],
                     random.choice(activity_types),
@@ -1468,7 +1462,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_payments(self):
-        """Generate payment transactions"""
+        """Generate payment transactions."""
         # Get policies with billing schedules
         policies_with_billing = self.fetch_all(
             """
@@ -1551,7 +1545,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_commissions(self):
-        """Generate agent/broker commissions"""
+        """Generate agent/broker commissions."""
         # Get policies with agents/brokers
         agent_policies = self.fetch_all(
             """
@@ -1644,7 +1638,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_reinsurance(self):
-        """Generate reinsurance treaties and cessions"""
+        """Generate reinsurance treaties and cessions."""
         # Generate reinsurance treaties
         treaties = []
 
@@ -1733,7 +1727,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_documents(self):
-        """Generate policy and claim documents"""
+        """Generate policy and claim documents."""
         policies = self.fetch_all("SELECT policy_id FROM policies LIMIT 500")
         claims = self.fetch_all("SELECT claim_id FROM claims LIMIT 200")
 
@@ -1819,7 +1813,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_communications(self):
-        """Generate customer communications"""
+        """Generate customer communications."""
         customers = self.fetch_all("SELECT customer_id FROM customers LIMIT 500")
 
         communications = []
@@ -1867,7 +1861,7 @@ class InsuranceGenerator(BaseGenerator):
         )
 
     def generate_regulatory_reports(self):
-        """Generate regulatory compliance reports"""
+        """Generate regulatory compliance reports."""
         reports = []
 
         report_types = [
@@ -1917,7 +1911,7 @@ class InsuranceGenerator(BaseGenerator):
 
 
 def main():
-    """Main function to run the generator"""
+    """Run function to run the generator."""
     import argparse
 
     parser = argparse.ArgumentParser(

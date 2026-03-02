@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-FinTech Platform Data Generator
+"""FinTech Platform Data Generator.
 
 Generates realistic financial data including:
 - Customers (individual and business) with KYC
@@ -16,9 +15,8 @@ import random
 import hashlib
 import uuid
 from datetime import datetime, timedelta, date
-from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Optional, Any
 import yaml
 from faker import Faker
 
@@ -37,7 +35,10 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 
 class FinTechDataGenerator:
+    """Represent FinTechDataGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.customers: List[Any] = []
         self.accounts: List[Any] = []
         self.transactions: List[Any] = []
@@ -670,7 +671,7 @@ class FinTechDataGenerator:
         # Write payment methods
         self.write_payment_methods_csv()
 
-        print(f"Generated data summary:")
+        print("Generated data summary:")
         print(f"  - Customers: {len(self.customers)}")
         print(f"  - Accounts: {len(self.accounts)}")
         print(f"  - Transactions: {len(self.transactions)}")

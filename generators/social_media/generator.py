@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Social Media Platform Data Generator
+"""Social Media Platform Data Generator.
+
 Generates realistic data for a social media platform with user relationships,
 posts, engagement, messaging, and viral content tracking
 """
@@ -9,12 +9,10 @@ import csv
 import json
 import random
 import hashlib
-import uuid
 from datetime import datetime, timedelta, date
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
 from typing import Any, Dict, List
 
@@ -40,8 +38,11 @@ CONFIG = {
 
 
 class SocialMediaGenerator:
+    """Represent SocialMediaGenerator."""
+
     def __init__(self):
         # User entities
+        """Initialize the instance."""
         self.users: List[Any] = []
         self.user_profiles: List[Any] = []
         self.user_settings: List[Any] = []
@@ -118,9 +119,9 @@ class SocialMediaGenerator:
         self.user_influence: Dict[str, Any] = {}
 
     def generate_all(self):
-        """Generate all social media platform data"""
+        """Generate all social media platform data."""
         print("Starting Social Media Platform Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Users: {CONFIG['users']}")
         print(f"  Average followers: {CONFIG['avg_followers']}")
         print(f"  Days of history: {CONFIG['days_of_history']}")
@@ -170,10 +171,10 @@ class SocialMediaGenerator:
         self.save_all()
 
     def generate_users(self):
-        """Generate user accounts"""
+        """Generate user accounts."""
         print(f"Generating {CONFIG['users']} users...")
 
-        account_types = ["personal", "business", "creator", "verified"]
+        _ = ["personal", "business", "creator", "verified"]
         statuses = [
             "active",
             "active",
@@ -182,7 +183,7 @@ class SocialMediaGenerator:
             "deactivated",
         ]  # Most users are active
 
-        for i in range(CONFIG["users"]):
+        for _ in range(CONFIG["users"]):
             self.user_id += 1
 
             created_date = fake.date_time_between(start_date="-2y", end_date="-1d")
@@ -238,7 +239,7 @@ class SocialMediaGenerator:
                 self.user_influence[self.user_id] = random.uniform(0.1, 0.6)
 
     def generate_user_profiles(self):
-        """Generate user profile details"""
+        """Generate user profile details."""
         print("Generating user profiles...")
 
         for user in self.users:
@@ -293,7 +294,7 @@ class SocialMediaGenerator:
             )
 
     def generate_user_settings(self):
-        """Generate user settings"""
+        """Generate user settings."""
         print("Generating user settings...")
 
         for user in self.users:
@@ -324,7 +325,7 @@ class SocialMediaGenerator:
             )
 
     def generate_relationships(self):
-        """Generate follower/following relationships (social graph)"""
+        """Generate follower/following relationships (social graph)."""
         print("Generating social graph relationships...")
 
         # Create a more realistic social graph with power-law distribution
@@ -389,7 +390,7 @@ class SocialMediaGenerator:
                 follower["following_count"] += 1
 
     def generate_relationship_requests(self):
-        """Generate follow requests for private accounts"""
+        """Generate follow requests for private accounts."""
         print("Generating relationship requests...")
 
         private_users = [
@@ -435,7 +436,7 @@ class SocialMediaGenerator:
                 )
 
     def generate_hashtags(self):
-        """Generate hashtags"""
+        """Generate hashtags."""
         print(f"Generating {CONFIG['hashtags']} hashtags...")
 
         hashtag_categories = [
@@ -451,7 +452,7 @@ class SocialMediaGenerator:
             "meme",
         ]
 
-        for i in range(CONFIG["hashtags"]):
+        for _ in range(CONFIG["hashtags"]):
             self.hashtag_id += 1
 
             category = random.choice(hashtag_categories)
@@ -490,7 +491,7 @@ class SocialMediaGenerator:
             )
 
     def generate_posts(self):
-        """Generate user posts"""
+        """Generate user posts."""
         print("Generating posts...")
 
         post_types = ["text", "image", "video", "link", "poll"]
@@ -595,7 +596,7 @@ class SocialMediaGenerator:
                     )
 
     def generate_post_media(self):
-        """Generate media attachments for posts"""
+        """Generate media attachments for posts."""
         print("Generating post media...")
 
         media_posts = [p for p in self.posts if p["post_type"] in ["image", "video"]]
@@ -641,7 +642,7 @@ class SocialMediaGenerator:
                 )
 
     def generate_comments(self):
-        """Generate comments on posts"""
+        """Generate comments on posts."""
         print("Generating comments...")
 
         for post in self.posts:
@@ -660,7 +661,7 @@ class SocialMediaGenerator:
                 num_comments = random.randint(*CONFIG["comments_per_post"])
 
             # Get potential commenters (followers of post author)
-            post_author = next(u for u in self.users if u["user_id"] == post["user_id"])
+            _ = next(u for u in self.users if u["user_id"] == post["user_id"])
             potential_commenters = [
                 r["follower_id"]
                 for r in self.relationships
@@ -711,7 +712,7 @@ class SocialMediaGenerator:
                 post["comment_count"] += 1
 
     def generate_reactions(self):
-        """Generate reactions (likes) on posts"""
+        """Generate reactions (likes) on posts."""
         print("Generating reactions...")
 
         reaction_types = ["like", "love", "haha", "wow", "sad", "angry"]
@@ -757,7 +758,7 @@ class SocialMediaGenerator:
                     post["like_count"] += 1
 
     def generate_shares(self):
-        """Generate post shares"""
+        """Generate post shares."""
         print("Generating shares...")
 
         # Only popular posts get shared
@@ -798,7 +799,7 @@ class SocialMediaGenerator:
                 post["share_count"] += 1
 
     def generate_bookmarks(self):
-        """Generate bookmarks"""
+        """Generate bookmarks."""
         print("Generating bookmarks...")
 
         for user in self.users:
@@ -826,7 +827,7 @@ class SocialMediaGenerator:
                 )
 
     def generate_post_hashtags(self):
-        """Generate hashtag usage in posts"""
+        """Generate hashtag usage in posts."""
         print("Generating post hashtags...")
 
         for post in self.posts:
@@ -853,7 +854,7 @@ class SocialMediaGenerator:
                     hashtag["usage_count"] += 1
 
     def generate_trending_topics(self):
-        """Generate trending topics"""
+        """Generate trending topics."""
         print("Generating trending topics...")
 
         # Select top used hashtags as trending
@@ -897,10 +898,10 @@ class SocialMediaGenerator:
             current_date += timedelta(days=1)
 
     def generate_conversations(self):
-        """Generate message conversations"""
+        """Generate message conversations."""
         print(f"Generating {CONFIG['conversations']} conversations...")
 
-        for i in range(CONFIG["conversations"]):
+        for _ in range(CONFIG["conversations"]):
             self.conversation_id += 1
 
             # Select 2-5 participants
@@ -943,7 +944,7 @@ class SocialMediaGenerator:
                 )
 
     def generate_messages(self):
-        """Generate messages in conversations"""
+        """Generate messages in conversations."""
         print("Generating messages...")
 
         for conversation in self.conversations:
@@ -1019,7 +1020,7 @@ class SocialMediaGenerator:
             conversation["last_message_at"] = last_message_time
 
     def generate_user_lists(self):
-        """Generate user lists (like Twitter lists)"""
+        """Generate user lists (like Twitter lists)."""
         print("Generating user lists...")
 
         for user in self.users[:100]:  # Top 100 users create lists
@@ -1073,7 +1074,7 @@ class SocialMediaGenerator:
                     created_list["member_count"] += 1
 
     def generate_reports(self):
-        """Generate content reports"""
+        """Generate content reports."""
         print("Generating reports...")
 
         report_reasons = [
@@ -1117,7 +1118,7 @@ class SocialMediaGenerator:
             )
 
     def generate_banned_content(self):
-        """Generate banned content records"""
+        """Generate banned content records."""
         print("Generating banned content...")
 
         # Some reported content gets banned
@@ -1143,10 +1144,10 @@ class SocialMediaGenerator:
             )
 
     def generate_notifications(self):
-        """Generate notifications"""
+        """Generate notifications."""
         print("Generating notifications...")
 
-        notification_types = [
+        _ = [
             "new_follower",
             "like",
             "comment",
@@ -1203,10 +1204,10 @@ class SocialMediaGenerator:
                     )
 
     def generate_user_activity_logs(self):
-        """Generate user activity logs"""
+        """Generate user activity logs."""
         print("Generating user activity logs...")
 
-        activities = [
+        _ = [
             "login",
             "logout",
             "post_created",
@@ -1262,7 +1263,7 @@ class SocialMediaGenerator:
                 current += timedelta(days=1)
 
     def generate_engagement_metrics(self):
-        """Generate engagement metrics"""
+        """Generate engagement metrics."""
         print("Generating engagement metrics...")
 
         # Calculate engagement for posts
@@ -1320,7 +1321,7 @@ class SocialMediaGenerator:
                 current += timedelta(days=1)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1365,11 +1366,11 @@ class SocialMediaGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nSocial Media Platform Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nSocial Media Platform Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nUsers:")
+        print("\nUsers:")
         print(f"  Total Users: {len(self.users)}")
         print(
             f"  Active Users: {len([u for u in self.users if u['status'] == 'active'])}"
@@ -1379,7 +1380,7 @@ class SocialMediaGenerator:
         )
         print(f"  Private Accounts: {len([u for u in self.users if u['is_private']])}")
 
-        print(f"\nSocial Graph:")
+        print("\nSocial Graph:")
         print(f"  Total Relationships: {len(self.relationships)}")
         print(
             f"  Average Followers: {sum(u['follower_count'] for u in self.users) / len(self.users):.1f}"
@@ -1387,7 +1388,7 @@ class SocialMediaGenerator:
         print(f"  Max Followers: {max(u['follower_count'] for u in self.users)}")
         print(f"  Relationship Requests: {len(self.relationship_requests)}")
 
-        print(f"\nContent:")
+        print("\nContent:")
         print(f"  Total Posts: {len(self.posts)}")
         print(f"  Posts with Media: {len([p for p in self.posts if p['media_url']])}")
         print(f"  Comments: {len(self.comments)}")
@@ -1395,19 +1396,19 @@ class SocialMediaGenerator:
         print(f"  Shares: {len(self.shares)}")
         print(f"  Bookmarks: {len(self.bookmarks)}")
 
-        print(f"\nHashtags & Trending:")
+        print("\nHashtags & Trending:")
         print(f"  Hashtags: {len(self.hashtags)}")
         print(f"  Trending Topics: {len(self.trending_topics)}")
         print(f"  Viral Content: {len(self.viral_content_tracking)}")
 
-        print(f"\nMessaging:")
+        print("\nMessaging:")
         print(f"  Conversations: {len(self.conversations)}")
         print(f"  Messages: {len(self.messages)}")
         print(
             f"  Group Chats: {len([c for c in self.conversations if c['conversation_type'] == 'group'])}"
         )
 
-        print(f"\nEngagement:")
+        print("\nEngagement:")
         avg_engagement = (
             sum(p["engagement_rate"] for p in self.posts) / len(self.posts)
             if self.posts
@@ -1417,16 +1418,16 @@ class SocialMediaGenerator:
         print(f"  Total Views: {sum(p['view_count'] for p in self.posts):,}")
         print(f"  Total Likes: {sum(p['like_count'] for p in self.posts):,}")
 
-        print(f"\nModeration:")
+        print("\nModeration:")
         print(f"  Reports: {len(self.reports)}")
         print(f"  Banned Content: {len(self.banned_content)}")
 
-        print(f"\nAnalytics:")
+        print("\nAnalytics:")
         print(f"  Activity Logs: {len(self.user_activity_logs)}")
         print(f"  Engagement Metrics: {len(self.engagement_metrics)}")
         print(f"  Notifications: {len(self.notifications)}")
 
-        print(f"\nFiles Generated: 25")
+        print("\nFiles Generated: 25")
 
 
 if __name__ == "__main__":

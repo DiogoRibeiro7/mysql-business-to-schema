@@ -1,6 +1,4 @@
-"""
-Setup configuration for MySQL Business-to-Schema Python SDK
-"""
+"""Setup configuration for MySQL Business-to-Schema Python SDK."""
 
 from setuptools import setup, find_packages
 

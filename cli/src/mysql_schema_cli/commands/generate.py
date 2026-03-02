@@ -1,6 +1,4 @@
-"""
-Generate command - Test data and schema generation
-"""
+"""Generate command - Test data and schema generation."""
 
 import click
 import json
@@ -37,7 +35,6 @@ AVAILABLE_SCHEMAS = [
 @click.group(name="generate")
 def generate_group():
     """Generate test data, schemas, and configurations."""
-    pass
 
 
 @generate_group.command(name="data")
@@ -73,10 +70,9 @@ def generate_data(
     batch_size,
     parallel,
 ):
-    """
-    Generate test data for predefined schemas.
+    """Generate test data for predefined schemas.
 
-    \b
+    
     Examples:
         mysql-schema generate data clinic --rows 5000
         mysql-schema generate data ecommerce --format csv --output data.csv
@@ -198,10 +194,9 @@ def generate_schema(
     with_procedures,
     engine,
 ):
-    """
-    Generate database schema from templates.
+    """Generate database schema from templates.
 
-    \b
+    
     Templates:
         microservice   - Microservice with events and audit
         warehouse      - Data warehouse with facts and dimensions
@@ -210,7 +205,7 @@ def generate_schema(
         event-sourcing - Event sourcing pattern
         graph          - Graph database structure
 
-    \b
+    
     Examples:
         mysql-schema generate schema microservice --name user_service
         mysql-schema generate schema warehouse --name analytics --with-partitions
@@ -277,10 +272,9 @@ def generate_schema(
 @click.option("--safe-mode", is_flag=True, help="Generate safe migrations only")
 @click.pass_context
 def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mode):
-    """
-    Generate migration from database differences.
+    """Generate migration from database differences.
 
-    \b
+    
     Examples:
         mysql-schema generate migration --from-db dev --to-db prod
         mysql-schema generate migration --from-db v1 --to-db v2 --include-data
@@ -357,35 +351,34 @@ def generate_migration(ctx, from_db, to_db, name, output, include_data, safe_mod
 )
 @click.pass_context
 def generate_config(ctx, type, output, name, env):
-    """
-    Generate configuration files.
+    """Generate configuration files.
 
-    \b
+    
     Types:
         docker     - Docker Compose configuration
         k8s        - Kubernetes manifests
         ci         - CI/CD pipeline configs
         monitoring - Prometheus/Grafana configs
 
-    \b
+    
     Examples:
         mysql-schema generate config docker --name myproject
         mysql-schema generate config k8s --env prod
         mysql-schema generate config ci --output .github/workflows
     """
-    cli_context: CliContext = ctx.obj
+    _: CliContext = ctx.obj
 
     console.print(f"[cyan]Generating {type} configuration for {env} environment[/cyan]")
 
     # Implementation would generate various config files
-    console.print(f"[green]✓[/green] Configuration generated")
+    console.print("[green]✓[/green] Configuration generated")
 
 
 @generate_group.command(name="interactive")
 @click.pass_context
 def generate_interactive(ctx):
     """Interactive data generation wizard."""
-    cli_context: CliContext = ctx.obj
+    _: CliContext = ctx.obj
 
     console.print(
         Panel.fit(

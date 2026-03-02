@@ -1,14 +1,14 @@
-"""
-BentoML Prediction Service
+"""BentoML Prediction Service.
+
 Unified model serving for all ML models
 """
 
 import numpy as np
 import pandas as pd
 import bentoml
-from bentoml.io import JSON, NumpyNdarray, PandasDataFrame
-from pydantic import BaseModel, Field
-from typing import Dict, List, Any, Optional
+from bentoml.io import JSON, PandasDataFrame
+from pydantic import BaseModel
+from typing import Dict, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class PatientPredictionRequest(BaseModel):
-    """Request model for patient predictions"""
+    """Request model for patient predictions."""
 
     patient_id: int
     age: int
@@ -32,7 +32,7 @@ class PatientPredictionRequest(BaseModel):
 
 
 class PatientPredictionResponse(BaseModel):
-    """Response model for patient predictions"""
+    """Response model for patient predictions."""
 
     patient_id: int
     readmission_probability: float
@@ -42,7 +42,7 @@ class PatientPredictionResponse(BaseModel):
 
 
 class CustomerChurnRequest(BaseModel):
-    """Request model for customer churn prediction"""
+    """Request model for customer churn prediction."""
 
     customer_id: int
     registration_days: int
@@ -55,7 +55,7 @@ class CustomerChurnRequest(BaseModel):
 
 
 class CustomerChurnResponse(BaseModel):
-    """Response model for customer churn prediction"""
+    """Response model for customer churn prediction."""
 
     customer_id: int
     churn_probability: float
@@ -65,7 +65,7 @@ class CustomerChurnResponse(BaseModel):
 
 
 class IoTAnomalyRequest(BaseModel):
-    """Request model for IoT anomaly detection"""
+    """Request model for IoT anomaly detection."""
 
     device_id: str
     sensor_type: str
@@ -76,7 +76,7 @@ class IoTAnomalyRequest(BaseModel):
 
 
 class IoTAnomalyResponse(BaseModel):
-    """Response model for IoT anomaly detection"""
+    """Response model for IoT anomaly detection."""
 
     device_id: str
     is_anomaly: bool
@@ -89,11 +89,11 @@ class IoTAnomalyResponse(BaseModel):
 
 
 class FeatureEngineer:
-    """Feature engineering for model inputs"""
+    """Feature engineering for model inputs."""
 
     @staticmethod
     def engineer_patient_features(data: Dict) -> np.ndarray:
-        """Engineer features for patient prediction"""
+        """Engineer features for patient prediction."""
         features = []
 
         # Basic demographics
@@ -126,7 +126,7 @@ class FeatureEngineer:
 
     @staticmethod
     def engineer_customer_features(data: Dict) -> np.ndarray:
-        """Engineer features for customer churn prediction"""
+        """Engineer features for customer churn prediction."""
         features = []
 
         # Customer tenure and activity
@@ -175,7 +175,7 @@ class FeatureEngineer:
 
     @staticmethod
     def engineer_iot_features(data: Dict) -> np.ndarray:
-        """Engineer features for IoT anomaly detection"""
+        """Engineer features for IoT anomaly detection."""
         features = []
 
         # Sensor readings
@@ -243,7 +243,7 @@ feature_engineer = FeatureEngineer()
 async def predict_patient_readmission(
     request: PatientPredictionRequest,
 ) -> PatientPredictionResponse:
-    """Predict patient readmission risk"""
+    """Predict patient readmission risk."""
     try:
         # Engineer features
         features = feature_engineer.engineer_patient_features(request.dict())
@@ -313,7 +313,7 @@ async def predict_patient_readmission(
 async def predict_customer_churn(
     request: CustomerChurnRequest,
 ) -> CustomerChurnResponse:
-    """Predict customer churn risk"""
+    """Predict customer churn risk."""
     try:
         # Engineer features
         features = feature_engineer.engineer_customer_features(request.dict())
@@ -381,7 +381,7 @@ async def predict_customer_churn(
     output=JSON(pydantic_model=IoTAnomalyResponse),
 )
 async def detect_iot_anomaly(request: IoTAnomalyRequest) -> IoTAnomalyResponse:
-    """Detect IoT sensor anomalies"""
+    """Detect IoT sensor anomalies."""
     try:
         # Engineer features
         features = feature_engineer.engineer_iot_features(request.dict())
@@ -428,7 +428,7 @@ async def detect_iot_anomaly(request: IoTAnomalyRequest) -> IoTAnomalyResponse:
 # Batch prediction endpoints
 @svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_predict_patients(df: pd.DataFrame) -> pd.DataFrame:
-    """Batch prediction for multiple patients"""
+    """Batch prediction for multiple patients."""
     results = []
 
     for _, row in df.iterrows():
@@ -441,7 +441,7 @@ async def batch_predict_patients(df: pd.DataFrame) -> pd.DataFrame:
 
 @svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_predict_customers(df: pd.DataFrame) -> pd.DataFrame:
-    """Batch prediction for multiple customers"""
+    """Batch prediction for multiple customers."""
     results = []
 
     for _, row in df.iterrows():
@@ -454,7 +454,7 @@ async def batch_predict_customers(df: pd.DataFrame) -> pd.DataFrame:
 
 @svc.api(input=PandasDataFrame(), output=PandasDataFrame())
 async def batch_detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
-    """Batch anomaly detection for IoT devices"""
+    """Batch anomaly detection for IoT devices."""
     results = []
 
     for _, row in df.iterrows():
@@ -468,7 +468,7 @@ async def batch_detect_anomalies(df: pd.DataFrame) -> pd.DataFrame:
 # Health check endpoint
 @svc.api(input=JSON(), output=JSON())
 async def health_check(request: Dict) -> Dict:
-    """Health check endpoint"""
+    """Health check endpoint."""
     return {
         "status": "healthy",
         "models": {
@@ -483,7 +483,7 @@ async def health_check(request: Dict) -> Dict:
 # Model metadata endpoint
 @svc.api(input=JSON(), output=JSON())
 async def model_info(request: Dict) -> Dict:
-    """Get model information"""
+    """Get model information."""
     return {
         "patient_model": {
             "version": str(patient_model.tag),

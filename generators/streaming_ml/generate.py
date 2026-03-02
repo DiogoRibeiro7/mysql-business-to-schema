@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Streaming ML Platform Data Generator
+"""Streaming ML Platform Data Generator.
 
 Generates synthetic data for a streaming platform with ML features:
 - User behavior and engagement data
@@ -18,15 +17,15 @@ import yaml
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Any, Tuple
-import hashlib
-import math
+from typing import Dict, List, Any
 from faker import Faker
 
 
 class StreamingMLGenerator:
+    """Represent StreamingMLGenerator."""
+
     def __init__(self, config_path: str = "config.yaml"):
-        """Initialize the Streaming ML data generator"""
+        """Initialize the Streaming ML data generator."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -63,7 +62,7 @@ class StreamingMLGenerator:
         )
 
     def generate_all(self):
-        """Generate all data"""
+        """Generate all data."""
         print("Starting Streaming ML data generation...")
 
         # Generate static data
@@ -102,7 +101,7 @@ class StreamingMLGenerator:
         print("[OK] Data generation complete!")
 
     def generate_categories(self):
-        """Generate content categories"""
+        """Generate content categories."""
         categories = [
             "Music",
             "Video",
@@ -143,7 +142,7 @@ class StreamingMLGenerator:
             )
 
     def generate_creators(self):
-        """Generate content creators"""
+        """Generate content creators."""
         creator_types = ["individual", "studio", "network", "brand", "aggregator"]
 
         for i in range(self.config["counts"]["creators"]):
@@ -173,7 +172,7 @@ class StreamingMLGenerator:
             )
 
     def generate_content_items(self):
-        """Generate content metadata"""
+        """Generate content metadata."""
         content_types = list(self.config["content_distribution"]["categories"].keys())
         quality_tiers = list(
             self.config["content_distribution"]["quality_tiers"].keys()
@@ -234,7 +233,7 @@ class StreamingMLGenerator:
             )
 
     def generate_users(self):
-        """Generate user profiles"""
+        """Generate user profiles."""
         segments = list(self.config["user_distribution"]["segments"].keys())
         segment_weights = list(self.config["user_distribution"]["segments"].values())
         regions = list(self.config["user_distribution"]["regions"].keys())
@@ -295,7 +294,7 @@ class StreamingMLGenerator:
             )
 
     def generate_ab_test_assignments(self):
-        """Assign users to A/B tests"""
+        """Assign users to A/B tests."""
         for test_config in self.config["ab_testing"]["active_tests"]:
             test_name = test_config["name"]
             variants = test_config["variants"]
@@ -318,7 +317,7 @@ class StreamingMLGenerator:
                     )
 
     def generate_user_sessions_and_events(self):
-        """Generate user sessions and interaction events"""
+        """Generate user sessions and interaction events."""
         event_types = list(
             self.config["engagement_patterns"]["interaction_weights"].keys()
         )
@@ -465,7 +464,7 @@ class StreamingMLGenerator:
             current_date += timedelta(days=1)
 
     def generate_recommendations(self):
-        """Generate recommendation system data"""
+        """Generate recommendation system data."""
         algorithms = list(self.config["recommendation_system"]["algorithms"].keys())
         algorithm_weights = list(
             self.config["recommendation_system"]["algorithms"].values()
@@ -534,7 +533,7 @@ class StreamingMLGenerator:
                 rec_id += 1
 
     def generate_ml_features(self):
-        """Generate ML feature vectors for users"""
+        """Generate ML feature vectors for users."""
         # Calculate features for each user
         for user in self.users[:1000]:  # Limit for performance
             user_events = [e for e in self.events if e["user_id"] == user["user_id"]]
@@ -554,7 +553,7 @@ class StreamingMLGenerator:
             avg_session_duration = total_time_spent / max(total_sessions, 1)
 
             # Content diversity
-            unique_content = len(set(e["content_id"] for e in user_events))
+            unique_content = len({e["content_id"] for e in user_events})
             content_diversity = unique_content / max(len(user_events), 1)
 
             # Peak usage hour
@@ -607,7 +606,7 @@ class StreamingMLGenerator:
             )
 
     def generate_revenue_events(self):
-        """Generate revenue and transaction events"""
+        """Generate revenue and transaction events."""
         tier_prices = self.config["revenue_model"]["tier_prices"]
 
         revenue_id = 1
@@ -691,7 +690,7 @@ class StreamingMLGenerator:
                     revenue_id += 1
 
     def write_all_data(self):
-        """Write all generated data to CSV files"""
+        """Write all generated data to CSV files."""
         # Categories
         self._write_csv(
             "categories.csv",
@@ -872,7 +871,7 @@ class StreamingMLGenerator:
         self.write_summary()
 
     def _write_csv(self, filename: str, data: List[Dict], fieldnames: List[str]):
-        """Helper to write CSV files"""
+        """Write CSV files."""
         filepath = self.output_dir / filename
         with open(filepath, "w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction="ignore")
@@ -881,7 +880,7 @@ class StreamingMLGenerator:
         print(f"  Wrote {len(data):,} records to {filename}")
 
     def write_summary(self):
-        """Write generation summary"""
+        """Write generation summary."""
         summary = {
             "generation_timestamp": datetime.now().isoformat(),
             "seed": self.seed,
@@ -917,11 +916,11 @@ class StreamingMLGenerator:
                     if r["revenue_type"] == "in_app_purchase"
                 ),
                 "paying_users": len(
-                    set(
+                    {
                         r["user_id"]
                         for r in self.revenue_events
                         if r["status"] == "completed"
-                    )
+                    }
                 ),
             },
         }
@@ -942,6 +941,7 @@ class StreamingMLGenerator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Streaming ML platform data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

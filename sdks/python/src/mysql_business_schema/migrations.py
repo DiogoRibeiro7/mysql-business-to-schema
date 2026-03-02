@@ -1,6 +1,4 @@
-"""
-Migration management for MySQL Business-to-Schema SDK
-"""
+"""Migration management for MySQL Business-to-Schema SDK."""
 
 import hashlib
 import logging
@@ -9,19 +7,16 @@ from typing import List, Optional, Dict, Any
 from pathlib import Path
 
 from .models import Migration, MigrationStatus
-from .exceptions import MigrationError, ValidationError
+from .exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
 
 class MigrationManager:
-    """
-    Manage database migrations programmatically.
-    """
+    """Manage database migrations programmatically."""
 
     def __init__(self, client):
-        """
-        Initialize migration manager.
+        """Initialize migration manager.
 
         Args:
             client: MySQLSchemaClient instance
@@ -36,8 +31,7 @@ class MigrationManager:
         down_script: Optional[str] = None,
         description: Optional[str] = None,
     ) -> Migration:
-        """
-        Create a new migration.
+        """Create a new migration.
 
         Args:
             name: Migration name
@@ -59,7 +53,7 @@ class MigrationManager:
         version = datetime.now().strftime("%Y%m%d%H%M%S")
 
         # Generate checksum
-        checksum = self._calculate_checksum(up_script)
+        _ = self._calculate_checksum(up_script)
 
         # Validate scripts
         self._validate_sql(up_script)
@@ -83,8 +77,7 @@ class MigrationManager:
     def apply_migrations(
         self, target_version: Optional[str] = None, dry_run: bool = False
     ) -> List[Migration]:
-        """
-        Apply pending migrations up to target version.
+        """Apply pending migrations up to target version.
 
         Args:
             target_version: Target version to migrate to (latest if None)
@@ -111,8 +104,7 @@ class MigrationManager:
     def rollback_migrations(
         self, steps: int = 1, target_version: Optional[str] = None
     ) -> List[Migration]:
-        """
-        Rollback migrations.
+        """Rollback migrations.
 
         Args:
             steps: Number of migrations to rollback
@@ -132,8 +124,7 @@ class MigrationManager:
         return [result]
 
     def get_status(self) -> Dict[str, Any]:
-        """
-        Get current migration status.
+        """Get current migration status.
 
         Returns:
             Migration status information
@@ -159,8 +150,7 @@ class MigrationManager:
         }
 
     def validate_migration(self, migration: Migration) -> bool:
-        """
-        Validate a migration before applying.
+        """Validate a migration before applying.
 
         Args:
             migration: Migration to validate
@@ -191,8 +181,7 @@ class MigrationManager:
     def generate_migration_from_diff(
         self, source_database: str, target_database: str, name: str
     ) -> Migration:
-        """
-        Generate migration from database differences.
+        """Generate migration from database differences.
 
         Args:
             source_database: Source database name
@@ -286,8 +275,7 @@ class MigrationManager:
     def load_migrations_from_directory(
         self, directory: Optional[Path] = None
     ) -> List[Migration]:
-        """
-        Load migrations from local directory.
+        """Load migrations from local directory.
 
         Args:
             directory: Directory containing migration files

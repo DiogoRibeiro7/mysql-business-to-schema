@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL Query Performance Analyzer
+"""MySQL Query Performance Analyzer.
 
 Analyzes query performance across all database examples, providing:
 - EXPLAIN plan analysis
@@ -11,17 +10,17 @@ Analyzes query performance across all database examples, providing:
 
 import argparse
 import json
-import re
 import time
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import mysql.connector
 from mysql.connector import Error
 from tabulate import tabulate
-import yaml
 
 
 class QueryPerformanceAnalyzer:
+    """Represent QueryPerformanceAnalyzer."""
+
     def __init__(self, host="localhost", port=3306, user="root", password=""):
         """Initialize the analyzer with database connection parameters."""
         self.host = host
@@ -74,7 +73,7 @@ class QueryPerformanceAnalyzer:
             result["index_usage"] = self._analyze_explain(result["explain_plan"])
 
             # Run query multiple times for timing
-            for i in range(3):
+            for _ in range(3):
                 start_time = time.time()
                 cursor.execute(query)
                 cursor.fetchall()  # Fetch all results to complete execution
@@ -274,23 +273,23 @@ class QueryPerformanceAnalyzer:
             report.append(f"   Query: {result['query']}")
 
             # Execution times
-            report.append(f"\n   ⏱️ Execution Times:")
-            report.append(f"      Average: {result['avg_execution_time']:.2f}ms")
+            report.append("\n   ⏱️ Execution Times:")
+            report.append(
+                f"      Average: {result['avg_execution_time']:.2f}ms"
+            )
             report.append(f"      Min: {result['min_execution_time']:.2f}ms")
             report.append(f"      Max: {result['max_execution_time']:.2f}ms")
 
             # Index usage
             index_info = result["index_usage"]
-            report.append(f"\n   📚 Index Usage:")
-
+            report.append("\n   📚 Index Usage:")
             if index_info["indexes_used"]:
                 for idx in index_info["indexes_used"]:
                     report.append(
                         f"      ✓ Table '{idx['table']}' uses index '{idx['index']}'"
                     )
             else:
-                report.append(f"      ⚠️ No indexes used")
-
+                report.append("      ⚠️ No indexes used")
             if index_info["full_table_scans"]:
                 for scan in index_info["full_table_scans"]:
                     report.append(
@@ -302,7 +301,7 @@ class QueryPerformanceAnalyzer:
             )
 
             # Recommendations
-            report.append(f"\n   💡 Recommendations:")
+            report.append("\n   💡 Recommendations:")
             for rec in result["recommendations"]:
                 report.append(f"      {rec}")
 
@@ -363,7 +362,7 @@ class QueryPerformanceAnalyzer:
             optimized_queries = 0
             queries_with_issues = 0
 
-            for file_name, file_queries in example_result["query_files"].items():
+            for _, file_queries in example_result["query_files"].items():
                 for query in file_queries:
                     if "error" not in query:
                         total_queries += 1
@@ -407,6 +406,7 @@ class QueryPerformanceAnalyzer:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="MySQL Query Performance Analyzer")
     parser.add_argument("--host", default="localhost", help="MySQL host")
     parser.add_argument("--port", type=int, default=3306, help="MySQL port")

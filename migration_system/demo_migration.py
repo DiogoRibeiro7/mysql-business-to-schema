@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Migration System Demonstration
+"""Migration System Demonstration.
 
 This script demonstrates the automated migration system capabilities:
 1. Creating migrations from MySQL to PostgreSQL
@@ -9,14 +8,10 @@ This script demonstrates the automated migration system capabilities:
 """
 
 import os
-import sys
-import tempfile
-from datetime import datetime
 
 # Add current directory to path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from migration_manager import MigrationManager, DatabaseType
+from migration_system.migration_manager import MigrationManager, DatabaseType
 
 
 # Sample MySQL schema for demonstration
@@ -110,8 +105,7 @@ CREATE TABLE reviews (
 
 
 def demonstrate_migration_system():
-    """Demonstrate the migration system capabilities"""
-
+    """Demonstrate the migration system capabilities."""
     print("=" * 70)
     print("DATABASE MIGRATION SYSTEM DEMONSTRATION")
     print("=" * 70)
@@ -248,7 +242,7 @@ def demonstrate_migration_system():
     print(f"\nMigration files created in: {migrations_dir}")
 
     # List generated files
-    for root, dirs, files in os.walk(migrations_dir):
+    for root, _, files in os.walk(migrations_dir):
         level = root.replace(migrations_dir, "").count(os.sep)
         indent = " " * 2 * level
         print(f"{indent}{os.path.basename(root)}/")

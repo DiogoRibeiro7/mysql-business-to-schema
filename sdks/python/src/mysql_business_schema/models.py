@@ -1,11 +1,9 @@
-"""
-Data models for MySQL Business-to-Schema SDK
-"""
+"""Data models for MySQL Business-to-Schema SDK."""
 
 from datetime import datetime
 from enum import Enum
 from typing import List, Dict, Any, Optional
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr
 
 
 # ============================================
@@ -14,6 +12,8 @@ from pydantic import BaseModel, Field, EmailStr
 
 
 class UserRole(str, Enum):
+    """Represent UserRole."""
+
     ADMIN = "admin"
     DEVELOPER = "developer"
     ANALYST = "analyst"
@@ -21,6 +21,8 @@ class UserRole(str, Enum):
 
 
 class MigrationStatus(str, Enum):
+    """Represent MigrationStatus."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -29,18 +31,24 @@ class MigrationStatus(str, Enum):
 
 
 class BackupType(str, Enum):
+    """Represent BackupType."""
+
     FULL = "full"
     INCREMENTAL = "incremental"
     DIFFERENTIAL = "differential"
 
 
 class BackupStatus(str, Enum):
+    """Represent BackupStatus."""
+
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
 
 
 class AlertCondition(str, Enum):
+    """Represent AlertCondition."""
+
     GREATER_THAN = "greater_than"
     LESS_THAN = "less_than"
     EQUALS = "equals"

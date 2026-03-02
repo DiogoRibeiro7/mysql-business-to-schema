@@ -1,12 +1,9 @@
-"""
-Query Manager for saving, sharing, and managing SQL queries
-"""
+"""Query Manager for saving, sharing, and managing SQL queries."""
 
 import logging
 import json
-import hashlib
 from typing import List, Dict, Any, Optional
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 import uuid
 
@@ -14,9 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class QueryManager:
-    """Manages saved queries, collections, and sharing"""
+    """Manages saved queries, collections, and sharing."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.storage_path = Path(__file__).parent.parent.parent / "saved_queries"
         self.storage_path.mkdir(exist_ok=True)
         self.queries = {}
@@ -27,7 +25,7 @@ class QueryManager:
         self._load_saved_queries()
 
     def _load_saved_queries(self):
-        """Load saved queries from storage"""
+        """Load saved queries from storage."""
         try:
             # Load queries
             queries_file = self.storage_path / "queries.json"
@@ -45,7 +43,7 @@ class QueryManager:
             logger.error(f"Error loading saved queries: {e}")
 
     def _save_to_storage(self):
-        """Persist queries to storage"""
+        """Persist queries to storage."""
         try:
             queries_file = self.storage_path / "queries.json"
             data = {
@@ -61,7 +59,7 @@ class QueryManager:
             logger.error(f"Error saving queries: {e}")
 
     def save_query(self, user_id: str, query_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Save a new query or update existing one"""
+        """Save a new query or update existing one."""
         query_id = query_data.get("id") or str(uuid.uuid4())
 
         # Create query object
@@ -99,7 +97,7 @@ class QueryManager:
         }
 
     def _create_version(self, query_id: str, query_data: Dict[str, Any]):
-        """Create a version of a query before updating"""
+        """Create a version of a query before updating."""
         if query_id not in self.query_versions:
             self.query_versions[query_id] = []
 
@@ -120,7 +118,7 @@ class QueryManager:
             self.query_versions[query_id] = self.query_versions[query_id][-10:]
 
     def get_query(self, query_id: str, user_id: str) -> Optional[Dict[str, Any]]:
-        """Get a specific query if user has access"""
+        """Get a specific query if user has access."""
         query = self.queries.get(query_id)
 
         if not query:
@@ -139,7 +137,7 @@ class QueryManager:
     def get_user_queries(
         self, user_id: str, include_shared: bool = True
     ) -> List[Dict[str, Any]]:
-        """Get all queries accessible to a user"""
+        """Get all queries accessible to a user."""
         user_queries = []
 
         for query in self.queries.values():
@@ -155,7 +153,7 @@ class QueryManager:
         return user_queries
 
     def delete_query(self, query_id: str, user_id: str) -> Dict[str, Any]:
-        """Delete a query if user is owner"""
+        """Delete a query if user is owner."""
         query = self.queries.get(query_id)
 
         if not query:
@@ -185,7 +183,7 @@ class QueryManager:
     def create_collection(
         self, user_id: str, collection_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Create a new query collection"""
+        """Create a new query collection."""
         collection_id = str(uuid.uuid4())
 
         collection = {
@@ -212,7 +210,7 @@ class QueryManager:
         }
 
     def get_user_collections(self, user_id: str) -> List[Dict[str, Any]]:
-        """Get all collections for a user"""
+        """Get all collections for a user."""
         user_collections = []
 
         for collection in self.collections.values():
@@ -231,7 +229,7 @@ class QueryManager:
     def share_query(
         self, query_id: str, owner_id: str, share_data: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Share a query with other users"""
+        """Share a query with other users."""
         query = self.queries.get(query_id)
 
         if not query:
@@ -261,7 +259,7 @@ class QueryManager:
         }
 
     def duplicate_query(self, query_id: str, user_id: str) -> Dict[str, Any]:
-        """Duplicate an existing query"""
+        """Duplicate an existing query."""
         original = self.get_query(query_id, user_id)
 
         if not original:
@@ -288,7 +286,7 @@ class QueryManager:
         }
 
     def get_query_versions(self, query_id: str, user_id: str) -> List[Dict[str, Any]]:
-        """Get version history for a query"""
+        """Get version history for a query."""
         query = self.get_query(query_id, user_id)
 
         if not query:
@@ -299,7 +297,7 @@ class QueryManager:
     def restore_version(
         self, query_id: str, version_id: str, user_id: str
     ) -> Dict[str, Any]:
-        """Restore a previous version of a query"""
+        """Restore a previous version of a query."""
         query = self.queries.get(query_id)
 
         if not query:
@@ -332,7 +330,7 @@ class QueryManager:
         }
 
     def record_execution(self, query_id: str, execution_data: Dict[str, Any]):
-        """Record query execution for performance history"""
+        """Record query execution for performance history."""
         if query_id not in self.queries:
             return
 
@@ -379,7 +377,7 @@ class QueryManager:
     def get_performance_history(
         self, query_id: str, user_id: str
     ) -> List[Dict[str, Any]]:
-        """Get performance history for a query"""
+        """Get performance history for a query."""
         query = self.get_query(query_id, user_id)
 
         if not query:
@@ -388,7 +386,7 @@ class QueryManager:
         return self.performance_history.get(query_id, [])
 
     def search_queries(self, user_id: str, search_term: str) -> List[Dict[str, Any]]:
-        """Search queries by name, description, or SQL content"""
+        """Search queries by name, description, or SQL content."""
         user_queries = self.get_user_queries(user_id)
         search_lower = search_term.lower()
 
@@ -405,12 +403,12 @@ class QueryManager:
         return results
 
     def get_favorite_queries(self, user_id: str) -> List[Dict[str, Any]]:
-        """Get user's favorite queries"""
+        """Get user's favorite queries."""
         user_queries = self.get_user_queries(user_id)
         return [q for q in user_queries if q.get("favorite", False)]
 
     def toggle_favorite(self, query_id: str, user_id: str) -> Dict[str, Any]:
-        """Toggle favorite status of a query"""
+        """Toggle favorite status of a query."""
         query = self.queries.get(query_id)
 
         if not query:

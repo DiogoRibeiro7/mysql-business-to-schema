@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Logistics and Supply Chain Data Generator
+"""Logistics and Supply Chain Data Generator.
+
 Generates realistic data for warehouse management, inventory, shipping, and distribution
 """
 
@@ -8,15 +8,12 @@ import csv
 import json
 import random
 import hashlib
-import uuid
 from datetime import datetime, timedelta, date
-from decimal import Decimal
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -44,8 +41,11 @@ CONFIG = {
 
 
 class LogisticsGenerator:
+    """Represent LogisticsGenerator."""
+
     def __init__(self):
         # Warehouse entities
+        """Initialize the instance."""
         self.warehouses: List[Any] = []
         self.warehouse_zones: List[Any] = []
         self.warehouse_bins: List[Any] = []
@@ -113,9 +113,9 @@ class LogisticsGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all logistics data"""
+        """Generate all logistics data."""
         print("Starting Logistics & Supply Chain Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Warehouses: {CONFIG['warehouses']}")
         print(f"  Products: {CONFIG['products']}")
         print(f"  Days of history: {CONFIG['days_of_history']}")
@@ -160,7 +160,7 @@ class LogisticsGenerator:
         self.save_all()
 
     def generate_warehouses(self):
-        """Generate warehouse facilities"""
+        """Generate warehouse facilities."""
         print(f"Generating {CONFIG['warehouses']} warehouses...")
 
         warehouse_types = [
@@ -212,7 +212,7 @@ class LogisticsGenerator:
             )
 
     def generate_warehouse_zones(self):
-        """Generate zones within warehouses"""
+        """Generate zones within warehouses."""
         print("Generating warehouse zones...")
 
         zone_types = [
@@ -248,7 +248,7 @@ class LogisticsGenerator:
                 )
 
     def generate_warehouse_bins(self):
-        """Generate storage bins within zones"""
+        """Generate storage bins within zones."""
         print("Generating warehouse bins...")
 
         bin_types = ["Floor", "Pallet Rack", "Shelving", "Bulk"]
@@ -281,7 +281,7 @@ class LogisticsGenerator:
                     )
 
     def generate_docking_stations(self):
-        """Generate loading docks"""
+        """Generate loading docks."""
         print("Generating docking stations...")
 
         for warehouse in self.warehouses:
@@ -306,7 +306,7 @@ class LogisticsGenerator:
                 )
 
     def generate_products(self):
-        """Generate product catalog"""
+        """Generate product catalog."""
         print(f"Generating {CONFIG['products']} products...")
 
         categories = [
@@ -369,7 +369,7 @@ class LogisticsGenerator:
             )
 
     def generate_inventory_levels(self):
-        """Generate current inventory levels"""
+        """Generate current inventory levels."""
         print("Generating inventory levels...")
 
         for product in self.products:
@@ -425,7 +425,7 @@ class LogisticsGenerator:
                 )
 
     def generate_product_batches(self):
-        """Generate product batches/lots"""
+        """Generate product batches/lots."""
         print("Generating product batches...")
 
         for inventory in self.inventory_levels[:200]:  # Limit for demo
@@ -477,10 +477,10 @@ class LogisticsGenerator:
                     )
 
     def generate_suppliers(self):
-        """Generate suppliers"""
+        """Generate suppliers."""
         print(f"Generating {CONFIG['suppliers']} suppliers...")
 
-        for i in range(CONFIG["suppliers"]):
+        for _ in range(CONFIG["suppliers"]):
             self.supplier_id += 1
 
             self.suppliers.append(
@@ -509,12 +509,12 @@ class LogisticsGenerator:
             )
 
     def generate_customers(self):
-        """Generate customers"""
+        """Generate customers."""
         print(f"Generating {CONFIG['customers']} customers...")
 
         customer_types = ["Retail", "Wholesale", "B2B", "E-commerce"]
 
-        for i in range(CONFIG["customers"]):
+        for _ in range(CONFIG["customers"]):
             self.customer_id += 1
 
             customer_type = random.choice(customer_types)
@@ -563,10 +563,10 @@ class LogisticsGenerator:
             )
 
     def generate_purchase_orders(self):
-        """Generate purchase orders"""
+        """Generate purchase orders."""
         print("Generating purchase orders...")
 
-        statuses = ["Draft", "Submitted", "Approved", "Received", "Closed", "Cancelled"]
+        _ = ["Draft", "Submitted", "Approved", "Received", "Closed", "Cancelled"]
 
         # Generate historical orders
         current = self.start_date
@@ -651,10 +651,10 @@ class LogisticsGenerator:
             current += timedelta(days=1)
 
     def generate_sales_orders(self):
-        """Generate sales orders"""
+        """Generate sales orders."""
         print("Generating sales orders...")
 
-        statuses = [
+        _ = [
             "Pending",
             "Processing",
             "Packed",
@@ -770,7 +770,7 @@ class LogisticsGenerator:
             current += timedelta(days=1)
 
     def generate_carriers(self):
-        """Generate shipping carriers"""
+        """Generate shipping carriers."""
         print(f"Generating {CONFIG['carriers']} carriers...")
 
         carrier_names = [
@@ -808,7 +808,7 @@ class LogisticsGenerator:
             )
 
     def generate_carrier_services(self):
-        """Generate carrier service types"""
+        """Generate carrier service types."""
         print("Generating carrier services...")
 
         services = {
@@ -845,7 +845,7 @@ class LogisticsGenerator:
                 )
 
     def generate_shipments(self):
-        """Generate shipments for orders"""
+        """Generate shipments for orders."""
         print("Generating shipments...")
 
         # Create shipments for shipped/delivered sales orders
@@ -904,7 +904,7 @@ class LogisticsGenerator:
             )
 
     def generate_shipment_tracking(self):
-        """Generate shipment tracking events"""
+        """Generate shipment tracking events."""
         print("Generating shipment tracking...")
 
         tracking_statuses = [
@@ -921,7 +921,7 @@ class LogisticsGenerator:
                 current_time = shipment["ship_date"]
 
                 # Generate tracking events
-                for i, status in enumerate(
+                for _, status in enumerate(
                     tracking_statuses[:5]
                     if shipment["status"] == "Delivered"
                     else tracking_statuses[:3]
@@ -948,12 +948,12 @@ class LogisticsGenerator:
                         break
 
     def generate_vehicles(self):
-        """Generate delivery vehicles"""
+        """Generate delivery vehicles."""
         print(f"Generating {CONFIG['vehicles']} vehicles...")
 
         vehicle_types = ["Van", "Truck", "Semi-Trailer", "Box Truck"]
 
-        for i in range(CONFIG["vehicles"]):
+        for _ in range(CONFIG["vehicles"]):
             self.vehicle_id += 1
 
             vehicle_type = random.choice(vehicle_types)
@@ -994,10 +994,10 @@ class LogisticsGenerator:
             )
 
     def generate_drivers(self):
-        """Generate drivers"""
+        """Generate drivers."""
         print(f"Generating {CONFIG['drivers']} drivers...")
 
-        for i in range(CONFIG["drivers"]):
+        for _ in range(CONFIG["drivers"]):
             self.driver_id += 1
 
             hire_date = fake.date_between(start_date="-5y", end_date="today")
@@ -1028,7 +1028,7 @@ class LogisticsGenerator:
             )
 
     def generate_routes(self):
-        """Generate delivery routes"""
+        """Generate delivery routes."""
         print("Generating delivery routes...")
 
         # Generate daily routes
@@ -1054,7 +1054,7 @@ class LogisticsGenerator:
 
                 if day_orders:
                     num_stops = min(len(day_orders), random.randint(5, 20))
-                    route_orders = random.sample(day_orders, num_stops)
+                    _ = random.sample(day_orders, num_stops)
 
                     self.routes.append(
                         {
@@ -1085,7 +1085,7 @@ class LogisticsGenerator:
             current += timedelta(days=1)
 
     def generate_delivery_runs(self):
-        """Generate delivery run assignments"""
+        """Generate delivery run assignments."""
         print("Generating delivery runs...")
 
         for route in self.routes:
@@ -1161,10 +1161,10 @@ class LogisticsGenerator:
                         )
 
     def generate_inventory_movements(self):
-        """Generate inventory movement records"""
+        """Generate inventory movement records."""
         print("Generating inventory movements...")
 
-        movement_types = ["Receipt", "Shipment", "Transfer", "Adjustment", "Return"]
+        _ = ["Receipt", "Shipment", "Transfer", "Adjustment", "Return"]
 
         # Generate movements for recent orders
         for po in self.purchase_orders[-100:]:  # Last 100 POs
@@ -1206,7 +1206,7 @@ class LogisticsGenerator:
                         )
 
     def generate_kpi_metrics(self):
-        """Generate KPI metrics"""
+        """Generate KPI metrics."""
         print("Generating KPI metrics...")
 
         # Generate daily metrics
@@ -1279,7 +1279,7 @@ class LogisticsGenerator:
             current += timedelta(days=1)
 
     def generate_audit_log(self):
-        """Generate audit log entries"""
+        """Generate audit log entries."""
         print("Generating audit logs...")
 
         actions = ["CREATE", "UPDATE", "DELETE", "VIEW", "EXPORT"]
@@ -1317,7 +1317,7 @@ class LogisticsGenerator:
             )
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1364,46 +1364,46 @@ class LogisticsGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nLogistics & Supply Chain Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nLogistics & Supply Chain Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nInfrastructure:")
+        print("\nInfrastructure:")
         print(f"  Warehouses: {len(self.warehouses)}")
         print(f"  Warehouse Zones: {len(self.warehouse_zones)}")
         print(f"  Storage Bins: {len(self.warehouse_bins)}")
         print(f"  Docking Stations: {len(self.docking_stations)}")
 
-        print(f"\nInventory:")
+        print("\nInventory:")
         print(f"  Products: {len(self.products)}")
         print(f"  Inventory Locations: {len(self.inventory_levels)}")
         print(f"  Product Batches: {len(self.product_batches)}")
         print(f"  Inventory Movements: {len(self.inventory_movements)}")
 
-        print(f"\nPartners:")
+        print("\nPartners:")
         print(f"  Suppliers: {len(self.suppliers)}")
         print(f"  Customers: {len(self.customers)}")
 
-        print(f"\nOrders:")
+        print("\nOrders:")
         print(f"  Purchase Orders: {len(self.purchase_orders)}")
         print(f"  Sales Orders: {len(self.sales_orders)}")
         print(
             f"  Total Order Items: {len(self.purchase_order_items) + len(self.sales_order_items):,}"
         )
 
-        print(f"\nShipping:")
+        print("\nShipping:")
         print(f"  Carriers: {len(self.carriers)}")
         print(f"  Carrier Services: {len(self.carrier_services)}")
         print(f"  Shipments: {len(self.shipments)}")
         print(f"  Tracking Events: {len(self.shipment_tracking)}")
 
-        print(f"\nFleet:")
+        print("\nFleet:")
         print(f"  Vehicles: {len(self.vehicles)}")
         print(f"  Drivers: {len(self.drivers)}")
         print(f"  Routes: {len(self.routes)}")
         print(f"  Delivery Runs: {len(self.delivery_runs)}")
 
-        print(f"\nAnalytics:")
+        print("\nAnalytics:")
         print(f"  KPI Metrics: {len(self.kpi_metrics)}")
         print(f"  Audit Logs: {len(self.audit_log)}")
 
@@ -1421,11 +1421,11 @@ class LogisticsGenerator:
         )
         if len(self.sales_orders) > 0:
             delivery_rate = (delivered_orders / len(self.sales_orders)) * 100
-            print(f"\nPerformance:")
+            print("\nPerformance:")
             print(f"  Order Delivery Rate: {delivery_rate:.1f}%")
             print(f"  Total Inventory Value: ${total_inventory_value:,.2f}")
 
-        print(f"\nFiles Generated: 24")
+        print("\nFiles Generated: 24")
 
 
 if __name__ == "__main__":

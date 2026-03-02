@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""
-IoT Waste Management System - Test Generator
+
+"""IoT Waste Management System - Test Generator.
+
 Quick test with smaller dataset
 """
 
-import sys
 from pathlib import Path
+import generators.iot_bins.generator as generator
 
 # Override configuration for testing
 TEST_CONFIG = {
@@ -26,8 +27,6 @@ for key, value in TEST_CONFIG.items():
 print()
 
 # Import and override the configuration
-sys.path.insert(0, str(Path(__file__).parent))
-import generator
 
 # Override configuration
 generator.CONFIG = TEST_CONFIG
@@ -43,4 +42,4 @@ if __name__ == "__main__":
     gen.generate_all()
 
     print("\n[SUCCESS] TEST generation complete!")
-    print(f"Files saved to: test_output/")
+    print("Files saved to: test_output/")

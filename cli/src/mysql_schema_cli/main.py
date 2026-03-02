@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-"""
-MySQL Business-to-Schema CLI - Main entry point
-"""
+"""MySQL Business-to-Schema CLI - Main entry point."""
 
 import os
 import sys
 import click
-from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
-from rich import print as rprint
 
 from .commands import (
     init,
@@ -28,17 +24,17 @@ from .version import __version__
 
 console = Console()
 
-CONTEXT_SETTINGS = dict(
-    help_option_names=["-h", "--help"],
-    max_content_width=120,
-)
+CONTEXT_SETTINGS = {
+    "help_option_names": ["-h", "--help"],
+    "max_content_width": 120,
+}
 
 
 class AliasedGroup(click.Group):
     """Custom group that supports command aliases."""
 
     def get_command(self, ctx, cmd_name):
-        # Command aliases
+        """Handle command lookup with aliases."""
         aliases = {
             "g": "generate",
             "gen": "generate",
@@ -67,13 +63,12 @@ class AliasedGroup(click.Group):
 @click.option("--json", "output_json", is_flag=True, help="Output in JSON format")
 @click.pass_context
 def cli(ctx, config, verbose, profile, no_color, output_json):
-    """
-    MySQL Business-to-Schema CLI - Unified tool for database management.
+    """Run the MySQL Business-to-Schema CLI.
 
     A powerful command-line interface for managing MySQL schemas, migrations,
     data generation, monitoring, and deployment.
 
-    \b
+    
     Quick Examples:
         mysql-schema init myproject              # Initialize new project
         mysql-schema generate clinic --rows 1000 # Generate test data
@@ -81,7 +76,7 @@ def cli(ctx, config, verbose, profile, no_color, output_json):
         mysql-schema monitor status              # Check system status
         mysql-schema deploy k8s                  # Deploy to Kubernetes
 
-    \b
+    
     Command Aliases:
         g, gen  → generate
         m, mig  → migrate
@@ -158,8 +153,7 @@ def interactive(ctx):
 @cli.command()
 @click.argument("command", required=False)
 def shell(command):
-    """
-    Start interactive shell or execute shell command.
+    """Start interactive shell or execute shell command.
 
     Without arguments, starts an interactive MySQL shell.
     With arguments, executes the command in the context of the project.
@@ -177,10 +171,9 @@ def shell(command):
 )
 @click.option("--path", type=click.Path(), help="Installation path")
 def completion(shell, path):
-    """
-    Generate shell completion scripts.
+    """Generate shell completion scripts.
 
-    \b
+    
     Examples:
         mysql-schema completion --shell bash >> ~/.bashrc
         mysql-schema completion --shell zsh >> ~/.zshrc
@@ -213,10 +206,9 @@ def info(ctx, format):
 @click.option("--validate", is_flag=True, help="Validate syntax only")
 @click.pass_context
 def validate(ctx, path, watch, validate):
-    """
-    Validate SQL files, schemas, or configurations.
+    """Validate SQL files, schemas, or configurations.
 
-    \b
+    
     Validates:
         - SQL syntax and schema definitions
         - Migration files
@@ -260,7 +252,7 @@ def process_result(ctx, result, **kwargs):
 
 
 def main():
-    """Main entry point for the CLI."""
+    """Run entry point for the CLI."""
     try:
         # Enable auto-completion
         import click_completion

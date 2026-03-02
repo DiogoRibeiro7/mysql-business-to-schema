@@ -1,31 +1,27 @@
 #!/usr/bin/env python3
-"""
-Medical Clinic Data Generator - Refactored with BaseGenerator
+"""Medical Clinic Data Generator - Refactored with BaseGenerator.
+
 Generates realistic sample data for the medical clinic database schema
 """
 
-import sys
 import os
 import random
 import json
 import yaml
 import argparse
-from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Tuple
+from datetime import datetime, timedelta
+from typing import List, Any
 
-# Add parent directory to path to import base_generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from base_generator import BaseGenerator
+from generators.base_generator import BaseGenerator
 
-from faker import Faker
 from faker.providers import person, address, phone_number, company, date_time, python
 
 
 class ClinicDataGenerator(BaseGenerator):
-    """Medical Clinic Data Generator using BaseGenerator infrastructure"""
+    """Medical Clinic Data Generator using BaseGenerator infrastructure."""
 
     def __init__(self, config_path: str = "config.yaml", **db_params):
-        """Initialize the generator with configuration and database connection"""
+        """Initialize the generator with configuration and database connection."""
         # Initialize base class with database connection parameters
         super().__init__(**db_params)
 
@@ -188,7 +184,7 @@ class ClinicDataGenerator(BaseGenerator):
         ]
 
     def get_default_config(self) -> dict:
-        """Return default configuration if config file is not found"""
+        """Return default configuration if config file is not found."""
         return {
             "scale": {
                 "small": {
@@ -232,7 +228,7 @@ class ClinicDataGenerator(BaseGenerator):
         }
 
     def generate_clinics(self, count: int):
-        """Generate clinic data"""
+        """Generate clinic data."""
         for _ in range(count):
             clinic = {
                 "clinic_id": self.counters["clinic"],
@@ -255,7 +251,7 @@ class ClinicDataGenerator(BaseGenerator):
             self.counters["clinic"] += 1
 
     def generate_departments(self, departments_per_clinic: int):
-        """Generate department data"""
+        """Generate department data."""
         for clinic in self.clinics:
             for dept_type in random.sample(
                 self.department_types,
@@ -277,7 +273,7 @@ class ClinicDataGenerator(BaseGenerator):
                 self.counters["department"] += 1
 
     def generate_doctors(self, count: int):
-        """Generate doctor data"""
+        """Generate doctor data."""
         for _ in range(count):
             doctor = {
                 "doctor_id": self.counters["doctor"],
@@ -308,7 +304,7 @@ class ClinicDataGenerator(BaseGenerator):
             self.counters["doctor"] += 1
 
     def generate_patients(self, count: int):
-        """Generate patient data"""
+        """Generate patient data."""
         for _ in range(count):
             patient = {
                 "patient_id": self.counters["patient"],
@@ -344,7 +340,7 @@ class ClinicDataGenerator(BaseGenerator):
             self.counters["patient"] += 1
 
     def generate_appointments(self, count: int):
-        """Generate appointment data"""
+        """Generate appointment data."""
         start_date = datetime.strptime(
             self.config["settings"]["start_date"], "%Y-%m-%d"
         )
@@ -376,7 +372,7 @@ class ClinicDataGenerator(BaseGenerator):
             self.counters["appointment"] += 1
 
     def insert_data_to_database(self):
-        """Insert generated data into database using bulk operations"""
+        """Insert generated data into database using bulk operations."""
         try:
             # Connect to database
             self.connect()
@@ -434,7 +430,7 @@ class ClinicDataGenerator(BaseGenerator):
             self.disconnect()
 
     def generate_data(self, scale: str = "small"):
-        """Main method to generate all data"""
+        """Run method to generate all data."""
         scale_config = self.config["scale"][scale]
 
         print(f"\nGenerating {scale} scale data for clinic database...")
@@ -467,7 +463,7 @@ class ClinicDataGenerator(BaseGenerator):
         }
 
     def export_to_json(self, filename: str):
-        """Export generated data to JSON file"""
+        """Export generated data to JSON file."""
         data = {
             "clinics": self.clinics,
             "departments": self.departments,
@@ -481,7 +477,7 @@ class ClinicDataGenerator(BaseGenerator):
         print(f"\nData exported to {filename}")
 
     def export_to_sql(self, filename: str):
-        """Export generated data to SQL file (legacy support)"""
+        """Export generated data to SQL file (legacy support)."""
         sql_statements = []
 
         # Generate INSERT statements for each table
@@ -509,6 +505,7 @@ class ClinicDataGenerator(BaseGenerator):
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="Generate sample data for clinic database"
     )
@@ -549,7 +546,7 @@ def main():
     )
 
     # Generate data
-    data = generator.generate_data(args.scale)
+    _ = generator.generate_data(args.scale)
 
     # Output based on format
     if args.format == "database":

@@ -1,6 +1,4 @@
-"""
-End-to-end tests for web demo applications.
-"""
+"""End-to-end tests for web demo applications."""
 
 import pytest
 import requests
@@ -10,10 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
-import asyncio
 from playwright.async_api import async_playwright
 
 
@@ -23,7 +18,7 @@ class TestWebDemoUI:
 
     @pytest.fixture
     def chrome_driver(self):
-        """Setup Chrome driver for Selenium tests."""
+        """Set up Chrome driver for Selenium tests."""
         options = Options()
         options.add_argument("--headless")  # Run in headless mode
         options.add_argument("--no-sandbox")
@@ -67,7 +62,7 @@ class TestWebDemoUI:
         clinic_option.click()
 
         # Verify schema loaded
-        tables_container = wait.until(
+        _ = wait.until(
             EC.presence_of_element_located((By.CLASS_NAME, "tables-list"))
         )
 
@@ -98,7 +93,7 @@ class TestWebDemoUI:
         execute_btn.click()
 
         # Wait for results
-        results = wait.until(EC.presence_of_element_located((By.ID, "query-results")))
+        _ = wait.until(EC.presence_of_element_located((By.ID, "query-results")))
 
         # Verify results displayed
         rows = chrome_driver.find_elements(By.CSS_SELECTOR, "#query-results tr")
@@ -173,7 +168,7 @@ class TestGraphQLAPI:
 
     @pytest.fixture
     def graphql_url(self, test_config):
-        """GraphQL endpoint URL."""
+        """Provide GraphQL endpoint URL."""
         return test_config["graphql_endpoint"]
 
     def test_introspection_query(self, graphql_url):
@@ -277,10 +272,12 @@ class TestGraphQLAPI:
         message_queue = queue.Queue()
 
         def on_message(ws, message):
+            """Handle on message."""
             message_queue.put(json.loads(message))
 
         def on_open(ws):
             # Send subscription
+            """Handle on open."""
             subscription = {
                 "type": "start",
                 "payload": {
@@ -407,7 +404,7 @@ class TestRESTAPI:
         """Test API rate limiting."""
         # Make multiple rapid requests
         responses = []
-        for i in range(20):
+        for _ in range(20):
             response = requests.get(f"{api_base_url}/schemas")
             responses.append(response)
 
@@ -448,7 +445,7 @@ class TestAuthentication:
 
     @pytest.fixture
     def auth_api_url(self, test_config):
-        """Authentication API URL."""
+        """Provide authentication API URL."""
         return f"{test_config['web_demo']['url']}/api/auth"
 
     def test_login(self, auth_api_url):

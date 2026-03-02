@@ -1,10 +1,8 @@
-"""
-Performance optimization utilities for data generators.
-"""
+"""Performance optimization utilities for data generators."""
 
 import math
 import psutil
-from typing import Optional, Dict, Any, List, Tuple, Callable, Generator
+from typing import Optional, Dict, Any, List, Callable, Generator
 import time
 from functools import wraps
 import logging
@@ -15,8 +13,7 @@ logger = logging.getLogger(__name__)
 def calculate_optimal_batch_size(
     total_records: int, max_memory_mb: int = 512, record_size_bytes: int = 1024
 ) -> int:
-    """
-    Calculate optimal batch size based on available resources.
+    """Calculate optimal batch size based on available resources.
 
     Args:
         total_records: Total number of records to process
@@ -59,8 +56,7 @@ def calculate_optimal_batch_size(
 
 
 def optimize_query(query: str) -> str:
-    """
-    Apply basic query optimizations.
+    """Apply basic query optimizations.
 
     Args:
         query: SQL query to optimize
@@ -93,8 +89,7 @@ def optimize_query(query: str) -> str:
 
 
 def get_query_execution_plan(connection, query: str) -> List[Dict]:
-    """
-    Get query execution plan.
+    """Get query execution plan.
 
     Args:
         connection: Database connection
@@ -111,8 +106,7 @@ def get_query_execution_plan(connection, query: str) -> List[Dict]:
 
 
 def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
-    """
-    Analyze index usage for a table.
+    """Analyze index usage for a table.
 
     Args:
         connection: Database connection
@@ -159,8 +153,7 @@ def analyze_index_usage(connection, table_name: str) -> Dict[str, Any]:
 
 
 def suggest_indexes(connection, slow_queries: List[str]) -> List[str]:
-    """
-    Suggest indexes based on slow queries.
+    """Suggest indexes based on slow queries.
 
     Args:
         connection: Database connection
@@ -202,18 +195,16 @@ def suggest_indexes(connection, slow_queries: List[str]) -> List[str]:
 
 
 class QueryOptimizer:
-    """
-    Query optimization helper class.
-    """
+    """Query optimization helper class."""
 
     def __init__(self, connection):
+        """Initialize the instance."""
         self.connection = connection
         self.cache: Dict[str, Any] = {}
         self.stats = {"cache_hits": 0, "cache_misses": 0, "total_queries": 0}
 
     def execute_with_cache(self, query: str, cache_ttl: int = 60):
-        """
-        Execute query with result caching.
+        """Execute query with result caching.
 
         Args:
             query: SQL query to execute
@@ -259,7 +250,7 @@ class QueryOptimizer:
             del self.cache[key]
 
     def get_stats(self) -> Dict[str, Any]:
-        """Get cache statistics."""
+        """Return cache statistics."""
         hit_rate = (
             self.stats["cache_hits"] / self.stats["total_queries"]
             if self.stats["total_queries"] > 0
@@ -269,12 +260,10 @@ class QueryOptimizer:
 
 
 def profile_query(func):
-    """
-    Decorator to profile query execution time.
-    """
-
+    """Profile query execution time."""
     @wraps(func)
     def wrapper(*args, **kwargs):
+        """Wrap a function call with timing and memory tracking."""
         start_time = time.time()
         start_memory = psutil.Process().memory_info().rss / 1024 / 1024
 
@@ -311,8 +300,7 @@ def batch_processor(
     batch_size: Optional[int] = None,
     processor_func: Optional[Callable[[List[Any]], None]] = None,
 ) -> Generator[List[Any], None, None]:
-    """
-    Process data in optimized batches.
+    """Process data in optimized batches.
 
     Args:
         data: List of data to process
@@ -325,7 +313,7 @@ def batch_processor(
     total_batches = math.ceil(len(data) / batch_size)
 
     for i in range(0, len(data), batch_size):
-        batch = data[i : i + batch_size]
+        batch = data[i: i + batch_size]
         batch_num = i // batch_size + 1
 
         logger.info(f"Processing batch {batch_num}/{total_batches}")
@@ -337,11 +325,10 @@ def batch_processor(
 
 
 class PerformanceMonitor:
-    """
-    Monitor and track performance metrics.
-    """
+    """Monitor and track performance metrics."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.metrics: List[Any] = []
         self.start_time = None
 
@@ -394,8 +381,7 @@ class PerformanceMonitor:
 def optimize_connection_pool(
     min_size: int = 1, max_size: int = 10, max_idle_time: int = 300
 ) -> Dict[str, int]:
-    """
-    Calculate optimal connection pool settings.
+    """Calculate optimal connection pool settings.
 
     Args:
         min_size: Minimum pool size

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Generate GraphQL Schemas and Apollo Server Setup for All Examples
+"""Generate GraphQL Schemas and Apollo Server Setup for All Examples.
 
 This script:
 1. Generates GraphQL schemas from MySQL for all examples
@@ -9,34 +8,29 @@ This script:
 4. Generates package.json and configuration files
 """
 
-import os
-import sys
 import json
-import subprocess
 from pathlib import Path
 from typing import Dict, List, Optional
 
-# Add graphql directory to path
-sys.path.append(str(Path(__file__).parent / "graphql"))
-
-from graphql_generator_advanced import AdvancedGraphQLGenerator
-from resolver_generator import ResolverGenerator
+from graphql.graphql_generator_advanced import AdvancedGraphQLGenerator
+from graphql.resolver_generator import ResolverGenerator
 
 
 class GraphQLProjectGenerator:
-    """Generate complete GraphQL projects for examples"""
+    """Generate complete GraphQL projects for examples."""
 
     def __init__(self, project_root: Path):
+        """Initialize the instance."""
         self.project_root = project_root
         self.examples = self._get_examples()
         self.results = []
 
     def _get_examples(self) -> List[Path]:
-        """Get all example directories"""
+        """Get all example directories."""
         return sorted([d for d in self.project_root.glob("example_*") if d.is_dir()])
 
     def generate_all(self):
-        """Generate GraphQL for all examples"""
+        """Generate GraphQL for all examples."""
         print("\n" + "=" * 70)
         print("GraphQL Schema Generation for MySQL Business-to-Schema")
         print("=" * 70 + "\n")
@@ -73,13 +67,13 @@ class GraphQLProjectGenerator:
         print("\n✅ GraphQL generation complete!")
 
     def _generate_example(self, example_dir: Path) -> bool:
-        """Generate GraphQL for a single example"""
+        """Generate GraphQL for a single example."""
         example_name = example_dir.name.replace("example_", "").replace("_", "-")
 
         # Get database connection parameters
         connection_params = self._get_connection_params(example_dir)
         if not connection_params:
-            print(f"    Warning: Could not determine connection parameters")
+            print("    Warning: Could not determine connection parameters")
             return False
 
         # Create GraphQL directory
@@ -110,7 +104,7 @@ class GraphQLProjectGenerator:
         return True
 
     def _get_connection_params(self, example_dir: Path) -> Optional[Dict]:
-        """Extract connection parameters from docker-compose.yml"""
+        """Extract connection parameters from docker-compose.yml."""
         docker_compose = example_dir / "docker-compose.yml"
 
         if not docker_compose.exists():
@@ -145,7 +139,7 @@ class GraphQLProjectGenerator:
             return None
 
     def _generate_schema(self, connection_params: Dict, output_dir: Path) -> bool:
-        """Generate GraphQL schema from MySQL"""
+        """Generate GraphQL schema from MySQL."""
         try:
             generator = AdvancedGraphQLGenerator(connection_params)
 
@@ -187,7 +181,7 @@ class GraphQLProjectGenerator:
             return False
 
     def _generate_resolvers(self, connection_params: Dict, output_dir: Path) -> bool:
-        """Generate resolver templates"""
+        """Generate resolver templates."""
         try:
             # Load schema info
             info_file = output_dir / "schema_info.json"
@@ -211,7 +205,7 @@ class GraphQLProjectGenerator:
             return False
 
     def _generate_apollo_project(self, example_name: str, output_dir: Path) -> bool:
-        """Generate Apollo Server project structure"""
+        """Generate Apollo Server project structure."""
         try:
             # Create src directory structure
             src_dir = output_dir / "src"
@@ -252,7 +246,7 @@ console.log('Starting GraphQL server for {example_name}...');
             return False
 
     def _generate_package_json(self, example_name: str, output_dir: Path):
-        """Generate package.json for the GraphQL server"""
+        """Generate package.json for the GraphQL server."""
         package = {
             "name": f"{example_name}-graphql-server",
             "version": "1.0.0",
@@ -315,8 +309,7 @@ console.log('Starting GraphQL server for {example_name}...');
             json.dump(package, f, indent=2)
 
     def _generate_config_files(self, example_name: str, output_dir: Path):
-        """Generate configuration files"""
-
+        """Generate configuration files."""
         # TypeScript configuration
         tsconfig = {
             "compilerOptions": {
@@ -445,7 +438,7 @@ networks:
             f.write(docker_compose)
 
     def _generate_readme(self, example_name: str, output_dir: Path):
-        """Generate README for GraphQL server"""
+        """Generate README for GraphQL server."""
         readme = f"""# GraphQL Server for {example_name}
 
 ## 🚀 Quick Start
@@ -647,7 +640,7 @@ GET /metrics
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     project_root = Path(__file__).parent
 
     generator = GraphQLProjectGenerator(project_root)

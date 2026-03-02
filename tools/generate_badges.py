@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""
-Generate status badges for README
+"""Generate status badges for README.
+
 Creates shield.io style badges for repository statistics
 """
 
 import json
-import os
 import sys
 from pathlib import Path
 from urllib.parse import quote
@@ -16,12 +15,15 @@ sys.path.append(str(PROJECT_ROOT))
 
 
 class BadgeGenerator:
+    """Represent BadgeGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.project_root = PROJECT_ROOT
         self.badges = []
 
     def generate_all(self):
-        """Generate all badges"""
+        """Generate all badges."""
         print("Generating README badges...")
         print("-" * 40)
 
@@ -73,7 +75,7 @@ class BadgeGenerator:
         self.generate_html()
 
     def add_badge(self, label, message, color):
-        """Add a badge to the list"""
+        """Add a badge to the list."""
         badge_url = (
             f"https://img.shields.io/badge/{quote(label)}-{quote(message)}-{color}"
         )
@@ -83,7 +85,7 @@ class BadgeGenerator:
         print(f"  [OK] {label}: {message}")
 
     def count_total_tables(self):
-        """Count total tables across all examples"""
+        """Count total tables across all examples."""
         total = 0
         table_counts = {
             "example_01_clinic": 9,
@@ -110,7 +112,7 @@ class BadgeGenerator:
         return total
 
     def get_health_score(self):
-        """Get health score from health check report"""
+        """Get health score from health check report."""
         report_file = self.project_root / "health_check_report.json"
         if report_file.exists():
             try:
@@ -122,12 +124,12 @@ class BadgeGenerator:
                     total = passed + failed
                     if total > 0:
                         return (passed / total) * 100
-            except:
+            except Exception:
                 pass
         return None
 
     def generate_markdown(self):
-        """Generate markdown for badges"""
+        """Generate markdown for badges."""
         print("\n" + "=" * 60)
         print("Badge Markdown for README.md:")
         print("=" * 60)
@@ -147,10 +149,10 @@ class BadgeGenerator:
         with open(output_file, "w") as f:
             f.write(markdown)
 
-        print(f"Badges saved to: badges.md")
+        print("Badges saved to: badges.md")
 
     def generate_html(self):
-        """Generate HTML version of badges"""
+        """Generate HTML version of badges."""
         html = "<!-- Status Badges HTML -->\n"
         html += '<div align="center">\n'
         for badge in self.badges:
@@ -162,10 +164,10 @@ class BadgeGenerator:
         with open(output_file, "w") as f:
             f.write(html)
 
-        print(f"HTML version saved to: badges.html")
+        print("HTML version saved to: badges.html")
 
     def generate_shield_json(self):
-        """Generate shield.io JSON endpoint file"""
+        """Generate shield.io JSON endpoint file."""
         shields = []
         for badge in self.badges:
             shields.append(
@@ -181,11 +183,11 @@ class BadgeGenerator:
         with open(output_file, "w") as f:
             json.dump(shields, f, indent=2)
 
-        print(f"Shields JSON saved to: shields.json")
+        print("Shields JSON saved to: shields.json")
 
 
 def main():
-    """Generate badges"""
+    """Generate badges."""
     generator = BadgeGenerator()
     generator.generate_all()
 

@@ -1,28 +1,23 @@
 #!/usr/bin/env python3
-"""
-Advanced Analytics Module for MySQL Examples Web Interface.
+"""Advanced Analytics Module for MySQL Examples Web Interface.
+
 Provides SQL execution, ER diagram generation, and performance analysis.
 """
 
 import json
-import tempfile
-import subprocess
 import mysql.connector
 from pathlib import Path
-from datetime import datetime, timedelta
-import yaml
-import pandas as pd
+from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib
-
-matplotlib.use("Agg")  # Use non-interactive backend
-import seaborn as sns
 from io import BytesIO
 import base64
 
+matplotlib.use("Agg")  # Use non-interactive backend
+
 # For ER diagram generation
 try:
-    import graphviz
+    pass
 
     GRAPHVIZ_AVAILABLE = True
 except ImportError:
@@ -33,6 +28,7 @@ class SQLExecutor:
     """Safely execute SQL queries with timeout and resource limits."""
 
     def __init__(self, host="localhost", user="root", password="", database=None):
+        """Initialize the instance."""
         self.connection_params = {
             "host": host,
             "user": user,
@@ -43,8 +39,7 @@ class SQLExecutor:
         }
 
     def execute_query(self, query, database=None, limit=100, timeout=10):
-        """
-        Execute a SQL query with safety measures.
+        """Execute a SQL query with safety measures.
 
         Args:
             query: SQL query to execute
@@ -142,6 +137,7 @@ class ERDiagramGenerator:
     """Generate Entity-Relationship diagrams from database schemas."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.graph = None
 
     def analyze_schema(self, schema_file_path):
@@ -291,6 +287,7 @@ class PerformanceAnalyzer:
     """Analyze query and schema performance metrics."""
 
     def __init__(self, connection_params):
+        """Initialize the instance."""
         self.connection_params = connection_params
 
     def analyze_table_stats(self, database, table):
@@ -303,7 +300,7 @@ class PerformanceAnalyzer:
 
             # Table size and row count
             cursor.execute(
-                f"""
+                """
                 SELECT
                     table_rows,
                     data_length,
@@ -320,7 +317,7 @@ class PerformanceAnalyzer:
 
             # Index statistics
             cursor.execute(
-                f"""
+                """
                 SELECT
                     index_name,
                     cardinality,
@@ -337,7 +334,7 @@ class PerformanceAnalyzer:
 
             # Column statistics
             cursor.execute(
-                f"""
+                """
                 SELECT
                     column_name,
                     data_type,
@@ -466,6 +463,7 @@ class QueryOptimizer:
     """Analyze and optimize SQL queries."""
 
     def __init__(self, connection_params):
+        """Initialize the instance."""
         self.connection_params = connection_params
 
     def analyze_query(self, query, database=None):
@@ -503,7 +501,7 @@ class QueryOptimizer:
                 # Check for temporary tables
                 if "Using temporary" in step.get("Extra", ""):
                     analysis["suggestions"].append(
-                        f"Temporary table usage detected. Consider optimizing GROUP BY or DISTINCT operations."
+                        "Temporary table usage detected. Consider optimizing GROUP BY or DISTINCT operations."
                     )
 
                 # Check for low key efficiency
@@ -527,7 +525,7 @@ class QueryOptimizer:
                         analysis["estimated_cost"] = plan_data["query_block"][
                             "cost_info"
                         ].get("query_cost")
-            except:
+            except Exception:
                 pass
 
             cursor.close()
@@ -590,7 +588,7 @@ class DataExporter:
     ):
         """Export database schema (and optionally data) to SQL format."""
         output = []
-        output.append(f"-- MySQL Database Export")
+        output.append("-- MySQL Database Export")
         output.append(f"-- Database: {database}")
         output.append(f"-- Generated: {datetime.now().isoformat()}")
         output.append("")

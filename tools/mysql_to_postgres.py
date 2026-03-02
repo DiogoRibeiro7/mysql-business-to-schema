@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL to PostgreSQL Schema Converter
+"""MySQL to PostgreSQL Schema Converter.
 
 Converts MySQL DDL to PostgreSQL-compatible SQL.
 """
@@ -8,12 +7,12 @@ Converts MySQL DDL to PostgreSQL-compatible SQL.
 import re
 import argparse
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Optional
 from datetime import datetime
 
 
 class MySQLToPostgreSQLConverter:
-    """Convert MySQL schemas to PostgreSQL"""
+    """Convert MySQL schemas to PostgreSQL."""
 
     # Type mappings from MySQL to PostgreSQL
     TYPE_MAPPINGS = {
@@ -59,6 +58,7 @@ class MySQLToPostgreSQLConverter:
     }
 
     def __init__(self):
+        """Initialize the instance."""
         self.output_lines = []
         self.enums = {}
         self.sequences = []
@@ -67,7 +67,7 @@ class MySQLToPostgreSQLConverter:
         self.indexes = []
 
     def convert_file(self, input_file: Path) -> str:
-        """Convert a MySQL SQL file to PostgreSQL"""
+        """Convert a MySQL SQL file to PostgreSQL."""
         with open(input_file, "r", encoding="utf-8") as f:
             content = f.read()
 
@@ -85,7 +85,7 @@ class MySQLToPostgreSQLConverter:
         return self._build_output()
 
     def _clean_sql(self, sql: str) -> str:
-        """Clean SQL content"""
+        """Clean SQL content."""
         # Remove MySQL-specific comments
         sql = re.sub(r"/\*![\d\s]+", "/*", sql)
         sql = re.sub(r"\*/", "*/", sql)
@@ -96,7 +96,7 @@ class MySQLToPostgreSQLConverter:
         return sql
 
     def _split_statements(self, sql: str) -> List[str]:
-        """Split SQL into individual statements"""
+        """Split SQL into individual statements."""
         # Simple split by semicolon (can be improved)
         statements = []
         current = []
@@ -118,7 +118,7 @@ class MySQLToPostgreSQLConverter:
         return statements
 
     def _process_statement(self, statement: str) -> None:
-        """Process a single SQL statement"""
+        """Process a single SQL statement."""
         statement = statement.strip()
 
         if not statement:
@@ -150,7 +150,7 @@ class MySQLToPostgreSQLConverter:
             self.output_lines.append(statement)
 
     def _process_create_database(self, statement: str) -> None:
-        """Process CREATE DATABASE statement"""
+        """Process CREATE DATABASE statement."""
         # PostgreSQL version
         db_match = re.search(
             r"CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)",
@@ -159,13 +159,13 @@ class MySQLToPostgreSQLConverter:
         )
         if db_match:
             db_name = db_match.group(1)
-            self.output_lines.append(f"-- Create database (run as superuser)")
+            self.output_lines.append("-- Create database (run as superuser)")
             self.output_lines.append(f"-- CREATE DATABASE {db_name};")
             self.output_lines.append(f"-- \\c {db_name}")
             self.output_lines.append("")
 
     def _process_create_table(self, statement: str) -> None:
-        """Process CREATE TABLE statement"""
+        """Process CREATE TABLE statement."""
         # Extract table name
         table_match = re.search(
             r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)", statement, re.IGNORECASE
@@ -249,7 +249,7 @@ class MySQLToPostgreSQLConverter:
         self.foreign_keys = [(t, l) for t, l in self.foreign_keys if t != table_name]
 
     def _split_table_content(self, content: str) -> List[str]:
-        """Split table content into field/constraint lines"""
+        """Split table content into field/constraint lines."""
         lines = []
         current_line = ""
         paren_depth = 0
@@ -271,7 +271,7 @@ class MySQLToPostgreSQLConverter:
         return lines
 
     def _convert_field(self, field_line: str, table_name: str) -> Optional[str]:
-        """Convert a field definition from MySQL to PostgreSQL"""
+        """Convert a field definition from MySQL to PostgreSQL."""
         # Parse field
         match = re.match(r"(\w+)\s+(\w+)(?:\(([^)]+)\))?\s*(.*)", field_line)
         if not match:
@@ -316,7 +316,7 @@ class MySQLToPostgreSQLConverter:
         return f"{field_name} {pg_type} {modifiers}".strip()
 
     def _convert_type(self, mysql_type: str, size: Optional[str]) -> str:
-        """Convert MySQL type to PostgreSQL type"""
+        """Convert MySQL type to PostgreSQL type."""
         base_type = mysql_type.lower()
 
         # Check if it's an enum
@@ -337,7 +337,7 @@ class MySQLToPostgreSQLConverter:
         return pg_type
 
     def _convert_default(self, modifiers: str) -> str:
-        """Convert DEFAULT clause"""
+        """Convert DEFAULT clause."""
         # Replace MySQL functions with PostgreSQL equivalents
         modifiers = re.sub(
             r"DEFAULT\s+CURRENT_TIMESTAMP",
@@ -355,7 +355,7 @@ class MySQLToPostgreSQLConverter:
         return modifiers
 
     def _convert_primary_key(self, line: str) -> Optional[str]:
-        """Convert PRIMARY KEY constraint"""
+        """Convert PRIMARY KEY constraint."""
         match = re.search(r"PRIMARY\s+KEY\s*\(([^)]+)\)", line, re.IGNORECASE)
         if match:
             keys = match.group(1)
@@ -363,7 +363,7 @@ class MySQLToPostgreSQLConverter:
         return None
 
     def _convert_foreign_key(self, table_name: str, line: str) -> Optional[str]:
-        """Convert FOREIGN KEY constraint to separate ALTER TABLE"""
+        """Convert FOREIGN KEY constraint to separate ALTER TABLE."""
         match = re.search(
             r"(?:CONSTRAINT\s+(\w+)\s+)?FOREIGN\s+KEY\s*\(([^)]+)\)\s+REFERENCES\s+(\w+)\s*\(([^)]+)\)",
             line,
@@ -392,7 +392,7 @@ class MySQLToPostgreSQLConverter:
         return None
 
     def _convert_unique_constraint(self, line: str) -> Optional[str]:
-        """Convert UNIQUE constraint"""
+        """Convert UNIQUE constraint."""
         match = re.search(
             r"UNIQUE\s+(?:KEY|INDEX)?\s*(?:\w+)?\s*\(([^)]+)\)", line, re.IGNORECASE
         )
@@ -402,7 +402,7 @@ class MySQLToPostgreSQLConverter:
         return None
 
     def _process_alter_table(self, statement: str) -> None:
-        """Process ALTER TABLE statement"""
+        """Process ALTER TABLE statement."""
         # Most ALTER TABLE statements can remain similar
         statement = statement.replace("`", "")
         statement = re.sub(r"AFTER\s+\w+", "", statement, flags=re.IGNORECASE)
@@ -410,20 +410,20 @@ class MySQLToPostgreSQLConverter:
         self.output_lines.append(statement)
 
     def _process_create_index(self, statement: str) -> None:
-        """Process CREATE INDEX statement"""
+        """Process CREATE INDEX statement."""
         statement = statement.replace("`", "")
         # PostgreSQL syntax is similar
         self.output_lines.append(statement)
 
     def _process_insert(self, statement: str) -> None:
-        """Process INSERT statement"""
+        """Process INSERT statement."""
         statement = statement.replace("`", "")
         # Handle different NULL representations
         statement = statement.replace("\\N", "NULL")
         self.output_lines.append(statement)
 
     def _build_output(self) -> str:
-        """Build final PostgreSQL output"""
+        """Build final PostgreSQL output."""
         output = []
 
         # Header
@@ -464,18 +464,18 @@ class MySQLToPostgreSQLConverter:
 
 
 def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
-    """Convert schemas for a single example"""
+    """Convert schemas for a single example."""
     print(f"Converting {example_dir.name} to PostgreSQL...")
 
     # Find SQL files
     schema_dir = example_dir / "schema"
     if not schema_dir.exists():
-        print(f"  No schema directory found")
+        print("  No schema directory found")
         return False
 
     sql_files = sorted(schema_dir.glob("*.sql"))
     if not sql_files:
-        print(f"  No SQL files found")
+        print("  No SQL files found")
         return False
 
     # Create output directory
@@ -508,7 +508,7 @@ def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     parser = argparse.ArgumentParser(description="Convert MySQL schemas to PostgreSQL")
     parser.add_argument(
         "input", nargs="?", help="Input MySQL SQL file or example directory"

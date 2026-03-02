@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
-"""
-Hotel Chain Management Data Generator
+"""Hotel Chain Management Data Generator.
 
 Generates realistic test data for the hotel chain database.
 Includes properties, rooms, reservations, guests, staff, and services.
 """
 
 import random
-import sys
-import os
 from datetime import datetime, timedelta, date, time
-from decimal import Decimal
-from typing import List, Dict, Tuple, Optional
 import json
 
-# Add parent directory to path for base generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from generators.base_generator import BaseGenerator
 
 
 class HotelChainGenerator(BaseGenerator):
-    """Generator for Hotel Chain Management data"""
+    """Generator for Hotel Chain Management data."""
 
     def __init__(
         self,
@@ -30,7 +23,7 @@ class HotelChainGenerator(BaseGenerator):
         password="hotel_pass_2024",
         database="hotel_chain",
     ):
-        """Initialize the hotel chain generator"""
+        """Initialize the hotel chain generator."""
         super().__init__(host, port, user, password, database)
 
         # Hotel specific data
@@ -141,7 +134,7 @@ class HotelChainGenerator(BaseGenerator):
         guests: int = 10000,
         reservations_per_day: int = 500,
     ):
-        """Generate all hotel chain management data"""
+        """Generate all hotel chain management data."""
         print("Starting Hotel Chain Management data generation...")
 
         # Generate base data
@@ -193,7 +186,7 @@ class HotelChainGenerator(BaseGenerator):
         print("Generation complete!")
 
     def generate_properties(self, count: int = 10):
-        """Generate hotel properties"""
+        """Generate hotel properties."""
         properties = []
 
         cities = [
@@ -283,7 +276,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_room_types(self):
-        """Generate room types for each property"""
+        """Generate room types for each property."""
         properties = self.fetch_all("SELECT property_id FROM properties")
 
         room_types = []
@@ -352,7 +345,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_rooms(self, rooms_per_property: int = 200):
-        """Generate individual rooms"""
+        """Generate individual rooms."""
         room_types = self.fetch_all(
             """
             SELECT rt.room_type_id, rt.property_id, rt.category, p.total_floors
@@ -463,7 +456,7 @@ class HotelChainGenerator(BaseGenerator):
             )
 
     def generate_guests(self, count: int = 10000):
-        """Generate hotel guests"""
+        """Generate hotel guests."""
         guests = []
 
         for i in range(count):
@@ -604,7 +597,7 @@ class HotelChainGenerator(BaseGenerator):
             )
 
     def generate_loyalty_members(self):
-        """Generate loyalty program members"""
+        """Generate loyalty program members."""
         # Get guests with loyalty_member_id
         guests = self.fetch_all(
             """
@@ -693,7 +686,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_staff(self):
-        """Generate hotel staff members"""
+        """Generate hotel staff members."""
         properties = self.fetch_all("SELECT property_id FROM properties")
 
         staff = []
@@ -860,7 +853,7 @@ class HotelChainGenerator(BaseGenerator):
             )
 
     def generate_reservations(self, reservations_per_day: int = 500):
-        """Generate hotel reservations"""
+        """Generate hotel reservations."""
         properties = self.fetch_all("SELECT property_id FROM properties")
         guests = self.fetch_all("SELECT guest_id, vip_status FROM guests LIMIT 5000")
         room_types = self.fetch_all(
@@ -1064,7 +1057,7 @@ class HotelChainGenerator(BaseGenerator):
             )
 
     def generate_room_assignments(self):
-        """Generate room assignments for checked-in reservations"""
+        """Generate room assignments for checked-in reservations."""
         # Get reservations that should have room assignments
         reservations = self.fetch_all(
             """
@@ -1169,7 +1162,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_folios_and_charges(self):
-        """Generate guest folios and charges"""
+        """Generate guest folios and charges."""
         # Get reservations that should have folios
         reservations = self.fetch_all(
             """
@@ -1377,7 +1370,7 @@ class HotelChainGenerator(BaseGenerator):
             )
 
     def generate_payments(self):
-        """Generate payment records"""
+        """Generate payment records."""
         folios = self.fetch_all(
             """
             SELECT folio_id, total_charges, total_payments
@@ -1451,7 +1444,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_loyalty_transactions(self):
-        """Generate loyalty points transactions"""
+        """Generate loyalty points transactions."""
         members = self.fetch_all(
             """
             SELECT member_id, guest_id, current_points
@@ -1538,7 +1531,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_housekeeping_tasks(self):
-        """Generate housekeeping tasks"""
+        """Generate housekeeping tasks."""
         rooms = self.fetch_all(
             """
             SELECT room_id, property_id, housekeeping_status
@@ -1637,7 +1630,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_maintenance_requests(self):
-        """Generate maintenance requests"""
+        """Generate maintenance requests."""
         rooms = self.fetch_all(
             """
             SELECT room_id, property_id
@@ -1762,7 +1755,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_guest_services(self):
-        """Generate guest service requests and restaurant/spa bookings"""
+        """Generate guest service requests and restaurant/spa bookings."""
         guests = self.fetch_all(
             """
             SELECT g.guest_id, r.reservation_id, r.property_id
@@ -1826,7 +1819,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
     def generate_rate_plans(self):
-        """Generate rate plans and overrides"""
+        """Generate rate plans and overrides."""
         room_types = self.fetch_all(
             """
             SELECT room_type_id, property_id, base_rate
@@ -1959,7 +1952,7 @@ class HotelChainGenerator(BaseGenerator):
 
 
 def main():
-    """Main function to run the generator"""
+    """Run function to run the generator."""
     import argparse
 
     parser = argparse.ArgumentParser(

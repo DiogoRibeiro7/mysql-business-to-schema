@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""
-Real-time Stream Processing Application
+"""Real-time Stream Processing Application.
+
 Processes MySQL CDC events from Kafka using Faust
 """
 
 import os
 import json
-import asyncio
-import logging
 from datetime import datetime, timedelta
 from typing import Dict, Any, Optional, List
 from decimal import Decimal
@@ -85,7 +83,7 @@ app = faust.App(
 
 
 class DatabaseEvent(Record):
-    """Base CDC event from MySQL"""
+    """Base CDC event from MySQL."""
 
     database: str
     table: str
@@ -97,7 +95,7 @@ class DatabaseEvent(Record):
 
 
 class ClinicPatientEvent(Record):
-    """Patient event from clinic database"""
+    """Patient event from clinic database."""
 
     patient_id: int
     name: str
@@ -110,7 +108,7 @@ class ClinicPatientEvent(Record):
 
 
 class EcommerceOrderEvent(Record):
-    """Order event from e-commerce database"""
+    """Order event from e-commerce database."""
 
     order_id: int
     customer_id: int
@@ -122,7 +120,7 @@ class EcommerceOrderEvent(Record):
 
 
 class IoTReadingEvent(Record):
-    """IoT sensor reading event"""
+    """IoT sensor reading event."""
 
     device_id: str
     sensor_type: str
@@ -134,7 +132,7 @@ class IoTReadingEvent(Record):
 
 
 class SocialMediaPostEvent(Record):
-    """Social media post event"""
+    """Social media post event."""
 
     post_id: int
     user_id: int
@@ -184,7 +182,7 @@ readings_5min = app.Table("readings_5min", default=list).tumbling(
 
 @app.agent(cdc_events_topic)
 async def process_cdc_events(events):
-    """Process all CDC events from MySQL"""
+    """Process all CDC events from MySQL."""
     async for event in events:
         try:
             logger.info(
@@ -221,7 +219,7 @@ async def process_cdc_events(events):
 
 @app.agent(clinic_patients_topic)
 async def process_patients(patients):
-    """Process patient events for analytics"""
+    """Process patient events for analytics."""
     async for patient in patients:
         # Update patient count
         patient_counts["total"] += 1
@@ -258,7 +256,7 @@ async def process_patients(patients):
 
 @app.agent(ecommerce_orders_topic)
 async def process_orders(orders):
-    """Process e-commerce orders for real-time analytics"""
+    """Process e-commerce orders for real-time analytics."""
     async for order in orders.group_by(lambda o: o.customer_id):
         # Update order totals
         order_totals["revenue"] += float(order.total_amount)
@@ -306,7 +304,7 @@ async def process_orders(orders):
 
 @app.agent(iot_readings_topic)
 async def process_iot_readings(readings):
-    """Process IoT sensor readings for anomaly detection"""
+    """Process IoT sensor readings for anomaly detection."""
     async for reading in readings.group_by(lambda r: r.device_id):
         device_id = reading.device_id
 
@@ -361,7 +359,7 @@ async def process_iot_readings(readings):
 
 @app.agent(social_posts_topic)
 async def process_social_posts(posts):
-    """Process social media posts for engagement analytics"""
+    """Process social media posts for engagement analytics."""
     async for post in posts:
         user_id = str(post.user_id)
 
@@ -418,7 +416,7 @@ async def process_social_posts(posts):
 
 
 async def process_patient_change(event: DatabaseEvent):
-    """Process patient-specific changes"""
+    """Process patient-specific changes."""
     if event.operation == "INSERT":
         redis_client.incr("clinic:patients:total")
         redis_client.incr(f"clinic:patients:daily:{datetime.now().date()}")
@@ -427,7 +425,7 @@ async def process_patient_change(event: DatabaseEvent):
 
 
 async def process_order_change(event: DatabaseEvent):
-    """Process order-specific changes"""
+    """Process order-specific changes."""
     if event.operation == "INSERT" and event.after:
         amount = float(event.after.get("total_amount", 0))
         redis_client.incrbyfloat("ecommerce:revenue:total", amount)
@@ -437,7 +435,7 @@ async def process_order_change(event: DatabaseEvent):
 
 
 async def process_iot_reading(event: DatabaseEvent):
-    """Process IoT reading changes"""
+    """Process IoT reading changes."""
     if event.operation == "INSERT" and event.after:
         device_id = event.after.get("device_id")
         value = float(event.after.get("value", 0))
@@ -447,14 +445,14 @@ async def process_iot_reading(event: DatabaseEvent):
 
 
 async def process_social_post(event: DatabaseEvent):
-    """Process social media post changes"""
+    """Process social media post changes."""
     if event.operation == "INSERT":
         redis_client.incr("social:posts:total")
         redis_client.incr(f"social:posts:hourly:{datetime.now().hour}")
 
 
 async def store_to_clickhouse(event: DatabaseEvent):
-    """Store processed events in ClickHouse"""
+    """Store processed events in ClickHouse."""
     try:
         clickhouse_client.execute(
             """
@@ -479,7 +477,7 @@ async def store_to_clickhouse(event: DatabaseEvent):
 
 
 async def get_customer_orders(customer_id: int) -> List[Dict]:
-    """Get all orders for a customer from Redis cache"""
+    """Return all orders for a customer from Redis cache."""
     orders = redis_client.get(f"customer:{customer_id}:orders")
     if orders:
         return json.loads(orders)
@@ -487,7 +485,7 @@ async def get_customer_orders(customer_id: int) -> List[Dict]:
 
 
 async def detect_fraud(order: EcommerceOrderEvent) -> bool:
-    """Simple fraud detection based on patterns"""
+    """Detect fraud based on simple patterns."""
     # Check for unusual order amount
     if float(order.total_amount) > 10000:
         return True
@@ -503,7 +501,7 @@ async def detect_fraud(order: EcommerceOrderEvent) -> bool:
 
 
 def get_age_group(age: int) -> str:
-    """Categorize age into groups"""
+    """Return the age group for a given age."""
     if age < 18:
         return "minor"
     elif age < 30:
@@ -517,7 +515,7 @@ def get_age_group(age: int) -> str:
 
 
 def analyze_sentiment(content: str) -> str:
-    """Simplified sentiment analysis"""
+    """Analyze sentiment using a simplified heuristic."""
     positive_words = ["good", "great", "excellent", "amazing", "love"]
     negative_words = ["bad", "terrible", "hate", "awful", "horrible"]
 
@@ -538,7 +536,7 @@ def analyze_sentiment(content: str) -> str:
 
 @app.timer(interval=60.0)  # Every minute
 async def publish_metrics():
-    """Publish aggregated metrics to metrics topic"""
+    """Publish aggregated metrics to metrics topic."""
     metrics = {
         "timestamp": datetime.utcnow().isoformat(),
         "patients": {
@@ -570,7 +568,7 @@ async def publish_metrics():
 
 @app.timer(interval=300.0)  # Every 5 minutes
 async def cleanup_old_data():
-    """Clean up old data from state stores"""
+    """Clean up old data from state stores."""
     cutoff = datetime.now() - timedelta(days=7)
 
     # Clean Redis
@@ -580,7 +578,7 @@ async def cleanup_old_data():
             date = datetime.strptime(date_str, "%Y-%m-%d")
             if date < cutoff:
                 redis_client.delete(key)
-        except:
+        except Exception:
             pass
 
     logger.info("Cleaned up old data")
@@ -588,7 +586,7 @@ async def cleanup_old_data():
 
 @app.timer(interval=30.0)  # Every 30 seconds
 async def monitor_lag():
-    """Monitor consumer lag"""
+    """Monitor consumer lag."""
     for tp in app.consumer.assignment():
         committed = await app.consumer.committed(tp)
         position = await app.consumer.position(tp)
@@ -602,7 +600,7 @@ async def monitor_lag():
 
 @app.on_leader_election
 async def on_leader_election(app, was_leader_before: bool):
-    """Handle leader election events"""
+    """Handle leader election events."""
     if not was_leader_before:
         logger.info("Became leader, initializing resources")
         # Initialize ClickHouse tables

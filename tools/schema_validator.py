@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Schema Validator
+"""Schema Validator.
 
 Validates database schemas for:
 - Naming conventions
@@ -13,17 +12,16 @@ Validates database schemas for:
 import argparse
 import json
 import re
-from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict
 import mysql.connector
 from mysql.connector import Error
-from tabulate import tabulate
 
 
 class SchemaValidator:
-    """Validates database schemas against best practices."""
+    """Validate database schemas against best practices."""
 
     def __init__(self, host="localhost", port=3306, user="root", password=""):
+        """Initialize the instance."""
         self.host = host
         self.port = port
         self.user = user
@@ -201,7 +199,7 @@ class SchemaValidator:
         # Check for inconsistent types for same column names
         for col_name, usages in type_usage.items():
             if len(usages) > 1:
-                types = set((u["type"], u["length"]) for u in usages)
+                types = {(u["type"], u["length"]) for u in usages}
                 if len(types) > 1:
                     tables = ", ".join(u["table"] for u in usages)
                     self.warnings.append(
@@ -596,6 +594,7 @@ class SchemaValidator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Schema Validator")
     parser.add_argument("--host", default="localhost", help="MySQL host")
     parser.add_argument("--port", type=int, default=3306, help="MySQL port")

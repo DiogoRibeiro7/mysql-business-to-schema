@@ -1,41 +1,24 @@
-"""
-ML Training Pipeline DAG
+"""ML Training Pipeline DAG.
+
 Automated training pipeline for all ML models
 """
 
 from datetime import datetime, timedelta
 import os
-import json
-from typing import Dict, Any
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
-from airflow.providers.postgres.operators.postgres import PostgresOperator
-from airflow.providers.docker.operators.docker import DockerOperator
-from airflow.sensors.external_task import ExternalTaskSensor
-from airflow.models import Variable
 
-import mlflow
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import (
     accuracy_score,
     precision_score,
     recall_score,
     f1_score,
-    mean_squared_error,
-    r2_score,
 )
 import xgboost as xgb
-import lightgbm as lgb
-import optuna
-import feast
-import ray
-from ray import tune
 
 # Configuration
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow-server:5000")
@@ -58,7 +41,7 @@ default_args = {
 
 
 def extract_patient_data(**context):
-    """Extract patient data from databases"""
+    """Extract patient data from databases."""
     import psycopg2
     import pandas as pd
 
@@ -125,7 +108,7 @@ def extract_patient_data(**context):
 
 
 def extract_customer_data(**context):
-    """Extract customer data for churn prediction"""
+    """Extract customer data for churn prediction."""
     import psycopg2
     import pandas as pd
 
@@ -168,7 +151,7 @@ def extract_customer_data(**context):
 
 
 def extract_iot_data(**context):
-    """Extract IoT sensor data for anomaly detection"""
+    """Extract IoT sensor data for anomaly detection."""
     import psycopg2
     import pandas as pd
 
@@ -224,7 +207,7 @@ def extract_iot_data(**context):
 
 
 def prepare_features(**context):
-    """Prepare features using Feast feature store"""
+    """Prepare features using Feast feature store."""
     import feast
     import pandas as pd
 
@@ -307,7 +290,7 @@ def prepare_features(**context):
 
 
 def train_model_with_optuna(**context):
-    """Train model with Optuna hyperparameter optimization"""
+    """Train model with Optuna hyperparameter optimization."""
     import optuna
     import mlflow
     import mlflow.sklearn
@@ -357,6 +340,7 @@ def train_model_with_optuna(**context):
     # Define Optuna objective
     def objective(trial):
         # Suggest hyperparameters
+        """Handle objective."""
         params = {
             "n_estimators": trial.suggest_int("n_estimators", 50, 500),
             "max_depth": trial.suggest_int("max_depth", 3, 20),
@@ -382,7 +366,7 @@ def train_model_with_optuna(**context):
     study = optuna.create_study(
         direction="maximize",
         study_name=f"{data_type}_model_optimization",
-        storage=f"postgresql://optuna:optuna@optuna-postgres:5432/optuna",
+        storage="postgresql://optuna:optuna@optuna-postgres:5432/optuna",
         load_if_exists=True,
     )
 
@@ -453,7 +437,7 @@ def train_model_with_optuna(**context):
 
 
 def train_with_ray_tune(**context):
-    """Train model using Ray Tune for distributed hyperparameter tuning"""
+    """Train model using Ray Tune for distributed hyperparameter tuning."""
     import ray
     from ray import tune
     from ray.tune.integration.mlflow import MLflowLoggerCallback
@@ -469,6 +453,7 @@ def train_with_ray_tune(**context):
 
     # Define training function for Ray Tune
     def train_func(config):
+        """Handle train func."""
         import pandas as pd
         import xgboost as xgb
         from sklearn.model_selection import train_test_split
@@ -550,7 +535,7 @@ def train_with_ray_tune(**context):
 
 
 def deploy_model_bentoml(**context):
-    """Deploy model using BentoML"""
+    """Deploy model using BentoML."""
     import bentoml
     import mlflow
 
@@ -584,19 +569,18 @@ def deploy_model_bentoml(**context):
 
 
 def validate_deployment(**context):
-    """Validate deployed model"""
+    """Validate deployed model."""
     import requests
-    import pandas as pd
     import numpy as np
 
-    data_type = context["params"]["data_type"]
+    _ = context["params"]["data_type"]
 
     # Prepare test data
     test_data = np.random.randn(10, 20)  # Dummy test data
 
     # Send prediction request
     response = requests.post(
-        f"http://bentoml-server:3000/predict", json={"data": test_data.tolist()}
+        "http://bentoml-server:3000/predict", json={"data": test_data.tolist()}
     )
 
     if response.status_code == 200:

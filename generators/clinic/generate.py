@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Clinic dataset generator.
+"""Clinic dataset generator.
 
 Reads a JSON-compatible YAML config file and writes CSVs plus an optional SQL seed file.
 The generated data is deterministic for a given seed and respects FK relationships.
@@ -15,7 +14,7 @@ import random
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional
 
 
 @dataclass(frozen=True)
@@ -53,7 +52,6 @@ class Config:
 
 def _parse_date(value: str, field_name: str) -> date:
     """Parse a YYYY-MM-DD string into a date with helpful errors."""
-
     try:
         return datetime.strptime(value, "%Y-%m-%d").date()
     except ValueError as exc:
@@ -62,7 +60,6 @@ def _parse_date(value: str, field_name: str) -> date:
 
 def load_config(path: Path) -> Config:
     """Load and validate the config file."""
-
     if not path.exists():
         raise FileNotFoundError(f"Config not found: {path}")
 
@@ -137,21 +134,18 @@ def load_config(path: Path) -> Config:
 
 def _daterange(start: date, end: date) -> List[date]:
     """Return a list of dates from start to end inclusive."""
-
     days = (end - start).days
     return [start + timedelta(days=i) for i in range(days + 1)]
 
 
 def _pick_date(rng: random.Random, start: date, end: date) -> date:
     """Pick a random date in the inclusive range."""
-
     days = (end - start).days
     return start + timedelta(days=rng.randint(0, days))
 
 
 def _next_slot(current: datetime) -> datetime:
     """Move to the next time slot (30-minute blocks from 09:00 to 17:00)."""
-
     new_time = current + timedelta(minutes=30)
     if new_time.time() >= time(17, 0):
         # Move to next day at 09:00
@@ -161,13 +155,11 @@ def _next_slot(current: datetime) -> datetime:
 
 def _start_of_day(date_value: date) -> datetime:
     """Return a datetime at 09:00 for the given date."""
-
     return datetime.combine(date_value, time(9, 0))
 
 
 def generate_patients(rng: random.Random, count: int) -> List[Dict[str, object]]:
     """Generate patient rows."""
-
     patients: List[Dict[str, object]] = []
     # rng is kept for future variability while keeping a stable signature
     _ = rng
@@ -193,7 +185,6 @@ def generate_patients(rng: random.Random, count: int) -> List[Dict[str, object]]
 
 def generate_doctors(rng: random.Random, count: int) -> List[Dict[str, object]]:
     """Generate doctor rows."""
-
     doctors: List[Dict[str, object]] = []
     for i in range(1, count + 1):
         active_to: Optional[str] = None
@@ -223,7 +214,6 @@ def generate_appointments(
     end: date,
 ) -> List[Dict[str, object]]:
     """Generate appointment rows with non-overlapping slots per doctor."""
-
     appointments: List[Dict[str, object]] = []
     start_dates = _daterange(start, end)
 
@@ -286,7 +276,6 @@ def generate_invoices(
     end: date,
 ) -> List[Dict[str, object]]:
     """Generate invoice rows."""
-
     invoices: List[Dict[str, object]] = []
     for i in range(1, count + 1):
         issue_date = _pick_date(rng, start, end)
@@ -315,7 +304,6 @@ def generate_payments(
     end: date,
 ) -> List[Dict[str, object]]:
     """Generate payment rows."""
-
     payments: List[Dict[str, object]] = []
     for i in range(1, count + 1):
         pay_date = _pick_date(rng, start, end)
@@ -338,7 +326,6 @@ def write_csv(
     path: Path, rows: Iterable[Dict[str, object]], fieldnames: List[str]
 ) -> None:
     """Write CSV to disk with headers."""
-
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
         writer = csv.DictWriter(handle, fieldnames=fieldnames)
@@ -356,7 +343,6 @@ def write_seed_sql(
     payments: List[Dict[str, object]],
 ) -> None:
     """Write SQL insert statements for generated rows."""
-
     path.parent.mkdir(parents=True, exist_ok=True)
     lines: List[str] = ["USE clinic;", "", "START TRANSACTION;", ""]
 
@@ -452,7 +438,6 @@ def write_seed_sql(
 
 def main() -> int:
     """CLI entrypoint."""
-
     parser = argparse.ArgumentParser(description="Generate clinic datasets.")
     parser.add_argument(
         "--config", default="config.yaml", help="Path to config YAML/JSON file."

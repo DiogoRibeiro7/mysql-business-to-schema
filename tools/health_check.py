@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""
-Project Health Check Tool
+"""Project Health Check Tool.
+
 Validates the integrity and completeness of all examples and generators
 """
 
-import os
 import sys
 import json
-import subprocess
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Tuple
 from datetime import datetime
 
 # Add project root to path
@@ -18,7 +16,10 @@ sys.path.append(str(PROJECT_ROOT))
 
 
 class HealthChecker:
+    """Represent HealthChecker."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.project_root = PROJECT_ROOT
         self.examples_dir = self.project_root / "example_*"
         self.generators_dir = self.project_root / "generators"
@@ -30,7 +31,7 @@ class HealthChecker:
         }
 
     def check_all(self):
-        """Run all health checks"""
+        """Run all health checks."""
         print("=" * 60)
         print("MySQL Business-to-Schema Health Check")
         print("=" * 60)
@@ -49,7 +50,7 @@ class HealthChecker:
         self.generate_report()
 
     def check_examples(self):
-        """Validate all database examples"""
+        """Validate all database examples."""
         print("[EXAMPLES] Checking Database Examples...")
         print("-" * 40)
 
@@ -144,7 +145,7 @@ class HealthChecker:
                 self.results["overall"]["failed"] += 1
 
     def check_generators(self):
-        """Validate all data generators"""
+        """Validate all data generators."""
         print("\n[GENERATORS] Checking Data Generators...")
         print("-" * 40)
 
@@ -214,7 +215,7 @@ class HealthChecker:
                 self.results["overall"]["failed"] += 1
 
     def check_documentation(self):
-        """Check project-level documentation"""
+        """Check project-level documentation."""
         print("\n[DOCS] Checking Documentation...")
         print("-" * 40)
 
@@ -229,7 +230,7 @@ class HealthChecker:
                 self.results["overall"]["failed"] += 1
 
     def check_sql_syntax(self, sql_file: Path) -> Tuple[bool, str]:
-        """Validate SQL syntax (requires mysql client)"""
+        """Validate SQL syntax (requires mysql client)."""
         try:
             # This would require mysql client to be installed
             # For now, just do basic validation
@@ -249,7 +250,7 @@ class HealthChecker:
             return False, str(e)
 
     def generate_report(self):
-        """Generate health check report"""
+        """Generate health check report."""
         print("\n" + "=" * 60)
         print("HEALTH CHECK SUMMARY")
         print("=" * 60)
@@ -258,29 +259,29 @@ class HealthChecker:
             self.results["overall"]["passed"] + self.results["overall"]["failed"]
         )
 
-        print(f"\n[STATS] Overall Statistics:")
+        print("\n[STATS] Overall Statistics:")
         print(f"  Total Checks: {total_checks}")
         print(f"  [OK] Passed: {self.results['overall']['passed']}")
         print(f"  [FAIL] Failed: {self.results['overall']['failed']}")
         print(f"  [WARN]  Warnings: {self.results['overall']['warnings']}")
 
         if self.results["overall"]["failed"] == 0:
-            print(f"\n[SUCCESS] All critical checks passed!")
+            print("\n[SUCCESS] All critical checks passed!")
         else:
-            print(f"\n[WARN]  Some issues need attention.")
+            print("\n[WARN]  Some issues need attention.")
 
         # Save detailed report
         report_file = self.project_root / "health_check_report.json"
         with open(report_file, "w", encoding="utf-8") as f:
             json.dump(self.results, f, indent=2)
 
-        print(f"\n[REPORT] Detailed report saved to: health_check_report.json")
+        print("\n[REPORT] Detailed report saved to: health_check_report.json")
 
         # Generate coverage stats
         self.generate_coverage_stats()
 
     def generate_coverage_stats(self):
-        """Generate coverage statistics"""
+        """Generate coverage statistics."""
         print("\n[COVERAGE] Coverage Statistics:")
         print("-" * 40)
 
@@ -361,7 +362,7 @@ class HealthChecker:
 
 
 def main():
-    """Run health check"""
+    """Run health check."""
     checker = HealthChecker()
 
     # Add command line options

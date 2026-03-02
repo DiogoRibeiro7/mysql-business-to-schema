@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""
-E-commerce Platform Data Generator - Test Version
+
+"""E-commerce Platform Data Generator - Test Version.
+
 Quick test with smaller dataset
 """
 
-import csv
-import json
 import random
-import hashlib
-from datetime import datetime, timedelta
-from decimal import Decimal
 from pathlib import Path
 from faker import Faker
 import numpy as np
+from generators.ecommerce.generator import EcommerceGenerator
+import generators.ecommerce.generator as generator
 
 # Configuration - SCALED DOWN FOR TESTING
 SEED = 42
@@ -37,20 +35,15 @@ CONFIG = {
     "support_ticket_rate": 0.05,
 }
 
-print(f"Test Configuration:")
+print("Test Configuration:")
 print(f"  Customers: {CONFIG['customers']}")
 print(f"  Products: {CONFIG['products']}")
 print(f"  Orders: ~{CONFIG['orders_per_day'] * CONFIG['days_of_history']}")
 print(f"  Days of history: {CONFIG['days_of_history']}")
 
 # Import the main generator
-import sys
-
-sys.path.insert(0, str(Path(__file__).parent))
-from generator import EcommerceGenerator
 
 # Override the CONFIG in the imported module
-import generator
 
 generator.CONFIG = CONFIG
 generator.OUTPUT_DIR = OUTPUT_DIR

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL Business-to-Schema Performance Benchmarking Suite
+"""MySQL Business-to-Schema Performance Benchmarking Suite.
 
 This tool benchmarks database operations and generator performance across all examples.
 """
@@ -22,7 +21,7 @@ import threading
 
 
 class ColorOutput:
-    """Color codes for terminal output"""
+    """Color codes for terminal output."""
 
     GREEN = "\033[92m"
     YELLOW = "\033[93m"
@@ -34,9 +33,10 @@ class ColorOutput:
 
 
 class BenchmarkResult:
-    """Container for benchmark results"""
+    """Container for benchmark results."""
 
     def __init__(self, name: str):
+        """Initialize the instance."""
         self.name = name
         self.start_time = None
         self.end_time = None
@@ -49,6 +49,7 @@ class BenchmarkResult:
         self.metadata = {}
 
     def to_dict(self) -> Dict:
+        """Handle to dict."""
         return {
             "name": self.name,
             "duration": self.duration,
@@ -62,16 +63,17 @@ class BenchmarkResult:
 
 
 class ResourceMonitor:
-    """Monitor system resource usage during benchmarks"""
+    """Monitor system resource usage during benchmarks."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.monitoring = False
         self.memory_samples = []
         self.cpu_samples = []
         self.monitor_thread = None
 
     def start(self):
-        """Start monitoring resources"""
+        """Start monitoring resources."""
         self.monitoring = True
         self.memory_samples = []
         self.cpu_samples = []
@@ -79,7 +81,7 @@ class ResourceMonitor:
         self.monitor_thread.start()
 
     def stop(self) -> Tuple[float, float]:
-        """Stop monitoring and return peak values"""
+        """Stop monitoring and return peak values."""
         self.monitoring = False
         if self.monitor_thread:
             self.monitor_thread.join()
@@ -89,7 +91,7 @@ class ResourceMonitor:
         return peak_memory, peak_cpu
 
     def _monitor(self):
-        """Monitor loop running in separate thread"""
+        """Monitor loop running in separate thread."""
         process = psutil.Process()
         while self.monitoring:
             try:
@@ -98,20 +100,21 @@ class ResourceMonitor:
                 self.memory_samples.append(memory_mb)
                 self.cpu_samples.append(cpu_percent)
                 time.sleep(0.1)
-            except:
+            except Exception:
                 pass
 
 
 class DatabaseBenchmark:
-    """Benchmark database operations"""
+    """Benchmark database operations."""
 
     def __init__(self, config: Dict):
+        """Initialize the instance."""
         self.config = config
         self.connection = None
         self.results = []
 
     def connect(self) -> bool:
-        """Establish database connection"""
+        """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(
                 host=self.config.get("host", "localhost"),
@@ -126,12 +129,12 @@ class DatabaseBenchmark:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.connection:
             self.connection.close()
 
     def benchmark_inserts(self, table: str, count: int = 1000) -> BenchmarkResult:
-        """Benchmark INSERT operations"""
+        """Benchmark INSERT operations."""
         result = BenchmarkResult(f"INSERT_{table}")
         monitor = ResourceMonitor()
 
@@ -145,7 +148,7 @@ class DatabaseBenchmark:
             columns = cursor.fetchall()
 
             # Generate and execute INSERT statements
-            for i in range(count):
+            for _ in range(count):
                 values = self._generate_values(columns)
                 query = f"INSERT INTO {table} VALUES ({values})"
                 cursor.execute(query)
@@ -171,7 +174,7 @@ class DatabaseBenchmark:
         return result
 
     def benchmark_selects(self, table: str, count: int = 1000) -> BenchmarkResult:
-        """Benchmark SELECT operations"""
+        """Benchmark SELECT operations."""
         result = BenchmarkResult(f"SELECT_{table}")
         monitor = ResourceMonitor()
 
@@ -180,7 +183,7 @@ class DatabaseBenchmark:
             monitor.start()
             result.start_time = time.time()
 
-            for i in range(count):
+            for _ in range(count):
                 cursor.execute(f"SELECT * FROM {table} LIMIT 1")
                 cursor.fetchall()
 
@@ -203,7 +206,7 @@ class DatabaseBenchmark:
         return result
 
     def benchmark_joins(self, tables: List[str], count: int = 100) -> BenchmarkResult:
-        """Benchmark JOIN operations"""
+        """Benchmark JOIN operations."""
         result = BenchmarkResult(f"JOIN_{tables[0]}")
         monitor = ResourceMonitor()
 
@@ -224,7 +227,7 @@ class DatabaseBenchmark:
                 LIMIT 100
             """
 
-            for i in range(count):
+            for _ in range(count):
                 cursor.execute(query)
                 cursor.fetchall()
 
@@ -247,7 +250,7 @@ class DatabaseBenchmark:
         return result
 
     def benchmark_aggregates(self, table: str, count: int = 100) -> BenchmarkResult:
-        """Benchmark aggregate operations"""
+        """Benchmark aggregate operations."""
         result = BenchmarkResult(f"AGGREGATE_{table}")
         monitor = ResourceMonitor()
 
@@ -263,7 +266,7 @@ class DatabaseBenchmark:
                 f"SELECT MIN(id) FROM {table}",
             ]
 
-            for i in range(count):
+            for _ in range(count):
                 for query in queries:
                     cursor.execute(query)
                     cursor.fetchall()
@@ -287,7 +290,7 @@ class DatabaseBenchmark:
         return result
 
     def _generate_values(self, columns: List) -> str:
-        """Generate dummy values for INSERT"""
+        """Generate dummy values for INSERT."""
         values = []
         for col in columns:
             col_type = col[1].lower()
@@ -307,14 +310,15 @@ class DatabaseBenchmark:
 
 
 class GeneratorBenchmark:
-    """Benchmark data generators"""
+    """Benchmark data generators."""
 
     def __init__(self, generator_path: str):
+        """Initialize the instance."""
         self.generator_path = generator_path
         self.results = []
 
     def benchmark_generator(self, mode: str = "test") -> BenchmarkResult:
-        """Benchmark a single generator"""
+        """Benchmark a single generator."""
         generator_name = Path(self.generator_path).parent.name
         result = BenchmarkResult(f"generator_{generator_name}")
         monitor = ResourceMonitor()
@@ -346,10 +350,10 @@ class GeneratorBenchmark:
                 if "Generated" in line and "records" in line:
                     try:
                         parts = line.split()
-                        for i, part in enumerate(parts):
+                        for _, part in enumerate(parts):
                             if part.isdigit():
                                 result.rows_generated += int(part)
-                    except:
+                    except Exception:
                         pass
 
             memory_peak, cpu_peak = monitor.stop()
@@ -371,16 +375,17 @@ class GeneratorBenchmark:
 
 
 class BenchmarkSuite:
-    """Main benchmark orchestrator"""
+    """Run benchmark orchestrator."""
 
     def __init__(self, project_root: str):
+        """Initialize the instance."""
         self.project_root = Path(project_root)
         self.results = {}
         self.start_time = None
         self.end_time = None
 
     def run_all(self, parallel: bool = False, examples: List[str] = None):
-        """Run benchmarks for all examples"""
+        """Run benchmarks for all examples."""
         self.start_time = datetime.now()
 
         # Get list of examples
@@ -416,7 +421,7 @@ class BenchmarkSuite:
         self._save_results()
 
     def _run_sequential(self, example_dirs: List[Path]):
-        """Run benchmarks sequentially"""
+        """Run benchmarks sequentially."""
         for i, example_dir in enumerate(example_dirs, 1):
             example_name = example_dir.name
             print(
@@ -436,7 +441,7 @@ class BenchmarkSuite:
                 )
 
     def _run_parallel(self, example_dirs: List[Path]):
-        """Run benchmarks in parallel"""
+        """Run benchmarks in parallel."""
         with ThreadPoolExecutor(max_workers=4) as executor:
             futures = {
                 executor.submit(self._benchmark_example, d): d.name
@@ -464,7 +469,7 @@ class BenchmarkSuite:
                     self.results[example_name] = {"errors": [str(e)]}
 
     def _benchmark_example(self, example_dir: Path) -> Dict:
-        """Benchmark a single example"""
+        """Benchmark a single example."""
         results = {
             "example": example_dir.name,
             "timestamp": datetime.now().isoformat(),
@@ -512,7 +517,7 @@ class BenchmarkSuite:
         return results
 
     def _parse_docker_compose(self, compose_file: Path) -> Optional[Dict]:
-        """Parse docker-compose.yml for database configuration"""
+        """Parse docker-compose.yml for database configuration."""
         try:
             import yaml
 
@@ -537,11 +542,11 @@ class BenchmarkSuite:
                 "password": env.get("MYSQL_ROOT_PASSWORD", ""),
                 "database": env.get("MYSQL_DATABASE", ""),
             }
-        except Exception as e:
+        except Exception:
             return None
 
     def _print_summary(self):
-        """Print benchmark summary"""
+        """Print benchmark summary."""
         print(f"\n{'=' * 60}")
         print(f"{ColorOutput.BOLD}Benchmark Summary{ColorOutput.RESET}")
         print(f"{'=' * 60}")
@@ -581,7 +586,7 @@ class BenchmarkSuite:
             print(f"  Peak: {max(all_memory):.2f} MB")
 
     def _save_results(self):
-        """Save benchmark results to file"""
+        """Save benchmark results to file."""
         output_dir = self.project_root / "benchmark_results"
         output_dir.mkdir(exist_ok=True)
 
@@ -604,7 +609,7 @@ class BenchmarkSuite:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     parser = argparse.ArgumentParser(
         description="MySQL Business-to-Schema Benchmark Suite"
     )

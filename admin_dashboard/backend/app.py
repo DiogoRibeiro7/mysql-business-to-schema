@@ -1,20 +1,30 @@
-"""
-FastAPI application for Admin Dashboard
-"""
+"""FastAPI application for Admin Dashboard."""
 
 from fastapi import FastAPI, HTTPException, Depends, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 
 from .database import DatabaseManager
 from .auth import AuthManager, get_current_user, User
-from .models import *
+from .models import (
+    ApplyMigrationRequest,
+    CreateAlertRequest,
+    CreateBackupRequest,
+    CreateMigrationRequest,
+    CreateUserRequest,
+    ExecuteQueryRequest,
+    ExplainQueryRequest,
+    LoginRequest,
+    OptimizeQueryRequest,
+    RestoreBackupRequest,
+    RollbackMigrationRequest,
+)
 from .monitoring import MetricsCollector, ConnectionManager
 from .schema_manager import SchemaManager
 from .migration_handler import MigrationHandler
@@ -53,6 +63,8 @@ index_advisor = IndexAdvisor()
 metrics_collector = MetricsCollector()
 ws_manager = ConnectionManager()
 
+current_user_dep = Depends(get_current_user)
+
 # ============================================
 # Health & Status Endpoints
 # ============================================
@@ -69,7 +81,7 @@ async def health_check():
 
 
 @app.get("/api/status")
-async def system_status(current_user: User = Depends(get_current_user)):
+async def system_status(current_user: User = current_user_dep):
     """Get system status."""
     try:
         status = await db_manager.get_system_status()
@@ -101,14 +113,14 @@ async def login(credentials: LoginRequest):
 
 
 @app.post("/api/auth/logout")
-async def logout(current_user: User = Depends(get_current_user)):
+async def logout(current_user: User = current_user_dep):
     """User logout."""
     await auth_manager.logout(current_user.username)
     return {"message": "Logged out successfully"}
 
 
 @app.get("/api/auth/me")
-async def get_current_user_info(current_user: User = Depends(get_current_user)):
+async def get_current_user_info(current_user: User = current_user_dep):
     """Get current user information."""
     return {
         "username": current_user.username,
@@ -124,7 +136,7 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
 
 
 @app.get("/api/metrics/overview")
-async def get_metrics_overview(current_user: User = Depends(get_current_user)):
+async def get_metrics_overview(current_user: User = current_user_dep):
     """Get dashboard overview metrics."""
     try:
         metrics = await metrics_collector.get_overview_metrics()
@@ -144,7 +156,7 @@ async def get_metrics_overview(current_user: User = Depends(get_current_user)):
 
 @app.get("/api/metrics/performance")
 async def get_performance_metrics(
-    timeframe: str = "1h", current_user: User = Depends(get_current_user)
+    timeframe: str = "1h", current_user: User = current_user_dep
 ):
     """Get performance metrics."""
     try:
@@ -164,7 +176,7 @@ async def get_performance_metrics(
 
 @app.get("/api/metrics/queries")
 async def get_query_metrics(
-    limit: int = 10, current_user: User = Depends(get_current_user)
+    limit: int = 10, current_user: User = current_user_dep
 ):
     """Get slow query metrics."""
     try:
@@ -185,7 +197,7 @@ async def get_query_metrics(
 
 
 @app.get("/api/schemas")
-async def list_schemas(current_user: User = Depends(get_current_user)):
+async def list_schemas(current_user: User = current_user_dep):
     """List all database schemas."""
     try:
         schemas = await schema_manager.list_schemas()
@@ -197,7 +209,7 @@ async def list_schemas(current_user: User = Depends(get_current_user)):
 
 @app.get("/api/schemas/{schema_name}")
 async def get_schema_details(
-    schema_name: str, current_user: User = Depends(get_current_user)
+    schema_name: str, current_user: User = current_user_dep
 ):
     """Get detailed schema information."""
     try:
@@ -209,7 +221,7 @@ async def get_schema_details(
 
 
 @app.get("/api/schemas/{schema_name}/tables")
-async def list_tables(schema_name: str, current_user: User = Depends(get_current_user)):
+async def list_tables(schema_name: str, current_user: User = current_user_dep):
     """List tables in a schema."""
     try:
         tables = await schema_manager.list_tables(schema_name)
@@ -221,7 +233,7 @@ async def list_tables(schema_name: str, current_user: User = Depends(get_current
 
 @app.get("/api/schemas/{schema_name}/tables/{table_name}")
 async def get_table_details(
-    schema_name: str, table_name: str, current_user: User = Depends(get_current_user)
+    schema_name: str, table_name: str, current_user: User = current_user_dep
 ):
     """Get table details including columns and indexes."""
     try:
@@ -234,7 +246,7 @@ async def get_table_details(
 
 @app.get("/api/schemas/{schema_name}/diagram")
 async def get_schema_diagram(
-    schema_name: str, current_user: User = Depends(get_current_user)
+    schema_name: str, current_user: User = current_user_dep
 ):
     """Get schema ERD diagram data."""
     try:
@@ -251,7 +263,7 @@ async def get_schema_diagram(
 
 
 @app.get("/api/migrations")
-async def list_migrations(current_user: User = Depends(get_current_user)):
+async def list_migrations(current_user: User = current_user_dep):
     """List all migrations."""
     try:
         migrations = await migration_handler.list_migrations()
@@ -262,7 +274,7 @@ async def list_migrations(current_user: User = Depends(get_current_user)):
 
 
 @app.get("/api/migrations/status")
-async def get_migration_status(current_user: User = Depends(get_current_user)):
+async def get_migration_status(current_user: User = current_user_dep):
     """Get migration status."""
     try:
         status = await migration_handler.get_status()
@@ -274,7 +286,7 @@ async def get_migration_status(current_user: User = Depends(get_current_user)):
 
 @app.post("/api/migrations/create")
 async def create_migration(
-    migration: CreateMigrationRequest, current_user: User = Depends(get_current_user)
+    migration: CreateMigrationRequest, current_user: User = current_user_dep
 ):
     """Create a new migration."""
     try:
@@ -295,7 +307,7 @@ async def create_migration(
 
 @app.post("/api/migrations/apply")
 async def apply_migrations(
-    request: ApplyMigrationRequest, current_user: User = Depends(get_current_user)
+    request: ApplyMigrationRequest, current_user: User = current_user_dep
 ):
     """Apply pending migrations."""
     try:
@@ -318,7 +330,7 @@ async def apply_migrations(
 
 @app.post("/api/migrations/rollback")
 async def rollback_migrations(
-    request: RollbackMigrationRequest, current_user: User = Depends(get_current_user)
+    request: RollbackMigrationRequest, current_user: User = current_user_dep
 ):
     """Rollback migrations."""
     try:
@@ -346,7 +358,7 @@ async def rollback_migrations(
 
 @app.post("/api/query/execute")
 async def execute_query(
-    request: ExecuteQueryRequest, current_user: User = Depends(get_current_user)
+    request: ExecuteQueryRequest, current_user: User = current_user_dep
 ):
     """Execute a SQL query."""
     try:
@@ -377,7 +389,7 @@ async def execute_query(
 
 @app.post("/api/query/explain")
 async def explain_query(
-    request: ExplainQueryRequest, current_user: User = Depends(get_current_user)
+    request: ExplainQueryRequest, current_user: User = current_user_dep
 ):
     """Get query execution plan."""
     try:
@@ -398,7 +410,7 @@ async def explain_query(
 
 @app.get("/api/query/history")
 async def get_query_history(
-    limit: int = 50, current_user: User = Depends(get_current_user)
+    limit: int = 50, current_user: User = current_user_dep
 ):
     """Get query execution history."""
     try:
@@ -414,7 +426,7 @@ async def get_query_history(
 
 @app.post("/api/query/optimize")
 async def optimize_query(
-    request: OptimizeQueryRequest, current_user: User = Depends(get_current_user)
+    request: OptimizeQueryRequest, current_user: User = current_user_dep
 ):
     """Get query optimization suggestions."""
     try:
@@ -440,7 +452,7 @@ async def optimize_query(
 
 @app.post("/api/query/save")
 async def save_query(
-    query_data: Dict[str, Any], current_user: User = Depends(get_current_user)
+    query_data: Dict[str, Any], current_user: User = current_user_dep
 ):
     """Save or update a query."""
     try:
@@ -464,7 +476,7 @@ async def save_query(
 
 @app.get("/api/query/saved")
 async def get_saved_queries(
-    include_shared: bool = True, current_user: User = Depends(get_current_user)
+    include_shared: bool = True, current_user: User = current_user_dep
 ):
     """Get all saved queries for the current user."""
     try:
@@ -477,7 +489,7 @@ async def get_saved_queries(
 
 @app.get("/api/query/saved/{query_id}")
 async def get_saved_query(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Get a specific saved query."""
     try:
@@ -496,7 +508,7 @@ async def get_saved_query(
 
 @app.delete("/api/query/saved/{query_id}")
 async def delete_saved_query(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Delete a saved query."""
     try:
@@ -513,7 +525,7 @@ async def delete_saved_query(
 
 @app.post("/api/query/collections")
 async def create_collection(
-    collection_data: Dict[str, Any], current_user: User = Depends(get_current_user)
+    collection_data: Dict[str, Any], current_user: User = current_user_dep
 ):
     """Create a new query collection."""
     try:
@@ -525,7 +537,7 @@ async def create_collection(
 
 
 @app.get("/api/query/collections")
-async def get_collections(current_user: User = Depends(get_current_user)):
+async def get_collections(current_user: User = current_user_dep):
     """Get all collections for the current user."""
     try:
         collections = query_manager.get_user_collections(current_user.id)
@@ -539,7 +551,7 @@ async def get_collections(current_user: User = Depends(get_current_user)):
 async def share_query(
     query_id: str,
     share_data: Dict[str, Any],
-    current_user: User = Depends(get_current_user),
+    current_user: User = current_user_dep,
 ):
     """Share a query with other users."""
     try:
@@ -556,7 +568,7 @@ async def share_query(
 
 @app.post("/api/query/duplicate/{query_id}")
 async def duplicate_query(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Duplicate an existing query."""
     try:
@@ -573,7 +585,7 @@ async def duplicate_query(
 
 @app.get("/api/query/versions/{query_id}")
 async def get_query_versions(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Get version history for a query."""
     try:
@@ -586,7 +598,7 @@ async def get_query_versions(
 
 @app.post("/api/query/versions/{query_id}/restore/{version_id}")
 async def restore_query_version(
-    query_id: str, version_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, version_id: str, current_user: User = current_user_dep
 ):
     """Restore a previous version of a query."""
     try:
@@ -603,7 +615,7 @@ async def restore_query_version(
 
 @app.get("/api/query/performance/{query_id}")
 async def get_query_performance(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Get performance history for a query."""
     try:
@@ -615,7 +627,7 @@ async def get_query_performance(
 
 
 @app.get("/api/query/search")
-async def search_queries(q: str, current_user: User = Depends(get_current_user)):
+async def search_queries(q: str, current_user: User = current_user_dep):
     """Search saved queries."""
     try:
         results = query_manager.search_queries(current_user.id, q)
@@ -626,7 +638,7 @@ async def search_queries(q: str, current_user: User = Depends(get_current_user))
 
 
 @app.get("/api/query/favorites")
-async def get_favorite_queries(current_user: User = Depends(get_current_user)):
+async def get_favorite_queries(current_user: User = current_user_dep):
     """Get favorite queries."""
     try:
         favorites = query_manager.get_favorite_queries(current_user.id)
@@ -638,7 +650,7 @@ async def get_favorite_queries(current_user: User = Depends(get_current_user)):
 
 @app.post("/api/query/favorites/{query_id}")
 async def toggle_favorite(
-    query_id: str, current_user: User = Depends(get_current_user)
+    query_id: str, current_user: User = current_user_dep
 ):
     """Toggle favorite status of a query."""
     try:
@@ -660,7 +672,7 @@ async def toggle_favorite(
 
 @app.post("/api/index-advisor/analyze")
 async def analyze_for_indexes(
-    request: Dict[str, Any], current_user: User = Depends(get_current_user)
+    request: Dict[str, Any], current_user: User = current_user_dep
 ):
     """Analyze queries and suggest indexes."""
     try:
@@ -697,7 +709,7 @@ async def analyze_for_indexes(
 
 @app.get("/api/index-advisor/suggestions/{database}")
 async def get_index_suggestions(
-    database: str, limit: int = 10, current_user: User = Depends(get_current_user)
+    database: str, limit: int = 10, current_user: User = current_user_dep
 ):
     """Get index suggestions for a specific database."""
     try:
@@ -714,7 +726,7 @@ async def get_index_suggestions(
 
 @app.post("/api/index-advisor/impact")
 async def analyze_index_impact(
-    request: Dict[str, Any], current_user: User = Depends(get_current_user)
+    request: Dict[str, Any], current_user: User = current_user_dep
 ):
     """Analyze the impact of creating a specific index."""
     try:
@@ -742,7 +754,7 @@ async def analyze_index_impact(
 
 @app.get("/api/index-advisor/existing/{database}/{table}")
 async def get_existing_indexes(
-    database: str, table: str, current_user: User = Depends(get_current_user)
+    database: str, table: str, current_user: User = current_user_dep
 ):
     """Get existing indexes for a table."""
     try:
@@ -766,7 +778,7 @@ async def get_existing_indexes(
 
 @app.post("/api/index-advisor/create")
 async def create_suggested_index(
-    request: Dict[str, Any], current_user: User = Depends(get_current_user)
+    request: Dict[str, Any], current_user: User = current_user_dep
 ):
     """Create a suggested index (requires admin privileges)."""
     try:
@@ -800,7 +812,7 @@ async def create_suggested_index(
 
 @app.delete("/api/index-advisor/remove/{database}/{index_name}")
 async def remove_index(
-    database: str, index_name: str, current_user: User = Depends(get_current_user)
+    database: str, index_name: str, current_user: User = current_user_dep
 ):
     """Remove an index (requires admin privileges)."""
     try:
@@ -830,7 +842,7 @@ async def remove_index(
 
 
 @app.get("/api/backups")
-async def list_backups(current_user: User = Depends(get_current_user)):
+async def list_backups(current_user: User = current_user_dep):
     """List database backups."""
     try:
         backups = await db_manager.list_backups()
@@ -842,7 +854,7 @@ async def list_backups(current_user: User = Depends(get_current_user)):
 
 @app.post("/api/backups/create")
 async def create_backup(
-    request: CreateBackupRequest, current_user: User = Depends(get_current_user)
+    request: CreateBackupRequest, current_user: User = current_user_dep
 ):
     """Create a database backup."""
     try:
@@ -864,7 +876,7 @@ async def create_backup(
 
 @app.post("/api/backups/restore")
 async def restore_backup(
-    request: RestoreBackupRequest, current_user: User = Depends(get_current_user)
+    request: RestoreBackupRequest, current_user: User = current_user_dep
 ):
     """Restore from backup."""
     try:
@@ -887,7 +899,7 @@ async def restore_backup(
 
 
 @app.get("/api/users")
-async def list_users(current_user: User = Depends(get_current_user)):
+async def list_users(current_user: User = current_user_dep):
     """List database users."""
     try:
         if current_user.role != "admin":
@@ -902,7 +914,7 @@ async def list_users(current_user: User = Depends(get_current_user)):
 
 @app.post("/api/users/create")
 async def create_user(
-    user: CreateUserRequest, current_user: User = Depends(get_current_user)
+    user: CreateUserRequest, current_user: User = current_user_dep
 ):
     """Create a new user."""
     try:
@@ -928,7 +940,7 @@ async def create_user(
 
 
 @app.get("/api/alerts")
-async def list_alerts(current_user: User = Depends(get_current_user)):
+async def list_alerts(current_user: User = current_user_dep):
     """List configured alerts."""
     try:
         alerts = await db_manager.list_alerts()
@@ -940,7 +952,7 @@ async def list_alerts(current_user: User = Depends(get_current_user)):
 
 @app.post("/api/alerts/create")
 async def create_alert(
-    alert: CreateAlertRequest, current_user: User = Depends(get_current_user)
+    alert: CreateAlertRequest, current_user: User = current_user_dep
 ):
     """Create a new alert."""
     try:
@@ -960,7 +972,7 @@ async def create_alert(
 
 @app.get("/api/alerts/history")
 async def get_alert_history(
-    limit: int = 50, current_user: User = Depends(get_current_user)
+    limit: int = 50, current_user: User = current_user_dep
 ):
     """Get alert history."""
     try:
@@ -978,7 +990,7 @@ async def get_alert_history(
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for real-time updates."""
+    """Handle websocket updates."""
     await ws_manager.connect(websocket)
     try:
         while True:

@@ -1,13 +1,11 @@
-"""
-Database management module
+"""Database management module.
+
+Handles connection pooling and admin dashboard metadata storage.
 """
 
-import mysql.connector
 from mysql.connector import pooling
-import asyncio
 from typing import Dict, List, Any, Optional
 import logging
-from datetime import datetime, timedelta
 import json
 import os
 from pathlib import Path
@@ -19,6 +17,7 @@ class DatabaseManager:
     """Manages database connections and operations."""
 
     def __init__(self):
+        """Initialize the database manager."""
         self.config = self._load_config()
         self.pool = None
         self.initialized = False
@@ -187,7 +186,7 @@ class DatabaseManager:
             cursor.execute(query, params or ())
             conn.commit()
             return cursor.rowcount
-        except Exception as e:
+        except Exception:
             conn.rollback()
             raise
         finally:
@@ -381,7 +380,7 @@ class DatabaseManager:
                 "status": "completed",
             }
 
-        except Exception as e:
+        except Exception:
             # Mark backup as failed
             await self.execute_update(
                 """

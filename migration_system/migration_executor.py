@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Migration Executor
+"""Migration Executor.
 
 Executes database migrations against target databases with:
 - Connection management for different database types
@@ -16,9 +15,6 @@ import time
 import logging
 from datetime import datetime
 from typing import Optional, Dict, Any, List
-from enum import Enum
-import subprocess
-import tempfile
 
 # Database connectors (will be imported as needed)
 try:
@@ -42,7 +38,7 @@ try:
 except ImportError:
     MONGODB_AVAILABLE = False
 
-from migration_manager import Migration, MigrationStatus, DatabaseType
+from migration_manager import MigrationStatus, DatabaseType
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -50,9 +46,10 @@ logger = logging.getLogger(__name__)
 
 
 class ExecutionResult:
-    """Result of migration execution"""
+    """Result of migration execution."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.success: bool = False
         self.execution_time: float = 0.0
         self.rows_affected: int = 0
@@ -62,37 +59,38 @@ class ExecutionResult:
 
 
 class DatabaseConnection:
-    """Abstract base class for database connections"""
+    """Abstract base class for database connections."""
 
     def connect(self, **kwargs):
-        """Establish database connection"""
+        """Establish database connection."""
         raise NotImplementedError
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         raise NotImplementedError
 
     def execute_script(self, script: str) -> ExecutionResult:
-        """Execute migration script"""
+        """Execute migration script."""
         raise NotImplementedError
 
     def begin_transaction(self):
-        """Start a transaction"""
+        """Start a transaction."""
         raise NotImplementedError
 
     def commit_transaction(self):
-        """Commit the current transaction"""
+        """Commit the current transaction."""
         raise NotImplementedError
 
     def rollback_transaction(self):
-        """Rollback the current transaction"""
+        """Rollback the current transaction."""
         raise NotImplementedError
 
 
 class MySQLConnection(DatabaseConnection):
-    """MySQL database connection handler"""
+    """MySQL database connection handler."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.connection = None
         self.cursor = None
 
@@ -105,7 +103,7 @@ class MySQLConnection(DatabaseConnection):
         database=None,
         **kwargs,
     ):
-        """Connect to MySQL database"""
+        """Connect to MySQL database."""
         if not MYSQL_AVAILABLE:
             raise ImportError("mysql-connector-python is not installed")
 
@@ -128,7 +126,7 @@ class MySQLConnection(DatabaseConnection):
             raise
 
     def disconnect(self):
-        """Disconnect from MySQL"""
+        """Disconnect from MySQL."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -136,7 +134,7 @@ class MySQLConnection(DatabaseConnection):
         logger.info("Disconnected from MySQL")
 
     def execute_script(self, script: str) -> ExecutionResult:
-        """Execute SQL script in MySQL"""
+        """Execute SQL script in MySQL."""
         result = ExecutionResult()
         start_time = time.time()
 
@@ -165,22 +163,23 @@ class MySQLConnection(DatabaseConnection):
         return result
 
     def begin_transaction(self):
-        """Start a MySQL transaction"""
+        """Start a MySQL transaction."""
         self.connection.start_transaction()
 
     def commit_transaction(self):
-        """Commit MySQL transaction"""
+        """Commit MySQL transaction."""
         self.connection.commit()
 
     def rollback_transaction(self):
-        """Rollback MySQL transaction"""
+        """Rollback MySQL transaction."""
         self.connection.rollback()
 
 
 class PostgreSQLConnection(DatabaseConnection):
-    """PostgreSQL database connection handler"""
+    """PostgreSQL database connection handler."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.connection = None
         self.cursor = None
 
@@ -193,7 +192,7 @@ class PostgreSQLConnection(DatabaseConnection):
         database="postgres",
         **kwargs,
     ):
-        """Connect to PostgreSQL database"""
+        """Connect to PostgreSQL database."""
         if not POSTGRESQL_AVAILABLE:
             raise ImportError("psycopg2 is not installed")
 
@@ -209,7 +208,7 @@ class PostgreSQLConnection(DatabaseConnection):
             raise
 
     def disconnect(self):
-        """Disconnect from PostgreSQL"""
+        """Disconnect from PostgreSQL."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -217,7 +216,7 @@ class PostgreSQLConnection(DatabaseConnection):
         logger.info("Disconnected from PostgreSQL")
 
     def execute_script(self, script: str) -> ExecutionResult:
-        """Execute SQL script in PostgreSQL"""
+        """Execute SQL script in PostgreSQL."""
         result = ExecutionResult()
         start_time = time.time()
 
@@ -242,22 +241,23 @@ class PostgreSQLConnection(DatabaseConnection):
         return result
 
     def begin_transaction(self):
-        """Start a PostgreSQL transaction"""
+        """Start a PostgreSQL transaction."""
         self.connection.set_session(autocommit=False)
 
     def commit_transaction(self):
-        """Commit PostgreSQL transaction"""
+        """Commit PostgreSQL transaction."""
         self.connection.commit()
 
     def rollback_transaction(self):
-        """Rollback PostgreSQL transaction"""
+        """Rollback PostgreSQL transaction."""
         self.connection.rollback()
 
 
 class MongoDBConnection(DatabaseConnection):
-    """MongoDB connection handler"""
+    """MongoDB connection handler."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.client = None
         self.database = None
 
@@ -270,7 +270,7 @@ class MongoDBConnection(DatabaseConnection):
         password=None,
         **kwargs,
     ):
-        """Connect to MongoDB"""
+        """Connect to MongoDB."""
         if not MONGODB_AVAILABLE:
             raise ImportError("pymongo is not installed")
 
@@ -293,13 +293,13 @@ class MongoDBConnection(DatabaseConnection):
             raise
 
     def disconnect(self):
-        """Disconnect from MongoDB"""
+        """Disconnect from MongoDB."""
         if self.client:
             self.client.close()
         logger.info("Disconnected from MongoDB")
 
     def execute_script(self, script: str) -> ExecutionResult:
-        """Execute MongoDB script"""
+        """Execute MongoDB script."""
         result = ExecutionResult()
         start_time = time.time()
 
@@ -346,14 +346,14 @@ class MongoDBConnection(DatabaseConnection):
         return result
 
     def _extract_collection_name(self, line: str) -> Optional[str]:
-        """Extract collection name from createCollection command"""
+        """Extract collection name from createCollection command."""
         import re
 
         match = re.search(r"createCollection\(['\"](\w+)['\"]", line)
         return match.group(1) if match else None
 
     def _execute_create_index(self, line: str):
-        """Execute createIndex command"""
+        """Execute createIndex command."""
         import re
 
         # Extract collection and index details
@@ -364,27 +364,26 @@ class MongoDBConnection(DatabaseConnection):
             logger.info(f"Would create index on collection: {collection_name}")
 
     def begin_transaction(self):
-        """MongoDB doesn't support transactions in the same way"""
-        pass
+        """Handle MongoDB transaction begin."""
 
     def commit_transaction(self):
-        """MongoDB auto-commits"""
-        pass
+        """Handle MongoDB transaction commit."""
 
     def rollback_transaction(self):
-        """MongoDB doesn't support rollback in the same way"""
+        """Handle MongoDB transaction rollback."""
         logger.warning("MongoDB doesn't support traditional rollback")
 
 
 class MigrationExecutor:
-    """Executes database migrations"""
+    """Executes database migrations."""
 
     def __init__(self, migrations_dir: str = "migrations"):
+        """Initialize the instance."""
         self.migrations_dir = migrations_dir
         self.connections: Dict[DatabaseType, DatabaseConnection] = {}
 
     def get_connection(self, db_type: DatabaseType) -> DatabaseConnection:
-        """Get or create database connection"""
+        """Get or create database connection."""
         if db_type not in self.connections:
             if db_type == DatabaseType.MYSQL:
                 self.connections[db_type] = MySQLConnection()
@@ -400,7 +399,7 @@ class MigrationExecutor:
     def execute_migration(
         self, migration_id: str, connection_params: Dict[str, Any]
     ) -> ExecutionResult:
-        """Execute a migration"""
+        """Execute a migration."""
         result = ExecutionResult()
 
         # Load migration metadata
@@ -468,7 +467,7 @@ class MigrationExecutor:
     def rollback_migration(
         self, migration_id: str, connection_params: Dict[str, Any]
     ) -> ExecutionResult:
-        """Rollback a migration"""
+        """Rollback a migration."""
         result = ExecutionResult()
 
         # Load migration metadata
@@ -526,7 +525,7 @@ class MigrationExecutor:
         execution_time: Optional[float] = None,
         error_message: Optional[str] = None,
     ):
-        """Update migration status in metadata file"""
+        """Update migration status in metadata file."""
         metadata_file = os.path.join(self.migrations_dir, f"{migration_id}.json")
 
         with open(metadata_file, "r") as f:
@@ -548,14 +547,14 @@ class MigrationExecutor:
             json.dump(metadata, f, indent=2)
 
     def close_all_connections(self):
-        """Close all open database connections"""
+        """Close all open database connections."""
         for connection in self.connections.values():
             connection.disconnect()
         self.connections.clear()
 
 
 def main():
-    """Example usage of the migration executor"""
+    """Handle operation."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Migration Executor")
@@ -599,7 +598,7 @@ def main():
         elif args.action == "rollback":
             result = executor.rollback_migration(args.migration_id, connection_params)
             if result.success:
-                print(f"Migration rolled back successfully")
+                print("Migration rolled back successfully")
             else:
                 print(f"Rollback failed: {result.error_message}")
 

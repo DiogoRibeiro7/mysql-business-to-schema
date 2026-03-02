@@ -1,6 +1,4 @@
-"""
-Version information for MySQL Schema CLI
-"""
+"""Version information for MySQL Schema CLI."""
 
 __version__ = "1.0.0"
 __author__ = "MySQL Business Schema Team"

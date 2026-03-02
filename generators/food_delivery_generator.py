@@ -1,26 +1,19 @@
 #!/usr/bin/env python3
-"""
-Food Delivery Platform Data Generator
+"""Food Delivery Platform Data Generator.
 
 Generates realistic test data for the food delivery platform database.
 Includes customers, restaurants, drivers, orders, and real-time tracking data.
 """
 
 import random
-import sys
-import os
-from datetime import datetime, timedelta, time
-from decimal import Decimal
-from typing import List, Dict, Tuple, Optional
+from datetime import datetime, timedelta
 import json
 
-# Add parent directory to path for base generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from generators.base_generator import BaseGenerator
 
 
 class FoodDeliveryGenerator(BaseGenerator):
-    """Generator for Food Delivery Platform data"""
+    """Generator for Food Delivery Platform data."""
 
     def __init__(
         self,
@@ -30,7 +23,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         password="food_pass_2024",
         database="food_delivery",
     ):
-        """Initialize the food delivery generator"""
+        """Initialize the food delivery generator."""
         super().__init__(host, port, user, password, database)
 
         # Food categories and cuisines
@@ -117,7 +110,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         drivers: int = 1000,
         orders_per_day: int = 2000,
     ):
-        """Generate all food delivery platform data"""
+        """Generate all food delivery platform data."""
         print("Starting Food Delivery Platform data generation...")
 
         # Generate base data
@@ -151,7 +144,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         print("Generation complete!")
 
     def generate_customers(self, count: int = 5000):
-        """Generate customer accounts"""
+        """Generate customer accounts."""
         customers = []
 
         for i in range(count):
@@ -256,7 +249,7 @@ class FoodDeliveryGenerator(BaseGenerator):
             )
 
     def generate_delivery_zones(self):
-        """Generate delivery zones with surge pricing"""
+        """Generate delivery zones with surge pricing."""
         zones = []
 
         for zone_name in self.zones:
@@ -311,7 +304,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         )
 
     def generate_restaurants(self, count: int = 500):
-        """Generate restaurant accounts"""
+        """Generate restaurant accounts."""
         restaurants = []
         zone_ids = list(range(1, len(self.zones) + 1))
 
@@ -438,7 +431,7 @@ class FoodDeliveryGenerator(BaseGenerator):
             )
 
     def generate_menus(self):
-        """Generate restaurant menus with items"""
+        """Generate restaurant menus with items."""
         restaurants = self.fetch_all(
             "SELECT restaurant_id FROM restaurants WHERE verification_status = 'approved'"
         )
@@ -568,7 +561,7 @@ class FoodDeliveryGenerator(BaseGenerator):
             )
 
     def generate_drivers(self, count: int = 1000):
-        """Generate delivery driver accounts"""
+        """Generate delivery driver accounts."""
         drivers = []
         zone_ids = list(range(1, len(self.zones) + 1))
 
@@ -696,7 +689,7 @@ class FoodDeliveryGenerator(BaseGenerator):
             )
 
     def generate_orders(self, orders_per_day: int = 2000):
-        """Generate orders with delivery tracking"""
+        """Generate orders with delivery tracking."""
         # Fetch required data
         customers = self.fetch_all(
             "SELECT customer_id FROM customers WHERE account_status = 'active' LIMIT 2000"
@@ -990,7 +983,7 @@ class FoodDeliveryGenerator(BaseGenerator):
             )
 
     def generate_ratings(self):
-        """Generate ratings and reviews"""
+        """Generate ratings and reviews."""
         # Get completed orders
         completed_orders = self.fetch_all(
             """
@@ -1055,7 +1048,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         )
 
     def generate_promotions(self):
-        """Generate promotional codes"""
+        """Generate promotional codes."""
         promotions = []
 
         promo_types = [
@@ -1106,7 +1099,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         )
 
     def generate_support_tickets(self):
-        """Generate customer support tickets"""
+        """Generate customer support tickets."""
         customers = self.fetch_all("SELECT customer_id FROM customers LIMIT 200")
         orders = self.fetch_all("SELECT order_id FROM orders LIMIT 500")
 
@@ -1169,7 +1162,7 @@ class FoodDeliveryGenerator(BaseGenerator):
 
 
 def main():
-    """Main function to run the generator"""
+    """Run function to run the generator."""
     import argparse
 
     parser = argparse.ArgumentParser(

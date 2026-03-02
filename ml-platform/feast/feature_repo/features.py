@@ -1,23 +1,19 @@
-"""
-Feature definitions for MySQL Business-to-Schema ML Platform
+"""Feature definitions for MySQL Business-to-Schema ML Platform.
+
 Defines features for all business domains
 """
 
 from datetime import timedelta
 from feast import (
     Entity,
-    Feature,
     FeatureView,
     FileSource,
     ValueType,
     Field,
     FeatureService,
     PushSource,
-    RequestSource,
 )
-from feast.types import Float32, Float64, Int32, Int64, String, Bool, UnixTimestamp
-from feast.data_source import DataSource
-from feast.infra.offline_stores.file_source import FileSource
+from feast.types import Float32, Float64, Int32, Int64, String, Bool
 from feast.on_demand_feature_view import on_demand_feature_view
 from feast.stream_feature_view import stream_feature_view
 import pandas as pd
@@ -273,7 +269,7 @@ product_features_fv = FeatureView(
     ],
 )
 def customer_ltv_features(inputs: pd.DataFrame) -> pd.DataFrame:
-    """Calculate customer lifetime value and related features"""
+    """Calculate customer lifetime value and related features."""
     df = pd.DataFrame()
 
     # Customer Lifetime Value (simplified CLV calculation)
@@ -303,7 +299,7 @@ def customer_ltv_features(inputs: pd.DataFrame) -> pd.DataFrame:
     ],
 )
 def patient_risk_features(inputs: pd.DataFrame) -> pd.DataFrame:
-    """Calculate patient risk scores"""
+    """Calculate patient risk scores."""
     df = pd.DataFrame()
 
     # Health risk score based on demographics and vitals
@@ -336,7 +332,7 @@ def patient_risk_features(inputs: pd.DataFrame) -> pd.DataFrame:
     ],
 )
 def iot_maintenance_features(inputs: pd.DataFrame) -> pd.DataFrame:
-    """Calculate IoT maintenance and anomaly features"""
+    """Calculate IoT maintenance and anomaly features."""
     df = pd.DataFrame()
 
     # Maintenance urgency score
@@ -378,7 +374,7 @@ push_source = PushSource(
     ],
 )
 def realtime_iot_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Process real-time IoT data for anomaly detection"""
+    """Process real-time IoT data for anomaly detection."""
     # This would be implemented with actual streaming logic
     return df
 

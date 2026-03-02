@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Automated Database Migration System
+"""Automated Database Migration System.
 
 Handles schema migrations between different database systems:
 - MySQL to PostgreSQL
@@ -15,7 +14,7 @@ import json
 import hashlib
 import re
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
 import logging
@@ -26,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseType(Enum):
-    """Supported database types"""
+    """Supported database types."""
 
     MYSQL = "mysql"
     POSTGRESQL = "postgresql"
@@ -35,7 +34,7 @@ class DatabaseType(Enum):
 
 
 class MigrationStatus(Enum):
-    """Migration status types"""
+    """Migration status types."""
 
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
@@ -46,7 +45,7 @@ class MigrationStatus(Enum):
 
 @dataclass
 class Column:
-    """Represents a database column"""
+    """Represents a database column."""
 
     name: str
     data_type: str
@@ -64,7 +63,7 @@ class Column:
 
 @dataclass
 class Index:
-    """Represents a database index"""
+    """Represents a database index."""
 
     name: str
     columns: List[str]
@@ -75,7 +74,7 @@ class Index:
 
 @dataclass
 class Table:
-    """Represents a database table"""
+    """Represents a database table."""
 
     name: str
     columns: List[Column] = field(default_factory=list)
@@ -90,7 +89,7 @@ class Table:
 
 @dataclass
 class Migration:
-    """Represents a migration"""
+    """Represents a migration."""
 
     id: str
     name: str
@@ -107,7 +106,7 @@ class Migration:
 
 
 class DataTypeMapper:
-    """Maps data types between different database systems"""
+    """Maps data types between different database systems."""
 
     # MySQL to PostgreSQL type mappings
     MYSQL_TO_POSTGRESQL = {
@@ -219,8 +218,7 @@ class DataTypeMapper:
         target_db: DatabaseType,
         length: Optional[int] = None,
     ) -> str:
-        """Map data type from source to target database"""
-
+        """Map data type from source to target database."""
         source_type = source_type.upper()
 
         # Remove length/precision from type for mapping
@@ -243,16 +241,25 @@ class DataTypeMapper:
 
 
 class SchemaParser:
-    """Parses database schemas from SQL files"""
+    """Parses database schemas from SQL files."""
 
     @staticmethod
     def parse_mysql_schema(sql_content: str) -> List[Table]:
-        """Parse MySQL schema from SQL content"""
+        """Parse MySQL schema from SQL content."""
         tables = []
 
         # Regular expressions for parsing
-        table_pattern = r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?\s*\((.*?)\)\s*(?:ENGINE=(\w+))?(?:.*?DEFAULT\s+CHARSET=(\w+))?(?:.*?COLLATE=(\w+))?;"
-        column_pattern = r'`?(\w+)`?\s+(\w+(?:\([^)]+\))?)\s*(UNSIGNED)?\s*(NOT\s+NULL|NULL)?\s*(AUTO_INCREMENT)?\s*(PRIMARY\s+KEY)?\s*(UNIQUE)?\s*(?:DEFAULT\s+([^,\n]+))?(?:COMMENT\s+[\'"]([^\'"]+)[\'"])?'
+        table_pattern = (
+            r"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?(\w+)`?\s*\((.*?)\)\s*"
+            r"(?:ENGINE=(\w+))?(?:.*?DEFAULT\s+CHARSET=(\w+))?"
+            r"(?:.*?COLLATE=(\w+))?;"
+        )
+        column_pattern = (
+            r'`?(\w+)`?\s+(\w+(?:\([^)]+\))?)\s*(UNSIGNED)?\s*'
+            r'(NOT\s+NULL|NULL)?\s*(AUTO_INCREMENT)?\s*(PRIMARY\s+KEY)?\s*'
+            r'(UNIQUE)?\s*(?:DEFAULT\s+([^,\n]+))?'
+            r'(?:COMMENT\s+[\'"]([^\'"]+)[\'"])?'
+        )
         index_pattern = r"(?:KEY|INDEX)\s+`?(\w+)`?\s*\(([^)]+)\)"
         unique_pattern = r"UNIQUE\s+(?:KEY|INDEX)\s+`?(\w+)`?\s*\(([^)]+)\)"
         primary_pattern = r"PRIMARY\s+KEY\s*\(([^)]+)\)"
@@ -378,13 +385,14 @@ class SchemaParser:
 
 
 class MigrationGenerator:
-    """Generates migration scripts for different database systems"""
+    """Generate migration scripts for different database systems."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.type_mapper = DataTypeMapper()
 
     def generate_postgresql_migration(self, tables: List[Table]) -> str:
-        """Generate PostgreSQL migration script from tables"""
+        """Generate PostgreSQL migration script from tables."""
         script = []
         script.append("-- PostgreSQL Migration Script")
         script.append("-- Generated at: " + datetime.now().isoformat())
@@ -484,7 +492,7 @@ class MigrationGenerator:
         return "\n".join(script)
 
     def generate_mongodb_migration(self, tables: List[Table]) -> str:
-        """Generate MongoDB migration script from tables"""
+        """Generate MongoDB migration script from tables."""
         script = []
         script.append("// MongoDB Migration Script")
         script.append("// Generated at: " + datetime.now().isoformat())
@@ -502,7 +510,7 @@ class MigrationGenerator:
             # Create indexes for primary keys
             if table.primary_key:
                 pk_fields = ", ".join([f"{col}: 1" for col in table.primary_key])
-                script.append(f"// Primary key index")
+                script.append("// Primary key index")
                 script.append(
                     f"db.{collection_name}.createIndex({{ {pk_fields} }}, {{ unique: true }});"
                 )
@@ -522,22 +530,22 @@ class MigrationGenerator:
             # Create validation schema
             script.append(f"// Validation schema for {collection_name}")
             validation_rules = self._generate_mongodb_validation(table)
-            script.append(f"db.runCommand({{")
+            script.append("db.runCommand({")
             script.append(f"    collMod: '{collection_name}',")
-            script.append(f"    validator: {{")
+            script.append("    validator: {")
             script.append(
                 f"        $jsonSchema: {json.dumps(validation_rules, indent=8)}"
             )
-            script.append(f"    }},")
-            script.append(f"    validationLevel: 'moderate',")
-            script.append(f"    validationAction: 'error'")
-            script.append(f"}});")
+            script.append("    },")
+            script.append("    validationLevel: 'moderate',")
+            script.append("    validationAction: 'error'")
+            script.append("});")
             script.append("")
 
         return "\n".join(script)
 
     def _generate_mongodb_validation(self, table: Table) -> Dict:
-        """Generate MongoDB JSON schema validation for a table"""
+        """Generate MongoDB JSON schema validation for a table."""
         properties = {}
         required = []
 
@@ -585,7 +593,7 @@ class MigrationGenerator:
     def generate_rollback_script(
         self, tables: List[Table], target_type: DatabaseType
     ) -> str:
-        """Generate rollback script for a migration"""
+        """Generate rollback script for a migration."""
         script = []
 
         if target_type == DatabaseType.POSTGRESQL:
@@ -616,9 +624,10 @@ class MigrationGenerator:
 
 
 class MigrationManager:
-    """Main migration manager class"""
+    """Run migration manager class."""
 
     def __init__(self, migrations_dir: str = "migrations"):
+        """Initialize the instance."""
         self.migrations_dir = migrations_dir
         self.parser = SchemaParser()
         self.generator = MigrationGenerator()
@@ -636,8 +645,7 @@ class MigrationManager:
         source_type: DatabaseType,
         target_type: DatabaseType,
     ) -> Migration:
-        """Create a new migration from source schema file"""
-
+        """Create a new migration from source schema file."""
         # Read source schema
         with open(source_file, "r", encoding="utf-8") as f:
             sql_content = f.read()
@@ -687,7 +695,7 @@ class MigrationManager:
         return migration
 
     def _save_migration(self, migration: Migration):
-        """Save migration scripts to files"""
+        """Save migration scripts to files."""
         up_file = os.path.join(self.migrations_dir, "up", f"{migration.id}.sql")
         down_file = os.path.join(
             self.migrations_dir, "down", f"{migration.id}_rollback.sql"
@@ -716,7 +724,7 @@ class MigrationManager:
             json.dump(metadata, f, indent=2)
 
     def list_migrations(self) -> List[Dict]:
-        """List all migrations"""
+        """List all migrations."""
         migrations = []
 
         for file in os.listdir(self.migrations_dir):
@@ -727,7 +735,7 @@ class MigrationManager:
         return sorted(migrations, key=lambda x: x["version"])
 
     def get_migration_status(self, migration_id: str) -> Optional[MigrationStatus]:
-        """Get status of a specific migration"""
+        """Get status of a specific migration."""
         metadata_file = os.path.join(self.migrations_dir, f"{migration_id}.json")
 
         if os.path.exists(metadata_file):
@@ -739,7 +747,7 @@ class MigrationManager:
 
 
 def main():
-    """Example usage of the migration system"""
+    """Handle operation."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Database Migration System")

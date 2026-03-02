@@ -1,5 +1,5 @@
-"""
-Test Suite for ML Pipeline Infrastructure
+"""Test Suite for ML Pipeline Infrastructure.
+
 Tests all ML models and pipelines
 """
 
@@ -24,10 +24,10 @@ from ml_pipeline import (
 
 
 class TestMLPipeline(unittest.TestCase):
-    """Test base ML pipeline functionality"""
+    """Test base ML pipeline functionality."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         # Create sample dataset
         np.random.seed(42)
         self.df = pd.DataFrame(
@@ -47,14 +47,14 @@ class TestMLPipeline(unittest.TestCase):
         )
 
     def test_initialization(self):
-        """Test pipeline initialization"""
+        """Test pipeline initialization."""
         self.assertEqual(self.pipeline.model_type, "random_forest")
         self.assertEqual(self.pipeline.task_type, "classification")
         self.assertEqual(len(self.pipeline.features), 3)
         self.assertEqual(self.pipeline.target, "target")
 
     def test_preprocess_data(self):
-        """Test data preprocessing"""
+        """Test data preprocessing."""
         X, y = self.pipeline.preprocess_data(self.df)
 
         self.assertEqual(X.shape[0], 100)
@@ -65,7 +65,7 @@ class TestMLPipeline(unittest.TestCase):
         self.assertFalse(pd.DataFrame(X).isnull().any().any())
 
     def test_train_classification(self):
-        """Test training classification model"""
+        """Test training classification model."""
         metrics = self.pipeline.train(self.df)
 
         self.assertIn("accuracy", metrics)
@@ -80,7 +80,7 @@ class TestMLPipeline(unittest.TestCase):
                 self.assertLessEqual(value, 1)
 
     def test_train_regression(self):
-        """Test training regression model"""
+        """Test training regression model."""
         # Create regression dataset
         df = self.df.copy()
         df["target"] = np.random.randn(100)
@@ -99,7 +99,7 @@ class TestMLPipeline(unittest.TestCase):
         self.assertIn("r2_score", metrics)
 
     def test_predict(self):
-        """Test prediction"""
+        """Test prediction."""
         # Train model first
         self.pipeline.train(self.df)
 
@@ -114,7 +114,7 @@ class TestMLPipeline(unittest.TestCase):
         self.assertTrue(all(p in [0, 1] for p in unique_preds))
 
     def test_cross_validate(self):
-        """Test cross-validation"""
+        """Test cross-validation."""
         cv_scores = self.pipeline.cross_validate(self.df)
 
         self.assertIn("mean_score", cv_scores)
@@ -125,10 +125,10 @@ class TestMLPipeline(unittest.TestCase):
 
 
 class TestRecommendationSystem(unittest.TestCase):
-    """Test recommendation system"""
+    """Test recommendation system."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         # Create sample interaction data
         np.random.seed(42)
         self.df = pd.DataFrame(
@@ -143,7 +143,7 @@ class TestRecommendationSystem(unittest.TestCase):
         self.rec_system = RecommendationSystem(algorithm="als")
 
     def test_build_user_item_matrix(self):
-        """Test user-item matrix construction"""
+        """Test user-item matrix construction."""
         matrix = self.rec_system._build_user_item_matrix(self.df)
 
         self.assertIsNotNone(matrix)
@@ -151,7 +151,7 @@ class TestRecommendationSystem(unittest.TestCase):
         self.assertEqual(matrix.shape[1], len(self.df["item_id"].unique()))
 
     def test_train_als(self):
-        """Test ALS training"""
+        """Test ALS training."""
         metrics = self.rec_system.train(self.df)
 
         self.assertIn("mse", metrics)
@@ -161,7 +161,7 @@ class TestRecommendationSystem(unittest.TestCase):
         self.assertIsNotNone(self.rec_system.model)
 
     def test_train_content_based(self):
-        """Test content-based training"""
+        """Test content-based training."""
         # Add item features
         df = self.df.copy()
         item_features = pd.DataFrame(
@@ -177,11 +177,11 @@ class TestRecommendationSystem(unittest.TestCase):
             algorithm="content_based", item_features=["category", "price"]
         )
 
-        metrics = rec_system.train(df)
+        _ = rec_system.train(df)
         self.assertIsNotNone(rec_system.item_profiles)
 
     def test_get_recommendations(self):
-        """Test getting recommendations"""
+        """Test getting recommendations."""
         self.rec_system.train(self.df)
 
         recommendations = self.rec_system.get_recommendations(user_id=1, n_items=5)
@@ -196,10 +196,10 @@ class TestRecommendationSystem(unittest.TestCase):
 
 
 class TestAnomalyDetector(unittest.TestCase):
-    """Test anomaly detection"""
+    """Test anomaly detection."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         np.random.seed(42)
         # Create normal data with some outliers
         normal_data = np.random.randn(90, 3)
@@ -213,7 +213,7 @@ class TestAnomalyDetector(unittest.TestCase):
         )
 
     def test_train_isolation_forest(self):
-        """Test Isolation Forest training"""
+        """Test Isolation Forest training."""
         metrics = self.detector.train(self.df)
 
         self.assertIn("n_anomalies", metrics)
@@ -222,7 +222,7 @@ class TestAnomalyDetector(unittest.TestCase):
         self.assertIsNotNone(self.detector.model)
 
     def test_train_autoencoder(self):
-        """Test autoencoder training"""
+        """Test autoencoder training."""
         detector = AnomalyDetector(
             method="autoencoder", features=["feature1", "feature2", "feature3"]
         )
@@ -235,7 +235,7 @@ class TestAnomalyDetector(unittest.TestCase):
         self.assertIsNotNone(detector.model)
 
     def test_detect_anomalies(self):
-        """Test anomaly detection"""
+        """Test anomaly detection."""
         self.detector.train(self.df)
 
         # Detect on same data
@@ -251,25 +251,25 @@ class TestAnomalyDetector(unittest.TestCase):
         self.assertLess(n_anomalies, len(anomalies))
 
     def test_statistical_detection(self):
-        """Test statistical anomaly detection"""
+        """Test statistical anomaly detection."""
         detector = AnomalyDetector(
             method="statistical",
             features=["feature1", "feature2", "feature3"],
             statistical_params={"z_threshold": 3},
         )
 
-        metrics = detector.train(self.df)
-        anomalies = detector.detect_anomalies(self.df)
+        _ = detector.train(self.df)
+        _ = detector.detect_anomalies(self.df)
 
         self.assertIn("mean", detector.statistical_params)
         self.assertIn("std", detector.statistical_params)
 
 
 class TestTimeSeriesForecaster(unittest.TestCase):
-    """Test time series forecasting"""
+    """Test time series forecasting."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         np.random.seed(42)
         # Create time series data
         dates = pd.date_range(start="2023-01-01", periods=365, freq="D")
@@ -284,7 +284,7 @@ class TestTimeSeriesForecaster(unittest.TestCase):
         )
 
     def test_train_prophet(self):
-        """Test Prophet training"""
+        """Test Prophet training."""
         metrics = self.forecaster.train(self.df)
 
         self.assertIn("mape", metrics)
@@ -294,7 +294,7 @@ class TestTimeSeriesForecaster(unittest.TestCase):
 
     @patch("ml_pipeline.ARIMA")
     def test_train_arima(self, mock_arima):
-        """Test ARIMA training"""
+        """Test ARIMA training."""
         # Mock ARIMA to avoid long training times in tests
         mock_model = Mock()
         mock_model.fit.return_value = mock_model
@@ -305,11 +305,11 @@ class TestTimeSeriesForecaster(unittest.TestCase):
             method="arima", target_column="y", date_column="ds"
         )
 
-        metrics = forecaster.train(self.df)
+        _ = forecaster.train(self.df)
         self.assertIsNotNone(forecaster.model)
 
     def test_forecast(self):
-        """Test forecasting"""
+        """Test forecasting."""
         self.forecaster.train(self.df)
 
         forecast = self.forecaster.forecast(periods=30)
@@ -321,7 +321,7 @@ class TestTimeSeriesForecaster(unittest.TestCase):
         self.assertIn("yhat_upper", forecast.columns)
 
     def test_lstm_forecast(self):
-        """Test LSTM forecasting"""
+        """Test LSTM forecasting."""
         forecaster = TimeSeriesForecaster(
             method="lstm", target_column="y", date_column="ds", sequence_length=30
         )
@@ -336,10 +336,10 @@ class TestTimeSeriesForecaster(unittest.TestCase):
 
 
 class TestCustomerSegmentation(unittest.TestCase):
-    """Test customer segmentation"""
+    """Test customer segmentation."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         np.random.seed(42)
         # Create customer data
         self.df = pd.DataFrame(
@@ -358,7 +358,7 @@ class TestCustomerSegmentation(unittest.TestCase):
         )
 
     def test_train_kmeans(self):
-        """Test K-means clustering"""
+        """Test K-means clustering."""
         metrics = self.segmentation.train(self.df)
 
         self.assertIn("silhouette_score", metrics)
@@ -369,7 +369,7 @@ class TestCustomerSegmentation(unittest.TestCase):
         self.assertIsNotNone(self.segmentation.model)
 
     def test_train_hierarchical(self):
-        """Test hierarchical clustering"""
+        """Test hierarchical clustering."""
         segmentation = CustomerSegmentation(
             method="hierarchical",
             features=["recency", "frequency", "monetary"],
@@ -382,7 +382,7 @@ class TestCustomerSegmentation(unittest.TestCase):
         self.assertEqual(metrics["n_clusters"], 3)
 
     def test_segment_customers(self):
-        """Test customer segmentation"""
+        """Test customer segmentation."""
         self.segmentation.train(self.df)
 
         segments = self.segmentation.segment_customers(self.df)
@@ -399,12 +399,12 @@ class TestCustomerSegmentation(unittest.TestCase):
         self.assertEqual(n_unique_segments, 4)
 
     def test_rfm_segmentation(self):
-        """Test RFM segmentation"""
+        """Test RFM segmentation."""
         segmentation = CustomerSegmentation(
             method="rfm", features=["recency", "frequency", "monetary"]
         )
 
-        metrics = segmentation.train(self.df)
+        _ = segmentation.train(self.df)
         segments = segmentation.segment_customers(self.df)
 
         self.assertIn("rfm_score", segments.columns)
@@ -412,10 +412,10 @@ class TestCustomerSegmentation(unittest.TestCase):
 
 
 class TestModelServer(unittest.TestCase):
-    """Test model serving infrastructure"""
+    """Test model serving infrastructure."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
         self.server = ModelServer(model_registry_path=self.temp_dir)
 
@@ -438,7 +438,7 @@ class TestModelServer(unittest.TestCase):
         self.pipeline.train(df)
 
     def test_register_model(self):
-        """Test model registration"""
+        """Test model registration."""
         model_id = self.server.register_model(
             model=self.pipeline,
             name="test_model",
@@ -456,7 +456,7 @@ class TestModelServer(unittest.TestCase):
         self.assertEqual(metadata["metrics"]["accuracy"], 0.85)
 
     def test_load_model(self):
-        """Test model loading"""
+        """Test model loading."""
         # Register model first
         model_id = self.server.register_model(
             model=self.pipeline, name="test_model", version="1.0.0"
@@ -470,7 +470,7 @@ class TestModelServer(unittest.TestCase):
         self.assertEqual(loaded_model.model_type, self.pipeline.model_type)
 
     def test_predict(self):
-        """Test prediction through server"""
+        """Test prediction through server."""
         # Register model
         model_id = self.server.register_model(
             model=self.pipeline, name="test_model", version="1.0.0"
@@ -484,7 +484,7 @@ class TestModelServer(unittest.TestCase):
         self.assertEqual(len(predictions), 2)
 
     def test_model_versioning(self):
-        """Test model versioning"""
+        """Test model versioning."""
         # Register multiple versions
         model_id_v1 = self.server.register_model(
             model=self.pipeline, name="test_model", version="1.0.0"
@@ -501,7 +501,7 @@ class TestModelServer(unittest.TestCase):
         self.assertIn(model_id_v2, self.server.models)
 
     def test_list_models(self):
-        """Test listing models"""
+        """Test listing models."""
         # Register multiple models
         self.server.register_model(model=self.pipeline, name="model_a", version="1.0.0")
 
@@ -517,7 +517,7 @@ class TestModelServer(unittest.TestCase):
         self.assertEqual(models_a[0]["name"], "model_a")
 
     def tearDown(self):
-        """Clean up temp directory"""
+        """Clean up temp directory."""
         import shutil
 
         if os.path.exists(self.temp_dir):
@@ -525,10 +525,10 @@ class TestModelServer(unittest.TestCase):
 
 
 class TestEcommercePredictiveAnalytics(unittest.TestCase):
-    """Test e-commerce predictive analytics"""
+    """Test e-commerce predictive analytics."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         np.random.seed(42)
         # Create sample e-commerce data
         self.df = pd.DataFrame(
@@ -550,7 +550,7 @@ class TestEcommercePredictiveAnalytics(unittest.TestCase):
         self.analytics = EcommercePredictiveAnalytics()
 
     def test_predict_churn(self):
-        """Test churn prediction"""
+        """Test churn prediction."""
         churn_scores = self.analytics.predict_churn(self.df)
 
         self.assertEqual(len(churn_scores), len(self.df))
@@ -562,7 +562,7 @@ class TestEcommercePredictiveAnalytics(unittest.TestCase):
         self.assertTrue(all(0 <= p <= 1 for p in probs))
 
     def test_predict_lifetime_value(self):
-        """Test LTV prediction"""
+        """Test LTV prediction."""
         ltv_predictions = self.analytics.predict_lifetime_value(self.df)
 
         self.assertEqual(len(ltv_predictions), len(self.df["customer_id"].unique()))
@@ -574,7 +574,7 @@ class TestEcommercePredictiveAnalytics(unittest.TestCase):
         self.assertTrue(all(v >= 0 for v in ltv_values))
 
     def test_recommend_products(self):
-        """Test product recommendations"""
+        """Test product recommendations."""
         # Add interaction data
         df = self.df.copy()
         df["rating"] = np.random.uniform(1, 5, len(df))
@@ -590,10 +590,10 @@ class TestEcommercePredictiveAnalytics(unittest.TestCase):
 
 
 class TestFintechFraudDetection(unittest.TestCase):
-    """Test fintech fraud detection"""
+    """Test fintech fraud detection."""
 
     def setUp(self):
-        """Set up test fixtures"""
+        """Set up test fixtures."""
         np.random.seed(42)
         # Create sample transaction data
         self.df = pd.DataFrame(
@@ -613,7 +613,7 @@ class TestFintechFraudDetection(unittest.TestCase):
         self.fraud_detector = FintechFraudDetection()
 
     def test_detect_fraud(self):
-        """Test fraud detection"""
+        """Test fraud detection."""
         fraud_scores = self.fraud_detector.detect_fraud(self.df)
 
         self.assertEqual(len(fraud_scores), len(self.df))
@@ -626,7 +626,7 @@ class TestFintechFraudDetection(unittest.TestCase):
         self.assertTrue(all(0 <= p <= 1 for p in probs))
 
     def test_risk_scoring(self):
-        """Test risk scoring"""
+        """Test risk scoring."""
         risk_scores = self.fraud_detector.risk_scoring(self.df)
 
         self.assertEqual(len(risk_scores), len(self.df))
@@ -639,7 +639,7 @@ class TestFintechFraudDetection(unittest.TestCase):
         self.assertTrue(all(level in valid_levels for level in risk_levels))
 
     def test_detect_anomalous_patterns(self):
-        """Test anomalous pattern detection"""
+        """Test anomalous pattern detection."""
         anomalies = self.fraud_detector.detect_anomalous_patterns(self.df)
 
         self.assertEqual(len(anomalies), len(self.df))

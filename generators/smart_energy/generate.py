@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Smart Energy Grid Data Generator
+"""Smart Energy Grid Data Generator.
 
 Generates realistic smart meter and energy consumption data for:
 - Multiple utility companies (multi-tenant)
@@ -18,13 +17,15 @@ import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
 import math
-from typing import List, Dict, Tuple, Any
+from typing import List, Any
 import numpy as np
 
 
 class SmartEnergyGenerator:
+    """Represent SmartEnergyGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -48,7 +49,7 @@ class SmartEnergyGenerator:
         self.outages: List[Any] = []
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating Smart Energy Grid data...")
 
         # Infrastructure
@@ -81,7 +82,7 @@ class SmartEnergyGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_utilities(self):
-        """Generate utility companies"""
+        """Generate utility companies."""
         utility_names = [
             "Metro Power & Light",
             "Green Energy Co",
@@ -104,7 +105,7 @@ class SmartEnergyGenerator:
             self.utilities.append(utility)
 
     def _generate_transformers(self):
-        """Generate distribution transformers"""
+        """Generate distribution transformers."""
         transformer_id = 1
         for utility in self.utilities:
             num_transformers = self.config["counts"]["transformers_per_utility"]
@@ -127,14 +128,14 @@ class SmartEnergyGenerator:
                 transformer_id += 1
 
     def _generate_customers(self):
-        """Generate customer accounts"""
+        """Generate customer accounts."""
         customer_id = 1
 
         for utility in self.utilities:
             num_customers = self.config["counts"]["customers_per_utility"]
             utility_customer_count = 0
 
-            for c in range(num_customers):
+            for _ in range(num_customers):
                 customer_type = random.choices(
                     ["residential", "commercial", "industrial"],
                     weights=[0.7, 0.25, 0.05],
@@ -180,7 +181,7 @@ class SmartEnergyGenerator:
             utility["customer_count"] = utility_customer_count
 
     def _generate_meters(self):
-        """Generate smart meters for customers"""
+        """Generate smart meters for customers."""
         meter_id = 1
 
         for customer in self.customers:
@@ -193,7 +194,7 @@ class SmartEnergyGenerator:
                     0
                 ]
 
-            for m in range(num_meters):
+            for _ in range(num_meters):
                 meter = {
                     "meter_id": meter_id,
                     "customer_id": customer["customer_id"],
@@ -205,7 +206,7 @@ class SmartEnergyGenerator:
                     "installation_date": customer["contract_start"]
                     - timedelta(days=random.randint(0, 30)),
                     "last_reading_time": datetime.now(),
-                    "firmware_version": f"{random.randint(1,5)}.{random.randint(0,9)}.{random.randint(0,99)}",
+                    "firmware_version": f"{random.randint(1, 5)}.{random.randint(0, 9)}.{random.randint(0, 99)}",
                     "communication_type": random.choice(["cellular", "rf_mesh", "plc"]),
                     "status": random.choices(
                         ["active", "inactive", "maintenance"],
@@ -216,7 +217,7 @@ class SmartEnergyGenerator:
                 meter_id += 1
 
     def _generate_solar_panels(self):
-        """Generate solar panel systems for customers with solar"""
+        """Generate solar panel systems for customers with solar."""
         panel_id = 1
 
         for customer in self.customers:
@@ -264,7 +265,7 @@ class SmartEnergyGenerator:
             panel_id += 1
 
     def _generate_consumption_readings(self):
-        """Generate high-frequency consumption readings"""
+        """Generate high-frequency consumption readings."""
         print("  Generating consumption readings...")
 
         start_date = datetime.now() - timedelta(
@@ -329,7 +330,7 @@ class SmartEnergyGenerator:
                 current_time += timedelta(minutes=15)
 
     def _generate_production_readings(self):
-        """Generate solar production readings"""
+        """Generate solar production readings."""
         print("  Generating solar production readings...")
 
         if not self.solar_panels:
@@ -387,7 +388,7 @@ class SmartEnergyGenerator:
                 current_time += timedelta(minutes=15)
 
     def _generate_power_quality_readings(self):
-        """Generate power quality metrics"""
+        """Generate power quality metrics."""
         print("  Generating power quality readings...")
 
         start_date = datetime.now() - timedelta(
@@ -420,7 +421,7 @@ class SmartEnergyGenerator:
                 current_time += timedelta(hours=1)  # Hourly for power quality
 
     def _generate_demand_response_events(self):
-        """Generate demand response events"""
+        """Generate demand response events."""
         print("  Generating demand response events...")
 
         event_id = 1
@@ -456,7 +457,7 @@ class SmartEnergyGenerator:
             event_id += 1
 
     def _generate_outages(self):
-        """Generate power outage events"""
+        """Generate power outage events."""
         print("  Generating outage events...")
 
         outage_id = 1
@@ -506,7 +507,7 @@ class SmartEnergyGenerator:
             outage_id += 1
 
     def _get_rate_plan(self, customer_type: str) -> str:
-        """Get appropriate rate plan for customer type"""
+        """Get appropriate rate plan for customer type."""
         if customer_type == "residential":
             return random.choice(["standard", "time_of_use", "tiered"])
         elif customer_type == "commercial":
@@ -521,7 +522,7 @@ class SmartEnergyGenerator:
     def _get_base_consumption(
         self, customer_type: str, hour: int, day_of_week: int
     ) -> float:
-        """Get base consumption in kW based on customer type and time"""
+        """Get base consumption in kW based on customer type and time."""
         if customer_type == "residential":
             # Low at night, peaks in morning and evening
             if hour < 6:
@@ -552,7 +553,7 @@ class SmartEnergyGenerator:
             return base
 
     def _get_seasonal_factor(self, month: int) -> float:
-        """Get seasonal adjustment factor"""
+        """Get seasonal adjustment factor."""
         # Summer peak (cooling), winter secondary peak (heating)
         if month in [6, 7, 8]:  # Summer
             return random.uniform(1.2, 1.5)
@@ -562,7 +563,7 @@ class SmartEnergyGenerator:
             return random.uniform(0.8, 1.0)
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("utilities", self.utilities),
             ("transformers", self.transformers),
@@ -593,7 +594,7 @@ class SmartEnergyGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated Smart Energy data
 -- Generated on {datetime.now()}
 
@@ -697,10 +698,11 @@ SELECT COUNT(*) as readings_count FROM consumption_readings;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Smart Energy Grid data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

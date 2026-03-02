@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-"""
-MySQL Migration CLI - Command-line interface for database migrations.
-"""
+"""MySQL Migration CLI - Command-line interface for database migrations."""
 
 import click
 import mysql.connector
-import os
 import json
 import sys
 from pathlib import Path
@@ -14,9 +11,9 @@ from typing import Optional, Dict, Any
 import logging
 from tabulate import tabulate
 
-from .core import MigrationRunner, Migration, MigrationHistory
+from .core import MigrationRunner, MigrationHistory
 from .generator import MigrationGenerator, SchemaInspector, SchemaDiffer
-from .validator import MigrationValidator, DryRunValidator
+from .validator import MigrationValidator
 
 # Configure logging
 logging.basicConfig(
@@ -70,7 +67,7 @@ def get_connection(
 @click.option("--config", "-c", help="Configuration file path")
 @click.pass_context
 def cli(ctx, config):
-    """MySQL Migration System - Database version control."""
+    """Run the MySQL migration system."""
     ctx.ensure_object(dict)
     if config:
         ctx.obj["config_file"] = config
@@ -106,7 +103,7 @@ def init(host, port, user, password, database, migrations_path):
         )
 
         # Create migration history table
-        history = MigrationHistory(conn)
+        MigrationHistory(conn)
         conn.close()
 
         click.echo("✅ Database connection successful")
@@ -258,14 +255,14 @@ def status():
 
     if status["last_migration"]:
         last = status["last_migration"]
-        click.echo(f"\nLast migration:")
+        click.echo("\nLast migration:")
         click.echo(f"  Version:     {last['version']}")
         click.echo(f"  Description: {last['description']}")
         click.echo(f"  Applied:     {last['applied_at']}")
         click.echo(f"  By:          {last['applied_by']}")
 
     if status["pending_migrations"] > 0:
-        click.echo(f"\nPending migrations:")
+        click.echo("\nPending migrations:")
         for version in status["pending_versions"][:5]:
             click.echo(f"  • {version}")
         if len(status["pending_versions"]) > 5:
@@ -354,7 +351,7 @@ def generate(description, type, from_file, include_rollback):
         inspector = SchemaInspector(conn)
 
         # Get current schema
-        current_schema = inspector.get_schema()
+        inspector.get_schema()
 
         # TODO: Get target schema from models or schema files
         click.echo("⚠️  Auto-generation from models not yet implemented")
@@ -500,16 +497,15 @@ def show(version):
             None,
         )
         if applied:
-            click.echo(f"\n✅ Applied")
+            click.echo("\n✅ Applied")
             click.echo(f"Applied at:  {applied['applied_at']}")
             click.echo(f"Applied by:  {applied['applied_by']}")
             click.echo(f"Exec time:   {applied.get('execution_time', 'N/A')} seconds")
     else:
-        click.echo(f"\n⏳ Pending")
-
+        click.echo("\n⏳ Pending")
     # Show SQL preview
     if migration.type.value == "sql":
-        click.echo(f"\n📝 Up Migration:")
+        click.echo("\n📝 Up Migration:")
         click.echo("-" * 40)
         lines = migration.up_script.split("\n")
         for line in lines[:20]:
@@ -518,7 +514,7 @@ def show(version):
             click.echo(f"... ({len(lines) - 20} more lines)")
 
         if migration.down_script:
-            click.echo(f"\n🔄 Rollback Migration:")
+            click.echo("\n🔄 Rollback Migration:")
             click.echo("-" * 40)
             lines = migration.down_script.split("\n")
             for line in lines[:20]:

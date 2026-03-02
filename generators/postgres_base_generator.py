@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-PostgreSQL Data Generator Base Class
+"""PostgreSQL Data Generator Base Class.
 
 Base class for PostgreSQL-specific data generation with support for:
 - JSONB data types
@@ -11,12 +10,10 @@ Base class for PostgreSQL-specific data generation with support for:
 """
 
 import os
-import sys
 import psycopg2
 from psycopg2.extras import execute_batch, Json
-from datetime import datetime, date, timedelta
+from datetime import datetime
 import random
-import json
 from typing import Dict, List, Any, Optional, Tuple
 from faker import Faker
 import logging
@@ -29,10 +26,10 @@ logger = logging.getLogger(__name__)
 
 
 class PostgreSQLGenerator:
-    """Base class for PostgreSQL data generation"""
+    """Base class for PostgreSQL data generation."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize PostgreSQL generator"""
+        """Initialize PostgreSQL generator."""
         self.config = config or self._get_default_config()
         self.fake = Faker()
         Faker.seed(42)  # For reproducibility
@@ -52,7 +49,7 @@ class PostgreSQLGenerator:
         }
 
     def _get_default_config(self) -> Dict[str, Any]:
-        """Get default configuration from environment"""
+        """Get default configuration from environment."""
         return {
             "host": os.getenv("POSTGRES_HOST", "localhost"),
             "port": int(os.getenv("POSTGRES_PORT", 5432)),
@@ -64,7 +61,7 @@ class PostgreSQLGenerator:
         }
 
     def connect(self) -> bool:
-        """Establish PostgreSQL connection"""
+        """Establish PostgreSQL connection."""
         try:
             self.connection = psycopg2.connect(
                 host=self.config["host"],
@@ -84,7 +81,7 @@ class PostgreSQLGenerator:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -94,7 +91,7 @@ class PostgreSQLGenerator:
     def execute_query(
         self, query: str, params: Optional[Tuple[Any, ...]] = None
     ) -> bool:
-        """Execute a single query"""
+        """Execute a single query."""
         if self.cursor is None or self.connection is None:
             raise RuntimeError("Not connected to PostgreSQL")
         try:
@@ -111,7 +108,7 @@ class PostgreSQLGenerator:
     def batch_insert(
         self, table: str, columns: List[str], data: List[Tuple[Any, ...]]
     ) -> int:
-        """Batch insert data using PostgreSQL's execute_batch"""
+        """Batch insert data using PostgreSQL's execute_batch."""
         if not data:
             return 0
 
@@ -142,7 +139,7 @@ class PostgreSQLGenerator:
     def copy_from_csv(
         self, table: str, csv_file: str, columns: Optional[List[str]] = None
     ) -> bool:
-        """Use COPY command for ultra-fast data loading"""
+        """Use COPY command for ultra-fast data loading."""
         if self.cursor is None or self.connection is None:
             raise RuntimeError("Not connected to PostgreSQL")
         try:
@@ -167,7 +164,7 @@ class PostgreSQLGenerator:
     # PostgreSQL-specific data generators
 
     def generate_jsonb(self, schema: Optional[Dict[str, Any]] = None) -> Json:
-        """Generate JSONB data"""
+        """Generate JSONB data."""
         if schema:
             data = {}
             for key, value_type in schema.items():
@@ -198,7 +195,7 @@ class PostgreSQLGenerator:
     def generate_array(
         self, element_type: str, min_size: int = 1, max_size: int = 10
     ) -> List[Any]:
-        """Generate PostgreSQL array data"""
+        """Generate PostgreSQL array data."""
         size = random.randint(min_size, max_size)
 
         if element_type == "integer":
@@ -213,32 +210,32 @@ class PostgreSQLGenerator:
             return []
 
     def generate_tsvector(self, text: Optional[str] = None) -> str:
-        """Generate tsvector for full-text search"""
+        """Generate tsvector for full-text search."""
         if not text:
             text = self.fake.text()
         # In actual insertion, use to_tsvector() function
         return text
 
     def generate_point(self) -> Tuple[float, float]:
-        """Generate geometric point data"""
+        """Generate geometric point data."""
         lat = self.fake.latitude()
         lon = self.fake.longitude()
         return (float(lat), float(lon))
 
     def generate_uuid(self) -> str:
-        """Generate UUID"""
+        """Generate UUID."""
         return self.fake.uuid4()
 
     def generate_inet(self) -> str:
-        """Generate INET address"""
+        """Generate INET address."""
         return self.fake.ipv4()
 
     def generate_cidr(self) -> str:
-        """Generate CIDR network"""
+        """Generate CIDR network."""
         return f"{self.fake.ipv4()}/24"
 
     def generate_macaddr(self) -> str:
-        """Generate MAC address"""
+        """Generate MAC address."""
         return self.fake.mac_address()
 
     # Table creation helpers
@@ -246,7 +243,7 @@ class PostgreSQLGenerator:
     def create_partitioned_table(
         self, table_name: str, partition_column: str, partition_type: str = "RANGE"
     ) -> bool:
-        """Create a partitioned table"""
+        """Create a partitioned table."""
         # This is a template - actual implementation depends on schema
         query = f"""
         CREATE TABLE IF NOT EXISTS {table_name} (
@@ -262,7 +259,7 @@ class PostgreSQLGenerator:
     def create_partition(
         self, parent_table: str, partition_name: str, start_value: str, end_value: str
     ) -> bool:
-        """Create a partition for a partitioned table"""
+        """Create a partition for a partitioned table."""
         query = f"""
         CREATE TABLE IF NOT EXISTS {partition_name}
         PARTITION OF {parent_table}
@@ -273,7 +270,7 @@ class PostgreSQLGenerator:
     def create_gin_index(
         self, table: str, column: str, index_name: Optional[str] = None
     ) -> bool:
-        """Create GIN index for JSONB or array columns"""
+        """Create GIN index for JSONB or array columns."""
         if not index_name:
             index_name = f"idx_{table}_{column}_gin"
 
@@ -285,7 +282,7 @@ class PostgreSQLGenerator:
     def create_gist_index(
         self, table: str, column: str, index_name: Optional[str] = None
     ) -> bool:
-        """Create GiST index for geometric or full-text search"""
+        """Create GiST index for geometric or full-text search."""
         if not index_name:
             index_name = f"idx_{table}_{column}_gist"
 
@@ -297,7 +294,7 @@ class PostgreSQLGenerator:
     def create_brin_index(
         self, table: str, column: str, index_name: Optional[str] = None
     ) -> bool:
-        """Create BRIN index for large tables with natural ordering"""
+        """Create BRIN index for large tables with natural ordering."""
         if not index_name:
             index_name = f"idx_{table}_{column}_brin"
 
@@ -309,7 +306,7 @@ class PostgreSQLGenerator:
     # Utility methods
 
     def vacuum_analyze(self, table: Optional[str] = None):
-        """Run VACUUM ANALYZE for query optimization"""
+        """Run VACUUM ANALYZE for query optimization."""
         if self.connection is None or self.cursor is None:
             raise RuntimeError("Not connected to PostgreSQL")
         old_isolation = self.connection.isolation_level
@@ -326,7 +323,7 @@ class PostgreSQLGenerator:
             self.connection.set_isolation_level(old_isolation)
 
     def get_table_size(self, table: str) -> Dict[str, Any]:
-        """Get table size information"""
+        """Get table size information."""
         if self.cursor is None:
             raise RuntimeError("Not connected to PostgreSQL")
         query = """
@@ -347,7 +344,7 @@ class PostgreSQLGenerator:
         return {}
 
     def enable_extension(self, extension: str) -> bool:
-        """Enable a PostgreSQL extension"""
+        """Enable a PostgreSQL extension."""
         if self.cursor is None or self.connection is None:
             raise RuntimeError("Not connected to PostgreSQL")
         try:
@@ -361,11 +358,11 @@ class PostgreSQLGenerator:
             return False
 
     def run(self):
-        """Main generation process - to be implemented by subclasses"""
+        """Run generation process - to be implemented by subclasses."""
         raise NotImplementedError("Subclasses must implement the run() method")
 
     def print_statistics(self):
-        """Print generation statistics"""
+        """Print generation statistics."""
         print("\n" + "=" * 60)
         print("PostgreSQL Data Generation Statistics")
         print("=" * 60)
@@ -376,7 +373,7 @@ class PostgreSQLGenerator:
             ).total_seconds()
             print(f"Duration: {duration:.2f} seconds")
 
-        print(f"\nRecords Inserted:")
+        print("\nRecords Inserted:")
         total_records = 0
         for table, count in self.stats["records_inserted"].items():
             print(f"  {table}: {count:,}")
@@ -392,10 +389,10 @@ class PostgreSQLGenerator:
 
 
 class PostgreSQLTestGenerator(PostgreSQLGenerator):
-    """Test generator with small datasets for PostgreSQL"""
+    """Test generator with small datasets for PostgreSQL."""
 
     def run(self):
-        """Run test data generation"""
+        """Run test data generation."""
         self.stats["start_time"] = datetime.now()
 
         if not self.connect():
@@ -421,7 +418,7 @@ class PostgreSQLTestGenerator(PostgreSQLGenerator):
         return len(self.stats["errors"]) == 0
 
     def _generate_test_data(self):
-        """Generate small test dataset"""
+        """Generate small test dataset."""
         # Example: Create a test table with various PostgreSQL types
         create_table = """
         CREATE TABLE IF NOT EXISTS test_records (
@@ -439,7 +436,7 @@ class PostgreSQLTestGenerator(PostgreSQLGenerator):
 
         # Generate test records
         records = []
-        for i in range(100):
+        for _ in range(100):
             record = (
                 self.generate_uuid(),
                 self.fake.name(),

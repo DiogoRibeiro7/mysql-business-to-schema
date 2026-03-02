@@ -1,6 +1,6 @@
-"""
-Admin Dashboard Backend API
-FastAPI-based backend for MySQL Business-to-Schema Admin Dashboard
+"""Admin Dashboard Backend API.
+
+FastAPI-based backend for MySQL Business-to-Schema Admin Dashboard.
 """
 
 __version__ = "1.0.0"

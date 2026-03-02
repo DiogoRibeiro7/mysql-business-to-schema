@@ -1,9 +1,7 @@
-"""
-Pydantic models for API requests and responses
-"""
+"""Pydantic models for API requests and responses."""
 
 from pydantic import BaseModel, Field, EmailStr
-from typing import List, Dict, Optional, Any, Union
+from typing import List, Dict, Optional, Any
 from datetime import datetime
 from enum import Enum
 
@@ -13,6 +11,8 @@ from enum import Enum
 
 
 class UserRole(str, Enum):
+    """Represent UserRole."""
+
     ADMIN = "admin"
     DEVELOPER = "developer"
     ANALYST = "analyst"
@@ -20,6 +20,8 @@ class UserRole(str, Enum):
 
 
 class MigrationStatus(str, Enum):
+    """Represent MigrationStatus."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -28,6 +30,8 @@ class MigrationStatus(str, Enum):
 
 
 class AlertCondition(str, Enum):
+    """Represent AlertCondition."""
+
     GREATER_THAN = "greater_than"
     LESS_THAN = "less_than"
     EQUALS = "equals"
@@ -35,6 +39,8 @@ class AlertCondition(str, Enum):
 
 
 class BackupType(str, Enum):
+    """Represent BackupType."""
+
     FULL = "full"
     INCREMENTAL = "incremental"
     DIFFERENTIAL = "differential"
@@ -46,6 +52,8 @@ class BackupType(str, Enum):
 
 
 class User(BaseModel):
+    """Represent User."""
+
     username: str
     email: EmailStr
     role: UserRole
@@ -55,11 +63,15 @@ class User(BaseModel):
 
 
 class LoginRequest(BaseModel):
+    """Represent LoginRequest."""
+
     username: str
     password: str
 
 
 class TokenResponse(BaseModel):
+    """Represent TokenResponse."""
+
     access_token: str
     token_type: str = "bearer"
     expires_in: int = 3600
@@ -71,6 +83,8 @@ class TokenResponse(BaseModel):
 
 
 class ColumnInfo(BaseModel):
+    """Represent ColumnInfo."""
+
     name: str
     type: str
     nullable: bool
@@ -82,6 +96,8 @@ class ColumnInfo(BaseModel):
 
 
 class IndexInfo(BaseModel):
+    """Represent IndexInfo."""
+
     name: str
     columns: List[str]
     is_unique: bool
@@ -89,6 +105,8 @@ class IndexInfo(BaseModel):
 
 
 class ForeignKeyInfo(BaseModel):
+    """Represent ForeignKeyInfo."""
+
     name: str
     column: str
     referenced_table: str
@@ -98,6 +116,8 @@ class ForeignKeyInfo(BaseModel):
 
 
 class TableInfo(BaseModel):
+    """Represent TableInfo."""
+
     name: str
     columns: List[ColumnInfo]
     indexes: List[IndexInfo]
@@ -111,6 +131,8 @@ class TableInfo(BaseModel):
 
 
 class SchemaInfo(BaseModel):
+    """Represent SchemaInfo."""
+
     name: str
     tables: List[TableInfo]
     views: List[str]
@@ -127,6 +149,8 @@ class SchemaInfo(BaseModel):
 
 
 class Migration(BaseModel):
+    """Represent Migration."""
+
     version: str
     description: str
     type: str  # sql, python
@@ -140,6 +164,8 @@ class Migration(BaseModel):
 
 
 class CreateMigrationRequest(BaseModel):
+    """Represent CreateMigrationRequest."""
+
     description: str
     sql_up: str
     sql_down: Optional[str] = None
@@ -147,11 +173,15 @@ class CreateMigrationRequest(BaseModel):
 
 
 class ApplyMigrationRequest(BaseModel):
+    """Represent ApplyMigrationRequest."""
+
     target_version: Optional[str] = None
     dry_run: bool = False
 
 
 class RollbackMigrationRequest(BaseModel):
+    """Represent RollbackMigrationRequest."""
+
     target_version: Optional[str] = None
     steps: Optional[int] = 1
 
@@ -162,22 +192,30 @@ class RollbackMigrationRequest(BaseModel):
 
 
 class ExecuteQueryRequest(BaseModel):
+    """Represent ExecuteQueryRequest."""
+
     query: str
     database: str
     limit: Optional[int] = 1000
 
 
 class ExplainQueryRequest(BaseModel):
+    """Represent ExplainQueryRequest."""
+
     query: str
     database: str
 
 
 class OptimizeQueryRequest(BaseModel):
+    """Represent OptimizeQueryRequest."""
+
     query: str
     database: str
 
 
 class QueryResult(BaseModel):
+    """Represent QueryResult."""
+
     columns: List[str]
     rows: List[List[Any]]
     row_count: int
@@ -186,6 +224,8 @@ class QueryResult(BaseModel):
 
 
 class QueryHistoryItem(BaseModel):
+    """Represent QueryHistoryItem."""
+
     query_id: str
     query: str
     database: str
@@ -202,11 +242,15 @@ class QueryHistoryItem(BaseModel):
 
 
 class MetricPoint(BaseModel):
+    """Represent MetricPoint."""
+
     timestamp: datetime
     value: float
 
 
 class PerformanceMetrics(BaseModel):
+    """Represent PerformanceMetrics."""
+
     cpu_usage: List[MetricPoint]
     memory_usage: List[MetricPoint]
     disk_io: List[MetricPoint]
@@ -215,6 +259,8 @@ class PerformanceMetrics(BaseModel):
 
 
 class DatabaseMetrics(BaseModel):
+    """Represent DatabaseMetrics."""
+
     database_count: int
     table_count: int
     total_size_mb: float
@@ -226,6 +272,8 @@ class DatabaseMetrics(BaseModel):
 
 
 class SlowQuery(BaseModel):
+    """Represent SlowQuery."""
+
     query_id: str
     query: str
     execution_time: float
@@ -242,6 +290,8 @@ class SlowQuery(BaseModel):
 
 
 class Backup(BaseModel):
+    """Represent Backup."""
+
     backup_id: str
     database: str
     type: BackupType
@@ -255,6 +305,8 @@ class Backup(BaseModel):
 
 
 class CreateBackupRequest(BaseModel):
+    """Represent CreateBackupRequest."""
+
     database: str
     type: BackupType = BackupType.FULL
     description: Optional[str] = None
@@ -262,6 +314,8 @@ class CreateBackupRequest(BaseModel):
 
 
 class RestoreBackupRequest(BaseModel):
+    """Represent RestoreBackupRequest."""
+
     backup_id: str
     target_database: str
     validate_checksum: bool = True
@@ -273,6 +327,8 @@ class RestoreBackupRequest(BaseModel):
 
 
 class CreateUserRequest(BaseModel):
+    """Represent CreateUserRequest."""
+
     username: str = Field(..., min_length=3, max_length=50)
     email: EmailStr
     password: str = Field(..., min_length=8)
@@ -281,6 +337,8 @@ class CreateUserRequest(BaseModel):
 
 
 class UpdateUserRequest(BaseModel):
+    """Represent UpdateUserRequest."""
+
     email: Optional[EmailStr] = None
     role: Optional[UserRole] = None
     permissions: Optional[List[str]] = None
@@ -288,6 +346,8 @@ class UpdateUserRequest(BaseModel):
 
 
 class DatabaseUser(BaseModel):
+    """Represent DatabaseUser."""
+
     username: str
     host: str
     privileges: List[str]
@@ -302,6 +362,8 @@ class DatabaseUser(BaseModel):
 
 
 class Alert(BaseModel):
+    """Represent Alert."""
+
     alert_id: str
     name: str
     metric: str
@@ -315,6 +377,8 @@ class Alert(BaseModel):
 
 
 class CreateAlertRequest(BaseModel):
+    """Represent CreateAlertRequest."""
+
     name: str
     metric: str
     threshold: float
@@ -324,6 +388,8 @@ class CreateAlertRequest(BaseModel):
 
 
 class AlertHistory(BaseModel):
+    """Represent AlertHistory."""
+
     alert_id: str
     alert_name: str
     triggered_at: datetime
@@ -340,6 +406,8 @@ class AlertHistory(BaseModel):
 
 
 class SystemStatus(BaseModel):
+    """Represent SystemStatus."""
+
     database: Dict[str, Any]
     migrations: Dict[str, int]
     connections: Dict[str, int]
@@ -350,6 +418,8 @@ class SystemStatus(BaseModel):
 
 
 class ConnectionInfo(BaseModel):
+    """Represent ConnectionInfo."""
+
     connection_id: int
     user: str
     host: str
@@ -361,6 +431,8 @@ class ConnectionInfo(BaseModel):
 
 
 class ProcessList(BaseModel):
+    """Represent ProcessList."""
+
     connections: List[ConnectionInfo]
     total_connections: int
     active_connections: int
@@ -373,6 +445,8 @@ class ProcessList(BaseModel):
 
 
 class WebSocketMessage(BaseModel):
+    """Represent WebSocketMessage."""
+
     type: str
     data: Any
     timestamp: datetime
@@ -380,6 +454,8 @@ class WebSocketMessage(BaseModel):
 
 
 class RealtimeMetrics(BaseModel):
+    """Represent RealtimeMetrics."""
+
     cpu: float
     memory: float
     qps: float
@@ -394,12 +470,16 @@ class RealtimeMetrics(BaseModel):
 
 
 class SuccessResponse(BaseModel):
+    """Represent SuccessResponse."""
+
     success: bool = True
     message: str
     data: Optional[Any] = None
 
 
 class ErrorResponse(BaseModel):
+    """Represent ErrorResponse."""
+
     success: bool = False
     error: str
     details: Optional[str] = None
@@ -407,6 +487,8 @@ class ErrorResponse(BaseModel):
 
 
 class PaginatedResponse(BaseModel):
+    """Represent PaginatedResponse."""
+
     items: List[Any]
     total: int
     page: int

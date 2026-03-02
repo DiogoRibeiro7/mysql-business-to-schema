@@ -1,4 +1,4 @@
-"""Backup command - Database backup management"""
+"""Backup command - Database backup management."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="backup")
 def backup_group():
     """Manage database backups."""
-    pass
 
 
 @backup_group.command(name="create")

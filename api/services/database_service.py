@@ -1,5 +1,5 @@
-"""
-Database Microservice
+"""Database Microservice.
+
 Handles all database operations including schema management and data generation
 """
 
@@ -11,7 +11,6 @@ import sys
 import importlib
 import json
 from datetime import datetime
-import asyncio
 import logging
 from pathlib import Path
 
@@ -32,6 +31,8 @@ app = FastAPI(
 
 # Request/Response Models
 class DatabaseInfo(BaseModel):
+    """Represent DatabaseInfo."""
+
     name: str
     description: str
     tables: int
@@ -40,11 +41,15 @@ class DatabaseInfo(BaseModel):
 
 
 class SchemaRequest(BaseModel):
+    """Represent SchemaRequest."""
+
     database: str
     format: str = "mysql"
 
 
 class SchemaResponse(BaseModel):
+    """Represent SchemaResponse."""
+
     database: str
     format: str
     schema: Dict[str, Any]
@@ -52,6 +57,8 @@ class SchemaResponse(BaseModel):
 
 
 class GenerateDataRequest(BaseModel):
+    """Represent GenerateDataRequest."""
+
     rows: int = Field(default=1000, ge=1, le=1000000)
     format: str = "sql"
     include_indexes: bool = True
@@ -59,6 +66,8 @@ class GenerateDataRequest(BaseModel):
 
 
 class GenerateDataResponse(BaseModel):
+    """Represent GenerateDataResponse."""
+
     database: str
     rows_generated: int
     format: str
@@ -68,12 +77,16 @@ class GenerateDataResponse(BaseModel):
 
 
 class QueryRequest(BaseModel):
+    """Represent QueryRequest."""
+
     database: str
     query: str
     limit: int = Field(default=100, ge=1, le=10000)
 
 
 class QueryResponse(BaseModel):
+    """Represent QueryResponse."""
+
     database: str
     query: str
     results: List[Dict[str, Any]]
@@ -161,7 +174,7 @@ schema_cache = {}
 
 
 async def load_schema(database: str, format: str = "mysql") -> Dict[str, Any]:
-    """Load schema for a database"""
+    """Load schema for a database."""
     cache_key = f"{database}:{format}"
 
     if cache_key in schema_cache:
@@ -205,7 +218,7 @@ async def load_schema(database: str, format: str = "mysql") -> Dict[str, Any]:
 
 
 def parse_mysql_schema(schema_content: str) -> Dict[str, Any]:
-    """Parse MySQL schema into structured format"""
+    """Parse MySQL schema into structured format."""
     tables = {}
     current_table = None
 
@@ -248,7 +261,7 @@ def parse_mysql_schema(schema_content: str) -> Dict[str, Any]:
 
 
 def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
-    """Generate schema dynamically from generator module"""
+    """Generate schema dynamically from generator module."""
     if database not in DATABASES:
         return {}
 
@@ -257,7 +270,7 @@ def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
     try:
         # Import generator module
         module = importlib.import_module(db_info["generator"])
-        generator = module.DataGenerator()
+        _ = module.DataGenerator()
 
         # Generate schema based on generator's configuration
         schema = {
@@ -295,7 +308,7 @@ def generate_dynamic_schema(database: str, format: str) -> Dict[str, Any]:
 async def generate_data_async(
     database: str, request: GenerateDataRequest
 ) -> Dict[str, Any]:
-    """Generate data asynchronously"""
+    """Generate data asynchronously."""
     if database not in DATABASES:
         raise ValueError(f"Database {database} not found")
 
@@ -369,7 +382,7 @@ async def generate_data_async(
 
 @app.get("/health")
 async def health_check():
-    """Service health check"""
+    """Service health check."""
     return {
         "service": "database",
         "status": "healthy",
@@ -379,7 +392,7 @@ async def health_check():
 
 @app.get("/databases", response_model=List[DatabaseInfo])
 async def list_databases():
-    """List all available databases"""
+    """List all available databases."""
     databases = []
     for key, info in DATABASES.items():
         databases.append(
@@ -395,7 +408,7 @@ async def list_databases():
 
 @app.get("/databases/{db_name}")
 async def get_database_info(db_name: str):
-    """Get detailed information about a database"""
+    """Get detailed information about a database."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -412,7 +425,7 @@ async def get_database_info(db_name: str):
 
 @app.get("/databases/{db_name}/schema", response_model=SchemaResponse)
 async def get_schema(db_name: str, format: str = "mysql"):
-    """Get schema for a database"""
+    """Get schema for a database."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -425,7 +438,7 @@ async def get_schema(db_name: str, format: str = "mysql"):
 async def generate_data(
     db_name: str, request: GenerateDataRequest, background_tasks: BackgroundTasks
 ):
-    """Generate sample data for a database"""
+    """Generate sample data for a database."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -446,7 +459,7 @@ async def generate_data(
 
 @app.post("/databases/{db_name}/query", response_model=QueryResponse)
 async def execute_query(db_name: str, request: QueryRequest):
-    """Execute a query on a database (simulation)"""
+    """Execute a query on a database (simulation)."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -491,7 +504,7 @@ async def export_database(
     include_data: bool = True,
     include_schema: bool = True,
 ):
-    """Export database schema and/or data"""
+    """Export database schema and/or data."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -530,7 +543,7 @@ async def export_database(
 
 @app.get("/databases/{db_name}/statistics")
 async def get_database_statistics(db_name: str):
-    """Get statistics for a database"""
+    """Get statistics for a database."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 
@@ -555,7 +568,7 @@ async def get_database_statistics(db_name: str):
 
 @app.post("/databases/{db_name}/validate")
 async def validate_schema(db_name: str, schema: Dict[str, Any]):
-    """Validate a schema against database rules"""
+    """Validate a schema against database rules."""
     if db_name not in DATABASES:
         raise HTTPException(status_code=404, detail=f"Database {db_name} not found")
 

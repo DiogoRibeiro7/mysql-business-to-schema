@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL to MongoDB Schema Converter
+"""MySQL to MongoDB Schema Converter.
 
 Converts MySQL schemas to MongoDB document structures with:
 - Denormalization strategies
@@ -18,9 +17,10 @@ from datetime import datetime
 
 
 class MySQLToMongoDBConverter:
-    """Convert MySQL schemas to MongoDB document designs"""
+    """Convert MySQL schemas to MongoDB document designs."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.tables = {}
         self.relationships = []
         self.collections = {}
@@ -28,7 +28,7 @@ class MySQLToMongoDBConverter:
         self.aggregations = {}
 
     def parse_sql_file(self, sql_file: Path) -> bool:
-        """Parse MySQL SQL file and extract schema information"""
+        """Parse MySQL SQL file and extract schema information."""
         try:
             with open(sql_file, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -55,7 +55,7 @@ class MySQLToMongoDBConverter:
             return False
 
     def _parse_table(self, table_name: str, content: str):
-        """Parse a CREATE TABLE statement"""
+        """Parse a CREATE TABLE statement."""
         fields = []
         primary_keys = []
         foreign_keys = []
@@ -140,14 +140,14 @@ class MySQLToMongoDBConverter:
         }
 
     def _extract_default(self, modifiers: str) -> Optional[str]:
-        """Extract default value from field modifiers"""
+        """Extract default value from field modifiers."""
         default_match = re.search(r"DEFAULT\s+'?([^']+)'?", modifiers, re.IGNORECASE)
         if default_match:
             return default_match.group(1)
         return None
 
     def _analyze_relationships(self):
-        """Analyze relationships to determine embedding vs. referencing"""
+        """Analyze relationships to determine embedding vs. referencing."""
         # Identify one-to-many and many-to-many relationships
         for rel in self.relationships:
             from_table = rel["from_table"]
@@ -172,7 +172,7 @@ class MySQLToMongoDBConverter:
                     rel["embed_strategy"] = "reference"
 
     def _is_junction_table(self, table_name: str) -> bool:
-        """Determine if a table is a junction/bridge table"""
+        """Determine if a table is a junction/bridge table."""
         table = self.tables.get(table_name, {})
 
         # Junction tables typically have:
@@ -187,7 +187,7 @@ class MySQLToMongoDBConverter:
         return fk_count >= 2 and field_count <= fk_count + 2 and pk_count > 1
 
     def _determine_embed_strategy(self, from_table: str, to_table: str) -> str:
-        """Determine whether to embed or reference related documents"""
+        """Determine whether to embed or reference related documents."""
         # Simple heuristics for embedding vs. referencing
         # In practice, this would consider:
         # - Size of related documents
@@ -211,7 +211,7 @@ class MySQLToMongoDBConverter:
         return "reference"
 
     def generate_mongodb_schema(self) -> Dict[str, Any]:
-        """Generate MongoDB schema from parsed MySQL tables"""
+        """Generate MongoDB schema from parsed MySQL tables."""
         schema = {
             "database": "converted_db",
             "collections": {},
@@ -245,7 +245,7 @@ class MySQLToMongoDBConverter:
         return schema
 
     def _create_collection_schema(self, table_name: str, table_info: Dict) -> Dict:
-        """Create MongoDB collection schema from MySQL table"""
+        """Create MongoDB collection schema from MySQL table."""
         schema = {"name": table_name, "document": {}, "embedded": [], "references": []}
 
         # Convert fields to document structure
@@ -293,7 +293,7 @@ class MySQLToMongoDBConverter:
         return schema
 
     def _mysql_to_mongo_type(self, mysql_type: str) -> str:
-        """Convert MySQL type to MongoDB type"""
+        """Convert MySQL type to MongoDB type."""
         mysql_type = mysql_type.upper()
 
         type_map = {
@@ -341,7 +341,7 @@ class MySQLToMongoDBConverter:
         return "String"  # Default
 
     def _create_indexes(self, table_name: str, table_info: Dict) -> List[Dict]:
-        """Create MongoDB indexes from MySQL indexes"""
+        """Create MongoDB indexes from MySQL indexes."""
         indexes = []
 
         # Add index for primary key if it's not _id
@@ -349,7 +349,7 @@ class MySQLToMongoDBConverter:
             indexes.append(
                 {
                     "name": f"{table_name}_pk",
-                    "keys": {pk: 1 for pk in table_info["primary_keys"]},
+                    "keys": dict.fromkeys(table_info["primary_keys"], 1),
                     "unique": True,
                 }
             )
@@ -376,16 +376,14 @@ class MySQLToMongoDBConverter:
             indexes.append(
                 {
                     "name": f"{table_name}_text",
-                    "keys": {
-                        field: "text" for field in text_fields[:3]
-                    },  # Limit to 3 fields
+                    "keys": dict.fromkeys(text_fields[:3], "text"),  # Limit to 3 fields
                 }
             )
 
         return indexes
 
     def _create_validation(self, table_name: str, table_info: Dict) -> Dict:
-        """Create MongoDB validation rules"""
+        """Create MongoDB validation rules."""
         required = []
         properties = {}
 
@@ -423,7 +421,7 @@ class MySQLToMongoDBConverter:
         }
 
     def _create_aggregations(self, table_name: str) -> List[Dict]:
-        """Create common aggregation pipeline templates"""
+        """Create common aggregation pipeline templates."""
         aggregations = []
 
         # Check if this table has relationships that need lookup
@@ -498,7 +496,7 @@ class MySQLToMongoDBConverter:
         return aggregations
 
     def generate_migration_script(self) -> str:
-        """Generate MongoDB migration script"""
+        """Generate MongoDB migration script."""
         # Get schema first
         schema = self.generate_mongodb_schema()
 
@@ -538,7 +536,7 @@ class MySQLToMongoDBConverter:
         # Add validation
         for collection_name, validation in schema["validation"].items():
             script.append(f"// Validation for {collection_name}")
-            script.append(f"db.runCommand({{")
+            script.append("db.runCommand({")
             script.append(f"  collMod: '{collection_name}',")
             script.append(f"  validator: {json.dumps(validation, indent=2)}")
             script.append("});\n")
@@ -547,18 +545,18 @@ class MySQLToMongoDBConverter:
 
 
 def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
-    """Convert MySQL schema to MongoDB for an example"""
+    """Convert MySQL schema to MongoDB for an example."""
     print(f"Converting {example_dir.name} to MongoDB...")
 
     # Find SQL files
     schema_dir = example_dir / "schema"
     if not schema_dir.exists():
-        print(f"  No schema directory found")
+        print("  No schema directory found")
         return False
 
     sql_files = sorted(schema_dir.glob("*.sql"))
     if not sql_files:
-        print(f"  No SQL files found")
+        print("  No SQL files found")
         return False
 
     # Create output directory
@@ -593,10 +591,10 @@ def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
     with open(doc_file, "w", encoding="utf-8") as f:
         f.write(f"# MongoDB Schema for {example_dir.name}\n\n")
         f.write(f"Converted from MySQL on {datetime.now().isoformat()}\n\n")
-        f.write(f"## Collections\n\n")
+        f.write("## Collections\n\n")
         for collection, schema in mongodb_schema["collections"].items():
             f.write(f"### {collection}\n\n")
-            f.write(f"**Document Structure:**\n")
+            f.write("**Document Structure:**\n")
             f.write("```json\n")
             f.write(json.dumps(schema["document"], indent=2))
             f.write("\n```\n\n")
@@ -617,7 +615,7 @@ def convert_example(example_dir: Path, output_dir: Path = None) -> bool:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     parser = argparse.ArgumentParser(description="Convert MySQL schemas to MongoDB")
     parser.add_argument(
         "input", nargs="?", help="Input MySQL SQL file or example directory"

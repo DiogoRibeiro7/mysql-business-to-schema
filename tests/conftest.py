@@ -1,6 +1,4 @@
-"""
-Global pytest configuration and fixtures for all test types.
-"""
+"""Global pytest configuration and fixtures for all test types."""
 
 import os
 import pytest
@@ -9,10 +7,9 @@ import docker
 import mysql.connector
 import redis
 from pathlib import Path
-from typing import Generator, Dict, Any
+from typing import Dict, Any
 from unittest.mock import Mock
 import tempfile
-import json
 import yaml
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -46,7 +43,7 @@ def test_config() -> Dict[str, Any]:
 
 @pytest.fixture(scope="session")
 def mysql_container():
-    """MySQL test container for integration tests."""
+    """Provide a MySQL test container for integration tests."""
     if CI_PIPELINE:
         # Use external MySQL in CI
         yield {
@@ -69,7 +66,7 @@ def mysql_container():
 
 @pytest.fixture(scope="function")
 def mysql_connection(mysql_container):
-    """MySQL connection for tests."""
+    """Provide a MySQL connection for tests."""
     conn = mysql.connector.connect(
         host=mysql_container["host"],
         port=mysql_container["port"],
@@ -83,7 +80,7 @@ def mysql_connection(mysql_container):
 
 @pytest.fixture(scope="function")
 def mysql_cursor(mysql_connection):
-    """MySQL cursor for test queries."""
+    """Provide a MySQL cursor for test queries."""
     cursor = mysql_connection.cursor(dictionary=True)
     yield cursor
     cursor.close()
@@ -126,7 +123,7 @@ def redis_client(redis_container):
 
 @pytest.fixture(scope="function")
 def sqlalchemy_session(mysql_container):
-    """SQLAlchemy session for ORM tests."""
+    """Provide a SQLAlchemy session for ORM tests."""
     engine = create_engine(
         f"mysql+mysqlconnector://{mysql_container['user']}:{mysql_container['password']}"
         f"@{mysql_container['host']}:{mysql_container['port']}/{mysql_container['database']}"
@@ -167,7 +164,7 @@ def mock_ml_model():
 
 @pytest.fixture(scope="function")
 def sample_metrics():
-    """Sample performance metrics for testing."""
+    """Handle operation."""
     return {
         "query_time": 0.123,
         "rows_examined": 1000,
@@ -181,7 +178,7 @@ def sample_metrics():
 
 @pytest.fixture(scope="function")
 def sample_schema():
-    """Sample database schema for testing."""
+    """Handle operation."""
     return {
         "database": "test_db",
         "tables": [
@@ -207,7 +204,7 @@ def sample_schema():
 
 @pytest.fixture(scope="function")
 def graphql_client(test_config):
-    """GraphQL test client."""
+    """Provide a GraphQL test client."""
     from graphql import GraphQLClient
 
     endpoint = test_config.get("graphql_endpoint", "http://localhost:4000/graphql")
@@ -237,8 +234,8 @@ def mock_kafka_producer():
 @pytest.fixture(scope="function")
 def test_data_generator():
     """Generate test data using Faker."""
-
     def generate_users(count=10):
+        """Handle generate users."""
         return [
             {
                 "username": fake.user_name(),
@@ -251,6 +248,7 @@ def test_data_generator():
         ]
 
     def generate_orders(count=10):
+        """Handle generate orders."""
         return [
             {
                 "user_id": fake.random_int(1, 100),
@@ -266,22 +264,27 @@ def test_data_generator():
 
 @pytest.fixture(scope="function")
 def performance_monitor():
-    """Performance monitoring for tests."""
+    """Provide performance monitoring for tests."""
     import time
     import psutil
 
     class PerformanceMonitor:
+        """Represent PerformanceMonitor."""
+
         def __init__(self):
+            """Initialize the instance."""
             self.start_time = None
             self.start_memory = None
             self.start_cpu = None
 
         def start(self):
+            """Handle start."""
             self.start_time = time.time()
             self.start_memory = psutil.Process().memory_info().rss / 1024 / 1024
             self.start_cpu = psutil.cpu_percent(interval=0.1)
 
         def stop(self):
+            """Handle stop."""
             return {
                 "duration": time.time() - self.start_time,
                 "memory_used": psutil.Process().memory_info().rss / 1024 / 1024

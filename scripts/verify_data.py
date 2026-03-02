@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Data Verification Script for MySQL Business-to-Schema
+"""Data Verification Script for MySQL Business-to-Schema.
+
 Checks and reports on generated data across all schemas
 """
 
@@ -8,9 +8,8 @@ import os
 import sys
 import mysql.connector
 from datetime import datetime
-from typing import Dict, List, Tuple
+from typing import Dict, List
 from colorama import init, Fore, Style
-import pandas as pd
 from tabulate import tabulate
 
 # Initialize colorama
@@ -26,14 +25,14 @@ DB_CONFIG = {
 
 
 def print_header(text: str):
-    """Print formatted header"""
+    """Print formatted header."""
     print(f"\n{Fore.CYAN}{'='*70}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{text:^70}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*70}{Style.RESET_ALL}\n")
 
 
 def get_schema_stats(conn: mysql.connector.MySQLConnection, schema: str) -> Dict:
-    """Get statistics for a schema"""
+    """Get statistics for a schema."""
     cursor = conn.cursor(dictionary=True)
     stats = {"schema": schema}
 
@@ -100,7 +99,7 @@ def get_schema_stats(conn: mysql.connector.MySQLConnection, schema: str) -> Dict
 
 
 def verify_data_quality(conn: mysql.connector.MySQLConnection, schema: str) -> Dict:
-    """Check data quality metrics"""
+    """Check data quality metrics."""
     cursor = conn.cursor()
     quality_report = {"nulls": 0, "duplicates": 0, "orphans": 0, "issues": []}
 
@@ -135,7 +134,7 @@ def verify_data_quality(conn: mysql.connector.MySQLConnection, schema: str) -> D
                                 f"{table}.{column} has {null_percentage:.1f}% NULL values"
                             )
                             quality_report["nulls"] += 1
-                    except:
+                    except Exception:
                         pass
 
     except Exception as e:
@@ -146,7 +145,7 @@ def verify_data_quality(conn: mysql.connector.MySQLConnection, schema: str) -> D
 
 
 def print_summary_table(stats_list: List[Dict]):
-    """Print summary statistics in a table"""
+    """Print summary statistics in a table."""
     if not stats_list:
         return
 
@@ -171,7 +170,7 @@ def print_summary_table(stats_list: List[Dict]):
 
 
 def print_top_tables(stats_list: List[Dict]):
-    """Print top tables by row count"""
+    """Print top tables by row count."""
     print(f"\n{Fore.CYAN}Top Tables by Row Count:{Style.RESET_ALL}")
 
     all_tables = []
@@ -209,7 +208,7 @@ def print_top_tables(stats_list: List[Dict]):
 
 
 def generate_sample_queries(stats_list: List[Dict]):
-    """Generate sample queries for testing"""
+    """Generate sample queries for testing."""
     print(f"\n{Fore.CYAN}Sample Queries for Testing:{Style.RESET_ALL}")
 
     queries = []
@@ -269,7 +268,7 @@ GROUP BY sensor_type;""",
 
 
 def main():
-    """Main execution function"""
+    """Run execution function."""
     print_header("MySQL Business-to-Schema Data Verification")
     print(f"Started: {datetime.now()}")
 

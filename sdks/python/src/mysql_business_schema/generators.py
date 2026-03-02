@@ -1,26 +1,21 @@
-"""
-Data and schema generators for MySQL Business-to-Schema SDK
-"""
+"""Data and schema generators for MySQL Business-to-Schema SDK."""
 
 import json
 import random
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Dict, Any, Optional, Union
 from faker import Faker
 import pandas as pd
 
-from .models import Database, Table, Column, Index, ForeignKey
+from .models import Database, Table, Column, Index
 from .exceptions import ValidationError
 
 
 class DataGenerator:
-    """
-    Generate test data for database schemas.
-    """
+    """Generate test data for database schemas."""
 
     def __init__(self, client=None):
-        """
-        Initialize data generator.
+        """Initialize data generator.
 
         Args:
             client: MySQLSchemaClient instance
@@ -36,8 +31,7 @@ class DataGenerator:
         format: str = "sql",
         seed: Optional[int] = None,
     ) -> Union[str, pd.DataFrame, Dict]:
-        """
-        Generate test data for a schema.
+        """Generate test data for a schema.
 
         Args:
             schema_name: Name of schema/example to generate
@@ -418,13 +412,10 @@ class DataGenerator:
 
 
 class SchemaGenerator:
-    """
-    Generate database schemas from templates or specifications.
-    """
+    """Generate database schemas from templates or specifications."""
 
     def __init__(self, client=None):
-        """
-        Initialize schema generator.
+        """Initialize schema generator.
 
         Args:
             client: MySQLSchemaClient instance
@@ -434,8 +425,7 @@ class SchemaGenerator:
     def generate_from_template(
         self, template_name: str, database_name: str, **kwargs
     ) -> Database:
-        """
-        Generate schema from predefined template.
+        """Generate schema from predefined template.
 
         Args:
             template_name: Name of template
@@ -568,14 +558,11 @@ class SchemaGenerator:
     def _generate_data_warehouse_schema(self, database_name: str, **kwargs) -> Database:
         """Generate data warehouse schema with fact and dimension tables."""
         # Implementation for data warehouse schema
-        pass
 
     def _generate_time_series_schema(self, database_name: str, **kwargs) -> Database:
         """Generate time series database schema."""
         # Implementation for time series schema
-        pass
 
     def _generate_multi_tenant_schema(self, database_name: str, **kwargs) -> Database:
         """Generate multi-tenant database schema."""
         # Implementation for multi-tenant schema
-        pass

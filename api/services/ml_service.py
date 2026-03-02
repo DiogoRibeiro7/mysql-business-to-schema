@@ -1,34 +1,22 @@
-"""
-Machine Learning Microservice
+"""Machine Learning Microservice.
+
 Handles all ML operations including training, prediction, and model management
 """
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, File, UploadFile
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, Any, List
-import os
-import sys
-import json
-import pickle
 import joblib
-from datetime import datetime
-import asyncio
+from datetime import datetime, timedelta
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import uuid
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-
 # Import ML modules
 from ml.ml_pipeline import (
     MLPipeline,
-    RecommendationSystem,
-    AnomalyDetector,
-    TimeSeriesForecaster,
-    CustomerSegmentation,
     EcommercePredictiveAnalytics,
     FintechFraudDetection,
     ModelServer,
@@ -56,9 +44,13 @@ app = FastAPI(
     version="1.0.0",
 )
 
+upload_file_dep = File(...)
+
 
 # Request/Response Models
 class ModelInfo(BaseModel):
+    """Represent ModelInfo."""
+
     model_id: str
     name: str
     type: str
@@ -70,6 +62,8 @@ class ModelInfo(BaseModel):
 
 
 class TrainRequest(BaseModel):
+    """Represent TrainRequest."""
+
     dataset: str
     model_type: str
     parameters: Optional[Dict[str, Any]] = {}
@@ -78,6 +72,8 @@ class TrainRequest(BaseModel):
 
 
 class TrainResponse(BaseModel):
+    """Represent TrainResponse."""
+
     model_id: str
     status: str
     metrics: Dict[str, float]
@@ -86,6 +82,8 @@ class TrainResponse(BaseModel):
 
 
 class PredictRequest(BaseModel):
+    """Represent PredictRequest."""
+
     model_id: Optional[str] = None
     model_name: Optional[str] = None
     data: Dict[str, Any]
@@ -93,6 +91,8 @@ class PredictRequest(BaseModel):
 
 
 class PredictResponse(BaseModel):
+    """Represent PredictResponse."""
+
     model_id: str
     predictions: Any
     probabilities: Optional[List[float]] = None
@@ -101,6 +101,8 @@ class PredictResponse(BaseModel):
 
 
 class BatchPredictRequest(BaseModel):
+    """Represent BatchPredictRequest."""
+
     model_id: str
     data_path: str
     output_path: Optional[str] = None
@@ -108,6 +110,8 @@ class BatchPredictRequest(BaseModel):
 
 
 class ModelMetricsResponse(BaseModel):
+    """Represent ModelMetricsResponse."""
+
     model_id: str
     metrics: Dict[str, Any]
     confusion_matrix: Optional[List[List[int]]] = None
@@ -137,7 +141,7 @@ specialized_models = {
 async def train_model_async(
     dataset: str, model_type: str, parameters: Dict[str, Any], test_split: float
 ) -> Dict[str, Any]:
-    """Train model asynchronously"""
+    """Train model asynchronously."""
     import time
 
     start_time = time.time()
@@ -207,7 +211,7 @@ async def train_model_async(
 
 @app.get("/health")
 async def health_check():
-    """Service health check"""
+    """Service health check."""
     return {
         "service": "ml",
         "status": "healthy",
@@ -218,7 +222,7 @@ async def health_check():
 
 @app.get("/models", response_model=List[ModelInfo])
 async def list_models(model_type: Optional[str] = None, status: Optional[str] = None):
-    """List available ML models"""
+    """List available ML models."""
     models = model_server.list_models(name=model_type)
 
     model_list = []
@@ -241,7 +245,7 @@ async def list_models(model_type: Optional[str] = None, status: Optional[str] = 
 
 @app.get("/models/{model_id}")
 async def get_model_info(model_id: str):
-    """Get detailed information about a specific model"""
+    """Get detailed information about a specific model."""
     if model_id not in model_server.models:
         raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
@@ -260,7 +264,7 @@ async def get_model_info(model_id: str):
 
 @app.post("/models/train", response_model=TrainResponse)
 async def train_model(request: TrainRequest, background_tasks: BackgroundTasks):
-    """Train a new ML model"""
+    """Train a new ML model."""
     # For long training jobs, run in background
     if request.parameters.get("epochs", 0) > 100:
         model_id = str(uuid.uuid4())
@@ -288,7 +292,7 @@ async def train_model(request: TrainRequest, background_tasks: BackgroundTasks):
 
 @app.post("/models/{model_name}/predict", response_model=PredictResponse)
 async def predict(model_name: str, request: PredictRequest):
-    """Make predictions using a model"""
+    """Make predictions using a model."""
     import time
 
     start_time = time.time()
@@ -363,7 +367,7 @@ async def predict(model_name: str, request: PredictRequest):
 async def batch_predict(
     request: BatchPredictRequest, background_tasks: BackgroundTasks
 ):
-    """Batch prediction on large datasets"""
+    """Batch prediction on large datasets."""
     if request.model_id not in model_server.models:
         raise HTTPException(
             status_code=404, detail=f"Model {request.model_id} not found"
@@ -373,6 +377,7 @@ async def batch_predict(
     job_id = str(uuid.uuid4())
 
     async def run_batch_prediction():
+        """Handle run batch prediction."""
         try:
             # Load data
             df = pd.read_csv(request.data_path)
@@ -380,7 +385,7 @@ async def batch_predict(
             # Make predictions in batches
             predictions = []
             for i in range(0, len(df), request.batch_size):
-                batch = df.iloc[i : i + request.batch_size]
+                batch = df.iloc[i: i + request.batch_size]
                 batch_preds = model_server.predict(request.model_id, batch)
                 predictions.extend(batch_preds)
 
@@ -410,7 +415,7 @@ async def batch_predict(
 
 @app.get("/models/{model_id}/metrics", response_model=ModelMetricsResponse)
 async def get_model_metrics(model_id: str):
-    """Get detailed metrics for a model"""
+    """Get detailed metrics for a model."""
     if model_id not in model_server.models:
         raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
@@ -440,7 +445,7 @@ async def retrain_model(
     dataset_path: Optional[str] = None,
     background_tasks: BackgroundTasks = None,
 ):
-    """Retrain an existing model with new data"""
+    """Retrain an existing model with new data."""
     if model_id not in model_server.models:
         raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
@@ -448,6 +453,7 @@ async def retrain_model(
     model = model_server.load_model(model_id)
 
     async def retrain():
+        """Handle retrain."""
         try:
             # Load new training data
             if dataset_path:
@@ -486,7 +492,7 @@ async def retrain_model(
 
 @app.delete("/models/{model_id}")
 async def delete_model(model_id: str):
-    """Delete a model"""
+    """Delete a model."""
     if model_id not in model_server.models:
         raise HTTPException(status_code=404, detail=f"Model {model_id} not found")
 
@@ -507,9 +513,11 @@ async def delete_model(model_id: str):
 
 @app.post("/models/upload")
 async def upload_model(
-    file: UploadFile = File(...), name: str = "uploaded_model", version: str = "1.0.0"
+    file: UploadFile = upload_file_dep,
+    name: str = "uploaded_model",
+    version: str = "1.0.0",
 ):
-    """Upload a pre-trained model"""
+    """Upload a pre-trained model."""
     try:
         # Save uploaded file
         model_id = str(uuid.uuid4())
@@ -539,7 +547,7 @@ async def upload_model(
 
 @app.get("/algorithms")
 async def list_algorithms():
-    """List available ML algorithms"""
+    """List available ML algorithms."""
     return {
         "classification": [
             "random_forest",
@@ -568,7 +576,7 @@ async def list_algorithms():
 
 @app.get("/datasets")
 async def list_datasets():
-    """List available datasets for training"""
+    """List available datasets for training."""
     return {
         "datasets": [
             {
@@ -610,9 +618,6 @@ async def list_datasets():
     }
 
 
-from datetime import timedelta
-
-
 @app.post("/models/automl")
 async def auto_ml(
     dataset: str,
@@ -622,10 +627,11 @@ async def auto_ml(
     time_limit_minutes: int = 30,
     background_tasks: BackgroundTasks = None,
 ):
-    """Automated machine learning - finds best model for dataset"""
+    """Automated machine learning - finds best model for dataset."""
     job_id = str(uuid.uuid4())
 
     async def run_automl():
+        """Handle run automl."""
         try:
             # Simulate AutoML process
             models_to_try = [

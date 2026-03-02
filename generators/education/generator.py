@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Education & Learning Management System Data Generator
+"""Education & Learning Management System Data Generator.
+
 Generates realistic sample data for the education database schema
 with courses, enrollments, grades, and learning activities
 """
@@ -8,14 +8,10 @@ with courses, enrollments, grades, and learning activities
 import random
 import json
 import csv
-import os
-import sys
-import math
 import hashlib
 import argparse
 from datetime import datetime, timedelta, date, time
-from typing import List, Dict, Any, Tuple, Optional
-from decimal import Decimal
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 from collections import defaultdict
 
@@ -34,8 +30,10 @@ from faker.providers import (
 
 
 class EducationDataGenerator:
+    """Represent EducationDataGenerator."""
+
     def __init__(self, config_path: str = "config.json"):
-        """Initialize the generator with configuration"""
+        """Initialize the generator with configuration."""
         self.fake = Faker("en_US")
         self.fake.add_provider(person)
         self.fake.add_provider(address)
@@ -238,11 +236,11 @@ class EducationDataGenerator:
         }
 
     def generate_institutions(self):
-        """Generate educational institutions"""
+        """Generate educational institutions."""
         print("  Generating institutions...")
 
         for inst_type_config in self.config["institutions_config"]["types"]:
-            for i in range(inst_type_config["count"]):
+            for _ in range(inst_type_config["count"]):
                 inst_id = self.counters["institution"]
                 self.counters["institution"] += 1
 
@@ -325,7 +323,7 @@ class EducationDataGenerator:
                 self.institutions.append(institution)
 
     def generate_departments(self):
-        """Generate academic departments for each institution"""
+        """Generate academic departments for each institution."""
         print("  Generating departments...")
 
         dept_names = self.config["departments_list"]
@@ -354,7 +352,7 @@ class EducationDataGenerator:
                 self.departments.append(department)
 
     def generate_academic_terms(self):
-        """Generate academic terms (semesters/quarters)"""
+        """Generate academic terms (semesters/quarters)."""
         print("  Generating academic terms...")
 
         for institution in self.institutions:
@@ -404,7 +402,7 @@ class EducationDataGenerator:
                 self.academic_terms.append(term)
 
     def generate_users(self):
-        """Generate users (students, instructors, administrators)"""
+        """Generate users (students, instructors, administrators)."""
         print("  Generating users...")
 
         # Generate students
@@ -440,7 +438,7 @@ class EducationDataGenerator:
                 dept["department_head_id"] = random.choice(inst_instructors)["user_id"]
 
     def _create_user(self, user_type: str) -> Dict:
-        """Create a single user"""
+        """Create a single user."""
         user_id = self.counters["user"]
         self.counters["user"] += 1
 
@@ -511,7 +509,7 @@ class EducationDataGenerator:
         return user
 
     def _create_user_profile(self, user: Dict):
-        """Create extended user profile"""
+        """Create extended user profile."""
         profile_id = self.counters["profile"]
         self.counters["profile"] += 1
 
@@ -611,7 +609,7 @@ class EducationDataGenerator:
         self.user_profiles.append(profile)
 
     def generate_courses(self):
-        """Generate course catalog"""
+        """Generate course catalog."""
         print("  Generating courses...")
 
         for _ in range(self.config["counts"]["courses"]):
@@ -705,7 +703,7 @@ class EducationDataGenerator:
             self._generate_course_modules(course_id, topic)
 
     def _generate_course_modules(self, course_id: int, topic: str):
-        """Generate modules for a course"""
+        """Generate modules for a course."""
         num_modules = random.randint(8, 12)
 
         for module_num in range(1, num_modules + 1):
@@ -734,7 +732,7 @@ class EducationDataGenerator:
             self._generate_lessons(module_id, module_num)
 
     def _generate_lessons(self, module_id: int, module_num: int):
-        """Generate lessons for a module"""
+        """Generate lessons for a module."""
         num_lessons = random.randint(3, 6)
 
         for lesson_num in range(1, num_lessons + 1):
@@ -762,7 +760,7 @@ class EducationDataGenerator:
             self._generate_learning_resources(lesson_id)
 
     def _generate_learning_resources(self, lesson_id: int):
-        """Generate learning resources for a lesson"""
+        """Generate learning resources for a lesson."""
         num_resources = random.randint(1, 4)
 
         for _ in range(num_resources):
@@ -795,7 +793,7 @@ class EducationDataGenerator:
             self.learning_resources.append(resource)
 
     def generate_course_sections(self):
-        """Generate course sections (actual class instances)"""
+        """Generate course sections (actual class instances)."""
         print("  Generating course sections...")
 
         for course in self.courses:
@@ -900,7 +898,7 @@ class EducationDataGenerator:
                 self.course_sections.append(section)
 
     def _get_meeting_days(self, pattern: str) -> set:
-        """Convert meeting pattern to set of days"""
+        """Convert meeting pattern to set of days."""
         patterns = {
             "MWF": {"MON", "WED", "FRI"},
             "TTH": {"TUE", "THU"},
@@ -911,7 +909,7 @@ class EducationDataGenerator:
         return patterns.get(pattern, set())
 
     def generate_enrollments(self):
-        """Generate student enrollments"""
+        """Generate student enrollments."""
         print("  Generating enrollments...")
 
         # Each student enrolls in multiple courses
@@ -996,17 +994,17 @@ class EducationDataGenerator:
                     section["waitlist_count"] += 1
 
     def _calculate_grade_points(self, grade: str) -> float:
-        """Calculate grade points from letter grade"""
+        """Calculate grade points from letter grade."""
         grade_points = {"A": 4.0, "B": 3.0, "C": 2.0, "D": 1.0, "F": 0.0}
         return grade_points.get(grade, 0.0)
 
     def generate_assignments(self):
-        """Generate assignments for courses"""
+        """Generate assignments for courses."""
         print("  Generating assignments...")
 
         for section in self.course_sections:
             # Get course info
-            course = next(
+            _ = next(
                 c for c in self.courses if c["course_id"] == section["course_id"]
             )
 
@@ -1071,7 +1069,7 @@ class EducationDataGenerator:
                     self._generate_submissions(assignment, section["section_id"])
 
     def _generate_submissions(self, assignment: Dict, section_id: int):
-        """Generate student submissions for an assignment"""
+        """Generate student submissions for an assignment."""
         enrolled_students = self.section_students.get(section_id, [])
 
         for student_id in enrolled_students:
@@ -1136,7 +1134,7 @@ class EducationDataGenerator:
                 self._generate_grade(submission, assignment, timing == "late")
 
     def _generate_grade(self, submission: Dict, assignment: Dict, is_late: bool):
-        """Generate grade for a submission"""
+        """Generate grade for a submission."""
         grade_id = self.counters["grade"]
         self.counters["grade"] += 1
 
@@ -1182,7 +1180,7 @@ class EducationDataGenerator:
         self.grades.append(grade)
 
     def generate_discussions(self):
-        """Generate discussion forums and posts"""
+        """Generate discussion forums and posts."""
         print("  Generating discussions...")
 
         for section in self.course_sections[:100]:  # Limit for performance
@@ -1214,7 +1212,7 @@ class EducationDataGenerator:
                 self._generate_discussion_posts(discussion, section["section_id"])
 
     def _generate_discussion_posts(self, discussion: Dict, section_id: int):
-        """Generate posts in a discussion"""
+        """Generate posts in a discussion."""
         participants = self.section_students.get(section_id, [])[
             :10
         ]  # Limit participants
@@ -1258,7 +1256,7 @@ class EducationDataGenerator:
             discussion["post_count"] += 1
 
     def generate_attendance(self):
-        """Generate attendance records"""
+        """Generate attendance records."""
         print("  Generating attendance records...")
 
         for section in self.course_sections[:50]:  # Limit for performance
@@ -1313,7 +1311,7 @@ class EducationDataGenerator:
                     self.attendance_records.append(attendance)
 
     def generate_analytics(self):
-        """Generate learning analytics data"""
+        """Generate learning analytics data."""
         print("  Generating analytics...")
 
         # Generate activity logs for recent activities
@@ -1368,11 +1366,11 @@ class EducationDataGenerator:
             self.learning_analytics.append(analytics)
 
     def _weighted_choice(self, choices: List, weights: List):
-        """Make a weighted random choice"""
+        """Make a weighted random choice."""
         return random.choices(choices, weights=weights)[0]
 
     def save_to_csv(self, output_dir: Optional[str] = None):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         if output_dir is None:
             output_dir = self.config["output_dir"]
 
@@ -1435,7 +1433,7 @@ class EducationDataGenerator:
                 print(f"  Saved {len(data)} records to {table_name}.csv")
 
     def generate_all_data(self):
-        """Generate all data in the correct sequence"""
+        """Generate all data in the correct sequence."""
         print("Education LMS Data Generator Starting...")
         print(
             f"  Configuration: {self.config['counts']['institutions']} institutions, {self.config['counts']['courses']} courses"
@@ -1492,6 +1490,7 @@ class EducationDataGenerator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate education LMS sample data")
     parser.add_argument(
         "--config", type=str, default="config.json", help="Path to configuration file"

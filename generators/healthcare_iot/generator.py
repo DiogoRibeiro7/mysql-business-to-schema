@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
-"""
-Healthcare IoT System Data Generator
+"""Healthcare IoT System Data Generator.
+
 Generates realistic data for hospital IoT medical device monitoring and patient care
 """
 
 import csv
 import json
 import random
-import hashlib
-from datetime import datetime, timedelta, time, date
-from decimal import Decimal
+from datetime import datetime, timedelta, time
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -40,7 +37,10 @@ CONFIG = {
 
 
 class HealthcareIoTGenerator:
+    """Represent HealthcareIoTGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.hospitals: List[Any] = []
         self.departments: List[Any] = []
         self.rooms: List[Any] = []
@@ -79,9 +79,9 @@ class HealthcareIoTGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all healthcare IoT data"""
+        """Generate all healthcare IoT data."""
         print("Starting Healthcare IoT System Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Hospitals: {CONFIG['hospitals']}")
         print(
             f"  Total departments: {CONFIG['hospitals'] * CONFIG['departments_per_hospital']}"
@@ -126,7 +126,7 @@ class HealthcareIoTGenerator:
         self.save_all()
 
     def generate_hospitals(self):
-        """Generate hospital facilities"""
+        """Generate hospital facilities."""
         print(f"Generating {CONFIG['hospitals']} hospitals...")
 
         hospital_names = [
@@ -167,7 +167,7 @@ class HealthcareIoTGenerator:
             self.hospitals.append(hospital)
 
     def generate_departments_and_rooms(self):
-        """Generate hospital departments and rooms"""
+        """Generate hospital departments and rooms."""
         print("Generating departments and rooms...")
 
         department_types = [
@@ -239,7 +239,7 @@ class HealthcareIoTGenerator:
                     self.rooms.append(room)
 
     def generate_staff(self):
-        """Generate medical staff"""
+        """Generate medical staff."""
         print("Generating medical staff...")
 
         roles = ["Doctor", "Nurse", "Technician"]
@@ -264,7 +264,7 @@ class HealthcareIoTGenerator:
         shifts = ["Day", "Night", "Rotating"]
 
         for department in self.departments:
-            for staff_num in range(CONFIG["staff_per_department"]):
+            for _ in range(CONFIG["staff_per_department"]):
                 self.staff_id += 1
                 role = random.choice(roles)
 
@@ -301,7 +301,7 @@ class HealthcareIoTGenerator:
                 self.staff.append(staff_member)
 
     def generate_patients(self):
-        """Generate patient records"""
+        """Generate patient records."""
         print(f"Generating {CONFIG['patients']} patients...")
 
         blood_types = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
@@ -363,7 +363,7 @@ class HealthcareIoTGenerator:
             self.patients.append(patient)
 
     def generate_admissions(self):
-        """Generate patient admissions"""
+        """Generate patient admissions."""
         print("Generating patient admissions...")
 
         admission_types = ["Emergency", "Scheduled", "Transfer", "Observation"]
@@ -464,7 +464,7 @@ class HealthcareIoTGenerator:
                 self.admissions.append(admission)
 
     def generate_devices(self):
-        """Generate medical IoT devices"""
+        """Generate medical IoT devices."""
         print("Generating medical devices...")
 
         device_types = [
@@ -488,7 +488,7 @@ class HealthcareIoTGenerator:
             else:
                 num_devices = CONFIG["devices_per_department"]
 
-            for device_num in range(num_devices):
+            for _ in range(num_devices):
                 self.device_id += 1
 
                 device_type = random.choice(device_types)
@@ -547,7 +547,7 @@ class HealthcareIoTGenerator:
                 self.devices.append(device)
 
     def generate_device_assignments(self):
-        """Assign devices to admitted patients"""
+        """Assign devices to admitted patients."""
         print("Generating device assignments...")
 
         active_admissions = [a for a in self.admissions if a["status"] == "Active"]
@@ -611,7 +611,7 @@ class HealthcareIoTGenerator:
                     )
 
     def generate_alert_rules(self):
-        """Generate alert rule configurations"""
+        """Generate alert rule configurations."""
         print("Generating alert rules...")
 
         rules = [
@@ -710,7 +710,7 @@ class HealthcareIoTGenerator:
             self.alert_rules.append(rule)
 
     def generate_medications(self):
-        """Generate medication database"""
+        """Generate medication database."""
         print("Generating medications...")
 
         medications_list = [
@@ -811,7 +811,7 @@ class HealthcareIoTGenerator:
             self.medications.append(medication)
 
     def generate_prescriptions(self):
-        """Generate patient prescriptions"""
+        """Generate patient prescriptions."""
         print("Generating prescriptions...")
 
         routes = ["Oral", "IV", "IM", "Subcutaneous"]
@@ -866,7 +866,7 @@ class HealthcareIoTGenerator:
                 self.prescriptions.append(prescription)
 
     def generate_vital_signs(self):
-        """Generate vital signs readings"""
+        """Generate vital signs readings."""
         print("Generating vital signs (this may take a while)...")
 
         # Sample period
@@ -961,7 +961,7 @@ class HealthcareIoTGenerator:
                 current_date += timedelta(days=1)
 
     def generate_heart_rate(self, age):
-        """Generate realistic heart rate based on age"""
+        """Generate realistic heart rate based on age."""
         if age < 1:
             return random.randint(100, 160)
         elif age < 10:
@@ -972,7 +972,7 @@ class HealthcareIoTGenerator:
             return random.randint(60, 90)
 
     def check_vital_alerts(self, vital, admission):
-        """Check vital signs against alert rules and generate alerts"""
+        """Check vital signs against alert rules and generate alerts."""
         for rule in self.alert_rules:
             triggered = False
             value = None
@@ -1078,7 +1078,7 @@ class HealthcareIoTGenerator:
                 self.alerts.append(alert)
 
     def generate_device_readings(self):
-        """Generate continuous device readings"""
+        """Generate continuous device readings."""
         print("Generating device readings...")
 
         # Sample a smaller period for performance
@@ -1138,13 +1138,12 @@ class HealthcareIoTGenerator:
                 current_time += timedelta(minutes=1)
 
     def generate_alerts(self):
-        """Generate additional system alerts"""
+        """Generate additional system alerts."""
         # Alerts are already generated in check_vital_alerts
         # This could generate other types of alerts (device, medication, etc.)
-        pass
 
     def generate_staff_schedules(self):
-        """Generate staff schedules"""
+        """Generate staff schedules."""
         print("Generating staff schedules...")
 
         for staff_member in random.sample(self.staff, min(len(self.staff), 100)):
@@ -1194,7 +1193,7 @@ class HealthcareIoTGenerator:
                 current_date += timedelta(days=1)
 
     def save_to_csv(self, table_name, data):
-        """Save data to CSV file"""
+        """Save data to CSV file."""
         if not data:
             return
 
@@ -1206,7 +1205,7 @@ class HealthcareIoTGenerator:
             writer.writerows(data)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         print("\nSaving data to CSV files...")
 
         OUTPUT_DIR.mkdir(exist_ok=True)
@@ -1239,7 +1238,7 @@ class HealthcareIoTGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
+        """Generate summary statistics."""
         total_alerts = len(self.alerts)
         critical_alerts = len([a for a in self.alerts if a["alert_type"] == "Critical"])
 

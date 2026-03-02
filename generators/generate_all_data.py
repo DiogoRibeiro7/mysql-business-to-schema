@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""
-Comprehensive Data Generation Script for MySQL Business-to-Schema
+"""Comprehensive Data Generation Script for MySQL Business-to-Schema.
+
 Generates realistic test data for all 20 business domain schemas
 """
 
 import os
-import sys
-import time
 import json
 import random
 import mysql.connector
-from datetime import datetime, timedelta
-from typing import Dict, List, Any, Optional
+from datetime import datetime
+from typing import Dict, List
 from faker import Faker
 from colorama import init, Fore, Style
 import argparse
@@ -149,16 +147,17 @@ SCHEMA_CONFIGS = {
 
 
 class DataGenerator:
-    """Base class for data generation"""
+    """Base class for data generation."""
 
     def __init__(self, schema_name: str, connection: mysql.connector.MySQLConnection):
+        """Initialize the instance."""
         self.schema_name = schema_name
         self.connection = connection
         self.cursor = connection.cursor()
         self.fake = Faker()
 
     def generate_patients(self, count: int) -> List[Dict]:
-        """Generate patient records for healthcare schemas"""
+        """Generate patient records for healthcare schemas."""
         patients = []
         for _ in range(count):
             patients.append(
@@ -187,7 +186,7 @@ class DataGenerator:
         return patients
 
     def generate_iot_sensors(self, count: int) -> List[Dict]:
-        """Generate IoT sensor records"""
+        """Generate IoT sensor records."""
         sensors = []
         sensor_types = [
             "temperature",
@@ -221,7 +220,7 @@ class DataGenerator:
         return sensors
 
     def generate_ecommerce_products(self, count: int) -> List[Dict]:
-        """Generate e-commerce product records"""
+        """Generate e-commerce product records."""
         products = []
         categories = [
             "Electronics",
@@ -255,7 +254,7 @@ class DataGenerator:
         return products
 
     def generate_financial_transactions(self, count: int) -> List[Dict]:
-        """Generate financial transaction records"""
+        """Generate financial transaction records."""
         transactions = []
         transaction_types = ["deposit", "withdrawal", "transfer", "payment", "refund"]
         for _ in range(count):
@@ -281,7 +280,7 @@ class DataGenerator:
         return transactions
 
     def insert_batch(self, table: str, data: List[Dict], batch_size: int = 1000):
-        """Insert data in batches"""
+        """Insert data in batches."""
         if not data:
             return 0
 
@@ -293,7 +292,7 @@ class DataGenerator:
 
         inserted = 0
         for i in range(0, len(data), batch_size):
-            batch = data[i : i + batch_size]
+            batch = data[i: i + batch_size]
             values = [tuple(record.values()) for record in batch]
 
             try:
@@ -310,7 +309,7 @@ class DataGenerator:
 def generate_schema_data(
     schema_name: str, config: Dict, records_per_table: int
 ) -> Dict[str, int]:
-    """Generate data for a specific schema"""
+    """Generate data for a specific schema."""
     results = {}
 
     try:
@@ -377,7 +376,7 @@ def generate_schema_data(
 
 
 def print_summary(results: Dict[str, Dict[str, int]]):
-    """Print generation summary"""
+    """Print generation summary."""
     print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
     print(f"{Fore.CYAN}Data Generation Summary{Style.RESET_ALL}")
     print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}\n")
@@ -406,7 +405,7 @@ def print_summary(results: Dict[str, Dict[str, int]]):
 
 
 def main():
-    """Main execution function"""
+    """Run execution function."""
     parser = argparse.ArgumentParser(description="Generate test data for MySQL schemas")
     parser.add_argument(
         "--records",

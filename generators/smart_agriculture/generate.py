@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Smart Agriculture Data Generator
+"""Smart Agriculture Data Generator.
 
 Generates realistic farming IoT data including:
 - Soil moisture and nutrient sensors
@@ -18,13 +17,14 @@ import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
 import math
-from typing import List, Dict, Tuple, Any
-import uuid
+from typing import List, Dict, Any
 
 
 class SmartAgricultureGenerator:
+    """Represent SmartAgricultureGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -62,7 +62,7 @@ class SmartAgricultureGenerator:
         self.feeding_id = 1
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating Smart Agriculture data...")
 
         # Infrastructure
@@ -103,7 +103,7 @@ class SmartAgricultureGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_farms(self):
-        """Generate farm properties"""
+        """Generate farm properties."""
         farm_names = [
             "Green Valley",
             "Sunshine",
@@ -135,7 +135,7 @@ class SmartAgricultureGenerator:
             self.farms.append(farm)
 
     def _generate_fields(self):
-        """Generate fields for each farm"""
+        """Generate fields for each farm."""
         field_id = 1
 
         for farm in self.farms:
@@ -162,7 +162,7 @@ class SmartAgricultureGenerator:
                 field_id += 1
 
     def _generate_zones(self):
-        """Generate management zones within fields"""
+        """Generate management zones within fields."""
         zone_id = 1
 
         for field in self.fields:
@@ -189,7 +189,7 @@ class SmartAgricultureGenerator:
                 zone_id += 1
 
     def _generate_crops(self):
-        """Generate crop varieties"""
+        """Generate crop varieties."""
         crop_id = 1
 
         for crop_name, crop_config in list(self.config["crop_types"].items())[
@@ -219,7 +219,7 @@ class SmartAgricultureGenerator:
             crop_id += 1
 
     def _generate_plantings(self):
-        """Generate planting records"""
+        """Generate planting records."""
         for field in self.fields:
             crop = random.choice(self.crops)
             planting_date = datetime.strptime(
@@ -243,7 +243,7 @@ class SmartAgricultureGenerator:
             self.planting_id += 1
 
     def _generate_sensors(self):
-        """Generate soil sensors for zones"""
+        """Generate soil sensors for zones."""
         sensor_id = 1
 
         for zone in self.zones:
@@ -253,7 +253,7 @@ class SmartAgricultureGenerator:
                 sensor_type = random.choice(
                     list(self.config["sensor_types"].keys())[:4]
                 )
-                sensor_config = self.config["sensor_types"][sensor_type]
+                _ = self.config["sensor_types"][sensor_type]
 
                 sensor = {
                     "sensor_id": sensor_id,
@@ -277,7 +277,7 @@ class SmartAgricultureGenerator:
                 sensor_id += 1
 
     def _generate_weather_stations(self):
-        """Generate weather stations for farms"""
+        """Generate weather stations for farms."""
         station_id = 1
 
         for farm in self.farms:
@@ -298,7 +298,7 @@ class SmartAgricultureGenerator:
             station_id += 1
 
     def _generate_sensor_readings(self):
-        """Generate sensor readings"""
+        """Generate sensor readings."""
         print("  Generating sensor readings...")
 
         start_date = datetime.now() - timedelta(
@@ -353,7 +353,7 @@ class SmartAgricultureGenerator:
                 reading_count += 1
 
     def _generate_ndvi_readings(self):
-        """Generate NDVI (vegetation health) readings"""
+        """Generate NDVI (vegetation health) readings."""
         print("  Generating NDVI readings...")
 
         for planting in self.plantings[:20]:  # Limit for performance
@@ -388,7 +388,7 @@ class SmartAgricultureGenerator:
                 self.ndvi_readings.append(ndvi_reading)
 
     def _generate_irrigation_events(self):
-        """Generate irrigation events"""
+        """Generate irrigation events."""
         print("  Generating irrigation events...")
 
         start_date = datetime.now() - timedelta(
@@ -440,7 +440,7 @@ class SmartAgricultureGenerator:
             current_date += timedelta(days=1)
 
     def _generate_pest_detections(self):
-        """Generate pest and disease detections"""
+        """Generate pest and disease detections."""
         print("  Generating pest detections...")
 
         for field in self.fields:
@@ -481,7 +481,7 @@ class SmartAgricultureGenerator:
                 self.pest_detection_id += 1
 
     def _generate_fertilizer_applications(self):
-        """Generate fertilizer application records"""
+        """Generate fertilizer application records."""
         print("  Generating fertilizer applications...")
 
         for planting in self.plantings:
@@ -519,7 +519,7 @@ class SmartAgricultureGenerator:
                 self.fertilizer_id += 1
 
     def _generate_harvest_data(self):
-        """Generate harvest records"""
+        """Generate harvest records."""
         print("  Generating harvest data...")
 
         for planting in self.plantings:
@@ -562,7 +562,7 @@ class SmartAgricultureGenerator:
             self.harvest_id += 1
 
     def _generate_animals(self):
-        """Generate livestock records"""
+        """Generate livestock records."""
         print("  Generating livestock...")
 
         animal_id = 1
@@ -599,7 +599,7 @@ class SmartAgricultureGenerator:
                         animal_id += 1
 
     def _generate_health_readings(self):
-        """Generate animal health monitoring data"""
+        """Generate animal health monitoring data."""
         print("  Generating animal health readings...")
 
         for animal in self.animals[:20]:  # Limit for performance
@@ -630,11 +630,11 @@ class SmartAgricultureGenerator:
                 self.health_readings.append(health_reading)
 
     def _generate_feeding_records(self):
-        """Generate feeding records for livestock"""
+        """Generate feeding records for livestock."""
         print("  Generating feeding records...")
 
         # Group animals by location for feeding
-        locations = set(a["location"] for a in self.animals)
+        locations = {a["location"] for a in self.animals}
 
         for location in locations:
             location_animals = [a for a in self.animals if a["location"] == location]
@@ -665,7 +665,7 @@ class SmartAgricultureGenerator:
 
     # Helper methods
     def _get_growth_stage(self, days_since_planting: int, planting: Dict) -> str:
-        """Determine crop growth stage"""
+        """Determine crop growth stage."""
         crop = next(c for c in self.crops if c["crop_id"] == planting["crop_id"])
         growth_days = crop["growth_days"]
 
@@ -681,7 +681,7 @@ class SmartAgricultureGenerator:
             return "harvest"
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("farms", self.farms),
             ("fields", self.fields),
@@ -715,7 +715,7 @@ class SmartAgricultureGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated Smart Agriculture data
 -- Generated on {datetime.now()}
 
@@ -757,10 +757,11 @@ SELECT 'Data load complete!' as status;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Smart Agriculture data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

@@ -1,6 +1,4 @@
-"""
-WebSocket client for real-time updates
-"""
+"""WebSocket client for real-time updates."""
 
 import json
 import logging
@@ -12,9 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class WebSocketClient:
-    """
-    WebSocket client for real-time updates from MySQL Business-to-Schema API.
-    """
+    """WebSocket client for real-time updates from MySQL Business-to-Schema API."""
 
     def __init__(
         self,
@@ -23,8 +19,7 @@ class WebSocketClient:
         auto_reconnect: bool = True,
         reconnect_interval: int = 5,
     ):
-        """
-        Initialize WebSocket client.
+        """Initialize WebSocket client.
 
         Args:
             host: WebSocket server URL
@@ -91,8 +86,7 @@ class WebSocketClient:
         self.disconnect()
 
     def on(self, event: str, handler: Callable[[Dict], None]):
-        """
-        Register event handler.
+        """Register event handler.
 
         Args:
             event: Event name
@@ -108,8 +102,7 @@ class WebSocketClient:
         self.handlers[event].append(handler)
 
     def off(self, event: str, handler: Optional[Callable] = None):
-        """
-        Remove event handler.
+        """Remove event handler.
 
         Args:
             event: Event name
@@ -124,8 +117,7 @@ class WebSocketClient:
             del self.handlers[event]
 
     def emit(self, event: str, data: Optional[Dict] = None):
-        """
-        Send event to server.
+        """Send event to server.
 
         Args:
             event: Event name
@@ -146,8 +138,7 @@ class WebSocketClient:
             logger.error(f"Failed to send WebSocket message: {e}")
 
     def subscribe(self, channels: list):
-        """
-        Subscribe to specific channels.
+        """Subscribe to specific channels.
 
         Args:
             channels: List of channel names
@@ -158,8 +149,7 @@ class WebSocketClient:
         self.emit("subscribe", {"channels": channels})
 
     def unsubscribe(self, channels: list):
-        """
-        Unsubscribe from channels.
+        """Unsubscribe from channels.
 
         Args:
             channels: List of channel names

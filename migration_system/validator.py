@@ -1,6 +1,4 @@
-"""
-Migration validation and safety checks.
-"""
+"""Migration validation and safety checks."""
 
 import re
 import sqlparse
@@ -11,9 +9,10 @@ logger = logging.getLogger(__name__)
 
 
 class MigrationValidator:
-    """Validates migrations for safety and correctness."""
+    """Validate migrations for safety and correctness."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.warnings = []
         self.errors = []
 
@@ -50,8 +49,7 @@ class MigrationValidator:
         down_script: Optional[str] = None,
         production_mode: bool = False,
     ) -> Tuple[bool, List[str], List[str]]:
-        """
-        Validate migration scripts.
+        """Validate migration scripts.
 
         Args:
             up_script: Up migration script
@@ -172,7 +170,7 @@ class MigrationValidator:
             if op["type"] == "ADD_COLUMN":
                 if not any(d["type"] == "DROP_COLUMN" for d in down_ops):
                     self.warnings.append(
-                        f"ADD COLUMN operations may not be fully reversible"
+                        "ADD COLUMN operations may not be fully reversible"
                     )
 
     def _extract_operations(self, sql: str) -> List[Dict[str, str]]:
@@ -297,8 +295,7 @@ class MigrationValidator:
     def estimate_execution_time(
         self, sql: str, table_sizes: Optional[Dict[str, int]] = None
     ) -> Dict[str, Any]:
-        """
-        Estimate migration execution time.
+        """Estimate migration execution time.
 
         Args:
             sql: SQL script
@@ -413,14 +410,14 @@ class MigrationValidator:
 
 
 class DryRunValidator:
-    """Validates migrations using dry-run execution."""
+    """Validate migrations using dry-run execution."""
 
     def __init__(self, connection):
+        """Initialize the instance."""
         self.connection = connection
 
     def dry_run(self, sql: str) -> Tuple[bool, List[str]]:
-        """
-        Perform dry-run validation.
+        """Perform dry-run validation.
 
         Args:
             sql: SQL script to validate
@@ -457,7 +454,7 @@ class DryRunValidator:
         except Exception as e:
             try:
                 self.connection.rollback()
-            except:
+            except Exception:
                 pass
             return False, [f"Dry-run failed: {e}"]
 
@@ -501,8 +498,7 @@ class DryRunValidator:
         return list(set(locked_tables))
 
     def estimate_downtime(self, sql: str, avg_query_rate: float = 100) -> float:
-        """
-        Estimate downtime based on locking operations.
+        """Estimate downtime based on locking operations.
 
         Args:
             sql: SQL script
@@ -525,7 +521,7 @@ class DryRunValidator:
                 cursor.execute(f"SELECT COUNT(*) FROM {table}")
                 count = cursor.fetchone()[0]
                 total_rows += count
-            except:
+            except Exception:
                 pass
 
         cursor.close()

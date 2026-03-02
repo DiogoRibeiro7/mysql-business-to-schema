@@ -1,42 +1,39 @@
-"""
-Social Media and Streaming Platform Machine Learning Models
+"""Social Media and Streaming Platform Machine Learning Models.
+
 Specialized ML for content recommendation, trend detection, and user analytics
 """
 
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import LatentDirichletAllocation, NMF
-from sklearn.cluster import KMeans
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 
-warnings.filterwarnings("ignore")
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from ml_pipeline import (
     RecommendationSystem,
     AnomalyDetector,
     MLPipeline,
-    CustomerSegmentation,
 )
+
+warnings.filterwarnings("ignore")
 
 
 class SocialMediaAnalytics:
-    """
-    ML models for social media platforms
+    """ML models for social media platforms.
+
     Includes content recommendation, trend detection, and influence analysis
     """
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.vectorizers = {}
 
     def detect_trending_topics(
         self, df: pd.DataFrame, time_window: str = "1H"
     ) -> pd.DataFrame:
-        """
-        Detect trending topics from social media posts
+        """Detect trending topics from social media posts.
 
         Args:
             df: DataFrame with post content and timestamps
@@ -141,8 +138,7 @@ class SocialMediaAnalytics:
         return topics_df
 
     def predict_content_virality(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict likelihood of content going viral
+        """Predict likelihood of content going viral.
 
         Args:
             df: DataFrame with post features
@@ -243,8 +239,7 @@ class SocialMediaAnalytics:
         return results
 
     def analyze_user_influence(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Analyze user influence and identify influencers
+        """Analyze user influence and identify influencers.
 
         Args:
             df: DataFrame with user interaction data
@@ -334,8 +329,7 @@ class SocialMediaAnalytics:
         return results
 
     def detect_fake_accounts(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Detect potential fake or bot accounts
+        """Detect potential fake or bot accounts.
 
         Args:
             df: DataFrame with account features
@@ -425,7 +419,7 @@ class SocialMediaAnalytics:
     def _identify_suspicious_factors(
         self, df: pd.DataFrame, fake_score: np.ndarray
     ) -> list:
-        """Identify main factors contributing to fake account detection"""
+        """Identify main factors contributing to fake account detection."""
         factors = []
         for i in range(len(df)):
             account_factors = []
@@ -442,19 +436,17 @@ class SocialMediaAnalytics:
 
 
 class StreamingPlatformAnalytics:
-    """
-    ML models for video/audio streaming platforms
-    """
+    """ML models for video/audio streaming platforms."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.recommendation_engine = None
 
     def recommend_content(
         self, df: pd.DataFrame, user_id: int, n_recommendations: int = 10
     ) -> pd.DataFrame:
-        """
-        Recommend content to users based on viewing history
+        """Recommend content to users based on viewing history.
 
         Args:
             df: DataFrame with user viewing history
@@ -504,8 +496,7 @@ class StreamingPlatformAnalytics:
         return recommendations
 
     def predict_churn(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict subscriber churn probability
+        """Predict subscriber churn probability.
 
         Args:
             df: DataFrame with subscriber behavior
@@ -601,8 +592,7 @@ class StreamingPlatformAnalytics:
         return results
 
     def optimize_video_quality(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Optimize video quality based on network conditions and user preferences
+        """Optimize video quality based on network conditions and user preferences.
 
         Args:
             df: DataFrame with streaming session data
@@ -699,7 +689,7 @@ class StreamingPlatformAnalytics:
         return results
 
     def _generate_recommendation_reason(self, recommendations: pd.DataFrame) -> list:
-        """Generate explanation for recommendations"""
+        """Generate explanation for recommendations."""
         reasons = [
             "Because you watched similar content",
             "Trending in your favorite genre",
@@ -713,9 +703,9 @@ class StreamingPlatformAnalytics:
     def _recommend_retention_strategy(
         self, df: pd.DataFrame, churn_prob: np.ndarray
     ) -> list:
-        """Recommend retention strategies based on churn risk"""
+        """Recommend retention strategies based on churn risk."""
         strategies = []
-        for i, prob in enumerate(churn_prob):
+        for _, prob in enumerate(churn_prob):
             if prob > 0.8:
                 strategies.append("offer_discount")
             elif prob > 0.6:
@@ -728,7 +718,7 @@ class StreamingPlatformAnalytics:
 
 
 def main():
-    """Example usage of social media and streaming ML models"""
+    """Handle operation."""
     print("=" * 60)
     print("Social Media & Streaming Platform ML Models")
     print("=" * 60)

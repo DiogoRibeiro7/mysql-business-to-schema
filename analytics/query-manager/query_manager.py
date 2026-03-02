@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Query Management System for MySQL Business-to-Schema
+"""Query Management System for MySQL Business-to-Schema.
+
 Manages query collections, templates, and sharing
 """
 
@@ -8,7 +8,7 @@ import json
 import hashlib
 import yaml
 from datetime import datetime
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 from pathlib import Path
 import mysql.connector
 from mysql.connector import Error
@@ -16,17 +16,17 @@ import re
 
 
 class QueryManager:
-    """Manages query collections and templates"""
+    """Manages query collections and templates."""
 
     def __init__(self, config_path: str = "query_collections.yml"):
-        """Initialize Query Manager"""
+        """Initialize Query Manager."""
         self.config_path = Path(config_path)
         self.collections = {}
         self.templates = {}
         self.load_collections()
 
     def load_collections(self):
-        """Load query collections from configuration file"""
+        """Load query collections from configuration file."""
         if self.config_path.exists():
             with open(self.config_path, "r") as f:
                 data = yaml.safe_load(f) or {}
@@ -34,7 +34,7 @@ class QueryManager:
                 self.templates = data.get("templates", {})
 
     def save_collections(self):
-        """Save query collections to configuration file"""
+        """Save query collections to configuration file."""
         data = {
             "collections": self.collections,
             "templates": self.templates,
@@ -51,7 +51,7 @@ class QueryManager:
     def create_collection(
         self, name: str, description: str, database: str, tags: List[str] = None
     ) -> str:
-        """Create a new query collection"""
+        """Create a new query collection."""
         collection_id = self._generate_id(name)
 
         self.collections[collection_id] = {
@@ -72,7 +72,7 @@ class QueryManager:
         return collection_id
 
     def add_query(self, collection_id: str, query: Dict[str, Any]) -> str:
-        """Add a query to a collection"""
+        """Add a query to a collection."""
         if collection_id not in self.collections:
             raise ValueError(f"Collection {collection_id} not found")
 
@@ -108,7 +108,7 @@ class QueryManager:
     def create_template(
         self, name: str, template_sql: str, description: str, variables: List[Dict]
     ) -> str:
-        """Create a reusable query template"""
+        """Create a reusable query template."""
         template_id = self._generate_id(name)
 
         self.templates[template_id] = {
@@ -126,7 +126,7 @@ class QueryManager:
         return template_id
 
     def render_template(self, template_id: str, variables: Dict[str, Any]) -> str:
-        """Render a query template with variables"""
+        """Render a query template with variables."""
         if template_id not in self.templates:
             raise ValueError(f"Template {template_id} not found")
 
@@ -155,7 +155,7 @@ class QueryManager:
     def search_queries(
         self, search_term: str, tags: List[str] = None, database: str = None
     ) -> List[Dict]:
-        """Search for queries across collections"""
+        """Search for queries across collections."""
         results = []
         search_lower = search_term.lower()
 
@@ -187,7 +187,7 @@ class QueryManager:
         return results
 
     def export_collection(self, collection_id: str, format: str = "json") -> str:
-        """Export a collection to various formats"""
+        """Export a collection to various formats."""
         if collection_id not in self.collections:
             raise ValueError(f"Collection {collection_id} not found")
 
@@ -251,7 +251,7 @@ class QueryManager:
             raise ValueError(f"Unsupported export format: {format}")
 
     def import_collection(self, data: str, format: str = "json") -> str:
-        """Import a collection from various formats"""
+        """Import a collection from various formats."""
         if format == "json":
             collection = json.loads(data)
             collection_id = collection["id"]
@@ -271,7 +271,7 @@ class QueryManager:
             raise ValueError(f"Unsupported import format: {format}")
 
     def share_collection(self, collection_id: str, share_code: str = None) -> str:
-        """Generate a shareable link/code for a collection"""
+        """Generate a shareable link/code for a collection."""
         if collection_id not in self.collections:
             raise ValueError(f"Collection {collection_id} not found")
 
@@ -288,10 +288,10 @@ class QueryManager:
         return share_code
 
     def get_statistics(self) -> Dict[str, Any]:
-        """Get statistics about query collections"""
+        """Get statistics about query collections."""
         total_queries = sum(len(col["queries"]) for col in self.collections.values())
 
-        databases = list(set(col["database"] for col in self.collections.values()))
+        databases = list({col["database"] for col in self.collections.values()})
 
         all_tags = []
         for col in self.collections.values():
@@ -316,17 +316,17 @@ class QueryManager:
         }
 
     def _generate_id(self, text: str) -> str:
-        """Generate a unique ID from text"""
+        """Generate a unique ID from text."""
         return hashlib.md5(text.encode()).hexdigest()[:12]
 
     def _extract_parameters(self, sql: str) -> List[str]:
-        """Extract parameter placeholders from SQL"""
+        """Extract parameter placeholders from SQL."""
         # Find :param_name or @param_name patterns
         params = re.findall(r"[:@](\w+)", sql)
         return list(set(params))
 
     def _analyze_complexity(self, sql: str) -> str:
-        """Analyze query complexity"""
+        """Analyze query complexity."""
         sql_upper = sql.upper()
 
         # Count various SQL features
@@ -344,14 +344,14 @@ class QueryManager:
 
 
 class QueryOptimizer:
-    """Optimize and analyze queries"""
+    """Optimize and analyze queries."""
 
     def __init__(self, connection_params: Dict[str, Any]):
-        """Initialize Query Optimizer"""
+        """Initialize Query Optimizer."""
         self.connection_params = connection_params
 
     def analyze_query(self, sql: str) -> Dict[str, Any]:
-        """Analyze a query for performance issues"""
+        """Analyze a query for performance issues."""
         try:
             conn = mysql.connector.connect(**self.connection_params)
             cursor = conn.cursor(dictionary=True)
@@ -413,7 +413,7 @@ class QueryOptimizer:
             return {"error": str(e), "issues": [], "suggestions": []}
 
     def suggest_indexes(self, sql: str, table_schema: Dict) -> List[str]:
-        """Suggest indexes based on query patterns"""
+        """Suggest indexes based on query patterns."""
         suggestions = []
         sql_upper = sql.upper()
 
@@ -453,7 +453,7 @@ class QueryOptimizer:
 
 
 def create_default_collections():
-    """Create default query collections for each database"""
+    """Create default query collections for each database."""
     manager = QueryManager()
 
     # Medical Clinic Collection
@@ -618,7 +618,7 @@ WHERE {{date_column}} >= DATE_SUB(CURDATE(), INTERVAL {{days}} DAY);
 
     # Display statistics
     stats = manager.get_statistics()
-    print(f"\nQuery Manager Statistics:")
+    print("\nQuery Manager Statistics:")
     print(f"  Collections: {stats['total_collections']}")
     print(f"  Queries: {stats['total_queries']}")
     print(f"  Templates: {stats['total_templates']}")

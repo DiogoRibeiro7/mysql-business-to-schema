@@ -1,10 +1,7 @@
-"""
-Main client for MySQL Business-to-Schema SDK
-"""
+"""Run client for MySQL Business-to-Schema SDK."""
 
-import json
 import logging
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional
 from urllib.parse import urljoin
 
 import requests
@@ -18,8 +15,6 @@ from .models import (
     QueryResult,
     User,
     Backup,
-    Alert,
-    SchemaInfo,
     SystemStatus,
 )
 from .exceptions import (
@@ -29,16 +24,14 @@ from .exceptions import (
     ValidationError,
     NotFoundError,
 )
-from .generators import DataGenerator, SchemaGenerator
-from .migrations import MigrationManager
+from .generators import DataGenerator
 from .websocket import WebSocketClient
 
 logger = logging.getLogger(__name__)
 
 
 class MySQLSchemaClient:
-    """
-    Main client for interacting with MySQL Business-to-Schema API.
+    """Run client for interacting with MySQL Business-to-Schema API.
 
     This client provides methods for:
     - Schema management (databases, tables, columns)
@@ -62,8 +55,7 @@ class MySQLSchemaClient:
         max_retries: int = 3,
         **kwargs,
     ):
-        """
-        Initialize MySQL Schema client.
+        """Initialize MySQL Schema client.
 
         Args:
             host: API host address
@@ -113,8 +105,7 @@ class MySQLSchemaClient:
         json_data: Optional[Dict] = None,
         **kwargs,
     ) -> Dict[str, Any]:
-        """
-        Make HTTP request to API.
+        """Make HTTP request to API.
 
         Args:
             method: HTTP method
@@ -162,8 +153,7 @@ class MySQLSchemaClient:
             raise MySQLSchemaError(f"Request failed: {str(e)}")
 
     def authenticate(self, username: str, password: str) -> str:
-        """
-        Authenticate with username and password.
+        """Authenticate with username and password.
 
         Args:
             username: Username
@@ -194,8 +184,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def list_databases(self) -> List[Database]:
-        """
-        List all databases.
+        """List all databases.
 
         Returns:
             List of Database objects
@@ -204,8 +193,7 @@ class MySQLSchemaClient:
         return [Database(**db) for db in data]
 
     def get_database(self, name: str) -> Database:
-        """
-        Get database details.
+        """Get database details.
 
         Args:
             name: Database name
@@ -222,8 +210,7 @@ class MySQLSchemaClient:
     def create_database(
         self, name: str, charset: str = "utf8mb4", collation: str = "utf8mb4_unicode_ci"
     ) -> Database:
-        """
-        Create a new database.
+        """Create a new database.
 
         Args:
             name: Database name
@@ -241,8 +228,7 @@ class MySQLSchemaClient:
         return Database(**data)
 
     def delete_database(self, name: str) -> bool:
-        """
-        Delete a database.
+        """Delete a database.
 
         Args:
             name: Database name
@@ -254,8 +240,7 @@ class MySQLSchemaClient:
         return True
 
     def list_tables(self, database: str) -> List[Table]:
-        """
-        List all tables in a database.
+        """List all tables in a database.
 
         Args:
             database: Database name
@@ -267,8 +252,7 @@ class MySQLSchemaClient:
         return [Table(**table) for table in data]
 
     def get_table(self, database: str, table: str) -> Table:
-        """
-        Get table details.
+        """Get table details.
 
         Args:
             database: Database name
@@ -281,8 +265,7 @@ class MySQLSchemaClient:
         return Table(**data)
 
     def create_table(self, database: str, table_definition: Dict) -> Table:
-        """
-        Create a new table.
+        """Create a new table.
 
         Args:
             database: Database name
@@ -301,8 +284,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def list_migrations(self, status: Optional[str] = None) -> List[Migration]:
-        """
-        List database migrations.
+        """List database migrations.
 
         Args:
             status: Filter by status (pending, completed, failed)
@@ -317,8 +299,7 @@ class MySQLSchemaClient:
     def create_migration(
         self, description: str, up_script: str, down_script: Optional[str] = None
     ) -> Migration:
-        """
-        Create a new migration.
+        """Create a new migration.
 
         Args:
             description: Migration description
@@ -342,8 +323,7 @@ class MySQLSchemaClient:
     def apply_migration(
         self, target_version: Optional[str] = None, dry_run: bool = False
     ) -> Migration:
-        """
-        Apply migrations.
+        """Apply migrations.
 
         Args:
             target_version: Target migration version
@@ -362,8 +342,7 @@ class MySQLSchemaClient:
     def rollback_migration(
         self, target_version: Optional[str] = None, steps: int = 1
     ) -> Migration:
-        """
-        Rollback migrations.
+        """Rollback migrations.
 
         Args:
             target_version: Target version to rollback to
@@ -386,8 +365,7 @@ class MySQLSchemaClient:
     def execute_query(
         self, query: str, database: str, limit: Optional[int] = None
     ) -> QueryResult:
-        """
-        Execute a SQL query.
+        """Execute a SQL query.
 
         Args:
             query: SQL query string
@@ -405,8 +383,7 @@ class MySQLSchemaClient:
         return QueryResult(**data)
 
     def explain_query(self, query: str, database: str) -> Dict[str, Any]:
-        """
-        Explain a SQL query execution plan.
+        """Explain a SQL query execution plan.
 
         Args:
             query: SQL query string
@@ -420,8 +397,7 @@ class MySQLSchemaClient:
         )
 
     def optimize_query(self, query: str, database: str) -> Dict[str, Any]:
-        """
-        Get query optimization suggestions.
+        """Get query optimization suggestions.
 
         Args:
             query: SQL query string
@@ -439,8 +415,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def list_users(self) -> List[User]:
-        """
-        List all users.
+        """List all users.
 
         Returns:
             List of User objects
@@ -451,8 +426,7 @@ class MySQLSchemaClient:
     def create_user(
         self, username: str, email: str, password: str, role: str = "viewer"
     ) -> User:
-        """
-        Create a new user.
+        """Create a new user.
 
         Args:
             username: Username
@@ -476,8 +450,7 @@ class MySQLSchemaClient:
         return User(**data)
 
     def delete_user(self, username: str) -> bool:
-        """
-        Delete a user.
+        """Delete a user.
 
         Args:
             username: Username
@@ -493,8 +466,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def list_backups(self) -> List[Backup]:
-        """
-        List all backups.
+        """List all backups.
 
         Returns:
             List of Backup objects
@@ -505,8 +477,7 @@ class MySQLSchemaClient:
     def create_backup(
         self, database: str, description: Optional[str] = None, compression: bool = True
     ) -> Backup:
-        """
-        Create a database backup.
+        """Create a database backup.
 
         Args:
             database: Database name
@@ -530,8 +501,7 @@ class MySQLSchemaClient:
     def restore_backup(
         self, backup_id: str, target_database: str, validate_checksum: bool = True
     ) -> Dict[str, Any]:
-        """
-        Restore from backup.
+        """Restore from backup.
 
         Args:
             backup_id: Backup ID
@@ -556,8 +526,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def get_system_status(self) -> SystemStatus:
-        """
-        Get system status and metrics.
+        """Get system status and metrics.
 
         Returns:
             SystemStatus object
@@ -566,8 +535,7 @@ class MySQLSchemaClient:
         return SystemStatus(**data)
 
     def get_metrics(self, timeframe: str = "1h") -> Dict[str, Any]:
-        """
-        Get performance metrics.
+        """Get performance metrics.
 
         Args:
             timeframe: Time frame (5m, 15m, 1h, 6h, 24h)
@@ -578,8 +546,7 @@ class MySQLSchemaClient:
         return self._request("GET", f"/monitoring/performance?timeframe={timeframe}")
 
     def get_slow_queries(self, limit: int = 10) -> List[Query]:
-        """
-        Get slow queries.
+        """Get slow queries.
 
         Args:
             limit: Number of queries to return
@@ -595,8 +562,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def get_data_generator(self) -> DataGenerator:
-        """
-        Get data generator instance.
+        """Get data generator instance.
 
         Returns:
             DataGenerator object
@@ -608,8 +574,7 @@ class MySQLSchemaClient:
     def generate_data(
         self, schema_name: str, rows: int = 1000, format: str = "sql"
     ) -> str:
-        """
-        Generate test data for a schema.
+        """Generate test data for a schema.
 
         Args:
             schema_name: Schema/example name
@@ -627,8 +592,7 @@ class MySQLSchemaClient:
     # ============================================
 
     def connect_websocket(self, auto_reconnect: bool = True) -> WebSocketClient:
-        """
-        Connect to WebSocket for real-time updates.
+        """Connect to WebSocket for real-time updates.
 
         Args:
             auto_reconnect: Enable auto-reconnection

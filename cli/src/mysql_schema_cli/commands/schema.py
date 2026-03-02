@@ -1,6 +1,4 @@
-"""
-Schema command - Database and table management
-"""
+"""Schema command - Database and table management."""
 
 import click
 from rich.console import Console
@@ -11,7 +9,6 @@ console = Console()
 @click.group(name="schema")
 def schema_group():
     """Manage database schemas and tables."""
-    pass
 
 
 @schema_group.command(name="list")

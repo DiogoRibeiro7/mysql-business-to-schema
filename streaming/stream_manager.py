@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
-"""
-Streaming Infrastructure Manager for MySQL Business-to-Schema
+"""Streaming Infrastructure Manager for MySQL Business-to-Schema.
 
 Manages Kafka, connectors, and streaming applications.
 """
 
 import os
-import sys
 import json
 import time
 import requests
 import subprocess
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List
 from enum import Enum
 import yaml
 
@@ -25,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class ServiceStatus(Enum):
-    """Service health status"""
+    """Service health status."""
 
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
@@ -34,10 +32,10 @@ class ServiceStatus(Enum):
 
 
 class StreamManager:
-    """Manages streaming infrastructure"""
+    """Manages streaming infrastructure."""
 
     def __init__(self, config_path: str = None):
-        """Initialize stream manager"""
+        """Initialize stream manager."""
         self.config = self._load_config(config_path)
 
         # Service URLs
@@ -56,7 +54,7 @@ class StreamManager:
         self.docker_compose_file = Path(__file__).parent / "docker-compose.kafka.yml"
 
     def _load_config(self, config_path: str = None) -> Dict:
-        """Load configuration from file or environment"""
+        """Load configuration from file or environment."""
         config = {
             "kafka_connect_url": os.getenv(
                 "KAFKA_CONNECT_URL", "http://localhost:8083"
@@ -81,7 +79,7 @@ class StreamManager:
     # ============================================================================
 
     def start_infrastructure(self, services: List[str] = None):
-        """Start streaming infrastructure using Docker Compose"""
+        """Start streaming infrastructure using Docker Compose."""
         logger.info("Starting streaming infrastructure...")
 
         cmd = ["docker-compose", "-f", str(self.docker_compose_file), "up", "-d"]
@@ -89,7 +87,7 @@ class StreamManager:
             cmd.extend(services)
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            _ = subprocess.run(cmd, capture_output=True, text=True, check=True)
             logger.info("Infrastructure started successfully")
             return True
         except subprocess.CalledProcessError as e:
@@ -97,13 +95,13 @@ class StreamManager:
             return False
 
     def stop_infrastructure(self):
-        """Stop streaming infrastructure"""
+        """Stop streaming infrastructure."""
         logger.info("Stopping streaming infrastructure...")
 
         cmd = ["docker-compose", "-f", str(self.docker_compose_file), "down"]
 
         try:
-            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            _ = subprocess.run(cmd, capture_output=True, text=True, check=True)
             logger.info("Infrastructure stopped successfully")
             return True
         except subprocess.CalledProcessError as e:
@@ -111,7 +109,7 @@ class StreamManager:
             return False
 
     def get_infrastructure_status(self) -> Dict[str, str]:
-        """Get status of all infrastructure services"""
+        """Get status of all infrastructure services."""
         cmd = [
             "docker-compose",
             "-f",
@@ -141,7 +139,7 @@ class StreamManager:
     # ============================================================================
 
     def check_kafka_connect_health(self) -> ServiceStatus:
-        """Check Kafka Connect health"""
+        """Check Kafka Connect health."""
         try:
             response = requests.get(f"{self.kafka_connect_url}/")
             if response.status_code == 200:
@@ -151,7 +149,7 @@ class StreamManager:
             return ServiceStatus.UNKNOWN
 
     def list_connectors(self) -> List[str]:
-        """List all deployed connectors"""
+        """List all deployed connectors."""
         try:
             response = requests.get(f"{self.kafka_connect_url}/connectors")
             response.raise_for_status()
@@ -161,7 +159,7 @@ class StreamManager:
             return []
 
     def get_connector_status(self, name: str) -> Dict:
-        """Get connector status"""
+        """Get connector status."""
         try:
             response = requests.get(
                 f"{self.kafka_connect_url}/connectors/{name}/status"
@@ -173,7 +171,7 @@ class StreamManager:
             return {}
 
     def deploy_connector(self, connector_file: str) -> bool:
-        """Deploy a connector from JSON file"""
+        """Deploy a connector from JSON file."""
         connector_path = self.connectors_path / connector_file
 
         if not connector_path.exists():
@@ -213,7 +211,7 @@ class StreamManager:
             return False
 
     def delete_connector(self, name: str) -> bool:
-        """Delete a connector"""
+        """Delete a connector."""
         try:
             response = requests.delete(f"{self.kafka_connect_url}/connectors/{name}")
             response.raise_for_status()
@@ -224,7 +222,7 @@ class StreamManager:
             return False
 
     def pause_connector(self, name: str) -> bool:
-        """Pause a connector"""
+        """Pause a connector."""
         try:
             response = requests.put(f"{self.kafka_connect_url}/connectors/{name}/pause")
             response.raise_for_status()
@@ -235,7 +233,7 @@ class StreamManager:
             return False
 
     def resume_connector(self, name: str) -> bool:
-        """Resume a paused connector"""
+        """Resume a paused connector."""
         try:
             response = requests.put(
                 f"{self.kafka_connect_url}/connectors/{name}/resume"
@@ -248,7 +246,7 @@ class StreamManager:
             return False
 
     def restart_connector(self, name: str) -> bool:
-        """Restart a connector"""
+        """Restart a connector."""
         try:
             response = requests.post(
                 f"{self.kafka_connect_url}/connectors/{name}/restart"
@@ -265,7 +263,7 @@ class StreamManager:
     # ============================================================================
 
     def check_ksql_health(self) -> ServiceStatus:
-        """Check KSQL server health"""
+        """Check KSQL server health."""
         try:
             response = requests.get(f"{self.ksql_url}/info")
             if response.status_code == 200:
@@ -275,7 +273,7 @@ class StreamManager:
             return ServiceStatus.UNKNOWN
 
     def execute_ksql(self, statement: str) -> Dict:
-        """Execute a KSQL statement"""
+        """Execute a KSQL statement."""
         try:
             payload = {"ksql": statement, "streamsProperties": {}}
             response = requests.post(
@@ -290,7 +288,7 @@ class StreamManager:
             return {}
 
     def deploy_ksql_queries(self, query_file: str) -> bool:
-        """Deploy KSQL queries from file"""
+        """Deploy KSQL queries from file."""
         query_path = self.ksql_path / query_file
 
         if not query_path.exists():
@@ -327,12 +325,12 @@ class StreamManager:
             return False
 
     def list_ksql_streams(self) -> List[Dict]:
-        """List all KSQL streams"""
+        """List all KSQL streams."""
         result = self.execute_ksql("SHOW STREAMS;")
         return result.get("streams", []) if result else []
 
     def list_ksql_tables(self) -> List[Dict]:
-        """List all KSQL tables"""
+        """List all KSQL tables."""
         result = self.execute_ksql("SHOW TABLES;")
         return result.get("tables", []) if result else []
 
@@ -341,7 +339,7 @@ class StreamManager:
     # ============================================================================
 
     def check_schema_registry_health(self) -> ServiceStatus:
-        """Check Schema Registry health"""
+        """Check Schema Registry health."""
         try:
             response = requests.get(f"{self.schema_registry_url}/subjects")
             if response.status_code == 200:
@@ -351,7 +349,7 @@ class StreamManager:
             return ServiceStatus.UNKNOWN
 
     def list_schemas(self) -> List[str]:
-        """List all registered schemas"""
+        """List all registered schemas."""
         try:
             response = requests.get(f"{self.schema_registry_url}/subjects")
             response.raise_for_status()
@@ -361,7 +359,7 @@ class StreamManager:
             return []
 
     def get_schema(self, subject: str, version: str = "latest") -> Dict:
-        """Get schema for a subject"""
+        """Get schema for a subject."""
         try:
             response = requests.get(
                 f"{self.schema_registry_url}/subjects/{subject}/versions/{version}"
@@ -377,7 +375,7 @@ class StreamManager:
     # ============================================================================
 
     def health_check(self) -> Dict[str, ServiceStatus]:
-        """Perform health check on all services"""
+        """Perform health check on all services."""
         logger.info("Performing health check...")
 
         health = {
@@ -397,7 +395,7 @@ class StreamManager:
         return health
 
     def get_metrics(self) -> Dict:
-        """Get streaming metrics"""
+        """Get streaming metrics."""
         metrics = {"timestamp": time.time(), "connectors": {}, "ksql": {}}
 
         # Get connector metrics
@@ -421,7 +419,7 @@ class StreamManager:
     # ============================================================================
 
     def deploy_all(self) -> bool:
-        """Deploy complete streaming infrastructure"""
+        """Deploy complete streaming infrastructure."""
         logger.info("Deploying complete streaming infrastructure...")
 
         # Start infrastructure
@@ -455,7 +453,7 @@ class StreamManager:
         return True
 
     def teardown(self) -> bool:
-        """Teardown streaming infrastructure"""
+        """Teardown streaming infrastructure."""
         logger.info("Tearing down streaming infrastructure...")
 
         # Delete all connectors
@@ -468,7 +466,7 @@ class StreamManager:
 
 
 def main():
-    """CLI interface for stream manager"""
+    """CLI interface for stream manager."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Streaming Infrastructure Manager")

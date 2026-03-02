@@ -1,12 +1,12 @@
-"""
-Index Advisor - Intelligent index recommendation system
+"""Index Advisor - Intelligent index recommendation system.
+
 Analyzes query patterns and suggests optimal indexes
 """
 
 import logging
 import re
-from typing import List, Dict, Any, Optional, Tuple, Set
-from datetime import datetime, timedelta
+from typing import List, Dict, Any, Set
+from datetime import datetime
 from collections import defaultdict, Counter
 import json
 from pathlib import Path
@@ -15,9 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 class IndexAdvisor:
-    """Advanced index recommendation engine"""
+    """Advanced index recommendation engine."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.slow_queries = []
         self.existing_indexes = {}
         self.table_statistics = {}
@@ -27,7 +28,7 @@ class IndexAdvisor:
         self._load_analysis_history()
 
     def _initialize_cost_model(self) -> Dict[str, float]:
-        """Initialize cost factors for different operations"""
+        """Initialize cost factors for different operations."""
         return {
             "full_table_scan": 100.0,
             "index_scan": 10.0,
@@ -42,7 +43,7 @@ class IndexAdvisor:
         }
 
     def _load_analysis_history(self):
-        """Load previous analysis results"""
+        """Load previous analysis results."""
         history_path = Path(__file__).parent.parent.parent / "index_analysis"
         history_path.mkdir(exist_ok=True)
 
@@ -57,7 +58,7 @@ class IndexAdvisor:
                 logger.error(f"Error loading analysis history: {e}")
 
     def analyze_slow_queries(self, queries: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Analyze slow queries and identify optimization opportunities"""
+        """Analyze slow queries and identify optimization opportunities."""
         analysis_results = {
             "total_queries": len(queries),
             "patterns_found": {},
@@ -91,7 +92,7 @@ class IndexAdvisor:
         return analysis_results
 
     def _extract_query_pattern(self, sql: str) -> str:
-        """Extract a normalized pattern from SQL query"""
+        """Extract a normalized pattern from SQL query."""
         # Remove literals and normalize
         pattern = re.sub(r"\b\d+\b", "N", sql)  # Replace numbers with N
         pattern = re.sub(r"'[^']*'", "'S'", pattern)  # Replace strings with 'S'
@@ -114,7 +115,7 @@ class IndexAdvisor:
     def _analyze_pattern(
         self, pattern: str, queries: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Analyze a specific query pattern"""
+        """Analyze a specific query pattern."""
         total_time = sum(q.get("execution_time", 0) for q in queries)
         avg_time = total_time / len(queries) if queries else 0
 
@@ -130,12 +131,12 @@ class IndexAdvisor:
         }
 
     def _calculate_impact_score(self, frequency: int, avg_time: float) -> float:
-        """Calculate the impact score of a query pattern"""
+        """Calculate the impact score of a query pattern."""
         # Higher frequency and slower queries have higher impact
         return (frequency * 0.3) + (avg_time * 0.7)
 
     def _identify_problem_areas(self) -> List[Dict[str, Any]]:
-        """Identify the most problematic areas needing optimization"""
+        """Identify the most problematic areas needing optimization."""
         problems = []
 
         for pattern, queries in self.query_patterns.items():
@@ -161,7 +162,7 @@ class IndexAdvisor:
         return problems[:10]  # Return top 10 problems
 
     def _calculate_optimization_potential(self) -> float:
-        """Calculate potential performance improvement percentage"""
+        """Calculate potential performance improvement percentage."""
         current_total = sum(
             sum(q.get("execution_time", 0) for q in queries)
             for queries in self.query_patterns.values()
@@ -177,7 +178,7 @@ class IndexAdvisor:
         return min(improvement, 90)  # Cap at 90% to be realistic
 
     def _generate_analysis_summary(self) -> Dict[str, Any]:
-        """Generate a summary of the analysis"""
+        """Generate a summary of the analysis."""
         total_queries = sum(len(q) for q in self.query_patterns.values())
         slow_patterns = sum(
             1
@@ -190,7 +191,7 @@ class IndexAdvisor:
             "total_queries_analyzed": total_queries,
             "slow_patterns": slow_patterns,
             "tables_affected": len(
-                set(p.split(":")[0] for p in self.query_patterns if ":" in p)
+                {p.split(":")[0] for p in self.query_patterns if ":" in p}
             ),
             "recommendation": (
                 "Critical"
@@ -202,7 +203,7 @@ class IndexAdvisor:
     def suggest_indexes(
         self, schema: Dict[str, Any], workload: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Generate index suggestions based on schema and workload"""
+        """Generate index suggestions based on schema and workload."""
         suggestions = []
 
         # Analyze each table mentioned in workload
@@ -238,7 +239,7 @@ class IndexAdvisor:
         return suggestions
 
     def _extract_tables_from_workload(self, workload: List[Dict[str, Any]]) -> Set[str]:
-        """Extract table names from workload queries"""
+        """Extract table names from workload queries."""
         tables = set()
 
         for query in workload:
@@ -251,7 +252,7 @@ class IndexAdvisor:
         return tables
 
     def _get_existing_indexes(self, table_info: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Get existing indexes for a table"""
+        """Get existing indexes for a table."""
         return table_info.get("indexes", [])
 
     def _suggest_indexes_for_table(
@@ -261,7 +262,7 @@ class IndexAdvisor:
         existing_indexes: List[Dict[str, Any]],
         queries: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
-        """Generate index suggestions for a specific table"""
+        """Generate index suggestions for a specific table."""
         suggestions = []
 
         # Analyze WHERE clauses
@@ -310,7 +311,7 @@ class IndexAdvisor:
     def _analyze_where_clauses(
         self, table_name: str, queries: List[Dict[str, Any]]
     ) -> List[List[str]]:
-        """Analyze WHERE clauses to find column combinations"""
+        """Analyze WHERE clauses to find column combinations."""
         column_combinations = []
 
         for query in queries:
@@ -339,7 +340,7 @@ class IndexAdvisor:
     def _analyze_join_conditions(
         self, table_name: str, queries: List[Dict[str, Any]]
     ) -> Dict[str, int]:
-        """Analyze JOIN conditions to find frequently joined columns"""
+        """Analyze JOIN conditions to find frequently joined columns."""
         join_columns = Counter()
 
         for query in queries:
@@ -355,7 +356,7 @@ class IndexAdvisor:
     def _analyze_orderby_clauses(
         self, table_name: str, queries: List[Dict[str, Any]]
     ) -> List[List[str]]:
-        """Analyze ORDER BY clauses to find sort columns"""
+        """Analyze ORDER BY clauses to find sort columns."""
         orderby_combinations = []
 
         for query in queries:
@@ -378,7 +379,7 @@ class IndexAdvisor:
     def _index_exists(
         self, columns: List[str], existing_indexes: List[Dict[str, Any]]
     ) -> bool:
-        """Check if an index already exists for the given columns"""
+        """Check if an index already exists for the given columns."""
         for index in existing_indexes:
             index_cols = index.get("columns", [])
             # Check if existing index covers these columns (order matters for leftmost prefix)
@@ -390,7 +391,7 @@ class IndexAdvisor:
     def _create_index_suggestion(
         self, table: str, columns: List[str], reason: str, frequency: int
     ) -> Dict[str, Any]:
-        """Create an index suggestion with impact analysis"""
+        """Create an index suggestion with impact analysis."""
         # Estimate size (rough approximation)
         estimated_size_mb = len(columns) * 10 * 0.001 * frequency  # Very rough estimate
 
@@ -417,7 +418,7 @@ class IndexAdvisor:
     def _calculate_suggestion_impact(
         self, reason: str, frequency: int, num_columns: int
     ) -> float:
-        """Calculate the impact score for an index suggestion"""
+        """Calculate the impact score for an index suggestion."""
         base_score = frequency
 
         # Adjust based on reason
@@ -437,7 +438,7 @@ class IndexAdvisor:
         return base_score
 
     def _get_recommendation_level(self, impact_score: float) -> str:
-        """Get recommendation level based on impact score"""
+        """Get recommendation level based on impact score."""
         if impact_score >= 100:
             return "critical"
         elif impact_score >= 50:
@@ -448,7 +449,7 @@ class IndexAdvisor:
             return "low"
 
     def _describe_benefits(self, reason: str, frequency: int) -> List[str]:
-        """Describe the benefits of creating this index"""
+        """Describe the benefits of creating this index."""
         benefits = []
 
         if reason == "where":
@@ -467,7 +468,7 @@ class IndexAdvisor:
         return benefits
 
     def _describe_considerations(self, columns: List[str], size_mb: float) -> List[str]:
-        """Describe considerations before creating this index"""
+        """Describe considerations before creating this index."""
         considerations = []
 
         considerations.append(f"Estimated storage: {size_mb:.2f} MB")
@@ -484,14 +485,14 @@ class IndexAdvisor:
         return considerations
 
     def _generate_index_sql(self, suggestion: Dict[str, Any]) -> str:
-        """Generate SQL to create the suggested index"""
+        """Generate SQL to create the suggested index."""
         columns = ", ".join(f"`{col}`" for col in suggestion["columns"])
         return f"CREATE INDEX `{suggestion['index_name']}` ON `{suggestion['table']}` ({columns});"
 
     def analyze_index_impact(
         self, table: str, index_columns: List[str], sample_queries: List[str]
     ) -> Dict[str, Any]:
-        """Analyze the impact of creating a specific index"""
+        """Analyze the impact of creating a specific index."""
         impact_analysis = {
             "table": table,
             "columns": index_columns,
@@ -563,7 +564,7 @@ class IndexAdvisor:
     def _analyze_query_impact(
         self, query: str, table: str, index_columns: List[str]
     ) -> Dict[str, Any]:
-        """Analyze impact of index on a specific query"""
+        """Analyze impact of index on a specific query."""
         # This is a simplified analysis - in production, would use EXPLAIN
         has_where = "WHERE" in query.upper()
         has_orderby = "ORDER BY" in query.upper()
@@ -624,7 +625,7 @@ class IndexAdvisor:
     def get_index_recommendations(
         self, database: str, limit: int = 10
     ) -> List[Dict[str, Any]]:
-        """Get top index recommendations for a database"""
+        """Get top index recommendations for a database."""
         # Compile all suggestions and sort by impact
         all_suggestions = sorted(
             self.index_suggestions, key=lambda x: x["impact_score"], reverse=True
@@ -641,7 +642,7 @@ class IndexAdvisor:
     def generate_index_report(
         self, analysis_results: Dict[str, Any], suggestions: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """Generate a comprehensive index optimization report"""
+        """Generate a comprehensive index optimization report."""
         report = {
             "generated_at": datetime.now().isoformat(),
             "summary": {
@@ -670,7 +671,7 @@ class IndexAdvisor:
         return report
 
     def _estimate_total_improvement(self, suggestions: List[Dict[str, Any]]) -> str:
-        """Estimate total performance improvement from all suggestions"""
+        """Estimate total performance improvement from all suggestions."""
         if not suggestions:
             return "0%"
 
@@ -689,7 +690,7 @@ class IndexAdvisor:
     def _create_implementation_plan(
         self, suggestions: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
-        """Create a phased implementation plan for index creation"""
+        """Create a phased implementation plan for index creation."""
         plan = []
 
         # Phase 1: Critical indexes

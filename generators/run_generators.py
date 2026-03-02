@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Unified Generator Runner for MySQL Business-to-Schema Examples
+"""Unified Generator Runner for MySQL Business-to-Schema Examples.
 
 This script provides a centralized way to run any or all data generators
 with configurable modes (test/full) and detailed progress tracking.
@@ -13,8 +12,7 @@ import argparse
 import importlib.util
 import traceback
 from pathlib import Path
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Tuple, Any
 
 # Generator metadata
 GENERATORS = {
@@ -112,15 +110,16 @@ GENERATORS = {
 
 
 class GeneratorRunner:
-    """Manages execution of data generators"""
+    """Manages execution of data generators."""
 
     def __init__(self, output_dir: str = "output", verbose: bool = True):
+        """Initialize the instance."""
         self.output_dir = Path(output_dir)
         self.verbose = verbose
         self.results: Dict[str, Any] = {}
 
     def load_generator(self, name: str, test_mode: bool = False):
-        """Dynamically load a generator module"""
+        """Dynamically load a generator module."""
         generator_path = Path(__file__).parent / name
 
         if test_mode:
@@ -151,8 +150,8 @@ class GeneratorRunner:
     def run_generator(
         self, name: str, test_mode: bool = False
     ) -> Tuple[bool, float, str]:
-        """
-        Run a single generator
+        """Run a single generator.
+
         Returns: (success, duration, message)
         """
         start_time = time.time()
@@ -203,9 +202,9 @@ class GeneratorRunner:
             return False, duration, error_msg
 
     def run_all(self, test_mode: bool = False, parallel: bool = False) -> Dict:
-        """Run all generators"""
+        """Run all generators."""
         print(f"\n{'='*60}")
-        print(f"Running ALL Generators")
+        print("Running ALL Generators")
         print(f"Total: {len(GENERATORS)} generators")
         print(f"Mode: {'TEST' if test_mode else 'FULL'}")
         print(f"{'='*60}")
@@ -236,14 +235,14 @@ class GeneratorRunner:
 
         # Print summary
         print(f"\n{'='*60}")
-        print(f"SUMMARY")
+        print("SUMMARY")
         print(f"{'='*60}")
         print(f"Total Time: {total_duration:.2f}s")
         print(f"Successful: {successful}/{len(GENERATORS)}")
         print(f"Failed: {failed}/{len(GENERATORS)}")
 
         if failed > 0:
-            print(f"\nFailed generators:")
+            print("\nFailed generators:")
             for name, result in results.items():
                 if not result["success"]:
                     print(f"  - {name}: {result['message']}")
@@ -254,12 +253,12 @@ class GeneratorRunner:
         return results
 
     def benchmark(self, generators: List[str] = None) -> Dict:
-        """Benchmark generators in both test and full modes"""
+        """Benchmark generators in both test and full modes."""
         if generators is None:
             generators = list(GENERATORS.keys())
 
         print(f"\n{'='*60}")
-        print(f"BENCHMARKING GENERATORS")
+        print("BENCHMARKING GENERATORS")
         print(f"{'='*60}")
 
         benchmarks = {}
@@ -272,7 +271,7 @@ class GeneratorRunner:
             print(f"\nBenchmarking {name}...")
 
             # Test mode
-            print(f"  Running test mode...")
+            print("  Running test mode...")
             test_success, test_duration, test_msg = self.run_generator(
                 name, test_mode=True
             )
@@ -301,7 +300,7 @@ class GeneratorRunner:
 
 
 def main():
-    """Main CLI interface"""
+    """Run CLI interface."""
     parser = argparse.ArgumentParser(
         description="MySQL Business-to-Schema Generator Runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,

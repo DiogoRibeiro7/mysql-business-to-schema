@@ -1,23 +1,21 @@
 #!/usr/bin/env python3
-"""
-Performance Regression Detector
+"""Performance Regression Detector.
 
 This tool compares benchmark results over time to detect performance regressions
 and improvements across database schemas and generators.
 """
 
 import json
-import statistics
 from pathlib import Path
-from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Optional
+from datetime import datetime
+from typing import Dict, List
 from dataclasses import dataclass, field
 from enum import Enum
 import sys
 
 
 class ChangeType(Enum):
-    """Type of performance change detected"""
+    """Type of performance change detected."""
 
     REGRESSION = "regression"
     IMPROVEMENT = "improvement"
@@ -28,7 +26,7 @@ class ChangeType(Enum):
 
 @dataclass
 class PerformanceChange:
-    """Represents a performance change between two benchmarks"""
+    """Represents a performance change between two benchmarks."""
 
     metric_name: str
     baseline_value: float
@@ -39,7 +37,7 @@ class PerformanceChange:
     details: Dict = field(default_factory=dict)
 
     def to_dict(self) -> Dict:
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization."""
         return {
             "metric": self.metric_name,
             "baseline": round(self.baseline_value, 2),
@@ -52,9 +50,10 @@ class PerformanceChange:
 
 
 class RegressionDetector:
-    """Detect performance regressions between benchmark runs"""
+    """Detect performance regressions between benchmark runs."""
 
     def __init__(self, results_dir: str = "benchmark_results"):
+        """Initialize the instance."""
         self.results_dir = Path(results_dir)
         self.baseline = None
         self.current = None
@@ -83,7 +82,7 @@ class RegressionDetector:
         }
 
     def load_benchmark_results(self, filename: str) -> Dict:
-        """Load benchmark results from JSON file"""
+        """Load benchmark results from JSON file."""
         file_path = self.results_dir / filename
 
         if not file_path.exists():
@@ -93,7 +92,7 @@ class RegressionDetector:
             return json.load(f)
 
     def load_latest_benchmarks(self, count: int = 2) -> List[Dict]:
-        """Load the most recent benchmark results"""
+        """Load the most recent benchmark results."""
         benchmark_files = sorted(self.results_dir.glob("benchmark_*.json"))
 
         if len(benchmark_files) < count:
@@ -106,7 +105,7 @@ class RegressionDetector:
         return results
 
     def compare_benchmarks(self, baseline_file: str, current_file: str) -> Dict:
-        """Compare two benchmark runs"""
+        """Compare two benchmark runs."""
         self.baseline = self.load_benchmark_results(baseline_file)
         self.current = self.load_benchmark_results(current_file)
 
@@ -126,7 +125,7 @@ class RegressionDetector:
         return self._generate_report(health_score)
 
     def _compare_generators(self):
-        """Compare generator performance metrics"""
+        """Compare generator performance metrics."""
         baseline_gens = self.baseline.get("results", {})
         current_gens = self.current.get("results", {})
 
@@ -181,15 +180,13 @@ class RegressionDetector:
                 )
 
     def _compare_queries(self):
-        """Compare query performance metrics"""
+        """Compare query performance metrics."""
         # This would compare query benchmark results if available
         # For now, we'll check if query benchmarks exist in the results
-        pass
 
     def _compare_indexes(self):
-        """Compare index effectiveness metrics"""
+        """Compare index effectiveness metrics."""
         # This would compare index analysis results if available
-        pass
 
     def _compare_metric(
         self,
@@ -199,8 +196,7 @@ class RegressionDetector:
         direction: str,
         details: Dict = None,
     ):
-        """Compare a single metric and determine if there's a regression"""
-
+        """Compare a single metric and determine if there's a regression."""
         if baseline == 0:
             if current != 0:
                 self.changes.append(
@@ -256,7 +252,7 @@ class RegressionDetector:
         )
 
     def _get_severity(self, change_percent: float, change_type: str) -> str:
-        """Determine severity based on percentage change"""
+        """Determine severity based on percentage change."""
         thresholds = self.config["thresholds"][change_type]
         abs_change = abs(change_percent)
 
@@ -270,7 +266,7 @@ class RegressionDetector:
             return "LOW"
 
     def _calculate_health_score(self) -> float:
-        """Calculate overall health score (0-100)"""
+        """Calculate overall health score (0-100)."""
         if not self.changes:
             return 100.0
 
@@ -293,8 +289,7 @@ class RegressionDetector:
         return max(0, min(100, score))
 
     def _generate_report(self, health_score: float) -> Dict:
-        """Generate comprehensive comparison report"""
-
+        """Generate comprehensive comparison report."""
         regressions = [
             c for c in self.changes if c.change_type == ChangeType.REGRESSION
         ]
@@ -331,7 +326,7 @@ class RegressionDetector:
         return report
 
     def _generate_recommendations(self) -> List[Dict]:
-        """Generate actionable recommendations based on detected changes"""
+        """Generate actionable recommendations based on detected changes."""
         recommendations = []
 
         # Group regressions by type
@@ -393,14 +388,14 @@ class RegressionDetector:
         return recommendations
 
     def export_report(self, report: Dict, output_file: Path):
-        """Export regression report to file"""
+        """Export regression report to file."""
         with open(output_file, "w") as f:
             json.dump(report, f, indent=2)
 
         print(f"Regression report exported to: {output_file}")
 
     def print_summary(self, report: Dict):
-        """Print human-readable summary"""
+        """Print human-readable summary."""
         print("\n" + "=" * 60)
         print("Performance Regression Analysis")
         print("=" * 60)
@@ -447,7 +442,7 @@ class RegressionDetector:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Detect performance regressions")
@@ -466,8 +461,8 @@ def main():
         benchmarks = detector.load_latest_benchmarks(2)
         if len(benchmarks) >= 2:
             # Create temporary files for comparison
-            baseline_file = "temp_baseline.json"
-            current_file = "temp_current.json"
+            _ = "temp_baseline.json"
+            _ = "temp_current.json"
 
             # Use the loaded benchmarks directly
             detector.baseline = benchmarks[0]

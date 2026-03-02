@@ -1,34 +1,33 @@
-"""
-Healthcare IoT Machine Learning Models
+"""Healthcare IoT Machine Learning Models.
+
 Specialized ML implementations for healthcare monitoring and predictions
 """
 
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor, IsolationForest
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-from prophet import Prophet
 import warnings
 
-warnings.filterwarnings("ignore")
+import numpy as np
+import pandas as pd
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 
 from ml_pipeline import MLPipeline, AnomalyDetector, TimeSeriesForecaster
 
+warnings.filterwarnings("ignore")
+
 
 class HealthcarePredictiveAnalytics:
-    """
-    Healthcare-specific predictive analytics
+    """Healthcare-specific predictive analytics.
+
     Includes patient risk scoring, readmission prediction, and vital signs forecasting
     """
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.scalers = {}
 
     def predict_patient_risk(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict patient health risk scores
+        """Predict patient health risk scores.
 
         Args:
             df: DataFrame with patient vitals and medical history
@@ -110,8 +109,7 @@ class HealthcarePredictiveAnalytics:
         return results
 
     def predict_readmission(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict hospital readmission probability
+        """Predict hospital readmission probability.
 
         Args:
             df: DataFrame with patient discharge data
@@ -192,8 +190,7 @@ class HealthcarePredictiveAnalytics:
     def forecast_vital_signs(
         self, df: pd.DataFrame, patient_id: int, vital_type: str = "heart_rate"
     ) -> pd.DataFrame:
-        """
-        Forecast future vital signs for a patient
+        """Forecast future vital signs for a patient.
 
         Args:
             df: DataFrame with time series vital signs data
@@ -246,12 +243,11 @@ class HealthcarePredictiveAnalytics:
         else:
             forecast["alert"] = False
 
-        print(f"[OK] Forecast complete for next 24 hours")
+        print("[OK] Forecast complete for next 24 hours")
         return forecast
 
     def detect_anomalous_readings(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Detect anomalous vital sign readings
+        """Detect anomalous vital sign readings.
 
         Args:
             df: DataFrame with vital signs data
@@ -326,7 +322,7 @@ class HealthcarePredictiveAnalytics:
     def _identify_primary_risk_factor(
         self, df: pd.DataFrame, feature_importances: np.ndarray
     ) -> pd.Series:
-        """Identify the primary risk factor for each patient"""
+        """Identify the primary risk factor for each patient."""
         risk_features = [
             "heart_rate_avg",
             "blood_pressure_systolic",
@@ -354,17 +350,17 @@ class HealthcarePredictiveAnalytics:
 
 
 class MedicalImageAnalytics:
-    """
-    Medical image analysis using deep learning
+    """Medical image analysis using deep learning.
+
     Note: This is a simplified implementation for demonstration
     """
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
 
     def classify_xray(self, image_path: str) -> dict:
-        """
-        Classify X-ray images for abnormalities
+        """Classify X-ray images for abnormalities.
 
         Args:
             image_path: Path to X-ray image
@@ -396,8 +392,7 @@ class MedicalImageAnalytics:
         return results
 
     def segment_tumor(self, scan_data: np.ndarray) -> np.ndarray:
-        """
-        Segment tumors in medical scans
+        """Segment tumors in medical scans.
 
         Args:
             scan_data: 3D array of scan data
@@ -416,16 +411,14 @@ class MedicalImageAnalytics:
 
 
 class ClinicalTrialAnalytics:
-    """
-    Analytics for clinical trial data
-    """
+    """Analytics for clinical trial data."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
 
     def analyze_treatment_efficacy(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Analyze treatment efficacy in clinical trials
+        """Analyze treatment efficacy in clinical trials.
 
         Args:
             df: DataFrame with trial data
@@ -465,8 +458,7 @@ class ClinicalTrialAnalytics:
         return results
 
     def predict_patient_response(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Predict patient response to treatment
+        """Predict patient response to treatment.
 
         Args:
             df: DataFrame with patient characteristics
@@ -543,7 +535,7 @@ class ClinicalTrialAnalytics:
         return results
 
     def _recommend_treatment(self, response_prob: np.ndarray) -> np.ndarray:
-        """Recommend treatment based on response probability"""
+        """Recommend treatment based on response probability."""
         recommendations = []
         for prob in response_prob:
             if prob > 0.7:
@@ -556,7 +548,7 @@ class ClinicalTrialAnalytics:
 
 
 def main():
-    """Example usage of healthcare ML models"""
+    """Handle operation."""
     print("=" * 60)
     print("Healthcare IoT Machine Learning Models")
     print("=" * 60)
@@ -586,7 +578,7 @@ def main():
     print("-" * 40)
     risk_scores = health_analytics.predict_patient_risk(patient_data)
     print(risk_scores.head())
-    print(f"\nRisk distribution:")
+    print("\nRisk distribution:")
     print(risk_scores["risk_category"].value_counts())
 
     # 2. Readmission prediction
@@ -640,7 +632,7 @@ def main():
     response = trial_analytics.predict_patient_response(trial_data)
     print("\nPatient Response Predictions:")
     print(response.head())
-    print(f"\nTreatment recommendations:")
+    print("\nTreatment recommendations:")
     print(response["recommended_treatment"].value_counts())
 
 

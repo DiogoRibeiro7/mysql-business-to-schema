@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Social Media Platform Data Generator
+"""Social Media Platform Data Generator.
 
 Generates realistic social media data including:
 - Users with profiles and settings
@@ -13,11 +12,9 @@ Generates realistic social media data including:
 
 import csv
 import random
-import hashlib
-import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Any
 import yaml
 from faker import Faker
 
@@ -36,7 +33,10 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 
 class SocialMediaDataGenerator:
+    """Represent SocialMediaDataGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.users: List[Any] = []
         self.user_profiles: List[Any] = []
         self.relationships: List[Any] = []
@@ -614,7 +614,7 @@ class SocialMediaDataGenerator:
                 writer.writeheader()
                 writer.writerows(hashtag_list)
 
-        print(f"Generated data summary:")
+        print("Generated data summary:")
         print(f"  - Users: {len(self.users)}")
         print(f"  - Relationships: {len(self.relationships)}")
         print(f"  - Posts: {len(self.posts)}")

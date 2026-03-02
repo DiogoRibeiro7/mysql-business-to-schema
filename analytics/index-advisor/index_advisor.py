@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Advanced Index Advisor System
+"""Advanced Index Advisor System.
 
 Intelligent index recommendation engine that:
 - Analyzes slow query patterns
@@ -14,9 +13,9 @@ import re
 import json
 import hashlib
 import mysql.connector
-from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Optional, Set
-from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Dict, List
+from dataclasses import dataclass
 from collections import defaultdict
 import numpy as np
 from pathlib import Path
@@ -24,7 +23,7 @@ from pathlib import Path
 
 @dataclass
 class QueryPattern:
-    """Represents a query pattern for analysis"""
+    """Represents a query pattern for analysis."""
 
     query_hash: str
     query_template: str
@@ -44,7 +43,7 @@ class QueryPattern:
 
 @dataclass
 class IndexRecommendation:
-    """Index recommendation with impact analysis"""
+    """Index recommendation with impact analysis."""
 
     table_name: str
     column_names: List[str]
@@ -59,6 +58,7 @@ class IndexRecommendation:
     maintenance_cost: str  # LOW, MEDIUM, HIGH
 
     def to_dict(self) -> Dict:
+        """Handle to dict."""
         return {
             "table": self.table_name,
             "columns": self.column_names,
@@ -76,7 +76,7 @@ class IndexRecommendation:
 
 @dataclass
 class IndexImpact:
-    """Impact analysis for an index recommendation"""
+    """Impact analysis for an index recommendation."""
 
     before_metrics: Dict
     after_metrics: Dict
@@ -87,9 +87,10 @@ class IndexImpact:
 
 
 class AdvancedIndexAdvisor:
-    """Advanced index recommendation system"""
+    """Advanced index recommendation system."""
 
     def __init__(self, connection_params: Dict):
+        """Initialize the instance."""
         self.connection_params = connection_params
         self.connection = None
         self.cursor = None
@@ -99,7 +100,7 @@ class AdvancedIndexAdvisor:
         self.table_statistics = {}
 
     def connect(self) -> bool:
-        """Establish database connection"""
+        """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(**self.connection_params)
             self.cursor = self.connection.cursor(dictionary=True)
@@ -113,7 +114,7 @@ class AdvancedIndexAdvisor:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -125,8 +126,7 @@ class AdvancedIndexAdvisor:
         min_execution_count: int = 5,
         days_to_analyze: int = 7,
     ) -> List[IndexRecommendation]:
-        """
-        Perform comprehensive index analysis
+        """Perform comprehensive index analysis.
 
         Args:
             slow_query_threshold: Queries slower than this (seconds)
@@ -159,16 +159,16 @@ class AdvancedIndexAdvisor:
         return self.recommendations
 
     def _enable_slow_query_log(self):
-        """Enable slow query log if not already enabled"""
+        """Enable slow query log if not already enabled."""
         try:
             self.cursor.execute("SET GLOBAL slow_query_log = 'ON'")
             self.cursor.execute("SET GLOBAL long_query_time = 1")
             self.cursor.execute("SET GLOBAL log_queries_not_using_indexes = 'ON'")
-        except:
+        except Exception:
             pass  # May not have SUPER privilege
 
     def _collect_existing_indexes(self):
-        """Collect information about existing indexes"""
+        """Collect information about existing indexes."""
         self.cursor.execute(
             """
             SELECT
@@ -201,7 +201,7 @@ class AdvancedIndexAdvisor:
             )
 
     def _analyze_slow_queries(self, threshold: float, days: int):
-        """Analyze slow query log patterns"""
+        """Analyze slow query log patterns."""
         # Try to read from performance_schema first
         try:
             self.cursor.execute(
@@ -231,7 +231,7 @@ class AdvancedIndexAdvisor:
                     row["ROWS_EXAMINED"],
                     row["ROWS_SENT"],
                 )
-        except:
+        except Exception:
             # Fallback to slow query log file if available
             self._parse_slow_log_file(threshold, days)
 
@@ -244,7 +244,7 @@ class AdvancedIndexAdvisor:
         rows_examined: int,
         rows_sent: int,
     ):
-        """Parse a query and extract pattern information"""
+        """Parse a query and extract pattern information."""
         query = query.upper().strip()
 
         # Skip non-SELECT queries for now
@@ -304,7 +304,7 @@ class AdvancedIndexAdvisor:
             pattern.avg_time = pattern.total_time / pattern.execution_count
 
     def _extract_where_columns(self, query: str) -> List[str]:
-        """Extract columns used in WHERE clause"""
+        """Extract columns used in WHERE clause."""
         columns = []
 
         # Extract WHERE clause
@@ -326,7 +326,7 @@ class AdvancedIndexAdvisor:
         return list(set(columns))
 
     def _extract_join_columns(self, query: str) -> List[str]:
-        """Extract columns used in JOIN conditions"""
+        """Extract columns used in JOIN conditions."""
         columns = []
 
         # Find JOIN clauses
@@ -342,7 +342,7 @@ class AdvancedIndexAdvisor:
         return list(set(columns))
 
     def _extract_order_columns(self, query: str) -> List[str]:
-        """Extract columns used in ORDER BY clause"""
+        """Extract columns used in ORDER BY clause."""
         columns = []
 
         order_match = re.search(r"ORDER\s+BY\s+(.*?)(?:LIMIT|$)", query)
@@ -359,7 +359,7 @@ class AdvancedIndexAdvisor:
         return list(set(columns))
 
     def _extract_group_columns(self, query: str) -> List[str]:
-        """Extract columns used in GROUP BY clause"""
+        """Extract columns used in GROUP BY clause."""
         columns = []
 
         group_match = re.search(r"GROUP\s+BY\s+(.*?)(?:HAVING|ORDER|LIMIT|$)", query)
@@ -374,7 +374,7 @@ class AdvancedIndexAdvisor:
         return list(set(columns))
 
     def _analyze_query_patterns(self, min_count: int):
-        """Analyze collected query patterns"""
+        """Analyze collected query patterns."""
         print(f"Analyzing {len(self.query_patterns)} query patterns...")
 
         # Filter patterns by minimum execution count
@@ -385,8 +385,8 @@ class AdvancedIndexAdvisor:
         }
 
     def _collect_table_statistics(self):
-        """Collect table statistics for better recommendations"""
-        tables = set(p.table_name for p in self.query_patterns.values())
+        """Collect table statistics for better recommendations."""
+        tables = {p.table_name for p in self.query_patterns.values()}
 
         for table in tables:
             try:
@@ -451,7 +451,7 @@ class AdvancedIndexAdvisor:
                 print(f"Warning: Could not collect statistics for {table}: {e}")
 
     def _generate_recommendations(self):
-        """Generate index recommendations based on patterns"""
+        """Generate index recommendations based on patterns."""
         recommendations_map = {}  # Key: (table, columns_tuple)
 
         for pattern in self.query_patterns.values():
@@ -538,7 +538,7 @@ class AdvancedIndexAdvisor:
         recommendations_map: Dict,
         is_covering: bool = False,
     ):
-        """Create an index recommendation"""
+        """Create an index recommendation."""
         # Clean and deduplicate columns
         columns = [col.lower() for col in columns if col]
         columns = list(dict.fromkeys(columns))  # Preserve order, remove duplicates
@@ -600,7 +600,7 @@ class AdvancedIndexAdvisor:
             )
 
     def _index_exists(self, table: str, columns: List[str]) -> bool:
-        """Check if an index already exists for these columns"""
+        """Check if an index already exists for these columns."""
         if table not in self.existing_indexes:
             return False
 
@@ -616,7 +616,7 @@ class AdvancedIndexAdvisor:
     def _estimate_improvement(
         self, table: str, columns: List[str], pattern: QueryPattern
     ) -> float:
-        """Estimate performance improvement from index"""
+        """Estimate performance improvement from index."""
         improvement = 0.0
 
         # Base improvement from reducing table scan
@@ -646,7 +646,7 @@ class AdvancedIndexAdvisor:
         return min(90, improvement)
 
     def _estimate_index_size(self, table: str, columns: List[str]) -> float:
-        """Estimate index size in MB"""
+        """Estimate index size in MB."""
         if table not in self.table_statistics:
             return 10.0  # Default estimate
 
@@ -681,7 +681,7 @@ class AdvancedIndexAdvisor:
         return round(size_mb, 2)
 
     def _estimate_maintenance_cost(self, table: str, columns: List[str]) -> str:
-        """Estimate maintenance cost of index"""
+        """Estimate maintenance cost of index."""
         if table not in self.table_statistics:
             return "MEDIUM"
 
@@ -697,7 +697,7 @@ class AdvancedIndexAdvisor:
             return "LOW"
 
     def _determine_priority(self, improvement: float, exec_count: int) -> str:
-        """Determine recommendation priority"""
+        """Determine recommendation priority."""
         score = improvement * np.log(exec_count + 1)
 
         if score > 100:
@@ -708,7 +708,7 @@ class AdvancedIndexAdvisor:
             return "LOW"
 
     def _perform_impact_analysis(self):
-        """Perform detailed impact analysis for recommendations"""
+        """Perform detailed impact analysis for recommendations."""
         print("Performing impact analysis...")
 
         for recommendation in self.recommendations:
@@ -716,7 +716,7 @@ class AdvancedIndexAdvisor:
             # In production, this would use EXPLAIN with hypothetical indexes
 
             # For now, we'll use our estimates
-            total_queries_affected = len(recommendation.affected_queries)
+            _ = len(recommendation.affected_queries)
             total_time_saved = 0
 
             for query_hash in recommendation.affected_queries:
@@ -731,7 +731,7 @@ class AdvancedIndexAdvisor:
             recommendation.estimated_time_saved = total_time_saved
 
     def _prioritize_recommendations(self):
-        """Prioritize recommendations based on impact"""
+        """Prioritize recommendations based on impact."""
         # Sort by priority and improvement
         priority_order = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
 
@@ -744,13 +744,12 @@ class AdvancedIndexAdvisor:
         )
 
     def _parse_slow_log_file(self, threshold: float, days: int):
-        """Parse slow query log file as fallback"""
+        """Parse slow query log file as fallback."""
         # This would parse the actual slow query log file
         # Implementation depends on log file location and format
-        pass
 
     def export_recommendations(self, output_file: Path):
-        """Export recommendations to JSON file"""
+        """Export recommendations to JSON file."""
         data = {
             "timestamp": datetime.now().isoformat(),
             "database": self.connection_params["database"],
@@ -785,7 +784,7 @@ class AdvancedIndexAdvisor:
         print(f"Recommendations exported to: {output_file}")
 
     def print_summary(self):
-        """Print analysis summary"""
+        """Print analysis summary."""
         print("\n" + "=" * 60)
         print("INDEX ADVISOR ANALYSIS SUMMARY")
         print("=" * 60)
@@ -798,14 +797,14 @@ class AdvancedIndexAdvisor:
         for rec in self.recommendations:
             by_priority[rec.priority].append(rec)
 
-        print(f"\nBy Priority:")
+        print("\nBy Priority:")
         print(f"  HIGH: {len(by_priority['HIGH'])}")
         print(f"  MEDIUM: {len(by_priority['MEDIUM'])}")
         print(f"  LOW: {len(by_priority['LOW'])}")
 
         # Top recommendations
         if self.recommendations:
-            print(f"\nTop Recommendations:")
+            print("\nTop Recommendations:")
             for i, rec in enumerate(self.recommendations[:5], 1):
                 print(f"\n{i}. {rec.index_name}")
                 print(f"   Table: {rec.table_name}")
@@ -824,7 +823,7 @@ class AdvancedIndexAdvisor:
             print(f"\nAverage Expected Improvement: {avg_improvement:.1f}%")
 
     def generate_implementation_script(self, output_file: Path):
-        """Generate SQL script to implement recommendations"""
+        """Generate SQL script to implement recommendations."""
         with open(output_file, "w") as f:
             f.write("-- Index Recommendations Implementation Script\n")
             f.write(f"-- Generated: {datetime.now().isoformat()}\n")
@@ -870,7 +869,7 @@ class AdvancedIndexAdvisor:
 
 
 def main():
-    """Main entry point for Index Advisor"""
+    """Run entry point for Index Advisor."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Advanced Index Advisor")
@@ -908,7 +907,7 @@ def main():
     if advisor.connect():
         try:
             # Run analysis
-            recommendations = advisor.analyze(
+            _ = advisor.analyze(
                 slow_query_threshold=args.threshold,
                 min_execution_count=args.min_count,
                 days_to_analyze=args.days,

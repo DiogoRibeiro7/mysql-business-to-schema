@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
-"""
-Generate a lightweight consolidated security report from common artifacts.
-"""
+"""Generate a lightweight consolidated security report from common artifacts."""
 
 from __future__ import annotations
 
 import argparse
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, List
 
 
 def read_text(path: Path) -> str:
+    """Handle read text."""
     try:
         return path.read_text(encoding="utf-8", errors="ignore")
     except FileNotFoundError:
@@ -19,6 +18,7 @@ def read_text(path: Path) -> str:
 
 
 def load_json(path: Path) -> Any:
+    """Handle load json."""
     try:
         return json.loads(read_text(path))
     except json.JSONDecodeError:
@@ -26,6 +26,7 @@ def load_json(path: Path) -> Any:
 
 
 def summarize_reports(report_dir: Path) -> List[str]:
+    """Handle summarize reports."""
     summaries: List[str] = []
 
     bandit = report_dir / "bandit_report.json"
@@ -59,6 +60,7 @@ def summarize_reports(report_dir: Path) -> List[str]:
 
 
 def render_html(title: str, lines: List[str]) -> str:
+    """Handle render html."""
     items = "\n".join(f"<li>{line}</li>" for line in lines)
     return f"""<!doctype html>
 <html lang="en">
@@ -83,6 +85,7 @@ def render_html(title: str, lines: List[str]) -> str:
 
 
 def main() -> None:
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate security report")
     parser.add_argument("--output", required=True, help="Output HTML file")
     parser.add_argument("--reports-dir", default="reports", help="Reports directory")

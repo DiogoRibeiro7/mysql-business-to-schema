@@ -1,12 +1,11 @@
-"""
-Migration Handler for Admin Dashboard
+"""Migration Handler for Admin Dashboard.
+
 Manages database migrations and version control
 """
 
 import logging
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from pathlib import Path
-import json
 from datetime import datetime
 import hashlib
 
@@ -14,16 +13,17 @@ logger = logging.getLogger(__name__)
 
 
 class MigrationHandler:
-    """Handles database migrations and version control"""
+    """Handle database migrations and version control."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.migrations_path = Path(__file__).parent.parent.parent / "migrations"
         self.migration_history = []
         self.pending_migrations = []
         self._load_migrations()
 
     def _load_migrations(self):
-        """Load all available migrations"""
+        """Load all available migrations."""
         try:
             if self.migrations_path.exists():
                 migration_files = sorted(self.migrations_path.glob("*.sql"))
@@ -47,7 +47,7 @@ class MigrationHandler:
             logger.error(f"Error loading migrations: {e}")
 
     def _calculate_checksum(self, file_path: Path) -> str:
-        """Calculate SHA256 checksum of a file"""
+        """Calculate SHA256 checksum of a file."""
         sha256_hash = hashlib.sha256()
         try:
             with open(file_path, "rb") as f:
@@ -59,19 +59,19 @@ class MigrationHandler:
             return ""
 
     def get_all_migrations(self) -> List[Dict[str, Any]]:
-        """Get list of all migrations"""
+        """Get list of all migrations."""
         return self.migration_history + self.pending_migrations
 
     def get_pending_migrations(self) -> List[Dict[str, Any]]:
-        """Get list of pending migrations"""
+        """Get list of pending migrations."""
         return self.pending_migrations
 
     def get_migration_history(self) -> List[Dict[str, Any]]:
-        """Get migration history"""
+        """Get migration history."""
         return self.migration_history
 
     def apply_migration(self, migration_id: str) -> Dict[str, Any]:
-        """Apply a specific migration"""
+        """Apply a specific migration."""
         migration = next(
             (m for m in self.pending_migrations if m["id"] == migration_id), None
         )
@@ -104,7 +104,7 @@ class MigrationHandler:
         return result
 
     def rollback_migration(self, migration_id: str) -> Dict[str, Any]:
-        """Rollback a specific migration"""
+        """Rollback a specific migration."""
         migration = next(
             (m for m in self.migration_history if m["id"] == migration_id), None
         )
@@ -138,7 +138,7 @@ class MigrationHandler:
         return result
 
     def create_migration(self, name: str, sql_content: str) -> Dict[str, Any]:
-        """Create a new migration"""
+        """Create a new migration."""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         migration_id = f"{timestamp}_{name}"
         file_path = self.migrations_path / f"{migration_id}.sql"
@@ -175,7 +175,7 @@ class MigrationHandler:
             }
 
     def validate_migration(self, migration_id: str) -> Dict[str, Any]:
-        """Validate a migration before applying"""
+        """Validate a migration before applying."""
         migration = next(
             (m for m in self.pending_migrations if m["id"] == migration_id), None
         )
@@ -197,7 +197,7 @@ class MigrationHandler:
         }
 
     def get_migration_status(self) -> Dict[str, Any]:
-        """Get overall migration status"""
+        """Get overall migration status."""
         return {
             "total_migrations": len(self.migration_history)
             + len(self.pending_migrations),

@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-"""
-Performance Benchmark Utility for MySQL Generators
+"""Performance Benchmark Utility for MySQL Generators.
 
 This script provides detailed performance analysis and benchmarking
 for the data generators, helping identify optimization opportunities.
 """
 
-import os
 import sys
 import time
 import psutil
@@ -17,20 +15,20 @@ import subprocess
 import argparse
 
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 
 class GeneratorBenchmark:
-    """Benchmark utility for generator performance analysis"""
+    """Benchmark utility for generator performance analysis."""
 
     def __init__(self, output_file="benchmark_results.json"):
+        """Initialize the instance."""
         self.results: List[Any] = []
         self.output_file = output_file
         self.process = psutil.Process()
 
     def measure_generator(self, generator_name, test_mode=True):
-        """
-        Measure performance metrics for a single generator
+        """Measure performance metrics for a single generator.
 
         Returns dict with:
         - duration: Total execution time
@@ -122,7 +120,7 @@ class GeneratorBenchmark:
             }
 
     def parse_records_count(self, output):
-        """Extract total records count from generator output"""
+        """Extract total records count from generator output."""
         total = 0
         for line in output.split("\n"):
             # Look for patterns like "Saved 1000 records" or "Generated 1000 users"
@@ -138,11 +136,11 @@ class GeneratorBenchmark:
         return total
 
     def benchmark_all(self, generators, test_mode=True):
-        """Benchmark multiple generators"""
+        """Benchmark multiple generators."""
         results = []
 
         print(f"\n{'='*60}")
-        print(f"GENERATOR PERFORMANCE BENCHMARK")
+        print("GENERATOR PERFORMANCE BENCHMARK")
         print(f"Mode: {'TEST' if test_mode else 'FULL'}")
         print(f"Generators: {len(generators)}")
         print(f"{'='*60}")
@@ -166,13 +164,13 @@ class GeneratorBenchmark:
         return results
 
     def save_results(self):
-        """Save benchmark results to JSON file"""
+        """Save benchmark results to JSON file."""
         with open(self.output_file, "w") as f:
             json.dump(self.results, f, indent=2)
         print(f"\nResults saved to: {self.output_file}")
 
     def print_summary(self):
-        """Print benchmark summary with rankings"""
+        """Print benchmark summary with rankings."""
         if not self.results:
             return
 
@@ -183,7 +181,7 @@ class GeneratorBenchmark:
             return
 
         print(f"\n{'='*60}")
-        print(f"BENCHMARK SUMMARY")
+        print("BENCHMARK SUMMARY")
         print(f"{'='*60}")
 
         # Fastest generators
@@ -207,7 +205,7 @@ class GeneratorBenchmark:
             print(f"  {i}. {r['generator']:20} {r['memory_peak_mb']:8.1f} MB")
 
         # Overall statistics
-        print(f"\n📈 Overall Statistics:")
+        print("\n📈 Overall Statistics:")
         avg_duration = sum(r["duration"] for r in successful) / len(successful)
         avg_memory = sum(r["memory_peak_mb"] for r in successful) / len(successful)
         avg_efficiency = sum(r["records_per_second"] for r in successful) / len(
@@ -230,7 +228,7 @@ class GeneratorBenchmark:
         print(f"{'='*60}\n")
 
     def compare_modes(self, generator):
-        """Compare test vs full mode for a generator"""
+        """Compare test vs full mode for a generator."""
         print(f"\nComparing modes for {generator}...")
 
         test_metrics = self.measure_generator(generator, test_mode=True)
@@ -261,7 +259,7 @@ class GeneratorBenchmark:
 
 
 def main():
-    """CLI interface for benchmark utility"""
+    """CLI interface for benchmark utility."""
     parser = argparse.ArgumentParser(description="Benchmark MySQL data generators")
 
     parser.add_argument(

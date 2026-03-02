@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-MySQL Migration CLI Tool
+"""MySQL Migration CLI Tool.
+
 A comprehensive command-line interface for database migrations
 """
 
@@ -9,19 +9,15 @@ import sys
 import argparse
 import json
 import logging
-import subprocess
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, List, Dict
 import colorama
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
+
+from migration_system.migration_manager import MigrationManager, DatabaseType
 
 # Initialize colorama for cross-platform colored output
 colorama.init()
-
-# Add parent directory to path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from migration_system.migration_manager import MigrationManager, DatabaseType
 
 # Configure logging
 logging.basicConfig(
@@ -31,9 +27,10 @@ logger = logging.getLogger(__name__)
 
 
 class MigrationCLI:
-    """Command-line interface for database migrations"""
+    """Command-line interface for database migrations."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.manager = None
         self.migrations_dir = "migrations"
 
@@ -48,18 +45,18 @@ class MigrationCLI:
         }
 
     def print_colored(self, message: str, color_type: str = "info"):
-        """Print colored output"""
+        """Print colored output."""
         color = self.colors.get(color_type, self.colors["info"])
         print(f"{color}{message}{self.colors['reset']}")
 
     def print_header(self, title: str):
-        """Print a formatted header"""
+        """Print a formatted header."""
         self.print_colored("\n" + "=" * 70, "header")
         self.print_colored(title.center(70), "header")
         self.print_colored("=" * 70 + "\n", "header")
 
     def create_migration(self, args):
-        """Create a new migration"""
+        """Create a new migration."""
         self.print_header("CREATE MIGRATION")
 
         # Validate inputs
@@ -126,7 +123,7 @@ class MigrationCLI:
             return False
 
     def list_migrations(self, args):
-        """List all migrations"""
+        """List all migrations."""
         self.print_header("MIGRATION LIST")
 
         # Initialize manager
@@ -187,7 +184,7 @@ class MigrationCLI:
             return False
 
     def show_migration(self, args):
-        """Show details of a specific migration"""
+        """Show details of a specific migration."""
         self.print_header("MIGRATION DETAILS")
 
         # Initialize manager
@@ -250,7 +247,7 @@ class MigrationCLI:
             return False
 
     def validate_migration(self, args):
-        """Validate a migration script"""
+        """Validate a migration script."""
         self.print_header("VALIDATE MIGRATION")
 
         migrations_dir = args.dir or self.migrations_dir
@@ -322,7 +319,7 @@ class MigrationCLI:
             return False
 
     def batch_migrate(self, args):
-        """Create migrations for multiple schemas"""
+        """Create migrations for multiple schemas."""
         self.print_header("BATCH MIGRATION")
 
         # Find all schema files
@@ -373,7 +370,7 @@ class MigrationCLI:
 
         # Summary
         print("\n" + "-" * 70)
-        self.print_colored(f"Batch Migration Complete:", "header")
+        self.print_colored("Batch Migration Complete:", "header")
         self.print_colored(f"  Successful: {success_count}", "success")
         if failed_count > 0:
             self.print_colored(f"  Failed: {failed_count}", "error")
@@ -381,7 +378,7 @@ class MigrationCLI:
         return failed_count == 0
 
     def export_migration(self, args):
-        """Export migration to a single file"""
+        """Export migration to a single file."""
         self.print_header("EXPORT MIGRATION")
 
         migrations_dir = args.dir or self.migrations_dir
@@ -432,7 +429,7 @@ class MigrationCLI:
             return False
 
     def clean_migrations(self, args):
-        """Clean up old or failed migrations"""
+        """Clean up old or failed migrations."""
         self.print_header("CLEAN MIGRATIONS")
 
         migrations_dir = Path(args.dir or self.migrations_dir)
@@ -489,7 +486,7 @@ class MigrationCLI:
 
 
 def main():
-    """Main CLI entry point"""
+    """Run CLI entry point."""
     parser = argparse.ArgumentParser(
         description="MySQL Migration CLI - Manage database migrations",
         formatter_class=argparse.RawDescriptionHelpFormatter,

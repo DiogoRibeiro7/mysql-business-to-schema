@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""
-Demonstration of Cryptocurrency Exchange Generator
+"""Demonstration of Cryptocurrency Exchange Generator.
 
 This script demonstrates the generator's data creation logic without
 requiring an actual database connection.
 """
 
 import random
-import hashlib
 import secrets
 from datetime import datetime, timedelta
 from faker import Faker
@@ -19,8 +17,7 @@ random.seed(42)
 
 
 def demonstrate_generator():
-    """Demonstrate the cryptocurrency exchange data generation"""
-
+    """Demonstrate the cryptocurrency exchange data generation."""
     print("=" * 70)
     print("CRYPTOCURRENCY EXCHANGE DATA GENERATOR DEMONSTRATION")
     print("=" * 70)
@@ -294,7 +291,7 @@ if __name__ == "__main__":
     print("\nSample User Record (as it would be inserted):")
     user = data["users"][0]
     print(
-        f"  INSERT INTO users (email, username, user_type, kyc_level, daily_limit, ...)"
+        "  INSERT INTO users (email, username, user_type, kyc_level, daily_limit, ...)"
     )
     print(
         f"  VALUES ('{user['email']}', '{user['username']}', '{user['user_type']}', "
@@ -303,7 +300,7 @@ if __name__ == "__main__":
 
     print("\nSample Order Record (as it would be inserted):")
     order = data["orders"][0]
-    print(f"  INSERT INTO orders (user_id, pair, type, side, quantity, status, ...)")
+    print("  INSERT INTO orders (user_id, pair, type, side, quantity, status, ...)")
     print(
         f"  VALUES ({order['user_id']}, '{order['pair']}', '{order['type']}', "
         f"'{order['side']}', {order['quantity']:.8f}, '{order['status']}', ...)"

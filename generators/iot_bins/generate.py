@@ -1,30 +1,24 @@
 #!/usr/bin/env python3
-"""
-IoT Garbage Bin Monitoring System - Data Generator
+"""IoT Garbage Bin Monitoring System - Data Generator.
 
 Generates realistic IoT sensor data for a smart city garbage collection system.
 Includes sensor readings, collection events, alerts, and predictive patterns.
 """
 
-import os
-import sys
 import random
 import math
 import csv
 import yaml
 import argparse
-from datetime import datetime, timedelta, date, time
-from typing import List, Dict, Tuple, Any
+from datetime import datetime, timedelta, date
+from typing import List, Dict, Any
 from pathlib import Path
-
-# Add parent directory to path for shared utilities
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from faker import Faker
 
 
 class IoTBinsGenerator:
-    """Generates realistic IoT garbage bin monitoring data."""
+    """Generate realistic IoT garbage bin monitoring data."""
 
     def __init__(self, config_path: str = "config.yaml"):
         """Initialize generator with configuration."""
@@ -716,7 +710,7 @@ class IoTBinsGenerator:
 
         # Generate daily aggregates
         aggregation_id = 1
-        for (sensor_id, date), readings in daily_data.items():
+        for (sensor_id, day_value), readings in daily_data.items():
             values = [r["reading_value"] for r in readings if r["quality"] != "error"]
             if not values:
                 continue
@@ -741,7 +735,7 @@ class IoTBinsGenerator:
             daily = {
                 "aggregation_id": aggregation_id,
                 "sensor_id": sensor_id,
-                "date": date,
+                "date": day_value,
                 "min_value": round(min(values), 3),
                 "max_value": round(max(values), 3),
                 "avg_value": round(sum(values) / len(values), 3),
@@ -952,7 +946,7 @@ class IoTBinsGenerator:
 
 
 def main():
-    """Main entry point."""
+    """Run entry point."""
     parser = argparse.ArgumentParser(description="Generate IoT Bins monitoring data")
     parser.add_argument(
         "--config", default="config.yaml", help="Configuration file path"

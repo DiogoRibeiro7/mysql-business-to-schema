@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-GraphQL Resolver Generator for Apollo Server
+"""GraphQL Resolver Generator for Apollo Server.
 
 Generates TypeScript/JavaScript resolver templates with:
 - DataLoader integration for N+1 query prevention
@@ -10,21 +9,20 @@ Generates TypeScript/JavaScript resolver templates with:
 - Caching strategies
 """
 
-import json
 from pathlib import Path
-from typing import Dict, List, Optional
-from datetime import datetime
+from typing import Dict
 
 
 class ResolverGenerator:
-    """Generate resolver templates for GraphQL schemas"""
+    """Generate resolver templates for GraphQL schemas."""
 
     def __init__(self, schema_info: Dict):
+        """Initialize the instance."""
         self.schema_info = schema_info
         self.tables = schema_info.get("tables", {})
 
     def generate_resolvers_ts(self) -> str:
-        """Generate TypeScript resolvers with full type safety"""
+        """Generate TypeScript resolvers with full type safety."""
         parts = []
 
         # Imports
@@ -45,7 +43,7 @@ class ResolverGenerator:
         return "\n\n".join(parts)
 
     def _generate_imports(self) -> str:
-        """Generate import statements"""
+        """Generate import statements."""
         return """import { GraphQLResolveInfo } from 'graphql';
 import { PubSub } from 'graphql-subscriptions';
 import DataLoader from 'dataloader';
@@ -81,7 +79,7 @@ import { logger } from '../utils/logger';
 const pubsub = new PubSub();"""
 
     def _generate_dataloaders(self) -> str:
-        """Generate DataLoader factories for preventing N+1 queries"""
+        """Generate DataLoader factories for preventing N+1 queries."""
         loaders = []
 
         for table_name, table_info in self.tables.items():
@@ -153,10 +151,10 @@ export function createLoaders(db: DatabaseConnection) {{
 }}"""
 
     def _generate_query_resolvers(self) -> str:
-        """Generate Query resolvers"""
+        """Generate Query resolvers."""
         resolvers = []
 
-        for table_name, table_info in self.tables.items():
+        for table_name, _ in self.tables.items():
             type_name = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
             plural = self._to_plural(singular)
@@ -305,10 +303,10 @@ const Query = {{
 }};"""
 
     def _generate_mutation_resolvers(self) -> str:
-        """Generate Mutation resolvers"""
+        """Generate Mutation resolvers."""
         resolvers = []
 
-        for table_name, table_info in self.tables.items():
+        for table_name, _ in self.tables.items():
             type_name = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
 
@@ -477,11 +475,11 @@ const Mutation = {{
 }};"""
 
     def _generate_subscription_resolvers(self) -> str:
-        """Generate Subscription resolvers"""
+        """Generate Subscription resolvers."""
         resolvers = []
 
         for table_name in self.tables.keys():
-            type_name = self._to_pascal_case(table_name)
+            _ = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
 
             resolvers.append(
@@ -519,7 +517,7 @@ const Subscription = {{
 }};"""
 
     def _generate_field_resolvers(self) -> str:
-        """Generate field resolvers for relationships"""
+        """Generate field resolvers for relationships."""
         resolvers = []
 
         for table_name, table_info in self.tables.items():
@@ -554,7 +552,7 @@ const {type_name} = {{
         return "\n\n".join(resolvers)
 
     def _generate_resolver_map(self) -> str:
-        """Generate the main resolver map export"""
+        """Generate the main resolver map export."""
         type_resolvers = [self._to_pascal_case(name) for name in self.tables.keys()]
 
         return f"""// Export resolver map
@@ -610,7 +608,7 @@ function withFilter(
 }}"""
 
     def _generate_validation_functions(self) -> str:
-        """Generate input validation functions"""
+        """Generate input validation functions."""
         validations = []
 
         for table_name in self.tables.keys():
@@ -636,16 +634,16 @@ function withFilter(
         return "\n\n".join(validations)
 
     def _to_camel_case(self, snake_str: str) -> str:
-        """Convert snake_case to camelCase"""
+        """Convert snake_case to camelCase."""
         components = snake_str.split("_")
         return components[0].lower() + "".join(x.title() for x in components[1:])
 
     def _to_pascal_case(self, snake_str: str) -> str:
-        """Convert snake_case to PascalCase"""
+        """Convert snake_case to PascalCase."""
         return "".join(x.title() for x in snake_str.split("_"))
 
     def _to_plural(self, word: str) -> str:
-        """Convert word to plural"""
+        """Convert word to plural."""
         if word.endswith("y"):
             return word[:-1] + "ies"
         elif word.endswith("s"):
@@ -654,7 +652,7 @@ function withFilter(
             return word + "s"
 
     def export_resolvers(self, output_file: Path):
-        """Export resolvers to file"""
+        """Export resolvers to file."""
         resolvers = self.generate_resolvers_ts()
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(resolvers)

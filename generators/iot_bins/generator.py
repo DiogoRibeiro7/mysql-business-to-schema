@@ -1,21 +1,17 @@
 #!/usr/bin/env python3
-"""
-IoT Waste Management System Data Generator
+"""IoT Waste Management System Data Generator.
+
 Generates realistic data for smart garbage bin monitoring with IoT sensors
 """
 
 import csv
-import json
 import random
-import hashlib
-from datetime import datetime, timedelta, time
-from decimal import Decimal
+from datetime import datetime, timedelta
 from pathlib import Path
 from faker import Faker
 import numpy as np
-import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -40,7 +36,10 @@ CONFIG = {
 
 
 class IoTBinsGenerator:
+    """Represent IoTBinsGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.districts: List[Any] = []
         self.bins: List[Any] = []
         self.sensors: List[Any] = []
@@ -68,9 +67,9 @@ class IoTBinsGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all IoT bins data"""
+        """Generate all IoT bins data."""
         print("Starting IoT Waste Management Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Districts: {CONFIG['districts']}")
         print(f"  Total bins: {CONFIG['districts'] * CONFIG['bins_per_district']}")
         print(
@@ -100,7 +99,7 @@ class IoTBinsGenerator:
         self.save_all()
 
     def generate_districts(self):
-        """Generate city districts"""
+        """Generate city districts."""
         print(f"Generating {CONFIG['districts']} districts...")
 
         district_names = [
@@ -133,7 +132,7 @@ class IoTBinsGenerator:
             self.districts.append(district)
 
     def generate_bins(self):
-        """Generate smart garbage bins"""
+        """Generate smart garbage bins."""
         print(f"Generating {CONFIG['districts'] * CONFIG['bins_per_district']} bins...")
 
         bin_types_weights = {
@@ -212,8 +211,8 @@ class IoTBinsGenerator:
                 self.bins.append(bin_data)
 
     def generate_sensors(self):
-        """Generate IoT sensors for bins"""
-        print(f"Generating sensors...")
+        """Generate IoT sensors for bins."""
+        print("Generating sensors...")
 
         sensor_id = 0
         for bin_data in self.bins:
@@ -300,7 +299,7 @@ class IoTBinsGenerator:
                     "sensor_type": config["type"],
                     "manufacturer": config["manufacturer"],
                     "model": config["model"],
-                    "firmware_version": f"{random.randint(1,3)}.{random.randint(0,9)}.{random.randint(0,99)}",
+                    "firmware_version": f"{random.randint(1, 3)}.{random.randint(0, 9)}.{random.randint(0, 99)}",
                     "installation_date": bin_data["installation_date"],
                     "reading_frequency_seconds": config["frequency"],
                     "battery_level": (
@@ -323,7 +322,7 @@ class IoTBinsGenerator:
                 self.sensors.append(sensor)
 
     def generate_trucks(self):
-        """Generate collection trucks"""
+        """Generate collection trucks."""
         print(f"Generating {CONFIG['trucks']} trucks...")
 
         manufacturers = ["Mercedes", "Volvo", "MAN", "Iveco", "DAF"]
@@ -357,7 +356,7 @@ class IoTBinsGenerator:
             self.trucks.append(truck)
 
     def generate_drivers(self):
-        """Generate driver records"""
+        """Generate driver records."""
         print(f"Generating {CONFIG['drivers']} drivers...")
 
         for i in range(CONFIG["drivers"]):
@@ -382,7 +381,7 @@ class IoTBinsGenerator:
             self.drivers.append(driver)
 
     def generate_routes(self):
-        """Generate collection routes and assignments"""
+        """Generate collection routes and assignments."""
         print("Generating collection routes...")
 
         route_id = 0
@@ -448,7 +447,7 @@ class IoTBinsGenerator:
                     self.route_assignments.append(assignment)
 
     def generate_schedules_and_collections(self):
-        """Generate collection schedules and actual collection events"""
+        """Generate collection schedules and actual collection events."""
         print("Generating collection schedules and events...")
 
         active_trucks = [
@@ -576,7 +575,7 @@ class IoTBinsGenerator:
             current_date += timedelta(days=1)
 
     def generate_alert_thresholds(self):
-        """Generate alert threshold configurations"""
+        """Generate alert threshold configurations."""
         print("Generating alert thresholds...")
 
         threshold_configs = [
@@ -659,7 +658,7 @@ class IoTBinsGenerator:
             self.alert_thresholds.append(threshold)
 
     def generate_sensor_data(self):
-        """Generate sensor readings and aggregated data"""
+        """Generate sensor readings and aggregated data."""
         print("Generating sensor readings (this may take a while)...")
 
         # We'll generate a sample of sensor data for performance reasons
@@ -823,8 +822,7 @@ class IoTBinsGenerator:
         self.save_to_csv("sensor_readings_daily", daily_aggregates)
 
     def calculate_sensor_reading(self, sensor, bin_data, bin_collections, current_time):
-        """Calculate realistic sensor reading based on type and context"""
-
+        """Calculate realistic sensor reading based on type and context."""
         if sensor["sensor_type"] == "fill_level":
             # Calculate fill level based on time since last collection
             if bin_collections:
@@ -955,7 +953,7 @@ class IoTBinsGenerator:
         return None
 
     def get_sensor_unit(self, sensor_type):
-        """Get the unit for sensor type"""
+        """Get the unit for sensor type."""
         units = {
             "fill_level": "%",
             "temperature": "°C",
@@ -967,7 +965,7 @@ class IoTBinsGenerator:
         return units.get(sensor_type, "units")
 
     def determine_reading_quality(self, sensor, value):
-        """Determine reading quality"""
+        """Determine reading quality."""
         # Most readings are good
         if random.random() < 0.95:
             return "good"
@@ -977,8 +975,7 @@ class IoTBinsGenerator:
             return "error"
 
     def check_and_create_alerts(self, sensor, bin_data, reading_value, current_time):
-        """Check thresholds and create alerts if needed"""
-
+        """Check thresholds and create alerts if needed."""
         # Find applicable thresholds
         thresholds = [
             t
@@ -1057,7 +1054,7 @@ class IoTBinsGenerator:
                 self.alerts.append(alert)
 
     def generate_predictions(self):
-        """Generate ML predictions for fill rates"""
+        """Generate ML predictions for fill rates."""
         print("Generating predictive analytics...")
 
         # Generate predictions for next 7 days
@@ -1100,7 +1097,7 @@ class IoTBinsGenerator:
                     self.predictions.append(prediction)
 
     def save_to_csv(self, table_name, data):
-        """Save data to CSV file"""
+        """Save data to CSV file."""
         if not data:
             return
 
@@ -1112,7 +1109,7 @@ class IoTBinsGenerator:
             writer.writerows(data)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         print("\nSaving data to CSV files...")
 
         OUTPUT_DIR.mkdir(exist_ok=True)
@@ -1143,7 +1140,7 @@ class IoTBinsGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
+        """Generate summary statistics."""
         total_bins = len(self.bins)
         total_sensors = len(self.sensors)
         total_readings = len(self.sensor_readings)

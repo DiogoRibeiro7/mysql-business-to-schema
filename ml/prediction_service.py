@@ -1,33 +1,25 @@
 #!/usr/bin/env python3
-"""
-Real-time ML Prediction Service for MySQL Performance
+"""Real-time ML Prediction Service for MySQL Performance.
+
 FastAPI-based service for anomaly detection and performance prediction
 """
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, WebSocket
+from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from typing import Dict, List, Optional, Any
 from dataclasses import asdict
 import asyncio
-import json
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 import joblib
 import logging
-import aioredis
-import aiomysql
 import uvicorn
 from prometheus_client import Counter, Histogram, Gauge, generate_latest
-import websockets
 
 # ML imports
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingRegressor
-from sklearn.preprocessing import StandardScaler
-import tensorflow as tf
-from prophet import Prophet
 
 # Custom modules
 from anomaly_detection import (
@@ -84,6 +76,8 @@ websocket_connections = set()
 
 # Pydantic models for API
 class QueryPredictionRequest(BaseModel):
+    """Represent QueryPredictionRequest."""
+
     query: str
     database: str
     table_stats: Dict[str, Any]
@@ -91,6 +85,8 @@ class QueryPredictionRequest(BaseModel):
 
 
 class QueryPredictionResponse(BaseModel):
+    """Represent QueryPredictionResponse."""
+
     predicted_time_ms: float
     confidence: float
     uncertainty_ms: float
@@ -101,12 +97,16 @@ class QueryPredictionResponse(BaseModel):
 
 
 class AnomalyDetectionRequest(BaseModel):
+    """Represent AnomalyDetectionRequest."""
+
     metrics: Dict[str, float]
     database: str
     timestamp: Optional[datetime] = Field(default_factory=datetime.now)
 
 
 class AnomalyResponse(BaseModel):
+    """Represent AnomalyResponse."""
+
     anomalies: List[Dict]
     risk_score: float
     recommendations: List[str]
@@ -114,6 +114,8 @@ class AnomalyResponse(BaseModel):
 
 
 class ForecastRequest(BaseModel):
+    """Represent ForecastRequest."""
+
     metric_name: str
     database: str
     historical_data: List[Dict[str, Any]]
@@ -121,6 +123,8 @@ class ForecastRequest(BaseModel):
 
 
 class ForecastResponse(BaseModel):
+    """Represent ForecastResponse."""
+
     forecast: List[Dict]
     confidence_interval: Dict[str, List[float]]
     trend: str
@@ -128,6 +132,8 @@ class ForecastResponse(BaseModel):
 
 
 class IndexRecommendationRequest(BaseModel):
+    """Represent IndexRecommendationRequest."""
+
     query: str
     execution_plan: Dict
     table_schema: Dict
@@ -135,6 +141,8 @@ class IndexRecommendationRequest(BaseModel):
 
 
 class IndexRecommendationResponse(BaseModel):
+    """Represent IndexRecommendationResponse."""
+
     recommendations: List[Dict]
     estimated_improvement: float
     impact_analysis: Dict
@@ -142,6 +150,8 @@ class IndexRecommendationResponse(BaseModel):
 
 
 class AutoScalingRecommendation(BaseModel):
+    """Represent AutoScalingRecommendation."""
+
     resource_type: str
     current_value: float
     recommended_value: float
@@ -152,7 +162,7 @@ class AutoScalingRecommendation(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize models and connections on startup"""
+    """Initialize models and connections on startup."""
     logger.info("Initializing ML models...")
 
     # Initialize anomaly detector models
@@ -181,7 +191,7 @@ async def startup_event():
 
 @app.get("/health")
 async def health_check():
-    """Health check endpoint"""
+    """Health check endpoint."""
     return {
         "status": "healthy",
         "timestamp": datetime.now().isoformat(),
@@ -195,7 +205,7 @@ async def health_check():
 
 @app.post("/predict/query", response_model=QueryPredictionResponse)
 async def predict_query_performance(request: QueryPredictionRequest):
-    """Predict query execution time and provide optimization recommendations"""
+    """Predict query execution time and provide optimization recommendations."""
     prediction_requests.labels(prediction_type="query").inc()
 
     with prediction_latency.labels(prediction_type="query").time():
@@ -238,7 +248,7 @@ async def predict_query_performance(request: QueryPredictionRequest):
 
 @app.post("/detect/anomalies", response_model=AnomalyResponse)
 async def detect_anomalies(request: AnomalyDetectionRequest):
-    """Detect anomalies in database metrics"""
+    """Detect anomalies in database metrics."""
     prediction_requests.labels(prediction_type="anomaly").inc()
 
     with prediction_latency.labels(prediction_type="anomaly").time():
@@ -277,7 +287,7 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
                 alert_level = "warning"
 
             # Extract recommendations
-            recommendations = list(set(a.recommended_action for a in anomalies))
+            recommendations = list({a.recommended_action for a in anomalies})
 
             # Broadcast anomalies to WebSocket clients
             if anomalies and websocket_connections:
@@ -297,7 +307,7 @@ async def detect_anomalies(request: AnomalyDetectionRequest):
 
 @app.post("/forecast", response_model=ForecastResponse)
 async def generate_forecast(request: ForecastRequest):
-    """Generate time series forecast for metrics"""
+    """Generate time series forecast for metrics."""
     prediction_requests.labels(prediction_type="forecast").inc()
 
     with prediction_latency.labels(prediction_type="forecast").time():
@@ -349,7 +359,7 @@ async def generate_forecast(request: ForecastRequest):
 
 @app.post("/recommend/indexes", response_model=IndexRecommendationResponse)
 async def recommend_indexes(request: IndexRecommendationRequest):
-    """Recommend indexes using ML"""
+    """Recommend indexes using ML."""
     prediction_requests.labels(prediction_type="index").inc()
 
     with prediction_latency.labels(prediction_type="index").time():
@@ -399,7 +409,7 @@ async def recommend_indexes(request: IndexRecommendationRequest):
 
 @app.post("/autoscale/recommend")
 async def recommend_autoscaling() -> List[AutoScalingRecommendation]:
-    """Recommend auto-scaling actions based on current metrics"""
+    """Recommend auto-scaling actions based on current metrics."""
     try:
         recommendations = []
 
@@ -460,7 +470,7 @@ async def recommend_autoscaling() -> List[AutoScalingRecommendation]:
 
 @app.websocket("/ws/anomalies")
 async def websocket_anomalies(websocket: WebSocket):
-    """WebSocket endpoint for real-time anomaly updates"""
+    """Handle WebSocket updates for real-time anomalies."""
     await websocket.accept()
     websocket_connections.add(websocket)
 
@@ -477,7 +487,7 @@ async def websocket_anomalies(websocket: WebSocket):
 
 
 async def broadcast_anomalies(anomalies: List[Anomaly]):
-    """Broadcast anomalies to all WebSocket clients"""
+    """Broadcast anomalies to all WebSocket clients."""
     message = {
         "type": "anomalies",
         "timestamp": datetime.now().isoformat(),
@@ -496,7 +506,7 @@ async def broadcast_anomalies(anomalies: List[Anomaly]):
 
 
 async def continuous_monitoring():
-    """Background task for continuous monitoring"""
+    """Background task for continuous monitoring."""
     while True:
         try:
             # This would connect to actual databases in production
@@ -528,7 +538,7 @@ async def continuous_monitoring():
 
 
 async def model_retraining_scheduler():
-    """Background task for periodic model retraining"""
+    """Background task for periodic model retraining."""
     while True:
         try:
             # Wait for retraining interval (daily)
@@ -550,13 +560,13 @@ async def model_retraining_scheduler():
 
 @app.get("/metrics")
 async def get_metrics():
-    """Prometheus metrics endpoint"""
+    """Prometheus metrics endpoint."""
     return StreamingResponse(generate_latest(), media_type="text/plain")
 
 
 @app.post("/train/query-predictor")
 async def train_query_predictor(training_data: List[Dict]):
-    """Train or update the query predictor model"""
+    """Train or update the query predictor model."""
     try:
         # Convert to DataFrame
         df = pd.DataFrame(training_data)

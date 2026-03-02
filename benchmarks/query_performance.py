@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
-"""
-Query Performance Benchmarking Tool
+"""Query Performance Benchmarking Tool.
 
 This module benchmarks query performance across all database examples,
 measuring execution time, resource usage, and index effectiveness.
 """
 
-import os
 import sys
 import time
 import json
 import mysql.connector
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List, Optional, Any
 from pathlib import Path
 import statistics
 import hashlib
@@ -24,7 +22,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 
 
 class QueryType(Enum):
-    """Types of queries to benchmark"""
+    """Types of queries to benchmark."""
 
     SIMPLE_SELECT = "simple_select"
     COMPLEX_JOIN = "complex_join"
@@ -38,7 +36,7 @@ class QueryType(Enum):
 
 @dataclass
 class QueryBenchmark:
-    """Container for query benchmark results"""
+    """Container for query benchmark results."""
 
     query_id: str
     query_type: QueryType
@@ -52,7 +50,7 @@ class QueryBenchmark:
     timestamp: datetime
 
     def to_dict(self) -> Dict:
-        """Convert to dictionary for JSON serialization"""
+        """Convert to dictionary for JSON serialization."""
         result = asdict(self)
         result["query_type"] = self.query_type.value
         result["timestamp"] = self.timestamp.isoformat()
@@ -60,9 +58,10 @@ class QueryBenchmark:
 
 
 class QueryPerformanceBenchmark:
-    """Main query performance benchmarking class"""
+    """Run query performance benchmarking class."""
 
     def __init__(self, connection_params: Dict):
+        """Initialize the instance."""
         self.connection_params = connection_params
         self.connection = None
         self.cursor = None
@@ -70,7 +69,7 @@ class QueryPerformanceBenchmark:
         self.query_cache = {}
 
     def connect(self) -> bool:
-        """Establish database connection with performance schema enabled"""
+        """Establish database connection with performance schema enabled."""
         try:
             self.connection = mysql.connector.connect(
                 **self.connection_params, autocommit=False, use_pure=True
@@ -84,7 +83,7 @@ class QueryPerformanceBenchmark:
             # Reset query cache for consistent benchmarks
             try:
                 self.cursor.execute("RESET QUERY CACHE")
-            except:
+            except Exception:
                 pass  # Query cache might not be available
 
             return True
@@ -93,7 +92,7 @@ class QueryPerformanceBenchmark:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
@@ -102,8 +101,7 @@ class QueryPerformanceBenchmark:
     def benchmark_query(
         self, sql: str, query_type: QueryType, warmup: int = 3, iterations: int = 10
     ) -> QueryBenchmark:
-        """
-        Benchmark a single query
+        """Benchmark a single query.
 
         Args:
             sql: SQL query to benchmark
@@ -156,7 +154,7 @@ class QueryPerformanceBenchmark:
         return benchmark
 
     def _get_explain_plan(self, sql: str) -> Dict:
-        """Get EXPLAIN output for a query"""
+        """Get EXPLAIN output for a query."""
         try:
             # Handle different query types
             if sql.strip().upper().startswith("SELECT"):
@@ -168,7 +166,7 @@ class QueryPerformanceBenchmark:
             return {"error": str(e)}
 
     def _get_query_statistics(self) -> Dict:
-        """Get detailed query statistics from performance schema"""
+        """Get detailed query statistics from performance schema."""
         try:
             self.cursor.execute("SHOW PROFILES")
             profiles = self.cursor.fetchall()
@@ -185,11 +183,11 @@ class QueryPerformanceBenchmark:
                     stats["duration"] += step.get("Duration", 0)
 
                 return stats
-        except:
+        except Exception:
             return {}
 
     def _extract_index_from_explain(self, explain_plan: Any) -> Optional[str]:
-        """Extract index usage from EXPLAIN plan"""
+        """Extract index usage from EXPLAIN plan."""
         if isinstance(explain_plan, list) and explain_plan:
             first_row = explain_plan[0]
             if isinstance(first_row, dict):
@@ -197,7 +195,7 @@ class QueryPerformanceBenchmark:
         return None
 
     def benchmark_table_queries(self, table_name: str) -> List[QueryBenchmark]:
-        """Run standard benchmark queries for a table"""
+        """Run standard benchmark queries for a table."""
         benchmarks = []
 
         # Get table structure
@@ -239,7 +237,7 @@ class QueryPerformanceBenchmark:
         return benchmarks
 
     def benchmark_joins(self, tables: List[str]) -> List[QueryBenchmark]:
-        """Benchmark JOIN operations between tables"""
+        """Benchmark JOIN operations between tables."""
         benchmarks = []
 
         if len(tables) < 2:
@@ -268,7 +266,7 @@ class QueryPerformanceBenchmark:
         return benchmarks
 
     def analyze_results(self) -> Dict:
-        """Analyze benchmark results and provide recommendations"""
+        """Analyze benchmark results and provide recommendations."""
         if not self.results:
             return {}
 
@@ -331,7 +329,7 @@ class QueryPerformanceBenchmark:
         return analysis
 
     def export_results(self, output_file: Path):
-        """Export benchmark results to JSON file"""
+        """Export benchmark results to JSON file."""
         data = {
             "timestamp": datetime.now().isoformat(),
             "database": self.connection_params.get("database", "unknown"),
@@ -346,8 +344,7 @@ class QueryPerformanceBenchmark:
 
 
 def benchmark_example(example_name: str, connection_params: Dict) -> Dict:
-    """Benchmark queries for a specific example database"""
-
+    """Benchmark queries for a specific example database."""
     benchmark = QueryPerformanceBenchmark(connection_params)
 
     if not benchmark.connect():
@@ -370,7 +367,7 @@ def benchmark_example(example_name: str, connection_params: Dict) -> Dict:
 
         # Benchmark joins
         if len(tables) >= 2:
-            print(f"  - Benchmarking JOIN operations")
+            print("  - Benchmarking JOIN operations")
             benchmark.benchmark_joins(tables[:3])
 
         # Analyze and return results
@@ -389,8 +386,7 @@ def benchmark_example(example_name: str, connection_params: Dict) -> Dict:
 
 
 def main():
-    """Main entry point for query performance benchmarking"""
-
+    """Run entry point for query performance benchmarking."""
     # Example usage
     connection_params = {
         "host": "localhost",

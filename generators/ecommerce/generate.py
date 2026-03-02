@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-E-commerce Platform Data Generator
+"""E-commerce Platform Data Generator.
 
 Generates realistic e-commerce data including:
 - Users and customer segments
@@ -18,15 +17,17 @@ import yaml
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Tuple, Any
+from typing import List, Any
 import hashlib
 import uuid
 from faker import Faker
 
 
 class EcommerceGenerator:
+    """Represent EcommerceGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -66,7 +67,7 @@ class EcommerceGenerator:
         self.cart_id_counter = 1
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating E-commerce data...")
 
         # Master data
@@ -99,7 +100,7 @@ class EcommerceGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_categories(self):
-        """Generate product categories with hierarchy"""
+        """Generate product categories with hierarchy."""
         category_id = 1
 
         # Main categories from config
@@ -134,7 +135,7 @@ class EcommerceGenerator:
                 category_id += 1
 
     def _get_subcategories(self, main_category: str) -> List[str]:
-        """Get subcategories for a main category"""
+        """Get subcategories for a main category."""
         subcategories = {
             "electronics": [
                 "Smartphones",
@@ -171,7 +172,7 @@ class EcommerceGenerator:
         return subcategories.get(main_category, ["General"])
 
     def _generate_brands(self):
-        """Generate product brands"""
+        """Generate product brands."""
         brand_names = [
             "TechPro",
             "StyleMax",
@@ -207,7 +208,7 @@ class EcommerceGenerator:
             self.brands.append(brand)
 
     def _generate_suppliers(self):
-        """Generate suppliers"""
+        """Generate suppliers."""
         for i in range(self.config["counts"]["suppliers"]):
             supplier = {
                 "supplier_id": i + 1,
@@ -225,7 +226,7 @@ class EcommerceGenerator:
             self.suppliers.append(supplier)
 
     def _generate_warehouses(self):
-        """Generate warehouse locations"""
+        """Generate warehouse locations."""
         warehouse_cities = [
             ("New York", "NY", "northeast"),
             ("Los Angeles", "CA", "west"),
@@ -252,7 +253,7 @@ class EcommerceGenerator:
             self.warehouses.append(warehouse)
 
     def _generate_users(self):
-        """Generate user accounts"""
+        """Generate user accounts."""
         user_id = 1
 
         for _ in range(self.config["counts"]["users"]):
@@ -326,7 +327,7 @@ class EcommerceGenerator:
             user_id += 1
 
     def _generate_products(self):
-        """Generate products"""
+        """Generate products."""
         product_id = 1
 
         for _ in range(self.config["counts"]["products"]):
@@ -368,7 +369,7 @@ class EcommerceGenerator:
                 "unit_price": price,
                 "cost": round(price * random.uniform(0.3, 0.6), 2),  # 30-60% of price
                 "weight": round(random.uniform(0.1, 10.0), 2),
-                "dimensions": f"{random.randint(5,50)}x{random.randint(5,50)}x{random.randint(5,50)}",
+                "dimensions": f"{random.randint(5, 50)}x{random.randint(5, 50)}x{random.randint(5, 50)}",
                 "is_active": random.random() > 0.1,  # 90% active
                 "created_date": self.fake.date_between(
                     start_date="-2years", end_date="today"
@@ -384,7 +385,7 @@ class EcommerceGenerator:
             product_id += 1
 
     def _generate_product_name(self, category: str, brand: str) -> str:
-        """Generate realistic product name"""
+        """Generate realistic product name."""
         adjectives = [
             "Premium",
             "Professional",
@@ -410,7 +411,7 @@ class EcommerceGenerator:
         return f"{brand} {adjective} {product_type}"
 
     def _generate_inventory(self):
-        """Generate inventory records for products in warehouses"""
+        """Generate inventory records for products in warehouses."""
         for product in self.products:
             # Determine distribution strategy
             strategy = random.choices(
@@ -442,7 +443,7 @@ class EcommerceGenerator:
                     "last_restock_date": self.fake.date_between(
                         start_date="-30days", end_date="today"
                     ),
-                    "location_in_warehouse": f"{random.choice(['A','B','C'])}{random.randint(1,99):02d}",
+                    "location_in_warehouse": f"{random.choice(['A', 'B', 'C'])}{random.randint(1, 99):02d}",
                 }
                 self.inventory.append(inventory)
             else:
@@ -473,12 +474,12 @@ class EcommerceGenerator:
                             "last_restock_date": self.fake.date_between(
                                 start_date="-30days", end_date="today"
                             ),
-                            "location_in_warehouse": f"{random.choice(['A','B','C'])}{random.randint(1,99):02d}",
+                            "location_in_warehouse": f"{random.choice(['A', 'B', 'C'])}{random.randint(1, 99):02d}",
                         }
                         self.inventory.append(inventory)
 
     def _generate_promotions(self):
-        """Generate promotional campaigns"""
+        """Generate promotional campaigns."""
         for campaign in self.config["promotional_campaigns"]["campaigns"]:
             promotion = {
                 "promotion_id": len(self.promotions) + 1,
@@ -494,13 +495,13 @@ class EcommerceGenerator:
             self.promotions.append(promotion)
 
     def _generate_coupons(self):
-        """Generate discount coupons"""
+        """Generate discount coupons."""
         coupon_prefixes = ["SAVE", "DEAL", "DISCOUNT", "OFFER", "SPECIAL"]
 
         for i in range(50):  # Generate 50 coupons
             coupon = {
                 "coupon_id": i + 1,
-                "coupon_code": f"{random.choice(coupon_prefixes)}{random.randint(10,99)}",
+                "coupon_code": f"{random.choice(coupon_prefixes)}{random.randint(10, 99)}",
                 "discount_type": random.choice(["percentage", "fixed"]),
                 "discount_value": (
                     random.choice([5, 10, 15, 20, 25])
@@ -521,7 +522,7 @@ class EcommerceGenerator:
             self.coupons.append(coupon)
 
     def _generate_orders(self):
-        """Generate orders and related data"""
+        """Generate orders and related data."""
         print("  Generating orders...")
 
         start_date = datetime.strptime(
@@ -551,7 +552,7 @@ class EcommerceGenerator:
             )
 
             # Apply seasonal and daily patterns
-            month = order_date.month
+            _ = order_date.month
             day_of_week = order_date.strftime("%A").lower()
 
             seasonal_mult = self.config["order_patterns"]["seasonal"].get(
@@ -734,7 +735,7 @@ class EcommerceGenerator:
             self.order_id_counter += 1
 
     def _generate_carts(self):
-        """Generate abandoned cart data"""
+        """Generate abandoned cart data."""
         print("  Generating shopping carts...")
 
         # Generate carts for a portion of users
@@ -791,7 +792,7 @@ class EcommerceGenerator:
                 self.cart_id_counter += 1
 
     def _generate_reviews(self):
-        """Generate product reviews"""
+        """Generate product reviews."""
         print("  Generating reviews...")
 
         # Generate reviews for a portion of completed orders
@@ -887,7 +888,7 @@ class EcommerceGenerator:
                 product["review_count"] += 1
 
     def _generate_wishlists(self):
-        """Generate user wishlists"""
+        """Generate user wishlists."""
         print("  Generating wishlists...")
 
         # Some users have wishlists
@@ -918,7 +919,7 @@ class EcommerceGenerator:
                 wishlist_id += 1
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("users", self.users),
             ("addresses", self.addresses),
@@ -954,7 +955,7 @@ class EcommerceGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated E-commerce data
 -- Generated on {datetime.now()}
 
@@ -1038,10 +1039,11 @@ SELECT COUNT(*) as order_count FROM orders;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate E-commerce data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

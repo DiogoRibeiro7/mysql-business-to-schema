@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Template for creating new data generators
+"""Template for creating new data generators.
 
 This template provides a starting point for creating new generators
 that follow the project's best practices and conventions.
@@ -12,7 +11,7 @@ from datetime import datetime, timedelta
 from faker import Faker
 from pathlib import Path
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration - Adjust these values for your domain
 CONFIG = {
@@ -36,15 +35,14 @@ CONFIG = {
 
 
 class YourDomainGenerator:
-    """
-    Generator for [YOUR DOMAIN] data
+    """Generator for [YOUR DOMAIN] data.
 
     This generator creates realistic data for a [DESCRIPTION] system
     including [KEY FEATURES].
     """
 
     def __init__(self):
-        """Initialize the generator with Faker and data collections"""
+        """Initialize the generator with Faker and data collections."""
         self.fake = Faker()
         Faker.seed(42)  # For reproducible data
         random.seed(42)
@@ -67,11 +65,11 @@ class YourDomainGenerator:
         self.output_dir.mkdir(exist_ok=True)
 
     def generate_all(self):
-        """Main entry point - generates all data"""
+        """Run entry point - generates all data."""
         start_time = datetime.now()
 
         print(f"\n{self.__class__.__name__} Starting...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Primary Entities: {CONFIG['primary_entities']}")
         print(f"  Days of History: {CONFIG['days_of_history']}")
         print(f"  Output Directory: {self.output_dir}")
@@ -90,7 +88,7 @@ class YourDomainGenerator:
         self.print_summary()
 
     def generate_primary_entities(self):
-        """Generate the main entities for your domain"""
+        """Generate the main entities for your domain."""
         print(f"\nGenerating {CONFIG['primary_entities']} primary entities...")
 
         for i in range(CONFIG["primary_entities"]):
@@ -143,7 +141,7 @@ class YourDomainGenerator:
         )
 
     def generate_secondary_entities(self):
-        """Generate secondary entities that depend on primary entities"""
+        """Generate secondary entities that depend on primary entities."""
         print(f"Generating {CONFIG['secondary_entities']} secondary entities...")
 
         for i in range(CONFIG["secondary_entities"]):
@@ -184,8 +182,8 @@ class YourDomainGenerator:
         )
 
     def generate_relationships(self):
-        """Generate many-to-many relationships between entities"""
-        print(f"Generating entity relationships...")
+        """Generate many-to-many relationships between entities."""
+        print("Generating entity relationships...")
 
         relationship_set = set()  # Prevent duplicates
 
@@ -241,8 +239,8 @@ class YourDomainGenerator:
         )
 
     def generate_time_series_data(self):
-        """Generate time-series data (events, metrics, logs)"""
-        print(f"Generating time-series data...")
+        """Generate time-series data (events, metrics, logs)."""
+        print("Generating time-series data...")
 
         current_date = self.start_date
 
@@ -311,8 +309,8 @@ class YourDomainGenerator:
         )
 
     def generate_derived_data(self):
-        """Generate any derived or calculated data"""
-        print(f"Generating derived data...")
+        """Generate any derived or calculated data."""
+        print("Generating derived data...")
 
         # Example: Aggregated statistics
         aggregations = []
@@ -353,7 +351,7 @@ class YourDomainGenerator:
             )
 
     def get_weighted_hour(self):
-        """Get a random hour weighted towards business/peak hours"""
+        """Get a random hour weighted towards business/peak hours."""
         business_start, business_end = CONFIG["business_hours"]
         peak_start, peak_end = CONFIG["peak_hours"]
 
@@ -375,7 +373,7 @@ class YourDomainGenerator:
         return random.choices(range(24), weights=weights)[0]
 
     def save_to_file(self, filename, table_name, data, columns):
-        """Save data to SQL file"""
+        """Save data to SQL file."""
         filepath = self.output_dir / filename
 
         with open(filepath, "w", encoding="utf-8") as f:
@@ -387,7 +385,7 @@ class YourDomainGenerator:
                 # Write INSERT statements in batches
                 batch_size = 100
                 for i in range(0, len(data), batch_size):
-                    batch = data[i : i + batch_size]
+                    batch = data[i: i + batch_size]
                     f.write(
                         f"INSERT INTO `{table_name}` ({', '.join([f'`{col}`' for col in columns])}) VALUES\n"
                     )
@@ -421,16 +419,16 @@ class YourDomainGenerator:
         self.stats["tables_generated"] += 1
 
     def print_summary(self):
-        """Print generation summary"""
+        """Print generation summary."""
         print(f"\n{'='*50}")
-        print(f"Generation Summary")
+        print("Generation Summary")
         print(f"{'='*50}")
         print(f"Tables Generated: {self.stats['tables_generated']}")
         print(f"Total Records: {self.stats['total_records']:,}")
         print(f"Generation Time: {self.stats['generation_time']:.2f} seconds")
 
         # Table-specific statistics
-        print(f"\nTable Breakdown:")
+        print("\nTable Breakdown:")
         print(f"  Primary Entities: {len(self.primary_entities):,}")
         print(f"  Secondary Entities: {len(self.secondary_entities):,}")
         print(f"  Relationships: {len(self.relationships):,}")
@@ -439,7 +437,7 @@ class YourDomainGenerator:
         # Business metrics
         if self.time_series_data:
             success_events = sum(1 for e in self.time_series_data if e["success"])
-            print(f"\nBusiness Metrics:")
+            print("\nBusiness Metrics:")
             print(
                 f"  Success Rate: {(success_events/len(self.time_series_data)*100):.1f}%"
             )
@@ -454,7 +452,7 @@ class YourDomainGenerator:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     print(f"Starting {__file__} generator...")
     generator = YourDomainGenerator()
     generator.generate_all()

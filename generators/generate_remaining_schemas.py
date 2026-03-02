@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-"""
-Generate data for remaining schemas
+"""Generate data for remaining schemas.
+
 Covers: smart_energy, industrial_iot, smart_agriculture, fleet_management,
         healthcare_iot, streaming_ml, event_ticketing, cryptocurrency
 """
 
 import os
 import sys
-import json
 import random
 from datetime import datetime, timedelta
 from faker import Faker
-from typing import List, Dict
 
 # Fix encoding for Windows
 if sys.platform == "win32":
@@ -22,21 +20,22 @@ fake = Faker()
 
 
 class RemainingSchemaGenerator:
-    """Generate data for remaining business schemas"""
+    """Generate data for remaining business schemas."""
 
     def __init__(self, output_dir: str = "demo_data"):
+        """Initialize the instance."""
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
         self.fake = Faker()
 
     def escape_sql(self, value):
-        """Escape SQL special characters"""
+        """Escape SQL special characters."""
         if value is None:
             return "NULL"
         return str(value).replace("'", "''").replace("\\", "\\\\")
 
     def generate_smart_energy_data(self, count: int = 100):
-        """Generate smart energy/utility data"""
+        """Generate smart energy/utility data."""
         print("Generating smart energy data...")
 
         sql_lines = [
@@ -76,7 +75,7 @@ class RemainingSchemaGenerator:
         )
 
         reading_values = []
-        for i in range(count * 10):  # 10 readings per meter
+        for _ in range(count * 10):  # 10 readings per meter
             reading = (
                 f"('MTR{random.randint(1, count):08d}', "
                 f"'{fake.date_time_between(start_date='-30d', end_date='now')}', "
@@ -97,7 +96,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_industrial_iot_data(self, count: int = 100):
-        """Generate industrial IoT data"""
+        """Generate industrial IoT data."""
         print("Generating industrial IoT data...")
 
         sql_lines = [
@@ -146,7 +145,7 @@ class RemainingSchemaGenerator:
         )
 
         metric_values = []
-        for i in range(count * 5):
+        for _ in range(count * 5):
             metric = (
                 f"('EQP{random.randint(1, count//2):06d}', "
                 f"'{fake.date_time_between(start_date='-7d', end_date='now')}', "
@@ -168,7 +167,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_smart_agriculture_data(self, count: int = 100):
-        """Generate smart agriculture data"""
+        """Generate smart agriculture data."""
         print("Generating smart agriculture data...")
 
         sql_lines = [
@@ -240,7 +239,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_fleet_management_data(self, count: int = 100):
-        """Generate fleet management data"""
+        """Generate fleet management data."""
         print("Generating fleet management data...")
 
         sql_lines = [
@@ -334,7 +333,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_healthcare_iot_data(self, count: int = 100):
-        """Generate healthcare IoT data"""
+        """Generate healthcare IoT data."""
         print("Generating healthcare IoT data...")
 
         sql_lines = [
@@ -409,7 +408,7 @@ class RemainingSchemaGenerator:
         )
 
         reading_values = []
-        for i in range(count * 10):  # Many readings
+        for _ in range(count * 10):  # Many readings
             reading = (
                 f"('DEV{random.randint(1, count*2):08d}', "
                 f"'{fake.date_time_between(start_date='-7d', end_date='now')}', "
@@ -435,7 +434,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_streaming_ml_data(self, count: int = 100):
-        """Generate streaming ML platform data"""
+        """Generate streaming ML platform data."""
         print("Generating streaming ML data...")
 
         sql_lines = [
@@ -537,7 +536,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_event_ticketing_data(self, count: int = 100):
-        """Generate event ticketing data"""
+        """Generate event ticketing data."""
         print("Generating event ticketing data...")
 
         sql_lines = [
@@ -616,7 +615,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_cryptocurrency_data(self, count: int = 100):
-        """Generate cryptocurrency exchange data"""
+        """Generate cryptocurrency exchange data."""
         print("Generating cryptocurrency data...")
 
         sql_lines = [
@@ -686,7 +685,7 @@ class RemainingSchemaGenerator:
         )
 
         tx_values = []
-        for i in range(count * 3):
+        for _ in range(count * 3):
             tx = (
                 f"('0x{fake.sha256()}', "
                 f"'0x{fake.sha256()[:40]}', '0x{fake.sha256()[:40]}', "
@@ -711,7 +710,7 @@ class RemainingSchemaGenerator:
         return output_file
 
     def generate_all_remaining(self, records_per_schema: int = 100):
-        """Generate data for all remaining schemas"""
+        """Generate data for all remaining schemas."""
         print("\n" + "=" * 60)
         print("Generating Remaining Schema Data")
         print("=" * 60 + "\n")
@@ -765,7 +764,7 @@ class RemainingSchemaGenerator:
 
 
 def main():
-    """Main execution"""
+    """Run execution."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate remaining schema SQL data")

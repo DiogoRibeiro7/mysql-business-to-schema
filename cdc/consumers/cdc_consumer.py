@@ -1,25 +1,20 @@
 #!/usr/bin/env python3
-"""
-CDC Consumer for processing MySQL change events from Debezium
+"""CDC Consumer for processing MySQL change events from Debezium.
+
 Handles real-time data synchronization and event processing
 """
 
 import json
 import logging
-import signal
-import sys
 from datetime import datetime
-from typing import Dict, Any, Optional, List, Callable
-from dataclasses import dataclass, asdict
+from typing import Dict, Any, Optional, List
+from dataclasses import dataclass
 from enum import Enum
 import asyncio
 
-from kafka import KafkaConsumer, KafkaProducer
-from kafka.errors import KafkaError
+from kafka import KafkaConsumer
 import redis
-from elasticsearch import Elasticsearch, helpers
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from elasticsearch import Elasticsearch
 import pymongo
 from prometheus_client import Counter, Histogram, Gauge, start_http_server
 
@@ -53,7 +48,7 @@ cdc_lag_seconds = Gauge(
 
 
 class Operation(Enum):
-    """CDC operation types"""
+    """CDC operation types."""
 
     CREATE = "c"
     UPDATE = "u"
@@ -65,7 +60,7 @@ class Operation(Enum):
 
 @dataclass
 class CDCEvent:
-    """Represents a CDC event"""
+    """Represents a CDC event."""
 
     database: str
     table: str
@@ -81,39 +76,41 @@ class CDCEvent:
 
 
 class CDCProcessor:
-    """Base class for CDC event processors"""
+    """Base class for CDC event processors."""
 
     def __init__(self, name: str):
+        """Initialize the instance."""
         self.name = name
         self.processed_count = 0
         self.failed_count = 0
 
     async def process(self, event: CDCEvent) -> bool:
-        """Process a CDC event"""
+        """Process a CDC event."""
         raise NotImplementedError
 
     async def handle_create(self, event: CDCEvent) -> bool:
-        """Handle INSERT operation"""
+        """Handle INSERT operation."""
         raise NotImplementedError
 
     async def handle_update(self, event: CDCEvent) -> bool:
-        """Handle UPDATE operation"""
+        """Handle UPDATE operation."""
         raise NotImplementedError
 
     async def handle_delete(self, event: CDCEvent) -> bool:
-        """Handle DELETE operation"""
+        """Handle DELETE operation."""
         raise NotImplementedError
 
 
 class ElasticsearchProcessor(CDCProcessor):
-    """Processor for syncing to Elasticsearch"""
+    """Processor for syncing to Elasticsearch."""
 
     def __init__(self, es_client: Elasticsearch):
+        """Initialize the instance."""
         super().__init__("elasticsearch")
         self.es = es_client
 
     async def process(self, event: CDCEvent) -> bool:
-        """Process event and sync to Elasticsearch"""
+        """Process event and sync to Elasticsearch."""
         try:
             index_name = f"{event.database}_{event.table}"
 
@@ -131,7 +128,7 @@ class ElasticsearchProcessor(CDCProcessor):
             return False
 
     async def handle_create(self, event: CDCEvent, index_name: str) -> bool:
-        """Index new document"""
+        """Index new document."""
         doc_id = self._get_document_id(event)
         document = {
             **event.after,
@@ -144,7 +141,7 @@ class ElasticsearchProcessor(CDCProcessor):
         return True
 
     async def handle_update(self, event: CDCEvent, index_name: str) -> bool:
-        """Update existing document"""
+        """Update existing document."""
         doc_id = self._get_document_id(event)
         document = {
             **event.after,
@@ -158,28 +155,29 @@ class ElasticsearchProcessor(CDCProcessor):
         return True
 
     async def handle_delete(self, event: CDCEvent, index_name: str) -> bool:
-        """Delete document"""
+        """Delete document."""
         doc_id = self._get_document_id(event)
         self.es.delete(index=index_name, id=doc_id, ignore=[404])
         return True
 
     def _get_document_id(self, event: CDCEvent) -> str:
-        """Generate document ID from event key"""
+        """Generate document ID from event key."""
         if event.key:
             return "_".join(str(v) for v in event.key.values())
         return str(event.timestamp.timestamp())
 
 
 class RedisProcessor(CDCProcessor):
-    """Processor for caching in Redis"""
+    """Processor for caching in Redis."""
 
     def __init__(self, redis_client: redis.Redis):
+        """Initialize the instance."""
         super().__init__("redis")
         self.redis = redis_client
         self.ttl = 3600  # 1 hour default TTL
 
     async def process(self, event: CDCEvent) -> bool:
-        """Process event and update Redis cache"""
+        """Process event and update Redis cache."""
         try:
             cache_key = self._get_cache_key(event)
 
@@ -204,7 +202,7 @@ class RedisProcessor(CDCProcessor):
             return False
 
     async def _update_materialized_views(self, event: CDCEvent):
-        """Update materialized views in Redis"""
+        """Update materialized views in Redis."""
         # Example: Update aggregated statistics
         if event.table == "appointments" and event.database == "clinic_db":
             if event.after and event.after.get("doctor_id"):
@@ -213,7 +211,7 @@ class RedisProcessor(CDCProcessor):
                 self.redis.hincrby(key, datetime.now().strftime("%Y-%m-%d"), 1)
 
     def _get_cache_key(self, event: CDCEvent) -> str:
-        """Generate cache key"""
+        """Generate cache key."""
         key_parts = [event.database, event.table]
         if event.key:
             key_parts.extend(str(v) for v in event.key.values())
@@ -221,14 +219,15 @@ class RedisProcessor(CDCProcessor):
 
 
 class PostgreSQLProcessor(CDCProcessor):
-    """Processor for syncing to PostgreSQL data warehouse"""
+    """Processor for syncing to PostgreSQL data warehouse."""
 
     def __init__(self, pg_conn):
+        """Initialize the instance."""
         super().__init__("postgresql")
         self.conn = pg_conn
 
     async def process(self, event: CDCEvent) -> bool:
-        """Process event and sync to PostgreSQL"""
+        """Process event and sync to PostgreSQL."""
         try:
             schema = f"cdc_{event.database}"
             table = event.table
@@ -254,7 +253,7 @@ class PostgreSQLProcessor(CDCProcessor):
             return False
 
     async def _handle_insert(self, cursor, schema: str, table: str, event: CDCEvent):
-        """Handle INSERT to PostgreSQL"""
+        """Handle INSERT to PostgreSQL."""
         columns = list(event.after.keys())
         values = [event.after[col] for col in columns]
 
@@ -273,7 +272,7 @@ class PostgreSQLProcessor(CDCProcessor):
         cursor.execute(query, values)
 
     async def _handle_update(self, cursor, schema: str, table: str, event: CDCEvent):
-        """Handle UPDATE to PostgreSQL"""
+        """Handle UPDATE to PostgreSQL."""
         set_clause = ",".join([f"{k} = %s" for k in event.after.keys()])
         where_clause = " AND ".join([f"{k} = %s" for k in event.key.keys()])
 
@@ -288,7 +287,7 @@ class PostgreSQLProcessor(CDCProcessor):
         cursor.execute(query, values)
 
     async def _handle_delete(self, cursor, schema: str, table: str, event: CDCEvent):
-        """Handle DELETE in PostgreSQL (soft delete)"""
+        """Handle DELETE in PostgreSQL (soft delete)."""
         where_clause = " AND ".join([f"{k} = %s" for k in event.key.keys()])
 
         query = f"""
@@ -302,14 +301,15 @@ class PostgreSQLProcessor(CDCProcessor):
 
 
 class MongoDBProcessor(CDCProcessor):
-    """Processor for syncing to MongoDB"""
+    """Processor for syncing to MongoDB."""
 
     def __init__(self, mongo_client: pymongo.MongoClient):
+        """Initialize the instance."""
         super().__init__("mongodb")
         self.client = mongo_client
 
     async def process(self, event: CDCEvent) -> bool:
-        """Process event and sync to MongoDB"""
+        """Process event and sync to MongoDB."""
         try:
             db = self.client[f"cdc_{event.database}"]
             collection = db[event.table]
@@ -328,7 +328,7 @@ class MongoDBProcessor(CDCProcessor):
             return False
 
     async def _handle_insert(self, collection, event: CDCEvent):
-        """Insert document to MongoDB"""
+        """Insert document to MongoDB."""
         document = {
             **event.after,
             "_cdc_metadata": {
@@ -342,7 +342,7 @@ class MongoDBProcessor(CDCProcessor):
         collection.insert_one(document)
 
     async def _handle_update(self, collection, event: CDCEvent):
-        """Update document in MongoDB"""
+        """Update document in MongoDB."""
         filter_doc = self._build_filter(event.key)
         update_doc = {
             "$set": {
@@ -355,7 +355,7 @@ class MongoDBProcessor(CDCProcessor):
         collection.update_one(filter_doc, update_doc, upsert=True)
 
     async def _handle_delete(self, collection, event: CDCEvent):
-        """Delete document from MongoDB"""
+        """Delete document from MongoDB."""
         filter_doc = self._build_filter(event.key)
         # Soft delete
         update_doc = {
@@ -368,25 +368,26 @@ class MongoDBProcessor(CDCProcessor):
         collection.update_one(filter_doc, update_doc)
 
     def _build_filter(self, key: Dict[str, Any]) -> Dict[str, Any]:
-        """Build MongoDB filter from key"""
-        return {k: v for k, v in key.items()}
+        """Build MongoDB filter from key."""
+        return dict(key)
 
 
 class CDCConsumer:
-    """Main CDC consumer that orchestrates processing"""
+    """Run CDC consumer that orchestrates processing."""
 
     def __init__(self, config: Dict[str, Any]):
+        """Initialize the instance."""
         self.config = config
         self.kafka_consumer = None
         self.processors: List[CDCProcessor] = []
         self.running = False
 
     def add_processor(self, processor: CDCProcessor):
-        """Add a processor to the pipeline"""
+        """Add a processor to the pipeline."""
         self.processors.append(processor)
 
     async def start(self):
-        """Start consuming CDC events"""
+        """Start consuming CDC events."""
         self.running = True
 
         # Initialize Kafka consumer
@@ -413,14 +414,14 @@ class CDCConsumer:
             await self.stop()
 
     async def _consume_loop(self):
-        """Main consumption loop"""
+        """Run consumption loop."""
         while self.running:
             try:
                 # Poll for messages
                 messages = self.kafka_consumer.poll(timeout_ms=1000)
 
                 if messages:
-                    for topic_partition, records in messages.items():
+                    for _, records in messages.items():
                         for record in records:
                             await self._process_record(record)
 
@@ -432,7 +433,7 @@ class CDCConsumer:
                 await asyncio.sleep(5)
 
     async def _process_record(self, record):
-        """Process a single Kafka record"""
+        """Process a single Kafka record."""
         try:
             # Parse CDC event
             event = self._parse_event(record)
@@ -475,7 +476,7 @@ class CDCConsumer:
             ).inc()
 
     def _parse_event(self, record) -> CDCEvent:
-        """Parse Kafka record into CDCEvent"""
+        """Parse Kafka record into CDCEvent."""
         value = record.value
         key = record.key
 
@@ -504,14 +505,14 @@ class CDCConsumer:
         )
 
     async def stop(self):
-        """Stop the consumer"""
+        """Stop the consumer."""
         self.running = False
         if self.kafka_consumer:
             self.kafka_consumer.close()
 
 
 async def main():
-    """Main entry point"""
+    """Run entry point."""
     # Start metrics server
     start_http_server(8000)
 

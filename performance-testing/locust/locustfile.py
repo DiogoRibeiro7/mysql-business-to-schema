@@ -1,29 +1,23 @@
 #!/usr/bin/env python3
-"""
-Locust Load Testing Suite for MySQL Business-to-Schema
+"""Locust Load Testing Suite for MySQL Business-to-Schema.
+
 Comprehensive performance testing scenarios
 """
 
-import json
 import random
-import time
 import uuid
 from datetime import datetime, timedelta
-from typing import Dict, List, Any
 
 from locust import HttpUser, task, between, events, tag
-from locust.exception import RescheduleTask
-from locust.runners import MasterRunner, WorkerRunner
-import gevent
 
 
 # Test data generators
 class DataGenerator:
-    """Generate realistic test data for different schemas"""
+    """Generate realistic test data for different schemas."""
 
     @staticmethod
     def generate_patient():
-        """Generate patient data for clinic schema"""
+        """Generate patient data for clinic schema."""
         return {
             "name": f"Patient {uuid.uuid4().hex[:8]}",
             "date_of_birth": (
@@ -48,7 +42,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_appointment():
-        """Generate appointment data"""
+        """Generate appointment data."""
         return {
             "patient_id": random.randint(1, 10000),
             "doctor_id": random.randint(1, 100),
@@ -64,7 +58,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_order():
-        """Generate e-commerce order data"""
+        """Generate e-commerce order data."""
         items = []
         for _ in range(random.randint(1, 5)):
             items.append(
@@ -90,7 +84,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_iot_reading():
-        """Generate IoT sensor reading"""
+        """Generate IoT sensor reading."""
         sensor_types = {
             "temperature": {"min": -20, "max": 50, "unit": "celsius"},
             "humidity": {"min": 0, "max": 100, "unit": "percent"},
@@ -121,7 +115,7 @@ class DataGenerator:
 
     @staticmethod
     def generate_social_post():
-        """Generate social media post"""
+        """Generate social media post."""
         return {
             "user_id": random.randint(1, 10000),
             "content": f"Post content {uuid.uuid4().hex} "
@@ -134,10 +128,10 @@ class DataGenerator:
 
 # Base user class with common functionality
 class BaseUser(HttpUser):
-    """Base user with common authentication and headers"""
+    """Base user with common authentication and headers."""
 
     def on_start(self):
-        """Called when a user starts"""
+        """Handle user start."""
         # Login and get token
         response = self.client.post(
             "/api/auth/login",
@@ -158,14 +152,14 @@ class BaseUser(HttpUser):
             response.failure(f"Login failed: {response.status_code}")
 
     def on_stop(self):
-        """Called when a user stops"""
+        """Handle user stop."""
         # Logout
         self.client.post("/api/auth/logout", headers=self.headers, catch_response=True)
 
 
 # Clinic System User
 class ClinicUser(BaseUser):
-    """User simulating clinic system operations"""
+    """User simulating clinic system operations."""
 
     wait_time = between(1, 3)
     weight = 20
@@ -173,7 +167,7 @@ class ClinicUser(BaseUser):
     @task(10)
     @tag("read", "clinic")
     def get_patients(self):
-        """Get list of patients"""
+        """Get list of patients."""
         with self.client.get(
             "/api/clinic/patients", headers=self.headers, catch_response=True
         ) as response:
@@ -185,7 +179,7 @@ class ClinicUser(BaseUser):
     @task(5)
     @tag("write", "clinic")
     def create_patient(self):
-        """Create a new patient"""
+        """Create a new patient."""
         patient_data = DataGenerator.generate_patient()
 
         with self.client.post(
@@ -202,7 +196,7 @@ class ClinicUser(BaseUser):
     @task(8)
     @tag("read", "clinic")
     def get_patient_details(self):
-        """Get specific patient details"""
+        """Get specific patient details."""
         patient_id = random.randint(1, 10000)
 
         with self.client.get(
@@ -222,7 +216,7 @@ class ClinicUser(BaseUser):
     @task(7)
     @tag("write", "clinic")
     def create_appointment(self):
-        """Create an appointment"""
+        """Create an appointment."""
         appointment_data = DataGenerator.generate_appointment()
 
         with self.client.post(
@@ -241,7 +235,7 @@ class ClinicUser(BaseUser):
     @task(3)
     @tag("update", "clinic")
     def update_appointment(self):
-        """Update appointment status"""
+        """Update appointment status."""
         appointment_id = random.randint(1, 10000)
 
         with self.client.patch(
@@ -262,7 +256,7 @@ class ClinicUser(BaseUser):
 
 # E-commerce User
 class EcommerceUser(BaseUser):
-    """User simulating e-commerce operations"""
+    """User simulating e-commerce operations."""
 
     wait_time = between(0.5, 2)
     weight = 30
@@ -270,7 +264,7 @@ class EcommerceUser(BaseUser):
     @task(15)
     @tag("read", "ecommerce")
     def browse_products(self):
-        """Browse product catalog"""
+        """Browse product catalog."""
         category = random.choice(["electronics", "clothing", "books", "home"])
 
         with self.client.get(
@@ -286,7 +280,7 @@ class EcommerceUser(BaseUser):
     @task(10)
     @tag("read", "ecommerce")
     def search_products(self):
-        """Search for products"""
+        """Search for products."""
         query = random.choice(["laptop", "shirt", "book", "chair", "phone"])
 
         with self.client.get(
@@ -302,7 +296,7 @@ class EcommerceUser(BaseUser):
     @task(8)
     @tag("write", "ecommerce")
     def add_to_cart(self):
-        """Add item to cart"""
+        """Add item to cart."""
         cart_item = {
             "product_id": random.randint(1, 1000),
             "quantity": random.randint(1, 3),
@@ -322,7 +316,7 @@ class EcommerceUser(BaseUser):
     @task(5)
     @tag("write", "ecommerce")
     def create_order(self):
-        """Create an order"""
+        """Create an order."""
         order_data = DataGenerator.generate_order()
 
         with self.client.post(
@@ -339,7 +333,7 @@ class EcommerceUser(BaseUser):
     @task(3)
     @tag("read", "ecommerce")
     def get_order_status(self):
-        """Check order status"""
+        """Check order status."""
         order_id = random.randint(1, 10000)
 
         with self.client.get(
@@ -357,7 +351,7 @@ class EcommerceUser(BaseUser):
 
 # IoT System User
 class IoTUser(BaseUser):
-    """User simulating IoT device operations"""
+    """User simulating IoT device operations."""
 
     wait_time = between(0.1, 1)
     weight = 35
@@ -365,7 +359,7 @@ class IoTUser(BaseUser):
     @task(50)
     @tag("write", "iot")
     def send_reading(self):
-        """Send sensor reading"""
+        """Send sensor reading."""
         reading_data = DataGenerator.generate_iot_reading()
 
         with self.client.post(
@@ -382,7 +376,7 @@ class IoTUser(BaseUser):
     @task(10)
     @tag("write", "iot")
     def send_batch_readings(self):
-        """Send batch of readings"""
+        """Send batch of readings."""
         readings = [
             DataGenerator.generate_iot_reading() for _ in range(random.randint(10, 50))
         ]
@@ -403,7 +397,7 @@ class IoTUser(BaseUser):
     @task(5)
     @tag("read", "iot")
     def get_device_status(self):
-        """Get device status"""
+        """Get device status."""
         device_id = f"DEV{random.randint(1, 1000):04d}"
 
         with self.client.get(
@@ -421,7 +415,7 @@ class IoTUser(BaseUser):
     @task(3)
     @tag("read", "iot")
     def get_device_history(self):
-        """Get device reading history"""
+        """Get device reading history."""
         device_id = f"DEV{random.randint(1, 1000):04d}"
 
         with self.client.get(
@@ -441,7 +435,7 @@ class IoTUser(BaseUser):
 
 # Social Media User
 class SocialMediaUser(BaseUser):
-    """User simulating social media operations"""
+    """User simulating social media operations."""
 
     wait_time = between(0.5, 2)
     weight = 15
@@ -449,7 +443,7 @@ class SocialMediaUser(BaseUser):
     @task(20)
     @tag("read", "social")
     def get_feed(self):
-        """Get user feed"""
+        """Get user feed."""
         with self.client.get(
             "/api/social/feed", headers=self.headers, catch_response=True
         ) as response:
@@ -461,7 +455,7 @@ class SocialMediaUser(BaseUser):
     @task(10)
     @tag("write", "social")
     def create_post(self):
-        """Create a post"""
+        """Create a post."""
         post_data = DataGenerator.generate_social_post()
 
         with self.client.post(
@@ -478,7 +472,7 @@ class SocialMediaUser(BaseUser):
     @task(8)
     @tag("write", "social")
     def like_post(self):
-        """Like a post"""
+        """Like a post."""
         post_id = random.randint(1, 100000)
 
         with self.client.post(
@@ -496,7 +490,7 @@ class SocialMediaUser(BaseUser):
     @task(5)
     @tag("write", "social")
     def comment_on_post(self):
-        """Comment on a post"""
+        """Comment on a post."""
         post_id = random.randint(1, 100000)
         comment = {"content": f"Comment {uuid.uuid4().hex[:8]}"}
 
@@ -516,7 +510,7 @@ class SocialMediaUser(BaseUser):
     @task(3)
     @tag("read", "social")
     def get_profile(self):
-        """Get user profile"""
+        """Get user profile."""
         user_id = random.randint(1, 10000)
 
         with self.client.get(
@@ -532,7 +526,7 @@ class SocialMediaUser(BaseUser):
 
 # Admin User for Complex Operations
 class AdminUser(BaseUser):
-    """User simulating admin operations"""
+    """User simulating admin operations."""
 
     wait_time = between(2, 5)
     weight = 5
@@ -540,7 +534,7 @@ class AdminUser(BaseUser):
     @task(10)
     @tag("read", "admin")
     def get_dashboard_metrics(self):
-        """Get dashboard metrics"""
+        """Get dashboard metrics."""
         with self.client.get(
             "/api/admin/metrics/dashboard", headers=self.headers, catch_response=True
         ) as response:
@@ -552,7 +546,7 @@ class AdminUser(BaseUser):
     @task(5)
     @tag("read", "admin")
     def run_report(self):
-        """Run analytics report"""
+        """Run analytics report."""
         report_type = random.choice(["revenue", "users", "performance", "errors"])
 
         with self.client.post(
@@ -569,7 +563,7 @@ class AdminUser(BaseUser):
     @task(3)
     @tag("write", "admin")
     def update_configuration(self):
-        """Update system configuration"""
+        """Update system configuration."""
         config = {
             "setting": f"config_{random.randint(1, 100)}",
             "value": random.choice(["true", "false", "100", "enabled", "disabled"]),
@@ -586,7 +580,7 @@ class AdminUser(BaseUser):
     @task(2)
     @tag("write", "admin")
     def trigger_backup(self):
-        """Trigger database backup"""
+        """Trigger database backup."""
         with self.client.post(
             "/api/admin/backup/trigger", headers=self.headers, catch_response=True
         ) as response:
@@ -608,21 +602,21 @@ def on_request(
     exception,
     **kwargs,
 ):
-    """Custom request handler for additional metrics"""
+    """Handle request metrics collection."""
     if exception:
         print(f"Request failed: {name} - {exception}")
 
 
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
-    """Initialize test environment"""
+    """Initialize the test environment."""
     print("Starting load test...")
     print(f"Target host: {environment.host}")
 
 
 @events.test_stop.add_listener
 def on_test_stop(environment, **kwargs):
-    """Clean up after test"""
+    """Clean up after the test."""
     print("Load test completed")
     print(f"Total requests: {environment.stats.total.num_requests}")
     print(f"Failure rate: {environment.stats.total.fail_ratio:.2%}")

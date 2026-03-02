@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Event Ticketing Platform Data Generator
+"""Event Ticketing Platform Data Generator.
+
 Generates realistic sample data for the event ticketing database schema
 with dynamic pricing, seat management, and booking patterns
 """
@@ -8,14 +8,10 @@ with dynamic pricing, seat management, and booking patterns
 import random
 import json
 import csv
-import os
-import sys
-import math
 import hashlib
 import argparse
-from datetime import datetime, timedelta, date, time
-from typing import List, Dict, Any, Tuple, Optional
-from decimal import Decimal
+from datetime import datetime, timedelta, date
+from typing import List, Dict, Any, Optional
 from pathlib import Path
 from collections import defaultdict
 
@@ -34,8 +30,10 @@ from faker.providers import (
 
 
 class EventTicketingDataGenerator:
+    """Represent EventTicketingDataGenerator."""
+
     def __init__(self, config_path: str = "config.json"):
-        """Initialize the generator with configuration"""
+        """Initialize the generator with configuration."""
         self.fake = Faker("en_US")
         self.fake.add_provider(person)
         self.fake.add_provider(address)
@@ -194,7 +192,7 @@ class EventTicketingDataGenerator:
         ]
 
     def generate_venues(self):
-        """Generate venue configurations with detailed seating"""
+        """Generate venue configurations with detailed seating."""
         print("  Generating venues...")
 
         venue_names = {
@@ -277,8 +275,7 @@ class EventTicketingDataGenerator:
         total_capacity: int,
         section_types: List[str],
     ):
-        """Generate detailed seating configuration for a venue"""
-
+        """Generate detailed seating configuration for a venue."""
         self.seat_cache[venue_id] = {}
         remaining_capacity = total_capacity
         sections_count = min(
@@ -351,8 +348,7 @@ class EventTicketingDataGenerator:
     def _generate_rows_and_seats(
         self, section_id: int, section_capacity: int, venue_type: str
     ):
-        """Generate rows and individual seats for a section"""
-
+        """Generate rows and individual seats for a section."""
         # Calculate rows and seats distribution
         if venue_type in ["stadium", "arena"]:
             avg_seats_per_row = random.randint(20, 40)
@@ -434,7 +430,7 @@ class EventTicketingDataGenerator:
             remaining_seats -= seats_in_row
 
     def generate_event_categories(self):
-        """Generate event category hierarchy"""
+        """Generate event category hierarchy."""
         print("  Generating event categories...")
 
         for main_category in self.config["event_categories"]:
@@ -466,7 +462,7 @@ class EventTicketingDataGenerator:
                 )
 
     def generate_performers(self):
-        """Generate performers and artists"""
+        """Generate performers and artists."""
         print("  Generating performers...")
 
         performer_types = ["artist", "band", "team", "speaker", "company", "other"]
@@ -537,7 +533,7 @@ class EventTicketingDataGenerator:
             self.performers.append(performer)
 
     def generate_events(self):
-        """Generate events with multiple performances"""
+        """Generate events with multiple performances."""
         print("  Generating events and performances...")
 
         for _ in range(self.config["counts"]["events"]):
@@ -617,8 +613,7 @@ class EventTicketingDataGenerator:
             self._generate_performances(event)
 
     def _generate_performances(self, event: Dict):
-        """Generate individual performances for an event"""
-
+        """Generate individual performances for an event."""
         # Determine number of performances based on event type
         if event["event_type"] == "single":
             num_performances = 1
@@ -712,8 +707,7 @@ class EventTicketingDataGenerator:
     def _generate_performance_pricing(
         self, performance_id: int, venue_id: int, min_price: float, max_price: float
     ):
-        """Generate pricing tiers for a performance"""
-
+        """Generate pricing tiers for a performance."""
         sections = [s for s in self.venue_sections if s["venue_id"] == venue_id]
 
         price_range = max_price - min_price
@@ -767,7 +761,7 @@ class EventTicketingDataGenerator:
                 )
 
     def generate_customers(self):
-        """Generate customer accounts"""
+        """Generate customer accounts."""
         print("  Generating customers...")
 
         for _ in range(self.config["counts"]["customers"]):
@@ -826,8 +820,7 @@ class EventTicketingDataGenerator:
                 self._generate_loyalty_member(customer_id)
 
     def _generate_customer_preferences(self, customer_id: int):
-        """Generate customer preferences for personalization"""
-
+        """Generate customer preferences for personalization."""
         pref_id = self.counters["preference"]
         self.counters["preference"] += 1
 
@@ -876,8 +869,7 @@ class EventTicketingDataGenerator:
         )
 
     def _generate_payment_methods(self, customer_id: int):
-        """Generate payment methods for a customer"""
-
+        """Generate payment methods for a customer."""
         num_methods = random.randint(1, 2)
 
         for i in range(num_methods):
@@ -915,8 +907,7 @@ class EventTicketingDataGenerator:
             )
 
     def _generate_loyalty_member(self, customer_id: int):
-        """Generate loyalty program membership"""
-
+        """Generate loyalty program membership."""
         member_id = self.counters["loyalty"]
         self.counters["loyalty"] += 1
 
@@ -949,7 +940,7 @@ class EventTicketingDataGenerator:
         )
 
     def generate_bookings(self):
-        """Generate ticket bookings and transactions"""
+        """Generate ticket bookings and transactions."""
         print("  Generating bookings and tickets...")
 
         # Get performances available for booking
@@ -969,8 +960,7 @@ class EventTicketingDataGenerator:
             self._generate_booking()
 
     def _generate_booking(self):
-        """Generate a single booking with tickets"""
-
+        """Generate a single booking with tickets."""
         booking_id = self.counters["booking"]
         self.counters["booking"] += 1
 
@@ -1108,8 +1098,7 @@ class EventTicketingDataGenerator:
                 self._generate_resale_listing(booking_id)
 
     def _create_ticket(self, performance: Dict, customer_id: int) -> Optional[Dict]:
-        """Create a single ticket with seat selection"""
-
+        """Create a single ticket with seat selection."""
         venue_id = performance["venue_id"]
 
         # Get available sections
@@ -1133,7 +1122,7 @@ class EventTicketingDataGenerator:
             if section["section_id"] in self.seat_cache.get(venue_id, {}):
                 rows = self.seat_cache[venue_id][section["section_id"]]
 
-                for row_id, seats in rows.items():
+                for _, seats in rows.items():
                     available_seats = [
                         s
                         for s in seats
@@ -1167,8 +1156,7 @@ class EventTicketingDataGenerator:
         return None  # No available seats found
 
     def _get_or_create_promo_code(self) -> Optional[Dict]:
-        """Get existing or create new promotional code"""
-
+        """Get existing or create new promotional code."""
         if not self.promotional_codes:
             # Create some promotional codes
             for _ in range(self.config["counts"]["promotional_codes"]):
@@ -1200,8 +1188,7 @@ class EventTicketingDataGenerator:
         return random.choice(active_promos) if active_promos else None
 
     def _create_payment_transaction(self, booking: Dict):
-        """Create payment transaction record"""
-
+        """Create payment transaction record."""
         payment_id = self.counters["payment_transaction"]
         self.counters["payment_transaction"] += 1
 
@@ -1234,8 +1221,7 @@ class EventTicketingDataGenerator:
         )
 
     def _generate_ticket_transfer(self, booking_id: int):
-        """Generate ticket transfer to another customer"""
-
+        """Generate ticket transfer to another customer."""
         tickets = [t for t in self.tickets if t["booking_id"] == booking_id]
         if not tickets:
             return
@@ -1272,8 +1258,7 @@ class EventTicketingDataGenerator:
             )
 
     def _generate_resale_listing(self, booking_id: int):
-        """Generate resale listing for tickets"""
-
+        """Generate resale listing for tickets."""
         tickets = [
             t
             for t in self.tickets
@@ -1329,8 +1314,7 @@ class EventTicketingDataGenerator:
                 self._create_resale_transaction(listing)
 
     def _create_resale_transaction(self, listing: Dict):
-        """Create resale transaction record"""
-
+        """Create resale transaction record."""
         trans_id = self.counters["resale_transaction"]
         self.counters["resale_transaction"] += 1
 
@@ -1349,7 +1333,7 @@ class EventTicketingDataGenerator:
         )
 
     def generate_analytics(self):
-        """Generate analytics and metrics data"""
+        """Generate analytics and metrics data."""
         print("  Generating analytics data...")
 
         # Generate sales metrics by performance
@@ -1418,8 +1402,7 @@ class EventTicketingDataGenerator:
             self.counters["utilization"] += 1
 
     def _get_day_of_week_factor(self, date: datetime) -> float:
-        """Get pricing factor based on day of week"""
-
+        """Get pricing factor based on day of week."""
         days = [
             "monday",
             "tuesday",
@@ -1434,13 +1417,11 @@ class EventTicketingDataGenerator:
         return self.config["dynamic_pricing"]["day_of_week_factors"].get(day_name, 1.0)
 
     def _weighted_choice(self, choices: List, weights: List):
-        """Make a weighted random choice"""
-
+        """Make a weighted random choice."""
         return random.choices(choices, weights=weights)[0]
 
     def save_to_csv(self, output_dir: Optional[str] = None):
-        """Save all generated data to CSV files"""
-
+        """Save all generated data to CSV files."""
         if output_dir is None:
             output_dir = self.config["output_dir"]
 
@@ -1506,8 +1487,7 @@ class EventTicketingDataGenerator:
                 print(f"  Saved {len(data)} records to {table_name}.csv")
 
     def generate_all_data(self):
-        """Generate all data in the correct sequence"""
-
+        """Generate all data in the correct sequence."""
         print("Event Ticketing Data Generator Starting...")
         print(
             f"  Configuration: {self.config['counts']['venues']} venues, {self.config['counts']['events']} events"
@@ -1554,6 +1534,7 @@ class EventTicketingDataGenerator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="Generate event ticketing platform sample data"
     )

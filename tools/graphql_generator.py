@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
-"""
-GraphQL Schema Generator for MySQL Business-to-Schema
+"""GraphQL Schema Generator for MySQL Business-to-Schema.
 
 Converts MySQL schemas to GraphQL type definitions.
 """
 
-import os
 import re
 import argparse
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 from datetime import datetime
 
 
 class MySQLToGraphQLMapper:
-    """Maps MySQL types to GraphQL types"""
+    """Maps MySQL types to GraphQL types."""
 
     TYPE_MAPPING = {
         # Numeric types
@@ -61,7 +59,7 @@ class MySQLToGraphQLMapper:
 
     @classmethod
     def mysql_to_graphql(cls, mysql_type: str, nullable: bool = True) -> str:
-        """Convert MySQL type to GraphQL type"""
+        """Convert MySQL type to GraphQL type."""
         # Extract base type
         base_type = mysql_type.lower().split("(")[0].strip()
 
@@ -76,15 +74,16 @@ class MySQLToGraphQLMapper:
 
 
 class GraphQLSchemaGenerator:
-    """Generates GraphQL schemas from MySQL DDL"""
+    """Generate GraphQL schemas from MySQL DDL."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.tables = {}
         self.relationships = []
         self.enums = {}
 
     def parse_sql_file(self, sql_file: Path) -> bool:
-        """Parse SQL file and extract schema information"""
+        """Parse SQL file and extract schema information."""
         try:
             with open(sql_file, "r", encoding="utf-8") as f:
                 content = f.read()
@@ -108,7 +107,7 @@ class GraphQLSchemaGenerator:
             return False
 
     def _parse_table(self, table_name: str, content: str):
-        """Parse a CREATE TABLE statement"""
+        """Parse a CREATE TABLE statement."""
         fields = []
         primary_keys = []
         foreign_keys = []
@@ -199,7 +198,7 @@ class GraphQLSchemaGenerator:
         }
 
     def generate_graphql_schema(self) -> str:
-        """Generate GraphQL schema from parsed tables"""
+        """Generate GraphQL schema from parsed tables."""
         schema_parts = []
 
         # Add header
@@ -233,7 +232,7 @@ class GraphQLSchemaGenerator:
         return "\n\n".join(schema_parts)
 
     def _generate_header(self) -> str:
-        """Generate schema header"""
+        """Generate schema header."""
         return f"""# GraphQL Schema Generated from MySQL
 # Generated: {datetime.now().isoformat()}
 # Generator: MySQL Business-to-Schema GraphQL Generator
@@ -244,7 +243,7 @@ schema {{
 }}"""
 
     def _generate_scalars(self) -> str:
-        """Generate custom scalar definitions"""
+        """Generate custom scalar definitions."""
         return """# Custom Scalars
 scalar DateTime
 scalar Date
@@ -253,14 +252,14 @@ scalar JSON
 scalar BigInt"""
 
     def _generate_enum(self, name: str, values: List[str]) -> str:
-        """Generate enum type"""
+        """Generate enum type."""
         enum_values = "\n  ".join(values)
         return f"""enum {name} {{
   {enum_values}
 }}"""
 
     def _generate_type(self, table_name: str, table_info: Dict) -> str:
-        """Generate GraphQL type for a table"""
+        """Generate GraphQL type for a table."""
         type_name = self._to_pascal_case(table_name)
         fields_str = []
 
@@ -318,7 +317,7 @@ scalar BigInt"""
 }}"""
 
     def _generate_input_type(self, table_name: str, table_info: Dict) -> str:
-        """Generate GraphQL input type for mutations"""
+        """Generate GraphQL input type for mutations."""
         type_name = self._to_pascal_case(table_name)
         fields_str = []
 
@@ -360,7 +359,7 @@ input {type_name}UpdateInput {{
 }}"""
 
     def _generate_queries(self) -> str:
-        """Generate Query type with all queries"""
+        """Generate Query type with all queries."""
         queries = []
 
         for table_name in self.tables:
@@ -389,12 +388,12 @@ input {type_name}UpdateInput {{
 }}"""
 
     def _generate_mutations(self) -> str:
-        """Generate Mutation type with all mutations"""
+        """Generate Mutation type with all mutations."""
         mutations = []
 
         for table_name in self.tables:
             type_name = self._to_pascal_case(table_name)
-            single_name = self._to_camel_case(table_name.rstrip("s"))
+            _ = self._to_camel_case(table_name.rstrip("s"))
 
             # Create mutation
             mutations.append(
@@ -419,29 +418,29 @@ input {type_name}UpdateInput {{
 }}"""
 
     def _to_pascal_case(self, snake_str: str) -> str:
-        """Convert snake_case to PascalCase"""
+        """Convert snake_case to PascalCase."""
         components = snake_str.split("_")
         return "".join(x.title() for x in components)
 
     def _to_camel_case(self, snake_str: str) -> str:
-        """Convert snake_case to camelCase"""
+        """Convert snake_case to camelCase."""
         components = snake_str.split("_")
         return components[0] + "".join(x.title() for x in components[1:])
 
 
 def generate_for_example(example_dir: Path) -> bool:
-    """Generate GraphQL schema for a single example"""
+    """Generate GraphQL schema for a single example."""
     print(f"Generating GraphQL schema for {example_dir.name}...")
 
     # Find SQL files
     schema_dir = example_dir / "schema"
     if not schema_dir.exists():
-        print(f"  No schema directory found")
+        print("  No schema directory found")
         return False
 
     sql_files = list(schema_dir.glob("*.sql"))
     if not sql_files:
-        print(f"  No SQL files found")
+        print("  No SQL files found")
         return False
 
     # Create generator
@@ -453,7 +452,7 @@ def generate_for_example(example_dir: Path) -> bool:
         generator.parse_sql_file(sql_file)
 
     if not generator.tables:
-        print(f"  No tables found in SQL files")
+        print("  No tables found in SQL files")
         return False
 
     # Generate GraphQL schema
@@ -476,7 +475,7 @@ def generate_for_example(example_dir: Path) -> bool:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     parser = argparse.ArgumentParser(
         description="Generate GraphQL schemas from MySQL DDL"
     )

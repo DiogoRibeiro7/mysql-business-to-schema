@@ -1,4 +1,4 @@
-"""Docker command - Docker container management"""
+"""Docker command - Docker container management."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="docker")
 def docker_group():
     """Manage Docker containers and compose."""
-    pass
 
 
 @docker_group.command(name="up")

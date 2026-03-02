@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-MySQL Business-to-Schema Custom Prometheus Exporter
+"""MySQL Business-to-Schema Custom Prometheus Exporter.
 
 Provides business-specific metrics for each schema example.
 """
@@ -8,11 +7,9 @@ Provides business-specific metrics for each schema example.
 import os
 import time
 import logging
-from typing import Dict, List, Any
+from typing import Dict, List
 import mysql.connector
-from prometheus_client import start_http_server, Gauge, Counter, Histogram, Info
-from prometheus_client.core import GaugeMetricFamily, CounterMetricFamily, REGISTRY
-from prometheus_client import CollectorRegistry
+from prometheus_client import start_http_server, Gauge, Counter
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -85,6 +82,7 @@ class SchemaMetricsCollector:
     """Collects MySQL schema-specific metrics."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.connection = None
         self.connect()
 
@@ -131,7 +129,7 @@ class SchemaMetricsCollector:
 
             try:
                 # Table count
-                tables = self.execute_query(f"SHOW TABLES", database=db_name)
+                tables = self.execute_query("SHOW TABLES", database=db_name)
                 SCHEMA_METRICS["table_count"].labels(database=db_name).set(len(tables))
 
                 # Database size
@@ -188,7 +186,6 @@ class SchemaMetricsCollector:
 
     def collect_business_metrics(self, database: str):
         """Collect business-specific metrics based on schema type."""
-
         # Clinic schema metrics
         if "clinic" in database.lower():
             try:
@@ -210,7 +207,7 @@ class SchemaMetricsCollector:
                     SCHEMA_METRICS["clinic_appointments"].labels(database=database).set(
                         result[0]["count"]
                     )
-            except:
+            except Exception:
                 pass
 
         # E-commerce schema metrics
@@ -233,7 +230,7 @@ class SchemaMetricsCollector:
                     SCHEMA_METRICS["ecommerce_revenue"].labels(database=database).set(
                         result[0]["revenue"]
                     )
-            except:
+            except Exception:
                 pass
 
         # IoT schema metrics
@@ -257,7 +254,7 @@ class SchemaMetricsCollector:
                     SCHEMA_METRICS["iot_readings"].labels(database=database).inc(
                         result[0]["count"]
                     )
-            except:
+            except Exception:
                 pass
 
         # Social media schema metrics
@@ -282,11 +279,11 @@ class SchemaMetricsCollector:
                     SCHEMA_METRICS["social_posts"].labels(database=database).set(
                         result[0]["count"]
                     )
-            except:
+            except Exception:
                 pass
 
     def run(self):
-        """Main loop to collect metrics."""
+        """Run loop to collect metrics."""
         while True:
             try:
                 self.collect_schema_metrics()
@@ -296,7 +293,7 @@ class SchemaMetricsCollector:
                 # Try to reconnect
                 try:
                     self.connect()
-                except:
+                except Exception:
                     pass
 
             # Sleep for 30 seconds
@@ -304,7 +301,7 @@ class SchemaMetricsCollector:
 
 
 def main():
-    """Main entry point."""
+    """Run entry point."""
     logger.info(f"Starting MySQL Schema Exporter on port {EXPORT_PORT}")
 
     # Start Prometheus metrics server

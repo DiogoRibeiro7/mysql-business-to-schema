@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Industrial IoT Data Generator
+"""Industrial IoT Data Generator.
 
 Generates realistic manufacturing IoT data including:
 - Production line sensors
@@ -18,13 +17,14 @@ import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
 import math
-from typing import List, Dict, Tuple, Any
-import uuid
+from typing import List, Any
 
 
 class IndustrialIoTGenerator:
+    """Represent IndustrialIoTGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -61,7 +61,7 @@ class IndustrialIoTGenerator:
         self.alarm_id = 1
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating Industrial IoT data...")
 
         # Master data
@@ -98,7 +98,7 @@ class IndustrialIoTGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_factories(self):
-        """Generate factory locations"""
+        """Generate factory locations."""
         for i, factory_config in enumerate(
             self.config["factory_distribution"]["locations"]
         ):
@@ -119,7 +119,7 @@ class IndustrialIoTGenerator:
             self.factories.append(factory)
 
     def _generate_production_lines(self):
-        """Generate production lines for each factory"""
+        """Generate production lines for each factory."""
         line_id = 1
 
         for factory in self.factories:
@@ -155,7 +155,7 @@ class IndustrialIoTGenerator:
                 line_id += 1
 
     def _generate_machines(self):
-        """Generate machines for each production line"""
+        """Generate machines for each production line."""
         machine_id = 1
 
         for line in self.production_lines:
@@ -205,7 +205,7 @@ class IndustrialIoTGenerator:
                 machine_id += 1
 
     def _generate_sensors(self):
-        """Generate sensors for each machine"""
+        """Generate sensors for each machine."""
         sensor_id = 1
 
         for machine in self.machines:
@@ -236,7 +236,7 @@ class IndustrialIoTGenerator:
                 sensor_id += 1
 
     def _generate_operators(self):
-        """Generate operator profiles"""
+        """Generate operator profiles."""
         operator_id = 1
         first_names = ["John", "Jane", "Mike", "Sarah", "Bob", "Alice", "Tom", "Lisa"]
         last_names = [
@@ -282,7 +282,7 @@ class IndustrialIoTGenerator:
             operator_id += 1
 
     def _generate_products(self):
-        """Generate product specifications"""
+        """Generate product specifications."""
         product_id = 1
         product_prefixes = ["PART", "COMP", "ASSY", "PROD"]
 
@@ -330,7 +330,7 @@ class IndustrialIoTGenerator:
             product_id += 1
 
     def _generate_work_orders(self):
-        """Generate work orders for production"""
+        """Generate work orders for production."""
         print("  Generating work orders...")
 
         start_date = datetime.strptime(
@@ -385,7 +385,7 @@ class IndustrialIoTGenerator:
             current_date += timedelta(days=1)
 
     def _generate_production_runs(self):
-        """Generate actual production runs from work orders"""
+        """Generate actual production runs from work orders."""
         print("  Generating production runs...")
 
         for work_order in self.work_orders:
@@ -448,7 +448,7 @@ class IndustrialIoTGenerator:
             self.production_run_id += 1
 
     def _generate_sensor_readings(self):
-        """Generate sensor readings"""
+        """Generate sensor readings."""
         print("  Generating sensor readings...")
 
         # LIMIT DATA: Only last 2 days and subset of sensors to prevent memory issues
@@ -522,7 +522,7 @@ class IndustrialIoTGenerator:
                 current_time += timedelta(seconds=sensor["sampling_rate_seconds"])
 
     def _generate_machine_states(self):
-        """Generate machine state history"""
+        """Generate machine state history."""
         print("  Generating machine states...")
 
         start_date = datetime.strptime(
@@ -570,7 +570,7 @@ class IndustrialIoTGenerator:
                 current_state = self._get_next_state(current_state)
 
     def _generate_quality_inspections(self):
-        """Generate quality inspection records"""
+        """Generate quality inspection records."""
         print("  Generating quality inspections...")
 
         for production_run in self.production_runs:
@@ -620,7 +620,7 @@ class IndustrialIoTGenerator:
                 self.inspection_id += 1
 
     def _generate_downtime_events(self):
-        """Generate downtime events"""
+        """Generate downtime events."""
         print("  Generating downtime events...")
 
         for machine in self.machines:
@@ -668,7 +668,7 @@ class IndustrialIoTGenerator:
                 self.downtime_id += 1
 
     def _generate_oee_metrics(self):
-        """Generate OEE metrics for each shift"""
+        """Generate OEE metrics for each shift."""
         print("  Generating OEE metrics...")
 
         start_date = datetime.strptime(
@@ -720,7 +720,7 @@ class IndustrialIoTGenerator:
                 current_date += timedelta(days=1)
 
     def _generate_maintenance_records(self):
-        """Generate maintenance records"""
+        """Generate maintenance records."""
         print("  Generating maintenance records...")
 
         for machine in self.machines:
@@ -753,7 +753,7 @@ class IndustrialIoTGenerator:
             self.maintenance_id += 1
 
     def _generate_alarms(self):
-        """Generate alarm events"""
+        """Generate alarm events."""
         print("  Generating alarms...")
 
         for sensor in self.sensors[:50]:  # Limit for performance
@@ -796,7 +796,7 @@ class IndustrialIoTGenerator:
                 self.alarm_id += 1
 
     def _generate_energy_consumption(self):
-        """Generate energy consumption data"""
+        """Generate energy consumption data."""
         print("  Generating energy consumption...")
 
         # LIMIT DATA: Only last day to prevent memory issues
@@ -853,7 +853,7 @@ class IndustrialIoTGenerator:
 
     # Helper methods
     def _get_timezone(self, location: str) -> str:
-        """Get timezone for location"""
+        """Get timezone for location."""
         if "Detroit" in location:
             return "America/Detroit"
         elif "Phoenix" in location:
@@ -864,11 +864,11 @@ class IndustrialIoTGenerator:
             return "UTC"
 
     def _generate_serial(self) -> str:
-        """Generate serial number"""
+        """Generate serial number."""
         return "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=12))
 
     def _get_shift(self, hour: int) -> str:
-        """Get shift based on hour"""
+        """Get shift based on hour."""
         if 6 <= hour < 14:
             return "morning"
         elif 14 <= hour < 22:
@@ -877,7 +877,7 @@ class IndustrialIoTGenerator:
             return "night"
 
     def _get_state_reason(self, state: str) -> str:
-        """Get reason for machine state"""
+        """Get reason for machine state."""
         reasons = {
             "running": "Production",
             "idle": "No work order",
@@ -887,7 +887,7 @@ class IndustrialIoTGenerator:
         return reasons.get(state, "Unknown")
 
     def _get_next_state(self, current_state: str) -> str:
-        """Get next machine state"""
+        """Get next machine state."""
         transitions = {
             "running": ["idle", "maintenance", "fault", "running"],
             "idle": ["running", "maintenance", "idle"],
@@ -906,7 +906,7 @@ class IndustrialIoTGenerator:
         )[0]
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("factories", self.factories),
             ("production_lines", self.production_lines),
@@ -946,7 +946,7 @@ class IndustrialIoTGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated Industrial IoT data
 -- Generated on {datetime.now()}
 
@@ -999,10 +999,11 @@ SELECT COUNT(*) as sensor_reading_count FROM sensor_readings;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Industrial IoT data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

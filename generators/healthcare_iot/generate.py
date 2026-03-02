@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Healthcare IoT Data Generator
+"""Healthcare IoT Data Generator.
 
 Generates realistic patient monitoring data including:
 - Vital signs monitoring
@@ -17,14 +16,14 @@ import yaml
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
-import math
-from typing import List, Dict, Tuple, Any
-import hashlib
+from typing import List, Dict, Any
 
 
 class HealthcareIoTGenerator:
+    """Represent HealthcareIoTGenerator."""
+
     def __init__(self, config_path: str):
-        """Initialize generator with configuration"""
+        """Initialize generator with configuration."""
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -56,7 +55,7 @@ class HealthcareIoTGenerator:
         self.audit_id = 1
 
     def generate_all(self):
-        """Generate all data in sequence"""
+        """Generate all data in sequence."""
         print("Generating Healthcare IoT data...")
         print("Note: All patient data is synthetic for educational purposes")
 
@@ -91,7 +90,7 @@ class HealthcareIoTGenerator:
         print(f"[OK] Output written to {self.output_dir}")
 
     def _generate_hospitals(self):
-        """Generate hospital facilities"""
+        """Generate hospital facilities."""
         hospital_names = ["City General", "St. Mary's", "Regional Medical"]
 
         for i in range(self.config["counts"]["hospitals"]):
@@ -116,7 +115,7 @@ class HealthcareIoTGenerator:
             self.hospitals.append(hospital)
 
     def _generate_departments(self):
-        """Generate hospital departments"""
+        """Generate hospital departments."""
         dept_id = 1
 
         for hospital in self.hospitals:
@@ -142,7 +141,7 @@ class HealthcareIoTGenerator:
                 dept_id += 1
 
     def _generate_medical_staff(self):
-        """Generate medical staff members"""
+        """Generate medical staff members."""
         staff_id = 1
         first_names = ["Dr. Smith", "Dr. Johnson", "Nurse Williams", "Nurse Brown"]
 
@@ -170,7 +169,7 @@ class HealthcareIoTGenerator:
             staff_id += 1
 
     def _generate_patients(self):
-        """Generate anonymized patient records"""
+        """Generate anonymized patient records."""
         patient_id = 1
 
         for _ in range(self.config["counts"]["patients"]):
@@ -215,7 +214,7 @@ class HealthcareIoTGenerator:
             patient_id += 1
 
     def _generate_devices(self):
-        """Generate medical devices"""
+        """Generate medical devices."""
         device_id = 1
 
         for _ in range(self.config["counts"]["devices"]):
@@ -248,7 +247,7 @@ class HealthcareIoTGenerator:
             device_id += 1
 
     def _generate_device_assignments(self):
-        """Assign devices to patients"""
+        """Assign devices to patients."""
         assignment_id = 1
 
         for patient in self.patients:
@@ -278,7 +277,7 @@ class HealthcareIoTGenerator:
                 assignment_id += 1
 
     def _generate_vital_signs(self):
-        """Generate vital sign readings"""
+        """Generate vital sign readings."""
         print("  Generating vital signs...")
 
         # Limit to recent patients for performance
@@ -325,7 +324,7 @@ class HealthcareIoTGenerator:
                 reading_count += 1
 
     def _generate_device_readings(self):
-        """Generate device-specific readings"""
+        """Generate device-specific readings."""
         print("  Generating device readings...")
 
         # Limit for performance
@@ -364,7 +363,7 @@ class HealthcareIoTGenerator:
                     self.device_readings.append(reading)
 
     def _generate_alerts(self):
-        """Generate clinical alerts"""
+        """Generate clinical alerts."""
         print("  Generating alerts...")
 
         start_date = datetime.now() - timedelta(
@@ -420,7 +419,7 @@ class HealthcareIoTGenerator:
             current_date += timedelta(days=1)
 
     def _generate_medications(self):
-        """Generate medication administration records"""
+        """Generate medication administration records."""
         print("  Generating medication records...")
 
         for patient in self.patients[:30]:  # Limit for performance
@@ -461,7 +460,7 @@ class HealthcareIoTGenerator:
                     self.medication_id += 1
 
     def _generate_clinical_scores(self):
-        """Generate clinical scoring (MEWS, SOFA, etc.)"""
+        """Generate clinical scoring (MEWS, SOFA, etc.)."""
         print("  Generating clinical scores...")
 
         for vital in self.vital_signs[:100]:  # Limit for performance
@@ -497,7 +496,7 @@ class HealthcareIoTGenerator:
             self.clinical_scores.append(score)
 
     def _generate_staff_assignments(self):
-        """Generate staff-patient assignments"""
+        """Generate staff-patient assignments."""
         print("  Generating staff assignments...")
 
         for patient in self.patients:
@@ -532,7 +531,7 @@ class HealthcareIoTGenerator:
                 self.assignment_id += 1
 
     def _generate_audit_logs(self):
-        """Generate HIPAA-compliant audit logs"""
+        """Generate HIPAA-compliant audit logs."""
         print("  Generating audit logs...")
 
         # Sample audit events
@@ -557,7 +556,7 @@ class HealthcareIoTGenerator:
 
     # Helper methods
     def _get_parameter_unit(self, parameter: str) -> str:
-        """Get unit for device parameter"""
+        """Get unit for device parameter."""
         units = {
             "heart_rate": "bpm",
             "respiratory_rate": "breaths/min",
@@ -571,7 +570,7 @@ class HealthcareIoTGenerator:
         return units.get(parameter, "")
 
     def _get_alert_message(self, alert_type: str) -> str:
-        """Get alert message based on type"""
+        """Get alert message based on type."""
         messages = {
             "vital_sign_critical": "Critical vital sign detected",
             "device_malfunction": "Device requires attention",
@@ -584,7 +583,7 @@ class HealthcareIoTGenerator:
         return messages.get(alert_type, "Alert triggered")
 
     def _calculate_mews(self, vital: Dict) -> int:
-        """Calculate Modified Early Warning Score"""
+        """Calculate Modified Early Warning Score."""
         score = 0
 
         # Heart rate scoring
@@ -616,7 +615,7 @@ class HealthcareIoTGenerator:
         return score
 
     def _get_mews_component(self, parameter: str, value: float) -> int:
-        """Get MEWS component score"""
+        """Get MEWS component score."""
         # Simplified scoring logic
         if parameter == "heart_rate":
             if value < 40 or value > 130:
@@ -626,7 +625,7 @@ class HealthcareIoTGenerator:
         return 0
 
     def _write_all_csvs(self):
-        """Write all data to CSV files"""
+        """Write all data to CSV files."""
         datasets = [
             ("hospitals", self.hospitals),
             ("departments", self.departments),
@@ -663,7 +662,7 @@ class HealthcareIoTGenerator:
             print(f"  [OK] Wrote {len(data)} records to {filename}.csv")
 
     def _generate_sql_scripts(self):
-        """Generate SQL load scripts"""
+        """Generate SQL load scripts."""
         load_script = f"""-- Load generated Healthcare IoT data
 -- Generated on {datetime.now()}
 -- Note: All patient data is synthetic for educational purposes
@@ -703,10 +702,11 @@ SELECT 'Data load complete!' as status;
         with open(script_path, "w") as f:
             f.write(load_script)
 
-        print(f"  [OK] Generated SQL load script: load_data.sql")
+        print("  [OK] Generated SQL load script: load_data.sql")
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate Healthcare IoT data")
     parser.add_argument("--config", default="config.yaml", help="Path to config.yaml")
     args = parser.parse_args()

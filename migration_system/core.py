@@ -1,6 +1,4 @@
-"""
-Core migration system components.
-"""
+"""Core migration system components."""
 
 import os
 import hashlib
@@ -10,7 +8,6 @@ from datetime import datetime
 from typing import List, Dict, Optional, Any, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
-import mysql.connector
 from pathlib import Path
 import re
 import logging
@@ -106,6 +103,7 @@ class MigrationHistory:
     """Manages migration history in database."""
 
     def __init__(self, connection):
+        """Initialize the instance."""
         self.connection = connection
         self.history_table = "schema_migrations"
         self._ensure_history_table()
@@ -233,6 +231,7 @@ class MigrationRunner:
     """Executes database migrations."""
 
     def __init__(self, connection, migrations_path: str = "migrations"):
+        """Initialize the instance."""
         self.connection = connection
         self.migrations_path = Path(migrations_path)
         self.history = MigrationHistory(connection)
@@ -340,8 +339,7 @@ class MigrationRunner:
     def run_migrations(
         self, target_version: Optional[str] = None, dry_run: bool = False
     ) -> Dict[str, Any]:
-        """
-        Run pending migrations up to target version.
+        """Run pending migrations up to target version.
 
         Args:
             target_version: Target version to migrate to (None for latest)
@@ -536,8 +534,7 @@ class MigrationRunner:
         return statements
 
     def rollback(self, target_version: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Rollback migrations to target version.
+        """Rollback migrations to target version.
 
         Args:
             target_version: Version to rollback to (None for last migration)

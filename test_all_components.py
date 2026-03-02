@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
-"""
-Comprehensive Component Testing for MySQL Business-to-Schema
+"""Comprehensive Component Testing for MySQL Business-to-Schema.
+
 Tests all major components without requiring MySQL to be running
 """
 
 import os
 import sys
 import json
-import time
 import subprocess
 from datetime import datetime
-from typing import Dict, List, Tuple, Optional
 from colorama import init, Fore, Style
 import importlib.util
 
@@ -19,20 +17,21 @@ init()
 
 
 class ComponentTester:
-    """Test all system components"""
+    """Test all system components."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.results = {"passed": [], "failed": [], "skipped": [], "warnings": []}
         self.start_time = datetime.now()
 
     def print_header(self, text: str):
-        """Print section header"""
+        """Print section header."""
         print(f"\n{Fore.CYAN}{'='*70}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{text:^70}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{'='*70}{Style.RESET_ALL}\n")
 
     def print_test(self, name: str, status: str, message: str = ""):
-        """Print test result"""
+        """Print test result."""
         if status == "PASS":
             print(f"  {Fore.GREEN}[OK]{Style.RESET_ALL} {name}")
             self.results["passed"].append(name)
@@ -53,7 +52,7 @@ class ComponentTester:
             self.results["warnings"].append((name, message))
 
     def test_project_structure(self):
-        """Test project directory structure"""
+        """Test project directory structure."""
         self.print_header("Project Structure")
 
         required_dirs = {
@@ -87,7 +86,7 @@ class ComponentTester:
                 )
 
     def test_schema_files(self):
-        """Test schema SQL files"""
+        """Test schema SQL files."""
         self.print_header("Schema SQL Files")
 
         schema_count = 0
@@ -130,7 +129,7 @@ class ComponentTester:
         print(f"\n  {Fore.CYAN}Total schemas found: {schema_count}/20{Style.RESET_ALL}")
 
     def test_generated_data(self):
-        """Test generated demo data"""
+        """Test generated demo data."""
         self.print_header("Generated Demo Data")
 
         if not os.path.exists("demo_data"):
@@ -169,7 +168,7 @@ class ComponentTester:
             self.print_test("Demo data files", "FAIL", "No SQL files generated")
 
     def test_python_components(self):
-        """Test Python components"""
+        """Test Python components."""
         self.print_header("Python Components")
 
         # Test generators
@@ -220,7 +219,7 @@ class ComponentTester:
             self.print_test("Admin Dashboard FastAPI backend", "FAIL", "Not found")
 
     def test_frontend_components(self):
-        """Test frontend components"""
+        """Test frontend components."""
         self.print_header("Frontend Components")
 
         # Check React frontend
@@ -266,7 +265,7 @@ class ComponentTester:
                 )
 
     def test_docker_configs(self):
-        """Test Docker configurations"""
+        """Test Docker configurations."""
         self.print_header("Docker Configurations")
 
         docker_files = [
@@ -296,7 +295,7 @@ class ComponentTester:
                 self.print_test(f"{description}", "SKIP", "Not found")
 
     def test_documentation(self):
-        """Test documentation files"""
+        """Test documentation files."""
         self.print_header("Documentation")
 
         doc_files = [
@@ -323,7 +322,7 @@ class ComponentTester:
                 self.print_test(f"{description}", "SKIP", "Not found")
 
     def test_configuration_files(self):
-        """Test configuration files"""
+        """Test configuration files."""
         self.print_header("Configuration Files")
 
         config_files = [
@@ -347,7 +346,7 @@ class ComponentTester:
                 self.print_test(description, "SKIP", "Not configured")
 
     def test_utility_scripts(self):
-        """Test utility scripts"""
+        """Test utility scripts."""
         self.print_header("Utility Scripts")
 
         scripts = [
@@ -369,7 +368,7 @@ class ComponentTester:
                 self.print_test(f"{description}", "SKIP", "Not found")
 
     def test_migration_system(self):
-        """Test migration system"""
+        """Test migration system."""
         self.print_header("Migration System")
 
         if os.path.exists("migration_system"):
@@ -398,7 +397,7 @@ class ComponentTester:
             self.print_test("Migration system", "SKIP", "Not implemented")
 
     def run_quick_validation(self):
-        """Run quick validation checks"""
+        """Run quick validation checks."""
         self.print_header("Quick Validation Checks")
 
         # Check Python version
@@ -424,7 +423,7 @@ class ComponentTester:
                 self.print_test("Docker installed", "PASS")
             else:
                 self.print_test("Docker installed", "FAIL", "Docker not available")
-        except:
+        except Exception:
             self.print_test("Docker installed", "SKIP", "Cannot check Docker")
 
         # Check for Node.js
@@ -436,7 +435,7 @@ class ComponentTester:
                 self.print_test(f"Node.js installed ({result.stdout.strip()})", "PASS")
             else:
                 self.print_test("Node.js installed", "WARN", "Node.js not available")
-        except:
+        except Exception:
             self.print_test("Node.js installed", "SKIP", "Cannot check Node.js")
 
         # Check for Git
@@ -446,11 +445,11 @@ class ComponentTester:
             )
             if result.returncode == 0:
                 self.print_test("Git installed", "PASS")
-        except:
+        except Exception:
             self.print_test("Git installed", "SKIP", "Cannot check Git")
 
     def print_summary(self):
-        """Print test summary"""
+        """Print test summary."""
         self.print_header("Test Summary")
 
         total = (
@@ -500,7 +499,7 @@ class ComponentTester:
             print(f"{Fore.YELLOW}{'='*70}{Style.RESET_ALL}")
 
     def run_all_tests(self):
-        """Run all component tests"""
+        """Run all component tests."""
         print(
             f"\n{Fore.CYAN}MySQL Business-to-Schema Component Testing{Style.RESET_ALL}"
         )
@@ -524,7 +523,7 @@ class ComponentTester:
 
 
 def main():
-    """Main execution"""
+    """Run execution."""
     tester = ComponentTester()
     tester.run_all_tests()
 

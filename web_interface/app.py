@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""
-MySQL Examples Web Interface
+"""MySQL Examples Web Interface.
 
 A Flask-based web application for browsing and exploring
 all database examples in the mysql-business-to-schema project.
 """
 
 import os
-import json
 import yaml
 from pathlib import Path
 from datetime import datetime
@@ -426,7 +424,7 @@ def download_file(example_path, file_type):
 
 @app.route("/api/stats")
 def api_stats():
-    """API endpoint for statistics."""
+    """Return API statistics."""
     examples = ExampleLoader.get_all_examples()
 
     stats = {
@@ -545,24 +543,26 @@ def documentation():
 # Error handlers
 @app.errorhandler(404)
 def not_found(error):
+    """Handle not found."""
     return render_template("404.html"), 404
 
 
 @app.errorhandler(500)
 def internal_error(error):
+    """Handle internal error."""
     return render_template("500.html"), 500
 
 
 # Analytics Routes
 @app.route("/analytics")
 def analytics_dashboard():
-    """Main analytics dashboard."""
+    """Run analytics dashboard."""
     return render_template("analytics.html")
 
 
 @app.route("/analytics/query-executor")
 def query_executor():
-    """SQL query executor interface."""
+    """Render the SQL query executor interface."""
     examples = ExampleLoader.get_all_examples()
     return render_template("query_executor.html", examples=examples)
 
@@ -612,7 +612,7 @@ def er_diagram(example_path):
 
 @app.route("/api/er-diagram/<path:example_path>")
 def api_er_diagram(example_path):
-    """API endpoint to get ER diagram data."""
+    """Return ER diagram data."""
     example_dir = EXAMPLES_DIR / example_path
     schema_dir = example_dir / "schema"
 
@@ -635,7 +635,7 @@ def api_er_diagram(example_path):
 
 @app.route("/analytics/performance/<path:example_path>")
 def performance_analysis(example_path):
-    """Performance analysis dashboard for an example."""
+    """Render the performance analysis dashboard for an example."""
     # Get database name from example path
     database_name = f"{example_path}_db"
 

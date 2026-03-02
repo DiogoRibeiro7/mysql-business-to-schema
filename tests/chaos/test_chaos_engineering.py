@@ -1,6 +1,4 @@
-"""
-Chaos engineering tests to verify system resilience.
-"""
+"""Chaos engineering tests to verify system resilience."""
 
 import pytest
 import time
@@ -8,10 +6,6 @@ import random
 import threading
 import mysql.connector
 import psutil
-import os
-import signal
-from unittest.mock import patch, Mock
-import subprocess
 import socket
 
 
@@ -26,7 +20,7 @@ class TestDatabaseChaos:
 
         try:
             # Exhaust connection pool
-            for i in range(max_connections):
+            for _ in range(max_connections):
                 conn = mysql.connector.connect(
                     host=mysql_container["host"],
                     port=mysql_container["port"],
@@ -38,7 +32,7 @@ class TestDatabaseChaos:
 
             # Try to get one more connection (should fail or queue)
             with pytest.raises(mysql.connector.Error):
-                extra_conn = mysql.connector.connect(
+                _ = mysql.connector.connect(
                     host=mysql_container["host"],
                     port=mysql_container["port"],
                     user=mysql_container["user"],
@@ -52,33 +46,38 @@ class TestDatabaseChaos:
             for conn in connections:
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
 
     def test_random_query_failures(self, mysql_cursor, mysql_connection):
         """Test system resilience to random query failures."""
-
         class ChaosCursor:
+            """Represent ChaosCursor."""
+
             def __init__(self, cursor, failure_rate=0.2):
+                """Initialize the instance."""
                 self.cursor = cursor
                 self.failure_rate = failure_rate
 
             def execute(self, query, params=None):
+                """Handle execute."""
                 if random.random() < self.failure_rate:
                     raise mysql.connector.Error("Chaos: Random query failure")
                 return self.cursor.execute(query, params)
 
             def fetchall(self):
+                """Handle fetchall."""
                 return self.cursor.fetchall()
 
             def fetchone(self):
+                """Handle fetchone."""
                 return self.cursor.fetchone()
 
         chaos_cursor = ChaosCursor(mysql_cursor, failure_rate=0.3)
         successful_queries = 0
         failed_queries = 0
 
-        for i in range(100):
+        for _ in range(100):
             try:
                 chaos_cursor.execute("SELECT 1")
                 chaos_cursor.fetchall()
@@ -141,7 +140,7 @@ class TestDatabaseChaos:
             # Query should block and timeout
             mysql_cursor.fetchall()
             query_time = time.time() - start
-        except mysql.connector.Error as e:
+        except mysql.connector.Error:
             query_time = time.time() - start
             print(f"Query blocked for {query_time:.1f} seconds")
 
@@ -166,7 +165,7 @@ class TestDatabaseChaos:
                 chunks_to_write = min(100, int(available_mb * 0.1))  # 10% of available
 
                 with open(large_file, "wb") as f:
-                    for i in range(chunks_to_write):
+                    for _ in range(chunks_to_write):
                         f.write(b"0" * chunk_size)
 
                 # Check system can still operate
@@ -188,21 +187,26 @@ class TestNetworkChaos:
 
     def test_network_latency(self, mysql_container):
         """Test system with simulated network latency."""
-
         class LatencyConnection:
+            """Represent LatencyConnection."""
+
             def __init__(self, connection, latency_ms=100):
+                """Initialize the instance."""
                 self.connection = connection
                 self.latency = latency_ms / 1000.0
 
             def cursor(self):
+                """Handle cursor."""
                 time.sleep(self.latency)
                 return self.connection.cursor()
 
             def commit(self):
+                """Handle commit."""
                 time.sleep(self.latency)
                 return self.connection.commit()
 
             def close(self):
+                """Handle close."""
                 return self.connection.close()
 
         # Create connection with simulated latency
@@ -233,13 +237,16 @@ class TestNetworkChaos:
 
     def test_packet_loss_simulation(self):
         """Simulate packet loss in network communication."""
-
         class PacketLossSocket:
+            """Represent PacketLossSocket."""
+
             def __init__(self, socket_obj, loss_rate=0.1):
+                """Initialize the instance."""
                 self.socket = socket_obj
                 self.loss_rate = loss_rate
 
             def send(self, data):
+                """Handle send."""
                 if random.random() > self.loss_rate:
                     return self.socket.send(data)
                 else:
@@ -247,6 +254,7 @@ class TestNetworkChaos:
                     raise socket.error("Simulated packet loss")
 
             def recv(self, size):
+                """Handle recv."""
                 if random.random() > self.loss_rate:
                     return self.socket.recv(size)
                 else:
@@ -257,7 +265,7 @@ class TestNetworkChaos:
         successful_operations = 0
         failed_operations = 0
 
-        for i in range(50):
+        for _ in range(50):
             try:
                 # Simulate network operation
                 if random.random() > 0.1:  # 90% success rate
@@ -310,7 +318,7 @@ class TestApplicationChaos:
 
         # Simulate memory leak
         leaked_data = []
-        for i in range(100):
+        for _ in range(100):
             # Create data that would leak if not cleaned up
             data = [0] * (1024 * 100)  # 100KB per iteration
             leaked_data.append(data)
@@ -339,7 +347,6 @@ class TestApplicationChaos:
 
     def test_cpu_spike(self):
         """Test system under CPU spike."""
-
         def cpu_intensive_task(duration=2):
             """CPU intensive operation."""
             start = time.time()
@@ -375,6 +382,7 @@ class TestApplicationChaos:
         import concurrent.futures
 
         def slow_task(n):
+            """Handle slow task."""
             time.sleep(1)
             return n * 2
 
@@ -392,7 +400,7 @@ class TestApplicationChaos:
 
             for future in concurrent.futures.as_completed(futures, timeout=5):
                 try:
-                    result = future.result(timeout=0.1)
+                    _ = future.result(timeout=0.1)
                     completed += 1
                 except concurrent.futures.TimeoutError:
                     timeout += 1
@@ -443,7 +451,7 @@ class TestApplicationChaos:
         for table in tables:
             try:
                 mysql_cursor.execute(f"DROP TABLE IF EXISTS {table}")
-            except:
+            except Exception:
                 pass
         mysql_connection.commit()
 
@@ -458,15 +466,18 @@ class TestRecoveryChaos:
 
     def test_automatic_reconnection(self, mysql_container):
         """Test automatic reconnection after connection loss."""
-
         class ResilientConnection:
+            """Represent ResilientConnection."""
+
             def __init__(self, config, max_retries=3):
+                """Initialize the instance."""
                 self.config = config
                 self.max_retries = max_retries
                 self.connection = None
                 self.connect()
 
             def connect(self):
+                """Handle connect."""
                 for attempt in range(self.max_retries):
                     try:
                         self.connection = mysql.connector.connect(**self.config)
@@ -477,6 +488,7 @@ class TestRecoveryChaos:
                 raise Exception("Failed to connect after retries")
 
             def execute_query(self, query):
+                """Handle execute query."""
                 for attempt in range(self.max_retries):
                     try:
                         cursor = self.connection.cursor()
@@ -488,7 +500,7 @@ class TestRecoveryChaos:
                         # Try to reconnect
                         try:
                             self.connect()
-                        except:
+                        except Exception:
                             if attempt == self.max_retries - 1:
                                 raise
 
@@ -515,9 +527,11 @@ class TestRecoveryChaos:
 
     def test_circuit_breaker_pattern(self):
         """Test circuit breaker pattern implementation."""
-
         class CircuitBreaker:
+            """Represent CircuitBreaker."""
+
             def __init__(self, failure_threshold=5, recovery_timeout=5):
+                """Initialize the instance."""
                 self.failure_threshold = failure_threshold
                 self.recovery_timeout = recovery_timeout
                 self.failure_count = 0
@@ -525,6 +539,7 @@ class TestRecoveryChaos:
                 self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
 
             def call(self, func, *args, **kwargs):
+                """Handle call."""
                 if self.state == "OPEN":
                     if time.time() - self.last_failure_time > self.recovery_timeout:
                         self.state = "HALF_OPEN"
@@ -550,6 +565,7 @@ class TestRecoveryChaos:
         breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=2)
 
         def unreliable_operation():
+            """Handle unreliable operation."""
             if random.random() < 0.7:  # 70% failure rate
                 raise Exception("Operation failed")
             return "Success"
@@ -558,9 +574,9 @@ class TestRecoveryChaos:
         failures = 0
         circuit_open = 0
 
-        for i in range(20):
+        for _ in range(20):
             try:
-                result = breaker.call(unreliable_operation)
+                _ = breaker.call(unreliable_operation)
                 successes += 1
             except Exception as e:
                 if "Circuit breaker is OPEN" in str(e):
@@ -604,6 +620,7 @@ class TestRecoveryChaos:
         mysql_connection.commit()
 
         def get_data_with_fallback(data_id):
+            """Handle get data with fallback."""
             try:
                 # Try primary source
                 mysql_cursor.execute(
@@ -612,7 +629,7 @@ class TestRecoveryChaos:
                 result = mysql_cursor.fetchone()
                 if result:
                     return result["value"], "primary"
-            except:
+            except Exception:
                 pass
 
             try:
@@ -623,7 +640,7 @@ class TestRecoveryChaos:
                 result = mysql_cursor.fetchone()
                 if result:
                     return result["value"], "cache"
-            except:
+            except Exception:
                 pass
 
             # Final fallback

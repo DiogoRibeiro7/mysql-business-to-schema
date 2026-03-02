@@ -1,4 +1,4 @@
-"""Query command - SQL query execution"""
+"""Query command - SQL query execution."""
 
 import click
 from rich.console import Console
@@ -9,7 +9,6 @@ console = Console()
 @click.group(name="query")
 def query_group():
     """Execute and analyze SQL queries."""
-    pass
 
 
 @query_group.command(name="execute")

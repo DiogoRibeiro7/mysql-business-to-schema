@@ -1,22 +1,18 @@
-"""
-Database connection pool management.
-"""
+"""Database connection pool management."""
 
 import mysql.connector
 from mysql.connector import pooling
 import threading
 import time
 import queue
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 import logging
 
 logger = logging.getLogger(__name__)
 
 
 class ConnectionPool:
-    """
-    Custom connection pool implementation with advanced features.
-    """
+    """Custom connection pool implementation with advanced features."""
 
     def __init__(
         self,
@@ -30,8 +26,7 @@ class ConnectionPool:
         recycle: int = 3600,
         **kwargs,
     ):
-        """
-        Initialize connection pool.
+        """Initialize connection pool.
 
         Args:
             host: Database host
@@ -92,8 +87,7 @@ class ConnectionPool:
             return None
 
     def _is_connection_valid(self, conn) -> bool:
-        """
-        Check if a connection is still valid.
+        """Check if a connection is still valid.
 
         Args:
             conn: Connection to check
@@ -119,12 +113,11 @@ class ConnectionPool:
         try:
             conn.ping(reconnect=False, attempts=1, delay=0)
             return True
-        except:
+        except Exception:
             return False
 
     def get_connection(self, timeout: Optional[float] = None):
-        """
-        Get a connection from the pool.
+        """Get a connection from the pool.
 
         Args:
             timeout: Timeout in seconds (uses default if None)
@@ -156,7 +149,7 @@ class ConnectionPool:
                     # Connection is invalid, close it
                     try:
                         conn.close()
-                    except:
+                    except Exception:
                         pass
                     del self._connections[id(conn)]
 
@@ -180,7 +173,7 @@ class ConnectionPool:
                                 self._connections[conn_id]["is_overflow"] = True
                                 logger.debug(f"Created overflow connection {conn_id}")
                                 return conn
-                        except:
+                        except Exception:
                             self._overflow -= 1
 
             # Wait a bit before retrying
@@ -189,8 +182,7 @@ class ConnectionPool:
         raise TimeoutError(f"Unable to get connection within {timeout} seconds")
 
     def release_connection(self, conn):
-        """
-        Release a connection back to the pool.
+        """Release a connection back to the pool.
 
         Args:
             conn: Connection to release
@@ -212,7 +204,7 @@ class ConnectionPool:
             logger.debug(f"Closing invalid connection {conn_id}")
             try:
                 conn.close()
-            except:
+            except Exception:
                 pass
             del self._connections[conn_id]
 
@@ -225,7 +217,7 @@ class ConnectionPool:
         # Reset connection state
         try:
             conn.rollback()  # Rollback any uncommitted transactions
-        except:
+        except Exception:
             pass
 
         # Return to pool or close if overflow
@@ -233,7 +225,7 @@ class ConnectionPool:
             logger.debug(f"Closing overflow connection {conn_id}")
             try:
                 conn.close()
-            except:
+            except Exception:
                 pass
             del self._connections[conn_id]
             with self._lock:
@@ -247,7 +239,7 @@ class ConnectionPool:
                 logger.debug(f"Pool full, closing connection {conn_id}")
                 try:
                     conn.close()
-                except:
+                except Exception:
                     pass
                 del self._connections[conn_id]
 
@@ -260,22 +252,21 @@ class ConnectionPool:
             try:
                 conn = self._pool.get_nowait()
                 conn.close()
-            except:
+            except Exception:
                 pass
 
         # Close any remaining tracked connections
         for conn_info in self._connections.values():
             try:
                 conn_info["connection"].close()
-            except:
+            except Exception:
                 pass
 
         self._connections.clear()
         self._overflow = 0
 
     def get_stats(self) -> Dict[str, Any]:
-        """
-        Get pool statistics.
+        """Get pool statistics.
 
         Returns:
             Dictionary with pool statistics
@@ -305,8 +296,7 @@ class ConnectionPool:
         }
 
     def health_check(self) -> Dict[str, Any]:
-        """
-        Perform health check on the pool.
+        """Perform health check on the pool.
 
         Returns:
             Health check results
@@ -358,18 +348,15 @@ class ConnectionPool:
         """Destructor to ensure connections are closed."""
         try:
             self.close_all()
-        except:
+        except Exception:
             pass
 
 
 class MySQLConnectionPool:
-    """
-    MySQL connection pool using mysql-connector-python's built-in pooling.
-    """
+    """MySQL connection pool using mysql-connector-python's built-in pooling."""
 
     def __init__(self, pool_name: str = "mypool", pool_size: int = 5, **config):
-        """
-        Initialize MySQL connection pool.
+        """Initialize MySQL connection pool.
 
         Args:
             pool_name: Name of the pool
@@ -382,21 +369,19 @@ class MySQLConnectionPool:
         self.pool_name = pool_name
 
     def get_connection(self):
-        """Get a connection from the pool."""
+        """Return a connection from the pool."""
         return self.pool.get_connection()
 
     def close_all(self):
         """Close all connections (not directly supported by MySQLConnectionPool)."""
         # MySQL connection pool doesn't provide direct close_all
         # Connections are closed when they go out of scope
-        pass
 
 
 def create_pool(
     config: Dict[str, Any], pool_type: str = "custom", **pool_kwargs
 ) -> Any:
-    """
-    Factory function to create a connection pool.
+    """Create a connection pool.
 
     Args:
         config: Database connection configuration

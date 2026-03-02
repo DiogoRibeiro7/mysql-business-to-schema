@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
-"""Test the fintech generator with reduced data volume"""
 
-import sys
-import os
+"""Test the fintech generator with reduced data volume."""
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import generators.fintech.generator as generator
 
 # Modify configuration for faster testing
-import generator
 
 # Reduce data volume for testing
 generator.CONFIG = {

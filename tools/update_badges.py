@@ -1,3 +1,5 @@
+"""Update README badges based on current project status."""
+
 import json
 import re
 from pathlib import Path
@@ -7,6 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def count_tables(example_path: Path) -> int:
+    """Handle count tables."""
     schema_dir = example_path / "schema"
     if not schema_dir.is_dir():
         return 0
@@ -20,6 +23,7 @@ def count_tables(example_path: Path) -> int:
 def write_badge(
     path: Path, label: str, message: str, color: str, extra: dict | None = None
 ) -> None:
+    """Handle write badge."""
     payload = {
         "schemaVersion": 1,
         "label": label,
@@ -32,6 +36,7 @@ def write_badge(
 
 
 def main() -> int:
+    """Handle main."""
     examples = sorted(
         [p for p in ROOT.iterdir() if p.is_dir() and p.name.startswith("example_")]
     )
@@ -121,3 +126,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+"""Update README badges based on current project status."""

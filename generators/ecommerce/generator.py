@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-E-commerce Platform Data Generator
+"""E-commerce Platform Data Generator.
+
 Generates realistic data for a comprehensive online retail platform
 """
 
@@ -9,12 +9,11 @@ import json
 import random
 import hashlib
 from datetime import datetime, timedelta
-from decimal import Decimal
 from pathlib import Path
 from faker import Faker
 import numpy as np
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -41,7 +40,10 @@ CONFIG = {
 
 
 class EcommerceGenerator:
+    """Represent EcommerceGenerator."""
+
     def __init__(self):
+        """Initialize the instance."""
         self.customers: List[Any] = []
         self.addresses: List[Any] = []
         self.categories: List[Any] = []
@@ -83,7 +85,7 @@ class EcommerceGenerator:
         self.transaction_id = 0
 
     def generate_all(self):
-        """Generate all e-commerce data"""
+        """Generate all e-commerce data."""
         print("Starting E-commerce Data Generation...")
 
         # Core entities
@@ -112,7 +114,7 @@ class EcommerceGenerator:
         self.save_all()
 
     def generate_customers(self):
-        """Generate customer accounts"""
+        """Generate customer accounts."""
         print(f"Generating {CONFIG['customers']} customers...")
 
         customer_types = (
@@ -192,7 +194,7 @@ class EcommerceGenerator:
                 self.addresses.append(address)
 
     def generate_categories(self):
-        """Generate product categories with hierarchy"""
+        """Generate product categories with hierarchy."""
         print(f"Generating {CONFIG['categories']} categories...")
 
         # Main categories
@@ -265,7 +267,7 @@ class EcommerceGenerator:
             self.categories.append(category)
 
     def generate_brands(self):
-        """Generate product brands"""
+        """Generate product brands."""
         print(f"Generating {CONFIG['brands']} brands...")
 
         for i in range(CONFIG["brands"]):
@@ -285,7 +287,7 @@ class EcommerceGenerator:
             self.brands.append(brand)
 
     def generate_products(self):
-        """Generate products with variants and images"""
+        """Generate products with variants and images."""
         print(f"Generating {CONFIG['products']} products...")
 
         statuses = (
@@ -321,7 +323,7 @@ class EcommerceGenerator:
                 "specifications": json.dumps(
                     {
                         "weight": f"{random.uniform(0.1, 10):.1f}kg",
-                        "dimensions": f"{random.randint(10,50)}x{random.randint(10,50)}x{random.randint(10,50)}cm",
+                        "dimensions": f"{random.randint(10, 50)}x{random.randint(10, 50)}x{random.randint(10, 50)}cm",
                         "material": random.choice(
                             ["Plastic", "Metal", "Wood", "Fabric", "Glass", "Ceramic"]
                         ),
@@ -427,7 +429,7 @@ class EcommerceGenerator:
                 self.images.append(image)
 
     def generate_warehouses(self):
-        """Generate warehouse locations"""
+        """Generate warehouse locations."""
         print(f"Generating {CONFIG['warehouses']} warehouses...")
 
         warehouse_locations = [
@@ -464,7 +466,7 @@ class EcommerceGenerator:
             self.warehouses.append(warehouse)
 
     def generate_inventory(self):
-        """Generate inventory levels for products in warehouses"""
+        """Generate inventory levels for products in warehouses."""
         print("Generating inventory...")
 
         inventory_movements = []
@@ -606,7 +608,7 @@ class EcommerceGenerator:
         self.save_to_csv("inventory_movements", inventory_movements)
 
     def generate_shopping_behavior(self):
-        """Generate shopping cart, wishlist, and browsing behavior"""
+        """Generate shopping cart, wishlist, and browsing behavior."""
         print("Generating shopping behavior...")
 
         # Shopping carts (active and abandoned)
@@ -690,7 +692,7 @@ class EcommerceGenerator:
         self.save_to_csv("recently_viewed", recently_viewed)
 
     def generate_orders(self):
-        """Generate orders with items, payments, and shipments"""
+        """Generate orders with items, payments, and shipments."""
         print(
             f"Generating {CONFIG['orders_per_day']} orders per day for {CONFIG['days_of_history']} days..."
         )
@@ -1007,7 +1009,7 @@ class EcommerceGenerator:
         self.save_to_csv("order_status_history", order_status_history)
 
     def generate_reviews(self):
-        """Generate product reviews and ratings"""
+        """Generate product reviews and ratings."""
         print("Generating product reviews...")
 
         review_votes = []
@@ -1104,7 +1106,7 @@ class EcommerceGenerator:
         self.save_to_csv("review_votes", review_votes)
 
     def generate_support_and_returns(self):
-        """Generate support tickets and returns"""
+        """Generate support tickets and returns."""
         print("Generating support tickets and returns...")
 
         return_items = []
@@ -1290,7 +1292,7 @@ class EcommerceGenerator:
         self.save_to_csv("return_items", return_items)
 
     def generate_promotions(self):
-        """Generate coupons and price rules"""
+        """Generate coupons and price rules."""
         print("Generating promotions...")
 
         coupon_usage = []
@@ -1378,7 +1380,7 @@ class EcommerceGenerator:
         self.save_to_csv("coupon_usage", coupon_usage)
 
     def generate_analytics(self):
-        """Generate analytics data (page views, searches, recommendations)"""
+        """Generate analytics data (page views, searches, recommendations)."""
         print("Generating analytics data...")
 
         # Page views
@@ -1496,7 +1498,7 @@ class EcommerceGenerator:
         self.save_to_csv("product_recommendations", recommendations)
 
     def generate_shipping_methods(self):
-        """Generate available shipping methods"""
+        """Generate available shipping methods."""
         methods = []
         shipping_options = [
             ("Standard Ground", "USPS", "standard", 5, 7, 5.99),
@@ -1533,7 +1535,7 @@ class EcommerceGenerator:
         return methods
 
     def save_to_csv(self, table_name, data):
-        """Save data to CSV file"""
+        """Save data to CSV file."""
         if not data:
             return
 
@@ -1545,7 +1547,7 @@ class EcommerceGenerator:
             writer.writerows(data)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         print("\nSaving data to CSV files...")
 
         OUTPUT_DIR.mkdir(exist_ok=True)
@@ -1583,7 +1585,7 @@ class EcommerceGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
+        """Generate summary statistics."""
         summary = f"""
 E-commerce Data Generation Summary
 ==================================

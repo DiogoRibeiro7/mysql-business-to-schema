@@ -1,17 +1,14 @@
-"""
-Init command - Initialize new MySQL Schema projects
-"""
+"""Init command - Initialize new MySQL Schema projects."""
 
 import click
 import yaml
-import shutil
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt, Confirm, IntPrompt
+from rich.prompt import Prompt, Confirm
 from rich.tree import Tree
 
-from ..core import Config, save_config, ensure_project_structure
+from ..core import Config
 
 console = Console()
 
@@ -99,20 +96,18 @@ def init_cmd(
     force,
     interactive,
 ):
-    """
-    Initialize a new MySQL Schema project.
+    """Initialize a new MySQL Schema project.
 
     Creates project structure, configuration files, and templates
     for database schema management.
 
-    \b
+    
     Examples:
         mysql-schema init myproject
         mysql-schema init myproject --template microservice
         mysql-schema init --interactive
         mysql-schema init myapp --docker --k8s --ci
     """
-
     # Interactive mode
     if interactive or not project_name:
         project_name, template, options = _interactive_init()

@@ -1,5 +1,5 @@
-"""
-Schema Manager for Admin Dashboard
+"""Schema Manager for Admin Dashboard.
+
 Handles schema operations and management
 """
 
@@ -7,26 +7,26 @@ import logging
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 import json
-import pymysql
 from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
 
 class SchemaManager:
-    """Manages database schemas and their operations"""
+    """Manages database schemas and their operations."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.schemas_path = Path(__file__).parent.parent.parent
         self.schema_cache = {}
         self._load_schema_metadata()
 
     def _load_schema_metadata(self):
-        """Load metadata for all available schemas"""
+        """Load metadata for all available schemas."""
         try:
             # Load schema information from example directories
             for i in range(1, 21):
-                schema_dir = self.schemas_path / f"example_{i:02d}_*"
+                _ = self.schemas_path / f"example_{i:02d}_*"
                 matching_dirs = list(self.schemas_path.glob(f"example_{i:02d}_*"))
 
                 if matching_dirs:
@@ -54,15 +54,15 @@ class SchemaManager:
             logger.error(f"Error loading schema metadata: {e}")
 
     def get_all_schemas(self) -> List[Dict[str, Any]]:
-        """Get list of all available schemas"""
+        """Get list of all available schemas."""
         return list(self.schema_cache.values())
 
     def get_schema_details(self, schema_name: str) -> Optional[Dict[str, Any]]:
-        """Get detailed information about a specific schema"""
+        """Get detailed information about a specific schema."""
         return self.schema_cache.get(schema_name)
 
     def validate_schema(self, schema_name: str) -> Dict[str, Any]:
-        """Validate a schema's structure and integrity"""
+        """Validate a schema's structure and integrity."""
         schema = self.schema_cache.get(schema_name)
         if not schema:
             return {"valid": False, "error": "Schema not found"}
@@ -92,7 +92,7 @@ class SchemaManager:
         return validation_result
 
     def get_table_statistics(self, schema_name: str, table_name: str) -> Dict[str, Any]:
-        """Get statistics for a specific table"""
+        """Get statistics for a specific table."""
         return {
             "schema": schema_name,
             "table": table_name,
@@ -103,7 +103,7 @@ class SchemaManager:
         }
 
     def get_schema_metrics(self, schema_name: str) -> Dict[str, Any]:
-        """Get performance metrics for a schema"""
+        """Get performance metrics for a schema."""
         return {
             "schema": schema_name,
             "total_size_mb": 0,
@@ -118,7 +118,7 @@ class SchemaManager:
         }
 
     def deploy_schema(self, schema_name: str, target_db: str) -> Dict[str, Any]:
-        """Deploy a schema to a target database"""
+        """Deploy a schema to a target database."""
         return {
             "status": "success",
             "schema": schema_name,
@@ -128,7 +128,7 @@ class SchemaManager:
         }
 
     def backup_schema(self, schema_name: str) -> Dict[str, Any]:
-        """Create a backup of a schema"""
+        """Create a backup of a schema."""
         backup_file = (
             f"{schema_name}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
         )

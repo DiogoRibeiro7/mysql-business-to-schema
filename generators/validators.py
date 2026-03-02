@@ -1,6 +1,4 @@
-"""
-Data validation utilities for generators.
-"""
+"""Data validation utilities for generators."""
 
 import re
 from datetime import datetime
@@ -9,8 +7,7 @@ import json
 
 
 def validate_email(email: str) -> bool:
-    """
-    Validate email format.
+    """Validate email format.
 
     Args:
         email: Email address to validate
@@ -23,8 +20,7 @@ def validate_email(email: str) -> bool:
 
 
 def validate_phone(phone: str) -> bool:
-    """
-    Validate phone number format.
+    """Validate phone number format.
 
     Args:
         phone: Phone number to validate
@@ -41,8 +37,7 @@ def validate_phone(phone: str) -> bool:
 
 
 def validate_date(date_str: str, format: str = "%Y-%m-%d") -> bool:
-    """
-    Validate date string format.
+    """Validate date string format.
 
     Args:
         date_str: Date string to validate
@@ -59,8 +54,7 @@ def validate_date(date_str: str, format: str = "%Y-%m-%d") -> bool:
 
 
 def validate_json(json_str: str) -> bool:
-    """
-    Validate JSON string.
+    """Validate JSON string.
 
     Args:
         json_str: JSON string to validate
@@ -76,8 +70,7 @@ def validate_json(json_str: str) -> bool:
 
 
 def validate_sql_identifier(identifier: str) -> bool:
-    """
-    Validate SQL identifier (table/column name).
+    """Validate SQL identifier (table/column name).
 
     Args:
         identifier: SQL identifier to validate
@@ -92,8 +85,7 @@ def validate_sql_identifier(identifier: str) -> bool:
 
 
 def validate_ip_address(ip: str) -> bool:
-    """
-    Validate IP address (IPv4).
+    """Validate IP address (IPv4).
 
     Args:
         ip: IP address to validate
@@ -111,8 +103,7 @@ def validate_ip_address(ip: str) -> bool:
 
 
 def validate_url(url: str) -> bool:
-    """
-    Validate URL format.
+    """Validate URL format.
 
     Args:
         url: URL to validate
@@ -125,8 +116,7 @@ def validate_url(url: str) -> bool:
 
 
 def validate_uuid(uuid_str: str) -> bool:
-    """
-    Validate UUID format.
+    """Validate UUID format.
 
     Args:
         uuid_str: UUID string to validate
@@ -139,8 +129,7 @@ def validate_uuid(uuid_str: str) -> bool:
 
 
 def validate_credit_card(card_number: str) -> bool:
-    """
-    Validate credit card number using Luhn algorithm.
+    """Validate credit card number using Luhn algorithm.
 
     Args:
         card_number: Credit card number to validate
@@ -161,8 +150,9 @@ def validate_credit_card(card_number: str) -> bool:
 
     # Luhn algorithm
     def luhn_check(card_num: str) -> bool:
+        """Handle luhn check."""
         digits = [int(d) for d in card_num]
-        checksum = 0
+        _ = 0
 
         # Process from right to left
         for i in range(len(digits) - 2, -1, -2):
@@ -176,8 +166,7 @@ def validate_credit_card(card_number: str) -> bool:
 
 
 def validate_postal_code(postal_code: str, country: str = "US") -> bool:
-    """
-    Validate postal code format for different countries.
+    """Validate postal code format for different countries.
 
     Args:
         postal_code: Postal code to validate
@@ -203,8 +192,7 @@ def validate_postal_code(postal_code: str, country: str = "US") -> bool:
 
 
 def validate_data_range(value: Any, min_val: Any = None, max_val: Any = None) -> bool:
-    """
-    Validate that a value is within a specified range.
+    """Validate that a value is within a specified range.
 
     Args:
         value: Value to check
@@ -225,8 +213,7 @@ def validate_data_range(value: Any, min_val: Any = None, max_val: Any = None) ->
 
 
 def validate_enum(value: str, allowed_values: List[str]) -> bool:
-    """
-    Validate that a value is one of the allowed values.
+    """Validate that a value is one of the allowed values.
 
     Args:
         value: Value to check
@@ -239,8 +226,7 @@ def validate_enum(value: str, allowed_values: List[str]) -> bool:
 
 
 def validate_schema(data: Dict, schema: Dict) -> tuple[bool, Optional[str]]:
-    """
-    Validate data against a schema definition.
+    """Validate data against a schema definition.
 
     Args:
         data: Data to validate
@@ -296,16 +282,14 @@ def validate_schema(data: Dict, schema: Dict) -> tuple[bool, Optional[str]]:
 
 
 class DataValidator:
-    """
-    Comprehensive data validator class.
-    """
+    """Comprehensive data validator class."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.errors: List[Any] = []
 
     def validate(self, data: Dict, rules: Dict) -> bool:
-        """
-        Validate data against a set of rules.
+        """Validate data against a set of rules.
 
         Args:
             data: Data to validate

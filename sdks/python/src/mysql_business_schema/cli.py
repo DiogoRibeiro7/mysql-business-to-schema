@@ -1,15 +1,10 @@
-"""
-Command-line interface for MySQL Business-to-Schema SDK
-"""
+"""Command-line interface for MySQL Business-to-Schema SDK."""
 
 import click
-import json
 import sys
 from pathlib import Path
 from rich.console import Console
 from rich.table import Table as RichTable
-from rich.progress import track
-from rich import print as rprint
 
 from . import create_client, __version__
 from .exceptions import MySQLSchemaError
@@ -26,7 +21,7 @@ console = Console()
 @click.option("--api-key", envvar="MYSQL_SCHEMA_API_KEY", help="API key")
 @click.pass_context
 def cli(ctx, host, port, username, password, api_key):
-    """MySQL Business-to-Schema CLI - Manage your database schemas."""
+    """Manage MySQL Business-to-Schema database schemas."""
     ctx.ensure_object(dict)
 
     # Create client
@@ -43,7 +38,6 @@ def cli(ctx, host, port, username, password, api_key):
 @cli.group()
 def db():
     """Database management commands."""
-    pass
 
 
 @db.command("list")
@@ -114,7 +108,6 @@ def delete_database(ctx, name):
 @cli.group()
 def migration():
     """Migration management commands."""
-    pass
 
 
 @migration.command("list")
@@ -196,8 +189,7 @@ def rollback_migrations(ctx, steps, target):
 
 @cli.group()
 def data():
-    """Data generation commands."""
-    pass
+    """Manage data generation commands."""
 
 
 @data.command("generate")
@@ -240,7 +232,6 @@ def generate_data(ctx, schema, rows, format, output):
 @cli.group()
 def query():
     """Query execution commands."""
-    pass
 
 
 @query.command("execute")
@@ -285,7 +276,6 @@ def execute_query(ctx, sql, database, limit):
 @cli.group()
 def backup():
     """Backup management commands."""
-    pass
 
 
 @backup.command("list")
@@ -354,8 +344,8 @@ def restore_backup(ctx, backup_id, target_database):
 
     with console.status(f"Restoring backup to '{target_database}'..."):
         try:
-            result = client.restore_backup(backup_id, target_database)
-            console.print(f"[green]✓[/green] Backup restored successfully")
+            _ = client.restore_backup(backup_id, target_database)
+            console.print("[green]✓[/green] Backup restored successfully")
         except MySQLSchemaError as e:
             console.print(f"[red]✗ Error: {e}[/red]")
 
@@ -375,15 +365,15 @@ def system_status(ctx):
             console.print(f"Environment: {status.environment}")
             console.print(f"Uptime: {status.uptime}")
 
-            console.print(f"\n[bold]Database[/bold]")
+            console.print("\n[bold]Database[/bold]")
             for key, value in status.database.items():
                 console.print(f"  {key}: {value}")
 
-            console.print(f"\n[bold]Migrations[/bold]")
+            console.print("\n[bold]Migrations[/bold]")
             for key, value in status.migrations.items():
                 console.print(f"  {key}: {value}")
 
-            console.print(f"\n[bold]Connections[/bold]")
+            console.print("\n[bold]Connections[/bold]")
             for key, value in status.connections.items():
                 console.print(f"  {key}: {value}")
 
@@ -392,7 +382,7 @@ def system_status(ctx):
 
 
 def main():
-    """Main entry point for CLI."""
+    """Run entry point for CLI."""
     try:
         cli(obj={})
     except KeyboardInterrupt:

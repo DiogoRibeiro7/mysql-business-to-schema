@@ -1,6 +1,4 @@
-"""
-Setup configuration for MySQL Business-to-Schema CLI
-"""
+"""Setup configuration for MySQL Business-to-Schema CLI."""
 
 from setuptools import setup, find_packages
 

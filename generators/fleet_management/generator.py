@@ -1,21 +1,19 @@
 #!/usr/bin/env python3
-"""
-Fleet Management System Data Generator
+"""Fleet Management System Data Generator.
+
 Generates realistic data for vehicle fleet tracking with GPS, compliance, and telematics
 """
 
 import csv
 import json
 import random
-import hashlib
 from datetime import datetime, timedelta, date, time
-from decimal import Decimal
 from pathlib import Path
 from faker import Faker
 import numpy as np
 import math
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 # Configuration
 SEED = 42
@@ -40,8 +38,11 @@ CONFIG = {
 
 
 class FleetManagementGenerator:
+    """Represent FleetManagementGenerator."""
+
     def __init__(self):
         # Core entities
+        """Initialize the instance."""
         self.companies: List[Any] = []
         self.depots: List[Any] = []
         self.vehicles: List[Any] = []
@@ -102,9 +103,9 @@ class FleetManagementGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
     def generate_all(self):
-        """Generate all fleet management data"""
+        """Generate all fleet management data."""
         print("Starting Fleet Management Data Generation...")
-        print(f"Configuration:")
+        print("Configuration:")
         print(f"  Companies: {CONFIG['companies']}")
         print(
             f"  Total vehicles: {CONFIG['companies'] * CONFIG['vehicles_per_company']}"
@@ -150,7 +151,7 @@ class FleetManagementGenerator:
         self.save_all()
 
     def generate_companies(self):
-        """Generate company data"""
+        """Generate company data."""
         print(f"Generating {CONFIG['companies']} companies...")
 
         company_names = [
@@ -182,7 +183,7 @@ class FleetManagementGenerator:
             )
 
     def generate_depots(self):
-        """Generate depot/terminal locations"""
+        """Generate depot/terminal locations."""
         print("Generating depots...")
 
         depot_types = [
@@ -225,7 +226,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_vehicles(self):
-        """Generate vehicle fleet"""
+        """Generate vehicle fleet."""
         print("Generating vehicles...")
 
         vehicle_types = [
@@ -309,16 +310,16 @@ class FleetManagementGenerator:
                 )
 
     def generate_vin(self):
-        """Generate a realistic VIN"""
+        """Generate a realistic VIN."""
         vin = "".join(random.choices("0123456789ABCDEFGHJKLMNPRSTUVWXYZ", k=17))
         return vin
 
     def generate_license_plate(self):
-        """Generate a realistic license plate"""
+        """Generate a realistic license plate."""
         return f"{fake.state_abbr()}-{''.join(random.choices('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', k=6))}"
 
     def generate_vehicle_specs(self):
-        """Generate vehicle specifications"""
+        """Generate vehicle specifications."""
         print("Generating vehicle specifications...")
 
         for vehicle in self.vehicles:
@@ -363,7 +364,7 @@ class FleetManagementGenerator:
             )
 
     def generate_drivers(self):
-        """Generate driver data"""
+        """Generate driver data."""
         print("Generating drivers...")
 
         license_classes = ["regular", "CDL_A", "CDL_B"]
@@ -409,7 +410,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_driver_certifications(self):
-        """Generate driver certifications"""
+        """Generate driver certifications."""
         print("Generating driver certifications...")
 
         cert_types = ["HAZMAT", "Tanker", "Double/Triple", "Passenger", "School Bus"]
@@ -441,12 +442,12 @@ class FleetManagementGenerator:
                     )
 
     def generate_routes(self):
-        """Generate predefined routes"""
+        """Generate predefined routes."""
         print(f"Generating {CONFIG['routes']} routes...")
 
-        route_types = ["local", "regional", "long_haul"]
+        _ = ["local", "regional", "long_haul"]
 
-        for i in range(CONFIG["routes"]):
+        for _ in range(CONFIG["routes"]):
             self.route_id += 1
 
             # Select random depots as start and end points
@@ -488,7 +489,7 @@ class FleetManagementGenerator:
             )
 
     def calculate_distance(self, lat1, lon1, lat2, lon2):
-        """Calculate distance between two points (Haversine formula)"""
+        """Calculate distance between two points (Haversine formula)."""
         R = 3959  # Earth's radius in miles
 
         lat1_rad = math.radians(lat1)
@@ -505,10 +506,10 @@ class FleetManagementGenerator:
         return R * c
 
     def generate_geofences(self):
-        """Generate geofence zones"""
+        """Generate geofence zones."""
         print(f"Generating {CONFIG['geofences']} geofences...")
 
-        geofence_types = [
+        _ = [
             "depot",
             "customer",
             "rest_area",
@@ -564,7 +565,7 @@ class FleetManagementGenerator:
             )
 
     def generate_trips_and_gps(self):
-        """Generate trips and GPS tracking data"""
+        """Generate trips and GPS tracking data."""
         print("Generating trips and GPS tracking data (this may take a while)...")
 
         current_date = self.start_date.date()
@@ -662,7 +663,7 @@ class FleetManagementGenerator:
             current_date += timedelta(days=1)
 
     def generate_gps_positions_for_trip(self, trip, route, start_time, end_time):
-        """Generate GPS positions for a specific trip at 5-second intervals"""
+        """Generate GPS positions for a specific trip at 5-second intervals."""
         # Get depot locations
         origin_depot = next(
             d for d in self.depots if d["depot_id"] == route["origin_depot_id"]
@@ -737,7 +738,7 @@ class FleetManagementGenerator:
             )
 
     def generate_stops_for_trip(self, trip, start_time, duration_hours):
-        """Generate stops during a trip"""
+        """Generate stops during a trip."""
         # Number of stops based on trip duration
         num_stops = int(duration_hours / 3)  # Approximately one stop every 3 hours
 
@@ -769,7 +770,7 @@ class FleetManagementGenerator:
             )
 
     def check_geofence_events(self, vehicle_id, lat, lng, timestamp):
-        """Check if vehicle entered/exited any geofences"""
+        """Check if vehicle entered/exited any geofences."""
         for geofence in self.geofences[:10]:  # Check first 10 geofences for demo
             # Simple distance check (should use proper geofence algorithm)
             distance = (
@@ -798,7 +799,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_fuel_transactions(self):
-        """Generate fuel transactions"""
+        """Generate fuel transactions."""
         print("Generating fuel transactions...")
 
         for trip in self.trips:
@@ -842,7 +843,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_maintenance_records(self):
-        """Generate maintenance records"""
+        """Generate maintenance records."""
         print("Generating maintenance records...")
 
         maintenance_types = [
@@ -887,7 +888,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_vehicle_diagnostics(self):
-        """Generate vehicle diagnostic data"""
+        """Generate vehicle diagnostic data."""
         print("Generating vehicle diagnostics...")
 
         for vehicle in self.vehicles:
@@ -934,7 +935,7 @@ class FleetManagementGenerator:
                     current += timedelta(hours=12)
 
     def generate_driver_logs(self):
-        """Generate driver HOS (Hours of Service) logs"""
+        """Generate driver HOS (Hours of Service) logs."""
         print("Generating driver logs...")
 
         log_types = ["driving", "on_duty", "off_duty", "sleeper"]
@@ -992,7 +993,7 @@ class FleetManagementGenerator:
                     current += timedelta(days=1)
 
     def generate_hos_violations(self):
-        """Generate HOS violations"""
+        """Generate HOS violations."""
         print("Generating HOS violations...")
 
         violation_types = [
@@ -1031,7 +1032,7 @@ class FleetManagementGenerator:
                     )
 
     def generate_dvir_reports(self):
-        """Generate Driver Vehicle Inspection Reports"""
+        """Generate Driver Vehicle Inspection Reports."""
         print("Generating DVIR reports...")
 
         defect_items = [
@@ -1083,7 +1084,7 @@ class FleetManagementGenerator:
                 )
 
     def generate_driver_events(self):
-        """Generate driver events (harsh braking, acceleration, etc.)"""
+        """Generate driver events (harsh braking, acceleration, etc.)."""
         print("Generating driver events...")
 
         event_types = ["harsh_brake", "harsh_acceleration", "harsh_turn", "speeding"]
@@ -1118,7 +1119,7 @@ class FleetManagementGenerator:
                     )
 
     def generate_driver_scores(self):
-        """Generate driver safety scores"""
+        """Generate driver safety scores."""
         print("Generating driver scores...")
 
         for driver in self.drivers:
@@ -1159,7 +1160,7 @@ class FleetManagementGenerator:
                     current = (current + timedelta(days=32)).replace(day=1)
 
     def generate_messages(self):
-        """Generate driver-dispatcher messages"""
+        """Generate driver-dispatcher messages."""
         print("Generating messages...")
 
         message_types = ["dispatch", "alert", "info", "emergency"]
@@ -1211,7 +1212,7 @@ class FleetManagementGenerator:
             )
 
     def generate_vehicle_daily_summary(self):
-        """Generate daily summary statistics for vehicles"""
+        """Generate daily summary statistics for vehicles."""
         print("Generating vehicle daily summaries...")
 
         for vehicle in self.vehicles:
@@ -1260,7 +1261,7 @@ class FleetManagementGenerator:
                 current += timedelta(days=1)
 
     def save_all(self):
-        """Save all generated data to CSV files"""
+        """Save all generated data to CSV files."""
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         print("\nSaving data to CSV files...")
@@ -1302,42 +1303,42 @@ class FleetManagementGenerator:
         self.generate_summary()
 
     def generate_summary(self):
-        """Generate summary statistics"""
-        print(f"\nFleet Management Data Generation Summary")
+        """Generate summary statistics."""
+        print("\nFleet Management Data Generation Summary")
         print("=" * 50)
 
-        print(f"\nCompany Infrastructure:")
+        print("\nCompany Infrastructure:")
         print(f"  Companies: {len(self.companies)}")
         print(f"  Depots: {len(self.depots)}")
         print(f"  Vehicles: {len(self.vehicles)}")
         print(f"  Drivers: {len(self.drivers)}")
 
-        print(f"\nOperations:")
+        print("\nOperations:")
         print(f"  Routes: {len(self.routes)}")
         print(f"  Trips: {len(self.trips)}")
         print(f"  Stops: {len(self.stops)}")
         print(f"  Geofences: {len(self.geofences)}")
 
-        print(f"\nTracking Data:")
+        print("\nTracking Data:")
         print(f"  GPS Positions: {len(self.gps_positions):,}")
         print(f"  Geofence Events: {len(self.geofence_events):,}")
         print(f"  Driver Events: {len(self.driver_events)}")
 
-        print(f"\nMaintenance & Fuel:")
+        print("\nMaintenance & Fuel:")
         print(f"  Fuel Transactions: {len(self.fuel_transactions)}")
         print(f"  Maintenance Records: {len(self.maintenance_records)}")
         print(f"  Diagnostics: {len(self.vehicle_diagnostics):,}")
 
-        print(f"\nCompliance:")
+        print("\nCompliance:")
         print(f"  Driver Logs: {len(self.driver_logs):,}")
         print(f"  HOS Violations: {len(self.hos_violations)}")
         print(f"  DVIR Reports: {len(self.dvir_reports)}")
         print(f"  Driver Scores: {len(self.driver_scores)}")
 
-        print(f"\nCommunications:")
+        print("\nCommunications:")
         print(f"  Messages: {len(self.messages)}")
 
-        print(f"\nAnalytics:")
+        print("\nAnalytics:")
         print(f"  Daily Summaries: {len(self.vehicle_daily_summary)}")
 
         # Calculate some statistics
@@ -1348,13 +1349,13 @@ class FleetManagementGenerator:
             t["fuel_used_gallons"] for t in self.trips if t["fuel_used_gallons"]
         )
 
-        print(f"\nPerformance Metrics:")
+        print("\nPerformance Metrics:")
         print(f"  Total Miles Driven: {total_miles:,.1f}")
         print(f"  Total Fuel Used: {total_fuel:,.1f} gallons")
         if total_fuel > 0:
             print(f"  Fleet Average MPG: {total_miles / total_fuel:.2f}")
 
-        print(f"\nFiles Generated: 22")
+        print("\nFiles Generated: 22")
 
 
 if __name__ == "__main__":

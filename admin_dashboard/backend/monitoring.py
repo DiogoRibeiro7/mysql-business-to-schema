@@ -1,12 +1,9 @@
-"""
-Monitoring and metrics collection module
-"""
+"""Monitoring and metrics collection module."""
 
 import asyncio
 import psutil
-import mysql.connector
-from typing import Dict, List, Any, Optional
-from datetime import datetime, timedelta
+from typing import Dict, List, Any
+from datetime import datetime
 import logging
 import json
 from collections import deque
@@ -19,6 +16,7 @@ class MetricsCollector:
     """Collects and manages system metrics."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.metrics_history = {
             "cpu": deque(maxlen=100),
             "memory": deque(maxlen=100),
@@ -169,6 +167,7 @@ class MetricsCollector:
 
         # Get recent metrics from history
         def get_recent(metric_name: str, count: int):
+            """Handle get recent."""
             data = list(self.metrics_history[metric_name])
             if len(data) > count:
                 return data[-count:]
@@ -218,7 +217,7 @@ class MetricsCollector:
                     }
                     for i, r in enumerate(results)
                 ]
-            except:
+            except Exception:
                 # Fallback to performance schema
                 query = """
                 SELECT
@@ -271,7 +270,8 @@ class MetricsCollector:
                 SELECT
                     (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Queries') as queries,
                     (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Uptime') as uptime,
-                    (SELECT Variable_value FROM performance_schema.global_status WHERE Variable_name = 'Threads_connected') as connections
+                    (SELECT Variable_value FROM performance_schema.global_status
+                     WHERE Variable_name = 'Threads_connected') as connections
             """
             )
 
@@ -374,6 +374,7 @@ class ConnectionManager:
     """Manages WebSocket connections for real-time updates."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.active_connections: List[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Advanced GraphQL Schema Generator for MySQL Business-to-Schema
+"""Advanced GraphQL Schema Generator for MySQL Business-to-Schema.
 
 This module generates complete GraphQL schemas with:
 - Type-safe schema definitions
@@ -11,19 +10,17 @@ This module generates complete GraphQL schemas with:
 - Filter and sorting capabilities
 """
 
-import os
 import re
-import json
 import mysql.connector
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional
 from datetime import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field as dataclass_field
 
 
 @dataclass
 class FieldInfo:
-    """Information about a database field"""
+    """Information about a database field."""
 
     name: str
     type: str
@@ -32,14 +29,14 @@ class FieldInfo:
     is_foreign: bool = False
     reference_table: Optional[str] = None
     reference_field: Optional[str] = None
-    enum_values: List[str] = field(default_factory=list)
+    enum_values: List[str] = dataclass_field(default_factory=list)
     default_value: Optional[str] = None
     comment: Optional[str] = None
 
 
 @dataclass
 class TableInfo:
-    """Information about a database table"""
+    """Information about a database table."""
 
     name: str
     fields: List[FieldInfo]
@@ -50,9 +47,10 @@ class TableInfo:
 
 
 class AdvancedGraphQLGenerator:
-    """Advanced GraphQL schema generator with full feature support"""
+    """Advanced GraphQL schema generator with full feature support."""
 
     def __init__(self, connection_params: Dict):
+        """Initialize the instance."""
         self.connection_params = connection_params
         self.connection = None
         self.cursor = None
@@ -60,7 +58,7 @@ class AdvancedGraphQLGenerator:
         self.relationships: Dict[str, List[Dict]] = {}
 
     def connect(self) -> bool:
-        """Establish database connection"""
+        """Establish database connection."""
         try:
             self.connection = mysql.connector.connect(**self.connection_params)
             self.cursor = self.connection.cursor(dictionary=True)
@@ -70,14 +68,14 @@ class AdvancedGraphQLGenerator:
             return False
 
     def disconnect(self):
-        """Close database connection"""
+        """Close database connection."""
         if self.cursor:
             self.cursor.close()
         if self.connection:
             self.connection.close()
 
     def analyze_database(self):
-        """Analyze database structure"""
+        """Analyze database structure."""
         # Get all tables
         self.cursor.execute(
             """
@@ -100,7 +98,7 @@ class AdvancedGraphQLGenerator:
         self._analyze_relationships()
 
     def _analyze_table(self, table_name: str, table_comment: str) -> TableInfo:
-        """Analyze a single table"""
+        """Analyze a single table."""
         fields = []
         primary_keys = []
         foreign_keys = []
@@ -198,7 +196,7 @@ class AdvancedGraphQLGenerator:
         )
 
     def _get_table_indexes(self, table_name: str) -> List[Dict]:
-        """Get indexes for a table"""
+        """Get indexes for a table."""
         self.cursor.execute(
             """
             SELECT
@@ -217,7 +215,7 @@ class AdvancedGraphQLGenerator:
         return self.cursor.fetchall()
 
     def _analyze_relationships(self):
-        """Analyze table relationships for generating connections"""
+        """Analyze table relationships for generating connections."""
         for table_name, table_info in self.tables.items():
             self.relationships[table_name] = []
 
@@ -251,7 +249,7 @@ class AdvancedGraphQLGenerator:
                 )
 
     def generate_schema(self) -> str:
-        """Generate complete GraphQL schema"""
+        """Generate complete GraphQL schema."""
         schema_parts = []
 
         # Header
@@ -287,7 +285,7 @@ class AdvancedGraphQLGenerator:
         return "\n\n".join(filter(None, schema_parts))
 
     def _generate_header(self) -> str:
-        """Generate schema header"""
+        """Generate schema header."""
         return f"""# GraphQL Schema for {self.connection_params.get('database', 'database')}
 # Generated: {datetime.now().isoformat()}
 # Generator: Advanced GraphQL Generator v2.0
@@ -299,7 +297,7 @@ schema {{
 }}"""
 
     def _generate_scalars(self) -> str:
-        """Generate custom scalar definitions"""
+        """Generate custom scalar definitions."""
         return """# Custom Scalars
 scalar DateTime
 scalar Date
@@ -310,7 +308,7 @@ scalar Decimal
 scalar Upload"""
 
     def _generate_common_types(self) -> str:
-        """Generate common utility types"""
+        """Generate common utility types."""
         return """# Common Types
 
 interface Node {
@@ -337,7 +335,7 @@ type OperationResult {
 }"""
 
     def _generate_enums(self) -> str:
-        """Generate enum types from database"""
+        """Generate enum types from database."""
         enums = []
 
         for table_info in self.tables.values():
@@ -356,7 +354,7 @@ type OperationResult {
         return ""
 
     def _generate_object_types(self) -> str:
-        """Generate GraphQL object types for tables"""
+        """Generate GraphQL object types for tables."""
         types = []
 
         for table_name, table_info in self.tables.items():
@@ -413,7 +411,7 @@ type {type_name}Edge {{
         return "# Object Types\n\n" + "\n\n".join(types)
 
     def _generate_input_types(self) -> str:
-        """Generate input types for mutations"""
+        """Generate input types for mutations."""
         inputs = []
 
         for table_name, table_info in self.tables.items():
@@ -463,7 +461,7 @@ type {type_name}Edge {{
         return "# Input Types\n\n" + "\n\n".join(inputs)
 
     def _generate_filter_types(self) -> str:
-        """Generate filter types for queries"""
+        """Generate filter types for queries."""
         filters = []
 
         for table_name, table_info in self.tables.items():
@@ -524,10 +522,10 @@ enum {type_name}SortField {{
         return "# Filter Types\n\n" + "\n\n".join(filters)
 
     def _generate_query_type(self) -> str:
-        """Generate Query type with all queries"""
+        """Generate Query type with all queries."""
         queries = []
 
-        for table_name, table_info in self.tables.items():
+        for table_name, _ in self.tables.items():
             type_name = self._to_pascal_case(table_name)
             singular = self._to_camel_case(table_name)
             plural = self._to_plural(singular)
@@ -563,12 +561,12 @@ type Query {{
 }}"""
 
     def _generate_mutation_type(self) -> str:
-        """Generate Mutation type"""
+        """Generate Mutation type."""
         mutations = []
 
-        for table_name, table_info in self.tables.items():
+        for table_name, _ in self.tables.items():
             type_name = self._to_pascal_case(table_name)
-            singular = self._to_camel_case(table_name)
+            _ = self._to_camel_case(table_name)
 
             # Create mutation
             mutations.append(
@@ -612,7 +610,7 @@ type Mutation {{
 }}"""
 
     def _generate_subscription_type(self) -> str:
-        """Generate Subscription type for real-time updates"""
+        """Generate Subscription type for real-time updates."""
         subscriptions = []
 
         for table_name in self.tables.keys():
@@ -632,7 +630,7 @@ type Subscription {{
 }}"""
 
     def _mysql_to_graphql_type(self, mysql_type: str) -> str:
-        """Convert MySQL type to GraphQL type"""
+        """Convert MySQL type to GraphQL type."""
         type_mapping = {
             "int": "Int",
             "tinyint": "Int",
@@ -662,16 +660,16 @@ type Subscription {{
         return type_mapping.get(mysql_type.lower(), "String")
 
     def _to_camel_case(self, snake_str: str) -> str:
-        """Convert snake_case to camelCase"""
+        """Convert snake_case to camelCase."""
         components = snake_str.split("_")
         return components[0].lower() + "".join(x.title() for x in components[1:])
 
     def _to_pascal_case(self, snake_str: str) -> str:
-        """Convert snake_case to PascalCase"""
+        """Convert snake_case to PascalCase."""
         return "".join(x.title() for x in snake_str.split("_"))
 
     def _to_plural(self, word: str) -> str:
-        """Convert word to plural form (simple rules)"""
+        """Convert word to plural form (simple rules)."""
         if word.endswith("y"):
             return word[:-1] + "ies"
         elif word.endswith("s") or word.endswith("x") or word.endswith("z"):
@@ -680,7 +678,7 @@ type Subscription {{
             return word + "s"
 
     def export_schema(self, output_file: Path):
-        """Export schema to file"""
+        """Export schema to file."""
         schema = self.generate_schema()
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(schema)
@@ -688,7 +686,7 @@ type Subscription {{
 
 
 def generate_for_example(example_name: str, connection_params: Dict) -> bool:
-    """Generate GraphQL schema for a specific example"""
+    """Generate GraphQL schema for a specific example."""
     generator = AdvancedGraphQLGenerator(connection_params)
 
     if not generator.connect():
@@ -699,7 +697,7 @@ def generate_for_example(example_name: str, connection_params: Dict) -> bool:
         generator.analyze_database()
 
         # Generate schema
-        schema = generator.generate_schema()
+        _ = generator.generate_schema()
 
         # Export to file
         output_dir = (
@@ -718,7 +716,7 @@ def generate_for_example(example_name: str, connection_params: Dict) -> bool:
 
 
 def main():
-    """Main entry point"""
+    """Run entry point."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate GraphQL schemas from MySQL")

@@ -1,32 +1,25 @@
 #!/usr/bin/env python3
-"""
-StreamingMLGenerator - Refactored with BaseGenerator
+"""StreamingMLGenerator - Refactored with BaseGenerator.
+
 Auto-generated refactoring template
 """
 
-import sys
 import os
 
-# Add parent directory to path to import base_generator
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from base_generator import BaseGenerator
+from generators.base_generator import BaseGenerator
 
 
-import random
 import json
 import yaml
 import argparse
-from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Tuple
-
-from faker import Faker
+from typing import Dict
 
 
 class StreamingMLGenerator(BaseGenerator):
-    """Refactored StreamingMLGenerator using BaseGenerator infrastructure"""
+    """Refactored StreamingMLGenerator using BaseGenerator infrastructure."""
 
     def __init__(self, config_path: str = "config.yaml", **db_params):
-        """Initialize the generator with configuration and database connection"""
+        """Initialize the generator with configuration and database connection."""
         # Initialize base class with database connection parameters
         super().__init__(**db_params)
 
@@ -41,7 +34,7 @@ class StreamingMLGenerator(BaseGenerator):
         self.init_data_containers()
 
     def get_default_config(self) -> dict:
-        """Return default configuration"""
+        """Return default configuration."""
         return {
             "scale": {
                 "small": {"records": 100},
@@ -51,12 +44,12 @@ class StreamingMLGenerator(BaseGenerator):
         }
 
     def init_data_containers(self):
-        """Initialize data storage containers"""
+        """Initialize data storage containers."""
         # TODO: Add data containers for each table
 
     def generate_data(self, scale: str = "small"):
-        """Generate all data based on scale"""
-        scale_config = self.config["scale"][scale]
+        """Generate all data based on scale."""
+        _ = self.config["scale"][scale]
 
         print(f"\nGenerating {scale} scale data...")
         print("=" * 50)
@@ -69,11 +62,11 @@ class StreamingMLGenerator(BaseGenerator):
         return self.get_all_data()
 
     def get_all_data(self) -> Dict:
-        """Return all generated data"""
+        """Return all generated data."""
         return {}
 
     def insert_data_to_database(self):
-        """Insert generated data into database using bulk operations"""
+        """Insert generated data into database using bulk operations."""
         try:
             # Connect to database
             self.connect()
@@ -95,6 +88,7 @@ class StreamingMLGenerator(BaseGenerator):
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(description="Generate sample data")
     parser.add_argument(
         "--scale", choices=["small", "medium", "large"], default="small"

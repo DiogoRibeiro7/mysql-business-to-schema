@@ -1,5 +1,6 @@
-"""
-Authentication and authorization module
+"""Authentication and authorization module.
+
+Provides helpers for token-based auth and role/permission checks.
 """
 
 from fastapi import HTTPException, Depends, status
@@ -24,12 +25,14 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Security
 security = HTTPBearer()
+security_dep = Depends(security)
 
 
 class AuthManager:
     """Manages authentication and authorization."""
 
     def __init__(self):
+        """Initialize the in-memory auth store."""
         self.users_db: Dict[str, Dict[str, Any]] = {
             # Default admin user (change in production!)
             "admin": {
@@ -305,7 +308,7 @@ auth_manager = AuthManager()
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials = security_dep,
 ) -> User:
     """Get current user from JWT token."""
     token = credentials.credentials
@@ -339,10 +342,13 @@ async def get_current_user(
         )
 
 
+current_user_dep = Depends(get_current_user)
+
+
 def require_roles(roles: List[UserRole]):
     """Dependency to require specific roles."""
-
-    def role_checker(current_user: User = Depends(get_current_user)):
+    def role_checker(current_user: User = current_user_dep):
+        """Handle role checker."""
         if not auth_manager.check_role(current_user, roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
@@ -355,8 +361,8 @@ def require_roles(roles: List[UserRole]):
 
 def require_permissions(permissions: List[str]):
     """Dependency to require specific permissions."""
-
-    def permission_checker(current_user: User = Depends(get_current_user)):
+    def permission_checker(current_user: User = current_user_dep):
+        """Handle permission checker."""
         for permission in permissions:
             if not auth_manager.has_permission(current_user, permission):
                 raise HTTPException(

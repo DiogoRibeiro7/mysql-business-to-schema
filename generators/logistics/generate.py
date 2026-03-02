@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-"""
-Data Generator for Logistics & Supply Chain Management System
+"""Data Generator for Logistics & Supply Chain Management System.
+
 Generates realistic data for warehouses, inventory, shipments, and transportation
 """
 
 import random
 import json
 import yaml
-from datetime import datetime, timedelta, date
-from decimal import Decimal
+from datetime import datetime, timedelta
 from faker import Faker
 import mysql.connector
 from mysql.connector import Error
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 fake = Faker()
 Faker.seed(42)
@@ -21,6 +20,8 @@ random.seed(42)
 
 
 class LogisticsDataGenerator:
+    """Represent LogisticsDataGenerator."""
+
     def __init__(self, config_file="config.yaml"):
         """Initialize the data generator with configuration."""
         with open(config_file, "r") as f:
@@ -168,14 +169,14 @@ class LogisticsDataGenerator:
                 for b in range(num_bins):
                     bin_data = {
                         "zone_id": zone_id,
-                        "bin_code": f"A{str(z+1).zfill(2)}-R{str(b//10 + 1).zfill(2)}-L{str(b%10 + 1).zfill(2)}",
-                        "aisle": f"A{str(z+1).zfill(2)}",
-                        "rack": f"R{str(b//10 + 1).zfill(2)}",
-                        "level": f"L{str(b%10 + 1).zfill(2)}",
+                        "bin_code": f"A{str(z + 1).zfill(2)}-R{str(b // 10 + 1).zfill(2)}-L{str(b % 10 + 1).zfill(2)}",
+                        "aisle": f"A{str(z + 1).zfill(2)}",
+                        "rack": f"R{str(b // 10 + 1).zfill(2)}",
+                        "level": f"L{str(b % 10 + 1).zfill(2)}",
                         "position": str(b % 4 + 1),
                         "bin_type": random.choice(bin_types),
                         "max_weight_kg": random.randint(100, 2000),
-                        "dimensions_lwh": f"{random.randint(100,200)}x{random.randint(100,150)}x{random.randint(100,200)}",
+                        "dimensions_lwh": f"{random.randint(100, 200)}x{random.randint(100, 150)}x{random.randint(100, 200)}",
                         "volume_cbm": round(random.uniform(0.5, 5.0), 3),
                         "is_occupied": random.random() > 0.3,
                         "is_locked": False,
@@ -230,10 +231,10 @@ class LogisticsDataGenerator:
                 "brand": fake.company(),
                 "unit_of_measure": random.choice(uom_types),
                 "weight_kg": round(random.uniform(0.1, 50.0), 3),
-                "dimensions_lwh": f"{random.randint(10,100)}x{random.randint(10,100)}x{random.randint(10,100)}",
+                "dimensions_lwh": f"{random.randint(10, 100)}x{random.randint(10, 100)}x{random.randint(10, 100)}",
                 "volume_cbm": round(random.uniform(0.001, 1.0), 3),
                 "is_hazmat": is_hazmat,
-                "hazmat_class": f"Class {random.randint(1,9)}" if is_hazmat else None,
+                "hazmat_class": f"Class {random.randint(1, 9)}" if is_hazmat else None,
                 "requires_temperature_control": requires_temp,
                 "min_temperature_celsius": (
                     random.randint(2, 8) if requires_temp else None
@@ -383,7 +384,7 @@ class LogisticsDataGenerator:
                         self.cursor.execute(insert_batch_query, batch_data)
 
         self.connection.commit()
-        print(f"Generated inventory levels and batches")
+        print("Generated inventory levels and batches")
 
     def generate_suppliers_and_customers(self):
         """Generate suppliers and customers."""

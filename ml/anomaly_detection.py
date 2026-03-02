@@ -1,44 +1,31 @@
 #!/usr/bin/env python3
-"""
-ML-based Anomaly Detection and Prediction System for MySQL Databases
+"""ML-based Anomaly Detection and Prediction System for MySQL Databases.
+
 Uses various ML algorithms for detecting anomalies and predicting performance issues
 """
 
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import IsolationForest, RandomForestRegressor
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-import joblib
 import mysql.connector
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Dict, List
 import warnings
-import json
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 
 # Deep learning imports
-import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers, Model
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
 
 # Time series specific
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
 from prophet import Prophet
-import pmdarima as pm
 
 # Anomaly detection
 from pyod.models.iforest import IForest
 from pyod.models.lof import LOF
-from pyod.models.auto_encoder import AutoEncoder
 from pyod.models.vae import VAE
 
 warnings.filterwarnings("ignore")
@@ -48,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class Anomaly:
-    """Represents a detected anomaly"""
+    """Represents a detected anomaly."""
 
     timestamp: datetime
     metric: str
@@ -62,16 +49,17 @@ class Anomaly:
 
 
 class QueryPerformancePredictor:
-    """Predicts query execution time and resource usage"""
+    """Predicts query execution time and resource usage."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.model = None
         self.scaler = StandardScaler()
         self.feature_columns = []
         self.label_encoders = {}
 
     def extract_features(self, query: str, table_stats: Dict) -> np.ndarray:
-        """Extract features from SQL query and table statistics"""
+        """Extract features from SQL query and table statistics."""
         features = {}
 
         # Query complexity features
@@ -102,7 +90,7 @@ class QueryPerformancePredictor:
         return np.array(list(features.values())).reshape(1, -1)
 
     def train(self, training_data: pd.DataFrame):
-        """Train the query performance prediction model"""
+        """Train the query performance prediction model."""
         logger.info("Training query performance predictor...")
 
         # Prepare features and target
@@ -144,7 +132,7 @@ class QueryPerformancePredictor:
         return self.model
 
     def predict(self, query: str, table_stats: Dict) -> Dict[str, float]:
-        """Predict query execution time and confidence"""
+        """Predict query execution time and confidence."""
         if not self.model:
             raise ValueError("Model not trained")
 
@@ -170,16 +158,17 @@ class QueryPerformancePredictor:
 
 
 class DatabaseAnomalyDetector:
-    """Detects anomalies in database metrics using multiple ML algorithms"""
+    """Detects anomalies in database metrics using multiple ML algorithms."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.scalers = {}
         self.thresholds = {}
         self.history = []
 
     def initialize_models(self):
-        """Initialize different anomaly detection models"""
+        """Initialize different anomaly detection models."""
         # Isolation Forest for general anomalies
         self.models["isolation_forest"] = IForest(contamination=0.1, random_state=42)
 
@@ -198,7 +187,7 @@ class DatabaseAnomalyDetector:
         )
 
     def _build_autoencoder(self) -> Model:
-        """Build autoencoder model for anomaly detection"""
+        """Build autoencoder model for anomaly detection."""
         input_dim = 20  # Number of metrics
 
         # Encoder
@@ -221,7 +210,7 @@ class DatabaseAnomalyDetector:
         return autoencoder
 
     def collect_metrics(self, connection) -> pd.DataFrame:
-        """Collect current database metrics"""
+        """Collect current database metrics."""
         cursor = connection.cursor(dictionary=True)
 
         metrics = {}
@@ -287,7 +276,7 @@ class DatabaseAnomalyDetector:
         return pd.DataFrame([metrics])
 
     def detect_anomalies(self, metrics_df: pd.DataFrame) -> List[Anomaly]:
-        """Detect anomalies using ensemble of models"""
+        """Detect anomalies using ensemble of models."""
         anomalies = []
 
         # Prepare data
@@ -365,7 +354,7 @@ class DatabaseAnomalyDetector:
         return anomalies
 
     def _calculate_severity(self, value: float, expected: float, std: float) -> str:
-        """Calculate anomaly severity"""
+        """Calculate anomaly severity."""
         if std == 0:
             return "LOW"
 
@@ -381,7 +370,7 @@ class DatabaseAnomalyDetector:
             return "LOW"
 
     def _generate_description(self, metric: str, value: float, expected: float) -> str:
-        """Generate human-readable anomaly description"""
+        """Generate human-readable anomaly description."""
         descriptions = {
             "slow_queries": f"Slow query rate is {value:.0f}, expected {expected:.0f}",
             "threads_connected": f"Connected threads: {value:.0f}, normal range around {expected:.0f}",
@@ -395,7 +384,7 @@ class DatabaseAnomalyDetector:
         )
 
     def _recommend_action(self, metric: str, value: float, expected: float) -> str:
-        """Recommend action based on anomaly"""
+        """Recommend action based on anomaly."""
         recommendations = {
             "slow_queries": "Review slow query log and optimize problematic queries",
             "threads_connected": "Check for connection leaks or increase max_connections",
@@ -410,16 +399,17 @@ class DatabaseAnomalyDetector:
 
 
 class TimeSeriesForecaster:
-    """Forecasts database metrics using time series models"""
+    """Forecasts database metrics using time series models."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.models = {}
         self.prophet_models = {}
 
     def prepare_timeseries_data(
         self, metrics_df: pd.DataFrame, metric_name: str
     ) -> pd.DataFrame:
-        """Prepare data for time series forecasting"""
+        """Prepare data for time series forecasting."""
         ts_df = pd.DataFrame(
             {
                 "ds": pd.to_datetime(metrics_df["timestamp"]),
@@ -429,7 +419,7 @@ class TimeSeriesForecaster:
         return ts_df.dropna()
 
     def train_prophet_model(self, ts_df: pd.DataFrame, metric_name: str) -> Prophet:
-        """Train Prophet model for forecasting"""
+        """Train Prophet model for forecasting."""
         model = Prophet(
             daily_seasonality=True,
             weekly_seasonality=True,
@@ -449,7 +439,7 @@ class TimeSeriesForecaster:
         return model
 
     def forecast(self, metric_name: str, periods: int = 24) -> pd.DataFrame:
-        """Generate forecasts for a metric"""
+        """Generate forecasts for a metric."""
         if metric_name not in self.prophet_models:
             raise ValueError(f"No model trained for {metric_name}")
 
@@ -469,7 +459,7 @@ class TimeSeriesForecaster:
     def detect_forecast_anomalies(
         self, actual: pd.DataFrame, forecast: pd.DataFrame
     ) -> List[Anomaly]:
-        """Detect anomalies based on forecast"""
+        """Detect anomalies based on forecast."""
         anomalies = []
 
         merged = pd.merge(
@@ -501,14 +491,15 @@ class TimeSeriesForecaster:
 
 
 class IndexRecommendationML:
-    """ML-based index recommendation system"""
+    """ML-based index recommendation system."""
 
     def __init__(self):
+        """Initialize the instance."""
         self.model = None
         self.feature_extractor = None
 
     def extract_query_features(self, query: str, execution_plan: Dict) -> np.ndarray:
-        """Extract features from query and execution plan"""
+        """Extract features from query and execution plan."""
         features = {}
 
         # Query features
@@ -551,7 +542,7 @@ class IndexRecommendationML:
         return np.array(list(features.values()))
 
     def train_index_recommender(self, training_data: List[Dict]):
-        """Train ML model to recommend indexes"""
+        """Train ML model to recommend indexes."""
         # Prepare training data
         X = []
         y = []  # 1 if index improved performance, 0 otherwise
@@ -580,7 +571,7 @@ class IndexRecommendationML:
     def recommend_index(
         self, query: str, execution_plan: Dict, table_schema: Dict
     ) -> List[Dict]:
-        """Recommend indexes for a query"""
+        """Recommend indexes for a query."""
         if not self.model:
             raise ValueError("Model not trained")
 
@@ -610,7 +601,7 @@ class IndexRecommendationML:
         return recommendations
 
     def _extract_where_columns(self, query: str, table_schema: Dict) -> List[str]:
-        """Extract column names from WHERE clause"""
+        """Extract column names from WHERE clause."""
         columns = []
         query_upper = query.upper()
 
@@ -622,14 +613,14 @@ class IndexRecommendationML:
         return columns[:3]  # Limit to 3 columns for composite index
 
     def _generate_create_index(self, table_name: str, columns: List[str]) -> str:
-        """Generate CREATE INDEX statement"""
+        """Generate CREATE INDEX statement."""
         index_name = f"idx_{table_name}_{'_'.join(columns)}"[:64]
         column_list = ", ".join([f"`{col}`" for col in columns])
         return f"CREATE INDEX `{index_name}` ON `{table_name}` ({column_list});"
 
 
 def main():
-    """Main entry point for testing"""
+    """Run entry point for testing."""
     # Connect to database
     connection = mysql.connector.connect(
         host="localhost", user="root", password="password", database="clinic_db"
@@ -639,8 +630,8 @@ def main():
     anomaly_detector = DatabaseAnomalyDetector()
     anomaly_detector.initialize_models()
 
-    query_predictor = QueryPerformancePredictor()
-    forecaster = TimeSeriesForecaster()
+    _ = QueryPerformancePredictor()
+    _ = TimeSeriesForecaster()
 
     # Collect metrics
     metrics_df = anomaly_detector.collect_metrics(connection)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""
-Medical Clinic Data Generator
+"""Medical Clinic Data Generator.
+
 Generates realistic sample data for the medical clinic database schema
 """
 
@@ -9,9 +9,7 @@ import json
 import yaml
 import argparse
 from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Tuple
-import sys
-import os
+from typing import List, Dict, Any
 
 # Add faker to pyproject.toml
 from faker import Faker
@@ -19,8 +17,10 @@ from faker.providers import person, address, phone_number, company, date_time, p
 
 
 class ClinicDataGenerator:
+    """Represent ClinicDataGenerator."""
+
     def __init__(self, config_path: str = "config.yaml"):
-        """Initialize the generator with configuration"""
+        """Initialize the generator with configuration."""
         self.fake = Faker()
         self.fake.add_provider(person)
         self.fake.add_provider(address)
@@ -201,7 +201,7 @@ class ClinicDataGenerator:
         ]
 
     def generate_clinics(self, count: int) -> List[Dict]:
-        """Generate clinic data"""
+        """Generate clinic data."""
         for _ in range(count):
             clinic_id = self.counters["clinic"]
             self.counters["clinic"] += 1
@@ -230,7 +230,7 @@ class ClinicDataGenerator:
         return self.clinics
 
     def generate_departments(self, departments_per_clinic: int) -> List[Dict]:
-        """Generate department data for each clinic"""
+        """Generate department data for each clinic."""
         for clinic in self.clinics:
             for dept_type in random.sample(
                 self.department_types,
@@ -257,7 +257,7 @@ class ClinicDataGenerator:
         return self.departments
 
     def generate_doctors(self, count: int) -> List[Dict]:
-        """Generate doctor data"""
+        """Generate doctor data."""
         for _ in range(count):
             doctor_id = self.counters["doctor"]
             self.counters["doctor"] += 1
@@ -294,7 +294,7 @@ class ClinicDataGenerator:
         return self.doctors
 
     def generate_nurses(self, count: int) -> List[Dict]:
-        """Generate nurse data"""
+        """Generate nurse data."""
         for _ in range(count):
             nurse_id = self.counters["nurse"]
             self.counters["nurse"] += 1
@@ -320,7 +320,7 @@ class ClinicDataGenerator:
         return self.nurses
 
     def generate_patients(self, count: int) -> List[Dict]:
-        """Generate patient data"""
+        """Generate patient data."""
         for _ in range(count):
             patient_id = self.counters["patient"]
             self.counters["patient"] += 1
@@ -372,7 +372,7 @@ class ClinicDataGenerator:
         return self.patients
 
     def generate_appointments(self, count: int) -> List[Dict]:
-        """Generate appointment data"""
+        """Generate appointment data."""
         start_date = datetime.now() - timedelta(days=365)
         end_date = datetime.now() + timedelta(days=30)
 
@@ -412,7 +412,7 @@ class ClinicDataGenerator:
         return self.appointments
 
     def generate_medical_records(self) -> List[Dict]:
-        """Generate medical records for completed appointments"""
+        """Generate medical records for completed appointments."""
         completed_appointments = [
             a for a in self.appointments if a["status"] == "completed"
         ]
@@ -478,7 +478,7 @@ class ClinicDataGenerator:
         return self.medical_records
 
     def generate_prescriptions(self) -> List[Dict]:
-        """Generate prescriptions for medical records"""
+        """Generate prescriptions for medical records."""
         for record in self.medical_records:
             if random.random() > 0.3:  # 70% of visits result in prescriptions
                 num_medications = random.randint(1, 3)
@@ -515,7 +515,7 @@ class ClinicDataGenerator:
         return self.prescriptions
 
     def generate_lab_tests(self) -> List[Dict]:
-        """Generate lab test orders"""
+        """Generate lab test orders."""
         for record in self.medical_records:
             if random.random() > 0.4:  # 60% of visits require lab tests
                 num_tests = random.randint(1, 3)
@@ -546,7 +546,7 @@ class ClinicDataGenerator:
         return self.lab_tests
 
     def generate_lab_results(self) -> List[Dict]:
-        """Generate lab results for completed tests"""
+        """Generate lab results for completed tests."""
         completed_tests = [t for t in self.lab_tests if t["status"] == "completed"]
 
         for test in completed_tests:
@@ -591,7 +591,7 @@ class ClinicDataGenerator:
         return self.lab_results
 
     def generate_invoices(self) -> List[Dict]:
-        """Generate invoices for completed appointments"""
+        """Generate invoices for completed appointments."""
         completed_appointments = [
             a for a in self.appointments if a["status"] == "completed"
         ]
@@ -651,7 +651,7 @@ class ClinicDataGenerator:
         return self.invoices
 
     def generate_sql_inserts(self) -> str:
-        """Generate SQL INSERT statements for all data"""
+        """Generate SQL INSERT statements for all data."""
         sql_statements = []
 
         # Clinics
@@ -753,7 +753,7 @@ class ClinicDataGenerator:
         return "\n".join(sql_statements)
 
     def generate_data(self, scale: str = "small"):
-        """Generate all data based on scale"""
+        """Generate all data based on scale."""
         scales = self.config["scales"][scale]
 
         print(f"Generating {scale} dataset...")
@@ -786,6 +786,7 @@ class ClinicDataGenerator:
 
 
 def main():
+    """Handle main."""
     parser = argparse.ArgumentParser(
         description="Generate sample data for clinic database"
     )
@@ -837,6 +838,7 @@ def main():
 
         # Convert dates to strings for JSON serialization
         def convert_dates(obj):
+            """Handle convert dates."""
             if isinstance(obj, (datetime, date)):
                 return obj.isoformat()
             elif isinstance(obj, dict):
