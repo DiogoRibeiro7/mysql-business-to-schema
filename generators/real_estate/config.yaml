@@ -1,0 +1,40 @@
+{
+  "seed": 42,
+  "output_dir": "generators/real_estate/output",
+  "counts": {
+    "countries": 5,
+    "states": 50,
+    "cities": 200,
+    "neighborhoods": 500,
+    "properties": 1000,
+    "agents": 100,
+    "users": 500,
+    "listings": 800,
+    "viewings": 2000,
+    "offers": 500,
+    "bookings": 300,
+    "transactions": 200
+  },
+  "distributions": {
+    "property_types": ["House", "Apartment", "Condo", "Townhouse", "Land", "Commercial"],
+    "listing_status": ["Active", "Pending", "Sold", "Expired", "Withdrawn"],
+    "tour_types": ["In-Person", "Virtual", "Self-Tour"],
+    "offer_status": ["Pending", "Accepted", "Rejected", "Countered", "Withdrawn"]
+  },
+  "date_ranges": {
+    "listings_start": "2024-01-01",
+    "listings_end": "2026-03-01",
+    "viewings_start": "2024-01-01",
+    "viewings_end": "2026-03-01",
+    "offers_start": "2024-01-01",
+    "offers_end": "2026-03-01",
+    "transactions_start": "2024-01-01",
+    "transactions_end": "2026-02-28"
+  },
+  "price_ranges": {
+    "min_property_price": 50000,
+    "max_property_price": 5000000,
+    "min_rent": 500,
+    "max_rent": 10000
+  }
+}

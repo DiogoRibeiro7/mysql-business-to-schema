@@ -1,0 +1,44 @@
+{
+  "seed": 42,
+  "output_dir": "generators/event_ticketing/output",
+  "counts": {
+    "venues": 20,
+    "events": 100,
+    "performances": 300,
+    "performers": 200,
+    "customers": 1000,
+    "bookings": 2000,
+    "tickets": 5000,
+    "reviews": 500,
+    "cart_items": 300
+  },
+  "distributions": {
+    "event_categories": ["Concert", "Theater", "Sports", "Comedy", "Festival", "Conference"],
+    "venue_types": ["Arena", "Theater", "Stadium", "Club", "Convention Center", "Outdoor"],
+    "ticket_status": ["Available", "Hold", "Sold", "Reserved"],
+    "payment_methods": ["Credit Card", "PayPal", "Bank Transfer", "Cash", "Voucher"],
+    "booking_status": ["Pending", "Confirmed", "Cancelled", "Refunded"]
+  },
+  "date_ranges": {
+    "events_start": "2024-01-01",
+    "events_end": "2026-12-31",
+    "performances_start": "2024-01-01",
+    "performances_end": "2026-12-31",
+    "bookings_start": "2023-12-01",
+    "bookings_end": "2026-03-01"
+  },
+  "price_ranges": {
+    "min_ticket_price": 20,
+    "max_ticket_price": 500,
+    "min_vip_price": 200,
+    "max_vip_price": 2000,
+    "min_service_fee": 5,
+    "max_service_fee": 50
+  },
+  "capacity_ranges": {
+    "min_venue_capacity": 100,
+    "max_venue_capacity": 50000,
+    "min_section_capacity": 20,
+    "max_section_capacity": 5000
+  }
+}

@@ -1,0 +1,1 @@
+"""Cryptocurrency Exchange data generator."""

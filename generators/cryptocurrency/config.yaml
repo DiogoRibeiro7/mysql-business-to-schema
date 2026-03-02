@@ -1,0 +1,58 @@
+{
+  "seed": 42,
+  "output_dir": "generators/cryptocurrency/output",
+  "counts": {
+    "users": 500,
+    "currencies": 50,
+    "trading_pairs": 100,
+    "wallets": 1000,
+    "orders": 5000,
+    "trades": 3000,
+    "transactions": 8000,
+    "price_history_records": 10000,
+    "api_keys": 200,
+    "kyc_documents": 400
+  },
+  "distributions": {
+    "order_types": ["Market", "Limit", "Stop", "Stop-Limit"],
+    "order_status": ["Pending", "Filled", "Partially Filled", "Cancelled", "Expired"],
+    "transaction_types": ["Deposit", "Withdrawal", "Trade", "Fee", "Reward"],
+    "transaction_status": ["Pending", "Confirmed", "Failed", "Cancelled"],
+    "kyc_status": ["Pending", "Verified", "Rejected", "Expired"],
+    "wallet_types": ["Hot", "Cold", "Trading", "Savings"],
+    "fee_tiers": ["Basic", "Bronze", "Silver", "Gold", "Platinum"],
+    "currencies_types": ["Crypto", "Fiat", "Stablecoin"]
+  },
+  "date_ranges": {
+    "users_created_start": "2020-01-01",
+    "users_created_end": "2026-03-01",
+    "orders_start": "2023-01-01",
+    "orders_end": "2026-03-01",
+    "trades_start": "2023-01-01",
+    "trades_end": "2026-03-01",
+    "transactions_start": "2023-01-01",
+    "transactions_end": "2026-03-01",
+    "price_history_start": "2023-01-01",
+    "price_history_end": "2026-03-01"
+  },
+  "price_ranges": {
+    "min_btc_price": 15000,
+    "max_btc_price": 70000,
+    "min_eth_price": 800,
+    "max_eth_price": 5000,
+    "min_alt_price": 0.001,
+    "max_alt_price": 1000
+  },
+  "volume_ranges": {
+    "min_order_volume": 0.001,
+    "max_order_volume": 100,
+    "min_trade_volume": 0.0001,
+    "max_trade_volume": 50
+  },
+  "fee_ranges": {
+    "maker_fee_min": 0.0010,
+    "maker_fee_max": 0.0025,
+    "taker_fee_min": 0.0015,
+    "taker_fee_max": 0.0040
+  }
+}
