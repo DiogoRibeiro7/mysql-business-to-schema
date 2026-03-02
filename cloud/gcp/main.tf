@@ -97,6 +97,12 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "gke_security_group" {
+  description = "Google Group email for GKE RBAC"
+  type        = string
+  default     = "gke-security@example.com"
+}
+
 # ------------------------------------------------------------------------------
 # Locals
 # ------------------------------------------------------------------------------
@@ -145,6 +151,22 @@ resource "google_compute_network" "vpc" {
   depends_on = [google_project_service.required_apis]
 }
 
+# ------------------------------------------------------------------
+# KMS for CMEK-protected services
+# ------------------------------------------------------------------
+resource "google_kms_key_ring" "main" {
+  name     = "${local.name_prefix}-kr"
+  location = var.region
+
+  depends_on = [google_project_service.required_apis]
+}
+
+resource "google_kms_crypto_key" "app" {
+  name            = "${local.name_prefix}-key"
+  key_ring        = google_kms_key_ring.main.id
+  rotation_period = "7776000s" # 90 days
+}
+
 resource "google_compute_subnetwork" "private" {
   name          = "${local.name_prefix}-private-subnet"
   ip_cidr_range = "10.0.0.0/20"
@@ -162,6 +184,12 @@ resource "google_compute_subnetwork" "private" {
   }
 
   private_ip_google_access = true
+
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 resource "google_compute_subnetwork" "public" {
@@ -169,6 +197,14 @@ resource "google_compute_subnetwork" "public" {
   ip_cidr_range = "10.0.16.0/20"
   region        = var.region
   network       = google_compute_network.vpc.id
+
+  private_ip_google_access = true
+
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 # Cloud NAT for private resources
@@ -265,7 +301,7 @@ resource "google_sql_user" "mysql_user" {
 # ------------------------------------------------------------------------------
 resource "google_sql_database_instance" "postgres" {
   name             = "${local.name_prefix}-postgres-${var.database_example}"
-  database_version = "POSTGRES_15"
+  database_version = "POSTGRES_16"
   region           = var.region
 
   settings {
@@ -294,11 +330,51 @@ resource "google_sql_database_instance" "postgres" {
 
     database_flags {
       name  = "log_statement"
-      value = "all"
+      value = "none"
     }
 
     database_flags {
       name  = "log_duration"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_checkpoints"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_connections"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_disconnections"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_lock_waits"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_hostname"
+      value = "on"
+    }
+
+    database_flags {
+      name  = "log_min_error_statement"
+      value = "error"
+    }
+
+    database_flags {
+      name  = "log_min_messages"
+      value = "error"
+    }
+
+    database_flags {
+      name  = "cloudsql.enable_pgaudit"
       value = "on"
     }
 
@@ -371,6 +447,9 @@ resource "google_redis_instance" "cache" {
   redis_version = "REDIS_6_X"
   display_name  = "${local.name_prefix}-redis"
 
+  auth_enabled            = true
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
+
   labels = local.common_labels
 
   depends_on = [google_project_service.required_apis]
@@ -385,6 +464,7 @@ resource "google_storage_bucket" "data" {
   force_destroy = var.environment == "dev"
 
   uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
 
   versioning {
     enabled = true
@@ -422,6 +502,24 @@ resource "google_storage_bucket" "data" {
 
   labels = local.common_labels
 
+  logging {
+    log_bucket        = google_storage_bucket.logs.name
+    log_object_prefix = "access-logs"
+  }
+
+  depends_on = [google_project_service.required_apis]
+}
+
+resource "google_storage_bucket" "logs" {
+  name          = "${local.name_prefix}-logs-${data.google_project.project.number}"
+  location      = var.region
+  force_destroy = var.environment == "dev"
+
+  uniform_bucket_level_access = true
+  public_access_prevention    = "enforced"
+
+  labels = local.common_labels
+
   depends_on = [google_project_service.required_apis]
 }
 
@@ -434,6 +532,8 @@ resource "google_pubsub_topic" "cdc_events" {
   name = "${local.name_prefix}-cdc-events"
 
   message_retention_duration = "604800s" # 7 days
+
+  kms_key_name = google_kms_crypto_key.app.id
 
   labels = local.common_labels
 
@@ -472,6 +572,10 @@ resource "google_bigquery_dataset" "analytics" {
   location                    = var.region
   default_table_expiration_ms = var.environment == "prod" ? null : 2592000000 # 30 days for non-prod
 
+  default_encryption_configuration {
+    kms_key_name = google_kms_crypto_key.app.id
+  }
+
   labels = local.common_labels
 
   depends_on = [google_project_service.required_apis]
@@ -490,6 +594,12 @@ resource "google_container_cluster" "primary" {
   network    = google_compute_network.vpc.self_link
   subnetwork = google_compute_subnetwork.private.self_link
 
+  enable_intranode_visibility = true
+
+  release_channel {
+    channel = "REGULAR"
+  }
+
   ip_allocation_policy {
     cluster_secondary_range_name  = "gke-pods"
     services_secondary_range_name = "gke-services"
@@ -501,14 +611,34 @@ resource "google_container_cluster" "primary" {
     master_ipv4_cidr_block  = "172.16.0.0/28"
   }
 
+  master_authorized_networks_config {
+    cidr_blocks {
+      cidr_block   = "10.0.0.0/8"
+      display_name = "internal"
+    }
+  }
+
   master_auth {
     client_certificate_config {
       issue_client_certificate = false
     }
   }
 
+  authenticator_groups_config {
+    security_group = var.gke_security_group
+  }
+
   workload_identity_config {
     workload_pool = "${var.project_id}.svc.id.goog"
+  }
+
+  network_policy {
+    enabled  = true
+    provider = "CALICO"
+  }
+
+  binary_authorization {
+    evaluation_mode = "PROJECT_SINGLETON_POLICY_ENFORCE"
   }
 
   addons_config {
@@ -534,6 +664,11 @@ resource "google_container_node_pool" "primary_nodes" {
   cluster    = google_container_cluster.primary.name
   node_count = var.environment == "prod" ? 3 : 1
 
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+
   autoscaling {
     min_node_count = var.environment == "prod" ? 3 : 1
     max_node_count = var.environment == "prod" ? 10 : 3
@@ -557,6 +692,15 @@ resource "google_container_node_pool" "primary_nodes" {
 
     metadata = {
       disable-legacy-endpoints = "true"
+    }
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
+
+    shielded_instance_config {
+      enable_secure_boot          = true
+      enable_integrity_monitoring = true
     }
   }
 }

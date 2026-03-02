@@ -139,7 +139,6 @@ jobs:
         run: |
           pip install detect-secrets
           detect-secrets scan --baseline .secrets.baseline
-          detect-secrets audit .secrets.baseline
 
   # =====================================================
   # Infrastructure Security

@@ -298,7 +298,7 @@ resource "google_sql_database_instance" "primary" {
     }
 
     ip_configuration {
-      ipv4_enabled    = true
+      ipv4_enabled    = false
       private_network = google_compute_network.vpc.self_link
       require_ssl     = true
     }
@@ -341,7 +341,7 @@ resource "google_sql_database_instance" "replica" {
     disk_autoresize   = true
 
     ip_configuration {
-      ipv4_enabled    = true
+      ipv4_enabled    = false
       private_network = google_compute_network.vpc.self_link
       require_ssl     = true
     }
@@ -473,6 +473,14 @@ resource "google_container_cluster" "europe" {
 
   initial_node_count = 3
 
+  enable_intranode_visibility = true
+
+  release_channel {
+    channel = "REGULAR"
+  }
+
+  ip_allocation_policy {}
+
   node_config {
     machine_type = "e2-standard-4"
 
@@ -485,6 +493,10 @@ resource "google_container_cluster" "europe" {
     }
 
     tags = ["mysql", "kubernetes"]
+
+    workload_metadata_config {
+      mode = "GKE_METADATA"
+    }
   }
 
   master_auth {

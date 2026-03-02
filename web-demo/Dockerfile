@@ -28,7 +28,7 @@ RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 COPY backend/ .
 
 # Build backend
-RUN npm run build
+RUN npx tsc -p tsconfig.json
 
 # Remove dev dependencies
 RUN npm prune --omit=dev
