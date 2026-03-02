@@ -16,7 +16,6 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  ListItemSecondaryAction,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -26,23 +25,17 @@ import {
   AccordionSummary,
   AccordionDetails,
   IconButton,
-  Tooltip,
   Tab,
   Tabs,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
   CircularProgress,
-  Divider,
-  Stack,
-  Badge
 } from '@mui/material';
 import {
   ExpandMore as ExpandMoreIcon,
-  TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   Speed as SpeedIcon,
   Storage as StorageIcon,
@@ -52,17 +45,9 @@ import {
   Info as InfoIcon,
   Build as BuildIcon,
   Assessment as AssessmentIcon,
-  Code as CodeIcon,
   ContentCopy as CopyIcon,
-  PlayArrow as ExecuteIcon,
-  Delete as DeleteIcon,
   Refresh as RefreshIcon,
-  Timeline as TimelineIcon,
-  DataUsage as DataUsageIcon,
-  Search as SearchIcon,
-  FilterList as FilterIcon,
-  Add as AddIcon,
-  Remove as RemoveIcon
+  Search as SearchIcon
 } from '@mui/icons-material';
 import {
   Chart as ChartJS,
@@ -76,7 +61,7 @@ import {
   Tooltip as ChartTooltip,
   Legend
 } from 'chart.js';
-import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { Bar, Doughnut } from 'react-chartjs-2';
 import { apiService } from '../services/api';
 
 // Register ChartJS components

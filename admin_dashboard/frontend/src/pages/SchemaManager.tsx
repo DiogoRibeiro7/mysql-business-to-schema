@@ -5,8 +5,6 @@ import {
   Paper,
   Typography,
   Grid,
-  TreeView,
-  TreeItem,
   Table,
   TableBody,
   TableCell,
@@ -24,6 +22,7 @@ import {
   DialogContent,
   DialogActions,
 } from '@mui/material';
+import { TreeView, TreeItem } from '@mui/lab';
 import {
   ExpandMore,
   ChevronRight,

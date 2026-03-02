@@ -1,0 +1,33 @@
+# VPA Recommender Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vpa-recommender
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vpa-recommender
+  template:
+    metadata:
+      labels:
+        app: vpa-recommender
+    spec:
+      serviceAccountName: vpa-recommender
+      containers:
+        - name: recommender
+          image: k8s.gcr.io/autoscaling/vpa-recommender:0.13.0
+          args:
+            - --storage=prometheus
+            - --prometheus-address=http://prometheus.mysql-business-schema.svc.cluster.local:9090
+            - --recommendation-margin=0.15
+            - --pod-recommendation-min-cpu-millicores=50
+            - --pod-recommendation-min-memory-mb=50
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1
+              memory: 1Gi

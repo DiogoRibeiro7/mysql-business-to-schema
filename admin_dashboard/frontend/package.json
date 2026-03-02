@@ -21,6 +21,7 @@
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
     "@types/react-monaco-editor": "^0.16.0",
+    "ajv": "^8.12.0",
     "axios": "^1.6.2",
     "chart.js": "^4.4.1",
     "date-fns": "^2.30.0",

@@ -1,0 +1,35 @@
+# VPA for MySQL StatefulSets
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: mysql-clinic-vpa
+  namespace: mysql-business-schema
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: mysql-clinic
+  updatePolicy:
+    # Can be "Off", "Initial", or "Auto"
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: mysql
+        minAllowed:
+          cpu: 500m
+          memory: 1Gi
+        maxAllowed:
+          cpu: 4
+          memory: 8Gi
+        controlledResources: ["cpu", "memory"]
+        mode: Auto
+      - containerName: mysqld-exporter
+        minAllowed:
+          cpu: 50m
+          memory: 50Mi
+        maxAllowed:
+          cpu: 200m
+          memory: 200Mi
+        mode: Auto
+  recommenders:
+    - name: default

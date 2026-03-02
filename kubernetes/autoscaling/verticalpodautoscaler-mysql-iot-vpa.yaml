@@ -1,0 +1,24 @@
+# VPA for IoT Database (higher resource requirements)
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: mysql-iot-vpa
+  namespace: mysql-business-schema
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: mysql-iot
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: mysql
+        minAllowed:
+          cpu: 1
+          memory: 2Gi
+        maxAllowed:
+          cpu: 8
+          memory: 16Gi
+        controlledResources: ["cpu", "memory"]
+        mode: Auto
