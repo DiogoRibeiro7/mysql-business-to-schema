@@ -12,7 +12,7 @@ import argparse
 import importlib.util
 import traceback
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 
 # Generator metadata
 GENERATORS = {
@@ -252,7 +252,7 @@ class GeneratorRunner:
         self.results = results
         return results
 
-    def benchmark(self, generators: List[str] = None) -> Dict:
+    def benchmark(self, generators: Optional[List[str]] = None) -> Dict[str, Any]:
         """Benchmark generators in both test and full modes."""
         if generators is None:
             generators = list(GENERATORS.keys())

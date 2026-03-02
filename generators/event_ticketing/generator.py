@@ -11,7 +11,7 @@ import csv
 import hashlib
 import argparse
 from datetime import datetime, timedelta, date
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, DefaultDict
 from pathlib import Path
 from collections import defaultdict
 
@@ -89,13 +89,11 @@ class EventTicketingDataGenerator:
         self.fraud_attempts: List[Any] = []
 
         # Counters for IDs
-        self.counters = defaultdict(lambda: 1)
+        self.counters: DefaultDict[str, int] = defaultdict(lambda: 1)
 
         # Venue and seating cache
-        self.seat_cache: Dict[str, Any] = {}  # venue_id -> sections -> rows -> seats
-        self.performance_seats: Dict[str, Any] = (
-            {}
-        )  # performance_id -> set of booked seat_ids
+        self.seat_cache: Dict[int, Dict[int, Any]] = {}
+        self.performance_seats: Dict[int, Any] = {}
 
         # Performance names for events
         self.event_name_parts = {

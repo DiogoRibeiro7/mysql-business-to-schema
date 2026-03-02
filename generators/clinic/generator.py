@@ -656,7 +656,7 @@ class ClinicDataGenerator:
 
         # Clinics
         for clinic in self.clinics:
-            values = (
+            values: tuple[Any, ...] = (
                 clinic["clinic_id"],
                 clinic["clinic_name"],
                 clinic["address"],
@@ -678,7 +678,7 @@ class ClinicDataGenerator:
 
         # Departments
         for dept in self.departments:
-            values = (
+            values: tuple[Any, ...] = (
                 dept["department_id"],
                 dept["clinic_id"],
                 dept["department_name"],
@@ -695,7 +695,7 @@ class ClinicDataGenerator:
 
         # Doctors
         for doctor in self.doctors:
-            values = (
+            values: tuple[Any, ...] = (
                 doctor["doctor_id"],
                 doctor["employee_id"],
                 doctor["first_name"],
@@ -720,7 +720,7 @@ class ClinicDataGenerator:
 
         # Patients
         for patient in self.patients:
-            values = (
+            values: tuple[Any, ...] = (
                 patient["patient_id"],
                 patient["medical_record_number"],
                 patient["first_name"],

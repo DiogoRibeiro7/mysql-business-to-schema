@@ -11,7 +11,7 @@ import csv
 import hashlib
 import argparse
 from datetime import datetime, timedelta, date, time
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, DefaultDict
 from pathlib import Path
 from collections import defaultdict
 
@@ -93,14 +93,14 @@ class EducationDataGenerator:
         self.quiz_responses: List[Any] = []
 
         # Counters for IDs
-        self.counters = defaultdict(lambda: 1)
+        self.counters: DefaultDict[str, int] = defaultdict(lambda: 1)
 
         # Cache for lookups
         self.student_ids: List[Any] = []
         self.instructor_ids: List[Any] = []
         self.admin_ids: List[Any] = []
-        self.section_students = defaultdict(list)  # section_id -> list of student_ids
-        self.student_courses = defaultdict(list)  # student_id -> list of section_ids
+        self.section_students: DefaultDict[int, List[int]] = defaultdict(list)
+        self.student_courses: DefaultDict[int, List[int]] = defaultdict(list)
 
         # Course subjects and names
         self.course_subjects = {

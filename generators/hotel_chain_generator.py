@@ -356,7 +356,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
         # Group room types by property
-        types_by_property = {}
+        types_by_property: Dict[int, List[Dict[str, Any]]] = {}
         for rt in room_types:
             prop_id = rt["property_id"]
             if prop_id not in types_by_property:
@@ -865,7 +865,7 @@ class HotelChainGenerator(BaseGenerator):
         )
 
         # Group room types by property
-        types_by_property = {}
+        types_by_property: Dict[int, List[Dict[str, Any]]] = {}
         for rt in room_types:
             prop_id = rt["property_id"]
             if prop_id not in types_by_property:

@@ -1193,6 +1193,8 @@ class RealEstateDataGenerator:
             )
         elif current_status == "sold":
             # May have gone pending first
+            if sold_date is None:
+                sold_date = list_date + timedelta(days=random.randint(15, 30))
             if random.random() > 0.3:
                 pending_date = sold_date - timedelta(days=random.randint(15, 30))
                 history_id = self.counters["status_history"]

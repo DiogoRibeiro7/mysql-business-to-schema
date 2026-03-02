@@ -10,7 +10,7 @@ from pathlib import Path
 from faker import Faker
 import numpy as np
 from generators.ecommerce.generator import EcommerceGenerator
-import generators.ecommerce.generator as generator
+import generators.ecommerce.generator as ecommerce_generator_module
 
 # Configuration - SCALED DOWN FOR TESTING
 SEED = 42
@@ -45,16 +45,16 @@ print(f"  Days of history: {CONFIG['days_of_history']}")
 
 # Override the CONFIG in the imported module
 
-generator.CONFIG = CONFIG
-generator.OUTPUT_DIR = OUTPUT_DIR
+ecommerce_generator_module.CONFIG = CONFIG
+ecommerce_generator_module.OUTPUT_DIR = OUTPUT_DIR
 
 if __name__ == "__main__":
     print("\n" + "=" * 50)
     print("Starting TEST E-commerce Data Generation...")
     print("=" * 50 + "\n")
 
-    generator = EcommerceGenerator()
-    generator.generate_all()
+    generator_instance = EcommerceGenerator()
+    generator_instance.generate_all()
 
     print("\n[SUCCESS] TEST e-commerce data generation complete!")
     print(f"Output files saved to: {OUTPUT_DIR.absolute()}")

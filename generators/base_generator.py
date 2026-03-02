@@ -197,7 +197,7 @@ class BaseGenerator:
 
     def generate_password_hash(self, password: Optional[str] = None) -> str:
         """Generate a password hash."""
-        if not password:
+        if password is None:
             password = self.faker.password()
         return hashlib.sha256(password.encode()).hexdigest()
 

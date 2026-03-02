@@ -5,7 +5,7 @@ from mysql.connector import pooling
 import threading
 import time
 import queue
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -302,11 +302,12 @@ class ConnectionPool:
             Health check results
         """
         stats = self.get_stats()
-        health = {"healthy": True, "stats": stats, "issues": []}
+        issues: List[str] = []
+        health: Dict[str, Any] = {"healthy": True, "stats": stats, "issues": issues}
 
         # Check if pool is exhausted
         if stats["active_connections"] >= self.pool_size + self.max_overflow:
-            health["issues"].append("Connection pool exhausted")
+            issues.append("Connection pool exhausted")
             health["healthy"] = False
 
         # Check for stale connections
@@ -318,9 +319,7 @@ class ConnectionPool:
         ]
 
         if stale_connections:
-            health["issues"].append(
-                f"{len(stale_connections)} stale connections detected"
-            )
+            issues.append(f"{len(stale_connections)} stale connections detected")
 
         # Test creating a new connection
         try:
@@ -328,10 +327,10 @@ class ConnectionPool:
             if test_conn:
                 test_conn.close()
             else:
-                health["issues"].append("Unable to create new connections")
+                issues.append("Unable to create new connections")
                 health["healthy"] = False
         except Exception as e:
-            health["issues"].append(f"Connection test failed: {e}")
+            issues.append(f"Connection test failed: {e}")
             health["healthy"] = False
 
         return health

@@ -286,7 +286,7 @@ class DataValidator:
 
     def __init__(self):
         """Initialize the instance."""
-        self.errors: List[Any] = []
+        self.errors = []
 
     def validate(self, data: Dict, rules: Dict) -> bool:
         """Validate data against a set of rules.

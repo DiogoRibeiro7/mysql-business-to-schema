@@ -214,7 +214,7 @@ class PostgreSQLGenerator:
         if not text:
             text = self.fake.text()
         # In actual insertion, use to_tsvector() function
-        return text
+        return str(text)
 
     def generate_point(self) -> Tuple[float, float]:
         """Generate geometric point data."""

@@ -705,7 +705,7 @@ class FoodDeliveryGenerator(BaseGenerator):
         )
 
         # Group menu items by restaurant
-        items_by_restaurant = {}
+        items_by_restaurant: Dict[int, List[Dict[str, Any]]] = {}
         for item in menu_items:
             rid = item["restaurant_id"]
             if rid not in items_by_restaurant:
