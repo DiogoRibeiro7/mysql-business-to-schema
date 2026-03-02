@@ -8,6 +8,7 @@ Includes properties, rooms, reservations, guests, staff, and services.
 import random
 from datetime import datetime, timedelta, date, time
 import json
+from typing import Dict, List, Any
 
 from generators.base_generator import BaseGenerator
 
