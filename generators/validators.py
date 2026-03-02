@@ -301,7 +301,7 @@ class DataValidator:
     """
 
     def __init__(self):
-        self.errors = []
+        self.errors: List[Any] = []
 
     def validate(self, data: Dict, rules: Dict) -> bool:
         """
@@ -314,7 +314,7 @@ class DataValidator:
         Returns:
             True if all validations pass
         """
-        self.errors = []
+        self.errors: List[Any] = []
 
         for field, field_rules in rules.items():
             value = data.get(field)

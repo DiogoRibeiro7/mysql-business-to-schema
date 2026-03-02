@@ -35,19 +35,19 @@ class HealthcareIoTGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Data containers
-        self.hospitals = []
-        self.departments = []
-        self.patients = []
-        self.devices = []
-        self.device_assignments = []
-        self.medical_staff = []
-        self.vital_signs = []
-        self.device_readings = []
-        self.alerts = []
-        self.medications = []
-        self.clinical_scores = []
-        self.staff_assignments = []
-        self.audit_logs = []
+        self.hospitals: List[Any] = []
+        self.departments: List[Any] = []
+        self.patients: List[Any] = []
+        self.devices: List[Any] = []
+        self.device_assignments: List[Any] = []
+        self.medical_staff: List[Any] = []
+        self.vital_signs: List[Any] = []
+        self.device_readings: List[Any] = []
+        self.alerts: List[Any] = []
+        self.medications: List[Any] = []
+        self.clinical_scores: List[Any] = []
+        self.staff_assignments: List[Any] = []
+        self.audit_logs: List[Any] = []
 
         # Counters
         self.alert_id = 1

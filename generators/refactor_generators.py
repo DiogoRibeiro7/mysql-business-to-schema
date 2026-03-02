@@ -7,7 +7,7 @@ Helps automate the conversion of existing generators to use BaseGenerator
 import os
 import re
 import shutil
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 from pathlib import Path
 
 
@@ -52,7 +52,7 @@ from base_generator import BaseGenerator
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        analysis = {
+        analysis: Dict[str, Any] = {
             "file_path": file_path,
             "class_name": None,
             "has_config": "config" in content.lower(),

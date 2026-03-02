@@ -14,7 +14,7 @@ from mysql.connector import Error
 from faker import Faker
 import random
 import hashlib
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from decimal import Decimal
 from typing import List, Dict, Any, Optional, Tuple
 
@@ -197,7 +197,7 @@ class BaseGenerator:
             print(f"Error truncating all tables: {e}")
             raise
 
-    def generate_password_hash(self, password: str = None) -> str:
+    def generate_password_hash(self, password: Optional[str] = None) -> str:
         """Generate a password hash"""
         if not password:
             password = self.faker.password()
@@ -212,7 +212,7 @@ class BaseGenerator:
         random_seconds = random.randint(0, 86400)
         return start_date + timedelta(days=random_days, seconds=random_seconds)
 
-    def random_date_between(self, start_date: str, end_date: str) -> datetime:
+    def random_date_between(self, start_date: str, end_date: str) -> date:
         """Generate random date between two date strings"""
         start = datetime.strptime(start_date, "%Y-%m-%d")
         end = datetime.strptime(end_date, "%Y-%m-%d")

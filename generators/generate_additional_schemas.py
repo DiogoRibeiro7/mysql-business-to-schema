@@ -15,7 +15,8 @@ import hashlib
 
 # Fix encoding for Windows
 if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")  # type: ignore[attr-defined]
 
 fake = Faker()
 

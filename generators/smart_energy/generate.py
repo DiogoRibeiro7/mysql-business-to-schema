@@ -36,16 +36,16 @@ class SmartEnergyGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Data containers
-        self.utilities = []
-        self.customers = []
-        self.meters = []
-        self.transformers = []
-        self.solar_panels = []
-        self.consumption_readings = []
-        self.production_readings = []
-        self.power_quality_readings = []
-        self.demand_response_events = []
-        self.outages = []
+        self.utilities: List[Any] = []
+        self.customers: List[Any] = []
+        self.meters: List[Any] = []
+        self.transformers: List[Any] = []
+        self.solar_panels: List[Any] = []
+        self.consumption_readings: List[Any] = []
+        self.production_readings: List[Any] = []
+        self.power_quality_readings: List[Any] = []
+        self.demand_response_events: List[Any] = []
+        self.outages: List[Any] = []
 
     def generate_all(self):
         """Generate all data in sequence"""

@@ -13,6 +13,8 @@ from faker import Faker
 import mysql.connector
 from mysql.connector import Error
 
+from typing import Any, Dict, List
+
 fake = Faker()
 Faker.seed(42)
 random.seed(42)
@@ -28,15 +30,15 @@ class LogisticsDataGenerator:
         self.cursor = None
 
         # Business data
-        self.warehouse_ids = []
-        self.zone_ids = []
-        self.bin_ids = []
-        self.product_ids = []
-        self.supplier_ids = []
-        self.customer_ids = []
-        self.carrier_ids = []
-        self.vehicle_ids = []
-        self.driver_ids = []
+        self.warehouse_ids: List[Any] = []
+        self.zone_ids: List[Any] = []
+        self.bin_ids: List[Any] = []
+        self.product_ids: List[Any] = []
+        self.supplier_ids: List[Any] = []
+        self.customer_ids: List[Any] = []
+        self.carrier_ids: List[Any] = []
+        self.vehicle_ids: List[Any] = []
+        self.driver_ids: List[Any] = []
 
     def connect_to_database(self):
         """Establish database connection."""

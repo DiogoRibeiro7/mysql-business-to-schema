@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,37 +42,37 @@ CONFIG = {
 class SmartAgricultureGenerator:
     def __init__(self):
         # Core entities
-        self.farms = []
-        self.fields = []
-        self.zones = []
-        self.crops = []
-        self.operators = []
+        self.farms: List[Any] = []
+        self.fields: List[Any] = []
+        self.zones: List[Any] = []
+        self.crops: List[Any] = []
+        self.operators: List[Any] = []
 
         # Planting and crop management
-        self.planting_records = []
-        self.growth_stages = []
-        self.harvest_records = []
-        self.yield_predictions = []
+        self.planting_records: List[Any] = []
+        self.growth_stages: List[Any] = []
+        self.harvest_records: List[Any] = []
+        self.yield_predictions: List[Any] = []
 
         # IoT and sensors
-        self.sensors = []
-        self.sensor_readings = []
-        self.weather_stations = []
-        self.weather_data = []
+        self.sensors: List[Any] = []
+        self.sensor_readings: List[Any] = []
+        self.weather_stations: List[Any] = []
+        self.weather_data: List[Any] = []
 
         # Irrigation
-        self.irrigation_systems = []
-        self.irrigation_events = []
-        self.irrigation_schedules = []
+        self.irrigation_systems: List[Any] = []
+        self.irrigation_events: List[Any] = []
+        self.irrigation_schedules: List[Any] = []
 
         # Farm inputs
-        self.fertilizer_applications = []
-        self.pesticide_applications = []
+        self.fertilizer_applications: List[Any] = []
+        self.pesticide_applications: List[Any] = []
 
         # Livestock (for dairy/mixed farms)
-        self.animals = []
-        self.health_records = []
-        self.milk_production = []
+        self.animals: List[Any] = []
+        self.health_records: List[Any] = []
+        self.milk_production: List[Any] = []
 
         # Counters
         self.field_id = 0

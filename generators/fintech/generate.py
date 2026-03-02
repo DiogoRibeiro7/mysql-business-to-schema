@@ -18,7 +18,7 @@ import uuid
 from datetime import datetime, timedelta, date
 from decimal import Decimal, ROUND_HALF_UP
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import yaml
 from faker import Faker
 
@@ -38,14 +38,14 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 class FinTechDataGenerator:
     def __init__(self):
-        self.customers = []
-        self.accounts = []
-        self.transactions = []
-        self.fraud_alerts = []
-        self.devices = []
-        self.payment_methods = []
-        self.kyc_documents = []
-        self.exchange_rates = {}
+        self.customers: List[Any] = []
+        self.accounts: List[Any] = []
+        self.transactions: List[Any] = []
+        self.fraud_alerts: List[Any] = []
+        self.devices: List[Any] = []
+        self.payment_methods: List[Any] = []
+        self.kyc_documents: List[Any] = []
+        self.exchange_rates: Dict[str, Any] = {}
         self.start_date = datetime.now() - timedelta(
             days=config["counts"]["days_of_history"]
         )
@@ -98,7 +98,7 @@ class FinTechDataGenerator:
             ("GBP", "EUR"): 1.16,
         }
 
-        self.exchange_rates_list = []
+        self.exchange_rates_list: List[Any] = []
         current_date = self.start_date.date()
 
         while current_date <= datetime.now().date():
@@ -569,7 +569,7 @@ class FinTechDataGenerator:
 
     def generate_aml_checks(self):
         """Generate AML check records for customers."""
-        self.aml_checks = []
+        self.aml_checks: List[Any] = []
         check_id = 1
 
         for customer in self.customers:

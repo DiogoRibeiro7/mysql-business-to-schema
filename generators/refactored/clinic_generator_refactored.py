@@ -53,10 +53,10 @@ class ClinicDataGenerator(BaseGenerator):
     def init_data_containers(self):
         """Initialize data storage containers"""
         # TODO: Add data containers for each table
-        self.patients = []
-        self.clinics = []
-        self.departments = []
-        self.doctors = []
+        self.patients: List[Any] = []
+        self.clinics: List[Any] = []
+        self.departments: List[Any] = []
+        self.doctors: List[Any] = []
 
     def generate_data(self, scale: str = "small"):
         """Generate all data based on scale"""

@@ -55,47 +55,49 @@ class EventTicketingDataGenerator:
         Faker.seed(self.config["seed"])
 
         # Data storage
-        self.venues = []
-        self.venue_sections = []
-        self.venue_rows = []
-        self.venue_seats = []
-        self.event_categories = []
-        self.performers = []
-        self.events = []
-        self.performances = []
-        self.performance_pricing = []
-        self.event_performers = []
-        self.customers = []
-        self.customer_preferences = []
-        self.loyalty_members = []
-        self.payment_methods = []
-        self.tickets = []
-        self.ticket_holds = []
-        self.booking_transactions = []
-        self.booking_items = []
-        self.payment_transactions = []
-        self.promotional_codes = []
-        self.applied_discounts = []
-        self.price_tiers = []
-        self.dynamic_pricing_logs = []
-        self.shopping_carts = []
-        self.cart_items = []
-        self.abandoned_carts = []
-        self.ticket_transfers = []
-        self.ticket_scans = []
-        self.resale_listings = []
-        self.resale_transactions = []
-        self.sales_metrics = []
-        self.venue_utilization = []
-        self.customer_analytics = []
-        self.fraud_attempts = []
+        self.venues: List[Any] = []
+        self.venue_sections: List[Any] = []
+        self.venue_rows: List[Any] = []
+        self.venue_seats: List[Any] = []
+        self.event_categories: List[Any] = []
+        self.performers: List[Any] = []
+        self.events: List[Any] = []
+        self.performances: List[Any] = []
+        self.performance_pricing: List[Any] = []
+        self.event_performers: List[Any] = []
+        self.customers: List[Any] = []
+        self.customer_preferences: List[Any] = []
+        self.loyalty_members: List[Any] = []
+        self.payment_methods: List[Any] = []
+        self.tickets: List[Any] = []
+        self.ticket_holds: List[Any] = []
+        self.booking_transactions: List[Any] = []
+        self.booking_items: List[Any] = []
+        self.payment_transactions: List[Any] = []
+        self.promotional_codes: List[Any] = []
+        self.applied_discounts: List[Any] = []
+        self.price_tiers: List[Any] = []
+        self.dynamic_pricing_logs: List[Any] = []
+        self.shopping_carts: List[Any] = []
+        self.cart_items: List[Any] = []
+        self.abandoned_carts: List[Any] = []
+        self.ticket_transfers: List[Any] = []
+        self.ticket_scans: List[Any] = []
+        self.resale_listings: List[Any] = []
+        self.resale_transactions: List[Any] = []
+        self.sales_metrics: List[Any] = []
+        self.venue_utilization: List[Any] = []
+        self.customer_analytics: List[Any] = []
+        self.fraud_attempts: List[Any] = []
 
         # Counters for IDs
         self.counters = defaultdict(lambda: 1)
 
         # Venue and seating cache
-        self.seat_cache = {}  # venue_id -> sections -> rows -> seats
-        self.performance_seats = {}  # performance_id -> set of booked seat_ids
+        self.seat_cache: Dict[str, Any] = {}  # venue_id -> sections -> rows -> seats
+        self.performance_seats: Dict[str, Any] = (
+            {}
+        )  # performance_id -> set of booked seat_ids
 
         # Performance names for events
         self.event_name_parts = {

@@ -16,6 +16,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -44,42 +46,42 @@ CONFIG = {
 class LogisticsGenerator:
     def __init__(self):
         # Warehouse entities
-        self.warehouses = []
-        self.warehouse_zones = []
-        self.warehouse_bins = []
-        self.docking_stations = []
+        self.warehouses: List[Any] = []
+        self.warehouse_zones: List[Any] = []
+        self.warehouse_bins: List[Any] = []
+        self.docking_stations: List[Any] = []
 
         # Product and inventory
-        self.products = []
-        self.inventory_levels = []
-        self.product_batches = []
-        self.inventory_movements = []
+        self.products: List[Any] = []
+        self.inventory_levels: List[Any] = []
+        self.product_batches: List[Any] = []
+        self.inventory_movements: List[Any] = []
 
         # Partners
-        self.suppliers = []
-        self.customers = []
+        self.suppliers: List[Any] = []
+        self.customers: List[Any] = []
 
         # Orders
-        self.purchase_orders = []
-        self.purchase_order_items = []
-        self.sales_orders = []
-        self.sales_order_items = []
+        self.purchase_orders: List[Any] = []
+        self.purchase_order_items: List[Any] = []
+        self.sales_orders: List[Any] = []
+        self.sales_order_items: List[Any] = []
 
         # Shipping
-        self.carriers = []
-        self.carrier_services = []
-        self.shipments = []
-        self.shipment_tracking = []
+        self.carriers: List[Any] = []
+        self.carrier_services: List[Any] = []
+        self.shipments: List[Any] = []
+        self.shipment_tracking: List[Any] = []
 
         # Fleet
-        self.vehicles = []
-        self.drivers = []
-        self.routes = []
-        self.delivery_runs = []
+        self.vehicles: List[Any] = []
+        self.drivers: List[Any] = []
+        self.routes: List[Any] = []
+        self.delivery_runs: List[Any] = []
 
         # Analytics
-        self.kpi_metrics = []
-        self.audit_log = []
+        self.kpi_metrics: List[Any] = []
+        self.audit_log: List[Any] = []
 
         # Counters
         self.warehouse_id = 0

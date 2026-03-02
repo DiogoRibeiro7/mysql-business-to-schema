@@ -7,7 +7,7 @@ from mysql.connector import pooling
 import threading
 import time
 import queue
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import logging
 
 logger = logging.getLogger(__name__)
@@ -57,10 +57,12 @@ class ConnectionPool:
         self.timeout = timeout
         self.recycle = recycle
 
-        self._pool = queue.Queue(maxsize=pool_size)
+        self._pool: queue.Queue[Any] = queue.Queue(maxsize=pool_size)
         self._overflow = 0
         self._lock = threading.Lock()
-        self._connections = {}  # Track connection creation time
+        self._connections: Dict[int, Dict[str, Any]] = (
+            {}
+        )  # Track connection creation time
 
         # Initialize pool with connections
         self._initialize_pool()
@@ -72,7 +74,7 @@ class ConnectionPool:
             if conn:
                 self._pool.put(conn)
 
-    def _create_connection(self):
+    def _create_connection(self) -> Optional[Any]:
         """Create a new database connection."""
         try:
             conn = mysql.connector.connect(**self.config)

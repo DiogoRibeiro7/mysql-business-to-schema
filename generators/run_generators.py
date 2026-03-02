@@ -14,7 +14,7 @@ import importlib.util
 import traceback
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 # Generator metadata
 GENERATORS = {
@@ -117,7 +117,7 @@ class GeneratorRunner:
     def __init__(self, output_dir: str = "output", verbose: bool = True):
         self.output_dir = Path(output_dir)
         self.verbose = verbose
-        self.results = {}
+        self.results: Dict[str, Any] = {}
 
     def load_generator(self, name: str, test_mode: bool = False):
         """Dynamically load a generator module"""
@@ -141,6 +141,8 @@ class GeneratorRunner:
 
         # Load the module
         spec = importlib.util.spec_from_file_location(f"{name}_generator", script_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Failed to load generator module for {name}")
         module = importlib.util.module_from_spec(spec)
         sys.modules[f"{name}_generator"] = module
 
@@ -208,7 +210,7 @@ class GeneratorRunner:
         print(f"Mode: {'TEST' if test_mode else 'FULL'}")
         print(f"{'='*60}")
 
-        results = {}
+        results: Dict[str, Dict[str, Any]] = {}
         total_start = time.time()
         successful = 0
         failed = 0
@@ -384,7 +386,7 @@ Examples:
         if args.benchmark:
             results = runner.benchmark(args.generators)
         else:
-            results = {}
+            results: Dict[str, Dict[str, Any]] = {}
             for name in args.generators:
                 if name not in GENERATORS:
                     print(f"Unknown generator: {name}")

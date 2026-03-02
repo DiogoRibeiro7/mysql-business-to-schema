@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,38 +42,38 @@ CONFIG = {
 class FleetManagementGenerator:
     def __init__(self):
         # Core entities
-        self.companies = []
-        self.depots = []
-        self.vehicles = []
-        self.vehicle_specs = []
-        self.drivers = []
-        self.driver_certifications = []
+        self.companies: List[Any] = []
+        self.depots: List[Any] = []
+        self.vehicles: List[Any] = []
+        self.vehicle_specs: List[Any] = []
+        self.drivers: List[Any] = []
+        self.driver_certifications: List[Any] = []
 
         # GPS and tracking
-        self.gps_positions = []
-        self.trips = []
-        self.stops = []
-        self.routes = []
-        self.geofences = []
-        self.geofence_events = []
+        self.gps_positions: List[Any] = []
+        self.trips: List[Any] = []
+        self.stops: List[Any] = []
+        self.routes: List[Any] = []
+        self.geofences: List[Any] = []
+        self.geofence_events: List[Any] = []
 
         # Operations
-        self.fuel_transactions = []
-        self.maintenance_records = []
-        self.vehicle_diagnostics = []
+        self.fuel_transactions: List[Any] = []
+        self.maintenance_records: List[Any] = []
+        self.vehicle_diagnostics: List[Any] = []
 
         # Compliance
-        self.driver_logs = []
-        self.hos_violations = []
-        self.dvir_reports = []
-        self.driver_events = []
-        self.driver_scores = []
+        self.driver_logs: List[Any] = []
+        self.hos_violations: List[Any] = []
+        self.dvir_reports: List[Any] = []
+        self.driver_events: List[Any] = []
+        self.driver_scores: List[Any] = []
 
         # Communications
-        self.messages = []
+        self.messages: List[Any] = []
 
         # Analytics
-        self.vehicle_daily_summary = []
+        self.vehicle_daily_summary: List[Any] = []
 
         # Counters
         self.depot_id = 0

@@ -15,7 +15,7 @@ import random
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 
 @dataclass(frozen=True)
@@ -69,7 +69,7 @@ def load_config(path: Path) -> Config:
     raw_text = path.read_text(encoding="utf-8")
 
     # Prefer PyYAML if available; otherwise parse JSON (YAML-compatible).
-    data: Dict[str, object]
+    data: Dict[str, Any]
     try:
         import yaml  # type: ignore
 

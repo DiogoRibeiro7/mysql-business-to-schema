@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -39,19 +41,19 @@ CONFIG = {
 
 class IoTBinsGenerator:
     def __init__(self):
-        self.districts = []
-        self.bins = []
-        self.sensors = []
-        self.routes = []
-        self.route_assignments = []
-        self.trucks = []
-        self.drivers = []
-        self.schedules = []
-        self.collection_events = []
-        self.sensor_readings = []
-        self.alerts = []
-        self.alert_thresholds = []
-        self.predictions = []
+        self.districts: List[Any] = []
+        self.bins: List[Any] = []
+        self.sensors: List[Any] = []
+        self.routes: List[Any] = []
+        self.route_assignments: List[Any] = []
+        self.trucks: List[Any] = []
+        self.drivers: List[Any] = []
+        self.schedules: List[Any] = []
+        self.collection_events: List[Any] = []
+        self.sensor_readings: List[Any] = []
+        self.alerts: List[Any] = []
+        self.alert_thresholds: List[Any] = []
+        self.predictions: List[Any] = []
 
         # Counters
         self.assignment_id = 0

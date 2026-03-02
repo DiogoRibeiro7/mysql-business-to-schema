@@ -35,22 +35,22 @@ class IndustrialIoTGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Data containers
-        self.factories = []
-        self.production_lines = []
-        self.machines = []
-        self.sensors = []
-        self.operators = []
-        self.products = []
-        self.work_orders = []
-        self.production_runs = []
-        self.sensor_readings = []
-        self.machine_states = []
-        self.quality_inspections = []
-        self.downtime_events = []
-        self.maintenance_records = []
-        self.alarms = []
-        self.oee_metrics = []
-        self.energy_consumption = []
+        self.factories: List[Any] = []
+        self.production_lines: List[Any] = []
+        self.machines: List[Any] = []
+        self.sensors: List[Any] = []
+        self.operators: List[Any] = []
+        self.products: List[Any] = []
+        self.work_orders: List[Any] = []
+        self.production_runs: List[Any] = []
+        self.sensor_readings: List[Any] = []
+        self.machine_states: List[Any] = []
+        self.quality_inspections: List[Any] = []
+        self.downtime_events: List[Any] = []
+        self.maintenance_records: List[Any] = []
+        self.alarms: List[Any] = []
+        self.oee_metrics: List[Any] = []
+        self.energy_consumption: List[Any] = []
 
         # Counters
         self.work_order_id = 1

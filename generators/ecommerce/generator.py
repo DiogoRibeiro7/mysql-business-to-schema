@@ -14,6 +14,8 @@ from pathlib import Path
 from faker import Faker
 import numpy as np
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,27 +42,27 @@ CONFIG = {
 
 class EcommerceGenerator:
     def __init__(self):
-        self.customers = []
-        self.addresses = []
-        self.categories = []
-        self.brands = []
-        self.products = []
-        self.variants = []
-        self.images = []
-        self.warehouses = []
-        self.inventory = []
-        self.orders = []
-        self.order_items = []
-        self.cart_items = []
-        self.wishlist = []
-        self.reviews = []
-        self.coupons = []
-        self.page_views = []
-        self.search_queries = []
-        self.support_tickets = []
-        self.returns = []
-        self.shipments = []
-        self.payments = []
+        self.customers: List[Any] = []
+        self.addresses: List[Any] = []
+        self.categories: List[Any] = []
+        self.brands: List[Any] = []
+        self.products: List[Any] = []
+        self.variants: List[Any] = []
+        self.images: List[Any] = []
+        self.warehouses: List[Any] = []
+        self.inventory: List[Any] = []
+        self.orders: List[Any] = []
+        self.order_items: List[Any] = []
+        self.cart_items: List[Any] = []
+        self.wishlist: List[Any] = []
+        self.reviews: List[Any] = []
+        self.coupons: List[Any] = []
+        self.page_views: List[Any] = []
+        self.search_queries: List[Any] = []
+        self.support_tickets: List[Any] = []
+        self.returns: List[Any] = []
+        self.shipments: List[Any] = []
+        self.payments: List[Any] = []
 
         # Counters
         self.address_id = 0

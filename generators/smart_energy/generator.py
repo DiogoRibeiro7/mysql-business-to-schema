@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,24 +42,24 @@ CONFIG = {
 
 class SmartEnergyGenerator:
     def __init__(self):
-        self.buildings = []
-        self.floors = []
-        self.zones = []
-        self.tenants = []
-        self.tenant_assignments = []
-        self.meter_types = []
-        self.energy_meters = []
-        self.solar_systems = []
-        self.battery_storage = []
-        self.hvac_units = []
-        self.equipment_inventory = []
-        self.energy_readings = []
-        self.energy_consumption_hourly = []
-        self.energy_consumption_daily = []
-        self.solar_production = []
-        self.battery_status = []
-        self.hvac_telemetry = []
-        self.demand_response_events = []
+        self.buildings: List[Any] = []
+        self.floors: List[Any] = []
+        self.zones: List[Any] = []
+        self.tenants: List[Any] = []
+        self.tenant_assignments: List[Any] = []
+        self.meter_types: List[Any] = []
+        self.energy_meters: List[Any] = []
+        self.solar_systems: List[Any] = []
+        self.battery_storage: List[Any] = []
+        self.hvac_units: List[Any] = []
+        self.equipment_inventory: List[Any] = []
+        self.energy_readings: List[Any] = []
+        self.energy_consumption_hourly: List[Any] = []
+        self.energy_consumption_daily: List[Any] = []
+        self.solar_production: List[Any] = []
+        self.battery_status: List[Any] = []
+        self.hvac_telemetry: List[Any] = []
+        self.demand_response_events: List[Any] = []
 
         # Counters
         self.floor_id = 0

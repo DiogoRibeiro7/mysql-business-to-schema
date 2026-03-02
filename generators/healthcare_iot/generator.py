@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -39,22 +41,22 @@ CONFIG = {
 
 class HealthcareIoTGenerator:
     def __init__(self):
-        self.hospitals = []
-        self.departments = []
-        self.rooms = []
-        self.staff = []
-        self.staff_schedules = []
-        self.patients = []
-        self.admissions = []
-        self.devices = []
-        self.device_assignments = []
-        self.vital_signs = []
-        self.device_readings = []
-        self.alerts = []
-        self.alert_rules = []
-        self.medications = []
-        self.prescriptions = []
-        self.medication_administrations = []
+        self.hospitals: List[Any] = []
+        self.departments: List[Any] = []
+        self.rooms: List[Any] = []
+        self.staff: List[Any] = []
+        self.staff_schedules: List[Any] = []
+        self.patients: List[Any] = []
+        self.admissions: List[Any] = []
+        self.devices: List[Any] = []
+        self.device_assignments: List[Any] = []
+        self.vital_signs: List[Any] = []
+        self.device_readings: List[Any] = []
+        self.alerts: List[Any] = []
+        self.alert_rules: List[Any] = []
+        self.medications: List[Any] = []
+        self.prescriptions: List[Any] = []
+        self.medication_administrations: List[Any] = []
 
         # Counters
         self.department_id = 0

@@ -41,20 +41,20 @@ class IoTBinsGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Storage for generated entities
-        self.districts = []
-        self.bins = []
-        self.sensors = []
-        self.routes = []
-        self.route_assignments = []
-        self.trucks = []
-        self.drivers = []
-        self.schedules = []
-        self.collection_events = []
-        self.sensor_readings = []
-        self.hourly_aggregates = []
-        self.daily_aggregates = []
-        self.alert_thresholds = []
-        self.alerts = []
+        self.districts: List[Any] = []
+        self.bins: List[Any] = []
+        self.sensors: List[Any] = []
+        self.routes: List[Any] = []
+        self.route_assignments: List[Any] = []
+        self.trucks: List[Any] = []
+        self.drivers: List[Any] = []
+        self.schedules: List[Any] = []
+        self.collection_events: List[Any] = []
+        self.sensor_readings: List[Any] = []
+        self.hourly_aggregates: List[Any] = []
+        self.daily_aggregates: List[Any] = []
+        self.alert_thresholds: List[Any] = []
+        self.alerts: List[Any] = []
 
         # Parse dates
         self.start_date = datetime.strptime(

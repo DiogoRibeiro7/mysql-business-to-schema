@@ -39,20 +39,20 @@ class FleetManagementGenerator:
         self.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Data containers
-        self.depots = []
-        self.vehicles = []
-        self.drivers = []
-        self.routes = []
-        self.trips = []
-        self.trip_stops = []
-        self.gps_positions = []
-        self.driver_events = []
-        self.engine_diagnostics = []
-        self.fuel_readings = []
-        self.maintenance_records = []
-        self.dvir_reports = []
-        self.driver_logs = []
-        self.diagnostic_codes = []
+        self.depots: List[Any] = []
+        self.vehicles: List[Any] = []
+        self.drivers: List[Any] = []
+        self.routes: List[Any] = []
+        self.trips: List[Any] = []
+        self.trip_stops: List[Any] = []
+        self.gps_positions: List[Any] = []
+        self.driver_events: List[Any] = []
+        self.engine_diagnostics: List[Any] = []
+        self.fuel_readings: List[Any] = []
+        self.maintenance_records: List[Any] = []
+        self.dvir_reports: List[Any] = []
+        self.driver_logs: List[Any] = []
+        self.diagnostic_codes: List[Any] = []
 
         # Counters
         self.trip_id_counter = 1

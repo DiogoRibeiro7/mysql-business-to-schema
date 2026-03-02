@@ -17,11 +17,14 @@ import subprocess
 import argparse
 
 
+from typing import Any, Dict, List
+
+
 class GeneratorBenchmark:
     """Benchmark utility for generator performance analysis"""
 
     def __init__(self, output_file="benchmark_results.json"):
-        self.results = []
+        self.results: List[Any] = []
         self.output_file = output_file
         self.process = psutil.Process()
 

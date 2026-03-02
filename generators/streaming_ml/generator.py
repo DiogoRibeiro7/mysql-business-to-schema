@@ -17,6 +17,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -43,51 +45,51 @@ CONFIG = {
 class StreamingMLGenerator:
     def __init__(self):
         # Organizations and projects
-        self.organizations = []
-        self.projects = []
+        self.organizations: List[Any] = []
+        self.projects: List[Any] = []
 
         # Data streams
-        self.data_streams = []
-        self.stream_pipelines = []
-        self.stream_events = []
+        self.data_streams: List[Any] = []
+        self.stream_pipelines: List[Any] = []
+        self.stream_events: List[Any] = []
 
         # Feature store
-        self.feature_definitions = []
-        self.raw_features = []
-        self.feature_computations = []
-        self.feature_sets = []
+        self.feature_definitions: List[Any] = []
+        self.raw_features: List[Any] = []
+        self.feature_computations: List[Any] = []
+        self.feature_sets: List[Any] = []
 
         # Experiments and models
-        self.experiments = []
-        self.experiment_runs = []
-        self.run_metrics = []
-        self.models = []
-        self.model_evaluations = []
-        self.model_comparisons = []
-        self.model_deployments = []
+        self.experiments: List[Any] = []
+        self.experiment_runs: List[Any] = []
+        self.run_metrics: List[Any] = []
+        self.models: List[Any] = []
+        self.model_evaluations: List[Any] = []
+        self.model_comparisons: List[Any] = []
+        self.model_deployments: List[Any] = []
 
         # A/B testing
-        self.ab_tests = []
+        self.ab_tests: List[Any] = []
 
         # Predictions and monitoring
-        self.predictions = []
-        self.ground_truth = []
-        self.drift_detection = []
-        self.performance_metrics = []
-        self.model_alerts = []
+        self.predictions: List[Any] = []
+        self.ground_truth: List[Any] = []
+        self.drift_detection: List[Any] = []
+        self.performance_metrics: List[Any] = []
+        self.model_alerts: List[Any] = []
 
         # Infrastructure
-        self.compute_resources = []
-        self.resource_allocations = []
+        self.compute_resources: List[Any] = []
+        self.resource_allocations: List[Any] = []
 
         # Data governance
-        self.data_lineage = []
-        self.data_quality_rules = []
-        self.data_quality_violations = []
+        self.data_lineage: List[Any] = []
+        self.data_quality_rules: List[Any] = []
+        self.data_quality_violations: List[Any] = []
 
         # Usage tracking
-        self.user_activity = []
-        self.api_usage = []
+        self.user_activity: List[Any] = []
+        self.api_usage: List[Any] = []
 
         # Counters
         self.project_id = 0

@@ -16,6 +16,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,47 +42,47 @@ CONFIG = {
 class SocialMediaGenerator:
     def __init__(self):
         # User entities
-        self.users = []
-        self.user_profiles = []
-        self.user_settings = []
+        self.users: List[Any] = []
+        self.user_profiles: List[Any] = []
+        self.user_settings: List[Any] = []
 
         # Relationships (graph)
-        self.relationships = []
-        self.relationship_requests = []
+        self.relationships: List[Any] = []
+        self.relationship_requests: List[Any] = []
 
         # Content
-        self.posts = []
-        self.post_media = []
-        self.comments = []
-        self.reactions = []
-        self.shares = []
-        self.bookmarks = []
+        self.posts: List[Any] = []
+        self.post_media: List[Any] = []
+        self.comments: List[Any] = []
+        self.reactions: List[Any] = []
+        self.shares: List[Any] = []
+        self.bookmarks: List[Any] = []
 
         # Hashtags and trending
-        self.hashtags = []
-        self.post_hashtags = []
-        self.trending_topics = []
+        self.hashtags: List[Any] = []
+        self.post_hashtags: List[Any] = []
+        self.trending_topics: List[Any] = []
 
         # Messaging
-        self.conversations = []
-        self.conversation_participants = []
-        self.messages = []
+        self.conversations: List[Any] = []
+        self.conversation_participants: List[Any] = []
+        self.messages: List[Any] = []
 
         # Notifications
-        self.notifications = []
+        self.notifications: List[Any] = []
 
         # Moderation
-        self.reports = []
-        self.banned_content = []
+        self.reports: List[Any] = []
+        self.banned_content: List[Any] = []
 
         # Analytics
-        self.user_activity_logs = []
-        self.engagement_metrics = []
-        self.viral_content_tracking = []
+        self.user_activity_logs: List[Any] = []
+        self.engagement_metrics: List[Any] = []
+        self.viral_content_tracking: List[Any] = []
 
         # Lists
-        self.user_lists = []
-        self.list_members = []
+        self.user_lists: List[Any] = []
+        self.list_members: List[Any] = []
 
         # Counters
         self.user_id = 0
@@ -113,7 +115,7 @@ class SocialMediaGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
         # Track user influence scores for viral content
-        self.user_influence = {}
+        self.user_influence: Dict[str, Any] = {}
 
     def generate_all(self):
         """Generate all social media platform data"""

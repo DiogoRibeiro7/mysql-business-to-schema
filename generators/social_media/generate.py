@@ -17,7 +17,7 @@ import hashlib
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import yaml
 from faker import Faker
 
@@ -37,15 +37,15 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 class SocialMediaDataGenerator:
     def __init__(self):
-        self.users = []
-        self.user_profiles = []
-        self.relationships = []
-        self.posts = []
-        self.comments = []
-        self.reactions = []
-        self.hashtags = {}
-        self.messages = []
-        self.notifications = []
+        self.users: List[Any] = []
+        self.user_profiles: List[Any] = []
+        self.relationships: List[Any] = []
+        self.posts: List[Any] = []
+        self.comments: List[Any] = []
+        self.reactions: List[Any] = []
+        self.hashtags: Dict[str, Any] = {}
+        self.messages: List[Any] = []
+        self.notifications: List[Any] = []
         self.start_date = datetime.now() - timedelta(
             days=config["counts"]["days_of_activity"]
         )

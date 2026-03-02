@@ -4,7 +4,7 @@ Performance optimization utilities for data generators.
 
 import math
 import psutil
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List, Tuple, Callable, Generator
 import time
 from functools import wraps
 import logging
@@ -208,7 +208,7 @@ class QueryOptimizer:
 
     def __init__(self, connection):
         self.connection = connection
-        self.cache = {}
+        self.cache: Dict[str, Any] = {}
         self.stats = {"cache_hits": 0, "cache_misses": 0, "total_queries": 0}
 
     def execute_with_cache(self, query: str, cache_ttl: int = 60):
@@ -309,8 +309,8 @@ def profile_query(func):
 def batch_processor(
     data: List[Any],
     batch_size: Optional[int] = None,
-    processor_func: Optional[callable] = None,
-) -> None:
+    processor_func: Optional[Callable[[List[Any]], None]] = None,
+) -> Generator[List[Any], None, None]:
     """
     Process data in optimized batches.
 
@@ -342,7 +342,7 @@ class PerformanceMonitor:
     """
 
     def __init__(self):
-        self.metrics = []
+        self.metrics: List[Any] = []
         self.start_time = None
 
     def start(self):

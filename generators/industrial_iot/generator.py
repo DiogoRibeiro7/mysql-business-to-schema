@@ -15,6 +15,8 @@ from faker import Faker
 import numpy as np
 import math
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -39,21 +41,21 @@ CONFIG = {
 
 class IndustrialIoTGenerator:
     def __init__(self):
-        self.factories = []
-        self.production_lines = []
-        self.machines = []
-        self.sensors = []
-        self.products = []
-        self.work_orders = []
-        self.production_runs = []
-        self.sensor_readings = []
-        self.quality_inspections = []
-        self.defects = []
-        self.oee_metrics = []
-        self.maintenance_schedules = []
-        self.maintenance_records = []
-        self.alerts = []
-        self.downtime_events = []
+        self.factories: List[Any] = []
+        self.production_lines: List[Any] = []
+        self.machines: List[Any] = []
+        self.sensors: List[Any] = []
+        self.products: List[Any] = []
+        self.work_orders: List[Any] = []
+        self.production_runs: List[Any] = []
+        self.sensor_readings: List[Any] = []
+        self.quality_inspections: List[Any] = []
+        self.defects: List[Any] = []
+        self.oee_metrics: List[Any] = []
+        self.maintenance_schedules: List[Any] = []
+        self.maintenance_records: List[Any] = []
+        self.alerts: List[Any] = []
+        self.downtime_events: List[Any] = []
 
         # Counters
         self.line_id = 0

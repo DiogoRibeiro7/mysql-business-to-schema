@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class PostgreSQLGenerator:
     """Base class for PostgreSQL data generation"""
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize PostgreSQL generator"""
         self.config = config or self._get_default_config()
         self.fake = Faker()
@@ -39,11 +39,11 @@ class PostgreSQLGenerator:
         random.seed(42)
 
         # Database connection
-        self.connection = None
-        self.cursor = None
+        self.connection: Optional[Any] = None
+        self.cursor: Optional[Any] = None
 
         # Statistics
-        self.stats = {
+        self.stats: Dict[str, Any] = {
             "tables_created": 0,
             "records_inserted": {},
             "errors": [],
@@ -91,8 +91,12 @@ class PostgreSQLGenerator:
             self.connection.close()
         logger.info("Disconnected from PostgreSQL")
 
-    def execute_query(self, query: str, params: Tuple = None) -> bool:
+    def execute_query(
+        self, query: str, params: Optional[Tuple[Any, ...]] = None
+    ) -> bool:
         """Execute a single query"""
+        if self.cursor is None or self.connection is None:
+            raise RuntimeError("Not connected to PostgreSQL")
         try:
             self.cursor.execute(query, params)
             self.connection.commit()
@@ -104,10 +108,15 @@ class PostgreSQLGenerator:
             self.stats["errors"].append(str(e))
             return False
 
-    def batch_insert(self, table: str, columns: List[str], data: List[Tuple]) -> int:
+    def batch_insert(
+        self, table: str, columns: List[str], data: List[Tuple[Any, ...]]
+    ) -> int:
         """Batch insert data using PostgreSQL's execute_batch"""
         if not data:
             return 0
+
+        if self.cursor is None or self.connection is None:
+            raise RuntimeError("Not connected to PostgreSQL")
 
         try:
             placeholders = ",".join(["%s"] * len(columns))
@@ -131,9 +140,11 @@ class PostgreSQLGenerator:
             return 0
 
     def copy_from_csv(
-        self, table: str, csv_file: str, columns: List[str] = None
+        self, table: str, csv_file: str, columns: Optional[List[str]] = None
     ) -> bool:
         """Use COPY command for ultra-fast data loading"""
+        if self.cursor is None or self.connection is None:
+            raise RuntimeError("Not connected to PostgreSQL")
         try:
             with open(csv_file, "r") as f:
                 if columns:
@@ -155,7 +166,7 @@ class PostgreSQLGenerator:
 
     # PostgreSQL-specific data generators
 
-    def generate_jsonb(self, schema: Dict[str, Any] = None) -> Json:
+    def generate_jsonb(self, schema: Optional[Dict[str, Any]] = None) -> Json:
         """Generate JSONB data"""
         if schema:
             data = {}
@@ -186,7 +197,7 @@ class PostgreSQLGenerator:
 
     def generate_array(
         self, element_type: str, min_size: int = 1, max_size: int = 10
-    ) -> List:
+    ) -> List[Any]:
         """Generate PostgreSQL array data"""
         size = random.randint(min_size, max_size)
 
@@ -201,7 +212,7 @@ class PostgreSQLGenerator:
         else:
             return []
 
-    def generate_tsvector(self, text: str = None) -> str:
+    def generate_tsvector(self, text: Optional[str] = None) -> str:
         """Generate tsvector for full-text search"""
         if not text:
             text = self.fake.text()
@@ -259,7 +270,9 @@ class PostgreSQLGenerator:
         """
         return self.execute_query(query)
 
-    def create_gin_index(self, table: str, column: str, index_name: str = None) -> bool:
+    def create_gin_index(
+        self, table: str, column: str, index_name: Optional[str] = None
+    ) -> bool:
         """Create GIN index for JSONB or array columns"""
         if not index_name:
             index_name = f"idx_{table}_{column}_gin"
@@ -270,7 +283,7 @@ class PostgreSQLGenerator:
         return self.execute_query(query)
 
     def create_gist_index(
-        self, table: str, column: str, index_name: str = None
+        self, table: str, column: str, index_name: Optional[str] = None
     ) -> bool:
         """Create GiST index for geometric or full-text search"""
         if not index_name:
@@ -282,7 +295,7 @@ class PostgreSQLGenerator:
         return self.execute_query(query)
 
     def create_brin_index(
-        self, table: str, column: str, index_name: str = None
+        self, table: str, column: str, index_name: Optional[str] = None
     ) -> bool:
         """Create BRIN index for large tables with natural ordering"""
         if not index_name:
@@ -295,8 +308,10 @@ class PostgreSQLGenerator:
 
     # Utility methods
 
-    def vacuum_analyze(self, table: str = None):
+    def vacuum_analyze(self, table: Optional[str] = None):
         """Run VACUUM ANALYZE for query optimization"""
+        if self.connection is None or self.cursor is None:
+            raise RuntimeError("Not connected to PostgreSQL")
         old_isolation = self.connection.isolation_level
         self.connection.set_isolation_level(0)  # AUTOCOMMIT
 
@@ -312,6 +327,8 @@ class PostgreSQLGenerator:
 
     def get_table_size(self, table: str) -> Dict[str, Any]:
         """Get table size information"""
+        if self.cursor is None:
+            raise RuntimeError("Not connected to PostgreSQL")
         query = """
         SELECT
             pg_size_pretty(pg_total_relation_size(%s)) as total_size,
@@ -331,6 +348,8 @@ class PostgreSQLGenerator:
 
     def enable_extension(self, extension: str) -> bool:
         """Enable a PostgreSQL extension"""
+        if self.cursor is None or self.connection is None:
+            raise RuntimeError("Not connected to PostgreSQL")
         try:
             self.cursor.execute(f"CREATE EXTENSION IF NOT EXISTS {extension};")
             self.connection.commit()

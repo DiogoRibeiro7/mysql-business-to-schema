@@ -11,7 +11,7 @@ import sys
 import os
 from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 import hashlib
 import secrets
 
@@ -60,7 +60,7 @@ class CryptocurrencyExchangeGenerator(BaseGenerator):
 
         self.fiat_currencies = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD"]
 
-        self.trading_pairs = []
+        self.trading_pairs: List[Any] = []
         for crypto in self.crypto_symbols:
             for fiat in self.fiat_currencies[:3]:  # Main pairs with USD, EUR, GBP
                 self.trading_pairs.append(f"{crypto}/{fiat}")

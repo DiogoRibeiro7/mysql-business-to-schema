@@ -16,6 +16,8 @@ from pathlib import Path
 from faker import Faker
 import numpy as np
 
+from typing import Any, Dict, List
+
 # Configuration
 SEED = 42
 OUTPUT_DIR = Path("output")
@@ -40,46 +42,46 @@ CONFIG = {
 class FinTechGenerator:
     def __init__(self):
         # Customer entities
-        self.customers = []
-        self.individual_customers = []
-        self.business_customers = []
-        self.kyc_documents = []
-        self.customer_addresses = []
+        self.customers: List[Any] = []
+        self.individual_customers: List[Any] = []
+        self.business_customers: List[Any] = []
+        self.kyc_documents: List[Any] = []
+        self.customer_addresses: List[Any] = []
 
         # Account entities
-        self.accounts = []
-        self.account_holders = []
+        self.accounts: List[Any] = []
+        self.account_holders: List[Any] = []
 
         # Accounting entities
-        self.chart_of_accounts = []
-        self.journal_entries = []
-        self.journal_lines = []
+        self.chart_of_accounts: List[Any] = []
+        self.journal_entries: List[Any] = []
+        self.journal_lines: List[Any] = []
 
         # Transaction entities
-        self.transactions = []
-        self.transfers = []
-        self.payment_methods = []
-        self.cards = []
+        self.transactions: List[Any] = []
+        self.transfers: List[Any] = []
+        self.payment_methods: List[Any] = []
+        self.cards: List[Any] = []
 
         # Currency and exchange
-        self.currencies = []
-        self.exchange_rates = []
+        self.currencies: List[Any] = []
+        self.exchange_rates: List[Any] = []
 
         # Risk and compliance
-        self.risk_rules = []
-        self.fraud_alerts = []
-        self.device_fingerprints = []
-        self.aml_checks = []
-        self.sar_reports = []
+        self.risk_rules: List[Any] = []
+        self.fraud_alerts: List[Any] = []
+        self.device_fingerprints: List[Any] = []
+        self.aml_checks: List[Any] = []
+        self.sar_reports: List[Any] = []
 
         # Loans
-        self.loan_applications = []
-        self.loan_accounts = []
+        self.loan_applications: List[Any] = []
+        self.loan_accounts: List[Any] = []
 
         # Other entities
-        self.audit_logs = []
-        self.fee_schedule = []
-        self.notification_preferences = []
+        self.audit_logs: List[Any] = []
+        self.fee_schedule: List[Any] = []
+        self.notification_preferences: List[Any] = []
 
         # Counters
         self.customer_id = 0
@@ -109,7 +111,7 @@ class FinTechGenerator:
         self.start_date = datetime.now() - timedelta(days=CONFIG["days_of_history"])
 
         # Running balances for double-entry accounting
-        self.gl_balances = {}
+        self.gl_balances: Dict[str, Any] = {}
 
     def generate_all(self):
         """Generate all fintech data"""

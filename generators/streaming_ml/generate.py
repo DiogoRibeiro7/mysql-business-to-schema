@@ -40,16 +40,16 @@ class StreamingMLGenerator:
         self.output_dir.mkdir(exist_ok=True)
 
         # Initialize data containers
-        self.users = []
-        self.creators = []
-        self.content_items = []
-        self.categories = []
-        self.user_sessions = []
-        self.events = []
-        self.recommendations = []
-        self.ab_test_assignments = []
-        self.ml_features = []
-        self.revenue_events = []
+        self.users: List[Any] = []
+        self.creators: List[Any] = []
+        self.content_items: List[Any] = []
+        self.categories: List[Any] = []
+        self.user_sessions: List[Any] = []
+        self.events: List[Any] = []
+        self.recommendations: List[Any] = []
+        self.ab_test_assignments: List[Any] = []
+        self.ml_features: List[Any] = []
+        self.revenue_events: List[Any] = []
 
         # Date ranges
         self.platform_launch = datetime.strptime(

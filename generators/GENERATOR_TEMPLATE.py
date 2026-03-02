@@ -12,6 +12,8 @@ from datetime import datetime, timedelta
 from faker import Faker
 from pathlib import Path
 
+from typing import Any, Dict, List
+
 # Configuration - Adjust these values for your domain
 CONFIG = {
     # Core entities
@@ -52,10 +54,10 @@ class YourDomainGenerator:
         self.start_date = self.end_date - timedelta(days=CONFIG["days_of_history"])
 
         # Initialize data collections
-        self.primary_entities = []
-        self.secondary_entities = []
-        self.relationships = []
-        self.time_series_data = []
+        self.primary_entities: List[Any] = []
+        self.secondary_entities: List[Any] = []
+        self.relationships: List[Any] = []
+        self.time_series_data: List[Any] = []
 
         # Statistics tracking
         self.stats = {"total_records": 0, "tables_generated": 0, "generation_time": 0}
