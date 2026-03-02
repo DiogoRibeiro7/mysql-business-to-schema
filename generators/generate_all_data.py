@@ -292,7 +292,7 @@ class DataGenerator:
 
         inserted = 0
         for i in range(0, len(data), batch_size):
-            batch = data[i: i + batch_size]
+            batch = data[i : i + batch_size]
             values = [tuple(record.values()) for record in batch]
 
             try:

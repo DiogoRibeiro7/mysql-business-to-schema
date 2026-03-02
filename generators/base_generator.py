@@ -112,7 +112,7 @@ class BaseGenerator:
         try:
             # Insert in batches
             for i in range(0, len(data), batch_size):
-                batch = data[i: i + batch_size]
+                batch = data[i : i + batch_size]
                 self.cursor.executemany(query, batch)
                 self.connection.commit()
 

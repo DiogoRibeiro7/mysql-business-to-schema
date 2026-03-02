@@ -872,7 +872,7 @@ class InsuranceGenerator(BaseGenerator):
 
         # Insert remaining policies
         if len(policies) % 1000 != 0:
-            remaining_policies = policies[-(len(policies) % 1000):]
+            remaining_policies = policies[-(len(policies) % 1000) :]
             self.bulk_insert(
                 "policies",
                 remaining_policies,

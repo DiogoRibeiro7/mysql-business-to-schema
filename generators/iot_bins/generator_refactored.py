@@ -474,7 +474,7 @@ class IoTBinsGenerator(BaseGenerator):
                 # Process sensors in batches
                 batch_size = 100
                 for i in range(0, len(self.sensors), batch_size):
-                    batch_sensors = self.sensors[i: i + batch_size]
+                    batch_sensors = self.sensors[i : i + batch_size]
                     readings = self.generate_sensor_readings_batch(
                         batch_sensors, current_date
                     )

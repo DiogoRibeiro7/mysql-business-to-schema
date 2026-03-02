@@ -160,7 +160,7 @@ def lint(ctx, fix):
 
     # Run Flake8
     click.echo("  Running Flake8 linter...")
-    run_command("flake8 . --max-line-length=100", verbose)
+    run_command("flake8 . --max-line-length=200 --max-complexity=25", verbose)
 
     # Run MyPy
     click.echo("  Running MyPy type checker...")

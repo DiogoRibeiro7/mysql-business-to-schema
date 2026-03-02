@@ -385,7 +385,7 @@ class YourDomainGenerator:
                 # Write INSERT statements in batches
                 batch_size = 100
                 for i in range(0, len(data), batch_size):
-                    batch = data[i: i + batch_size]
+                    batch = data[i : i + batch_size]
                     f.write(
                         f"INSERT INTO `{table_name}` ({', '.join([f'`{col}`' for col in columns])}) VALUES\n"
                     )

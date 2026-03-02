@@ -261,6 +261,7 @@ class QueryOptimizer:
 
 def profile_query(func):
     """Profile query execution time."""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         """Wrap a function call with timing and memory tracking."""
@@ -313,7 +314,7 @@ def batch_processor(
     total_batches = math.ceil(len(data) / batch_size)
 
     for i in range(0, len(data), batch_size):
-        batch = data[i: i + batch_size]
+        batch = data[i : i + batch_size]
         batch_num = i // batch_size + 1
 
         logger.info(f"Processing batch {batch_num}/{total_batches}")

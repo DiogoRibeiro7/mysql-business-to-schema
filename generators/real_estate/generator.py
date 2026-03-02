@@ -1558,9 +1558,15 @@ class RealEstateDataGenerator:
 
         print("\n7. Generating listings...")
         self.generate_listings()
-        active = len([listing for listing in self.listings if listing["status"] == "active"])
-        sold = len([listing for listing in self.listings if listing["status"] == "sold"])
-        pending = len([listing for listing in self.listings if listing["status"] == "pending"])
+        active = len(
+            [listing for listing in self.listings if listing["status"] == "active"]
+        )
+        sold = len(
+            [listing for listing in self.listings if listing["status"] == "sold"]
+        )
+        pending = len(
+            [listing for listing in self.listings if listing["status"] == "pending"]
+        )
         print(f"   - {len(self.listings)} total listings")
         print(f"   - {active} active, {pending} pending, {sold} sold")
         print(f"   - {len(self.price_changes)} price changes")

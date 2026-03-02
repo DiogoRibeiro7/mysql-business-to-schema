@@ -1004,9 +1004,7 @@ class EducationDataGenerator:
 
         for section in self.course_sections:
             # Get course info
-            _ = next(
-                c for c in self.courses if c["course_id"] == section["course_id"]
-            )
+            _ = next(c for c in self.courses if c["course_id"] == section["course_id"])
 
             # Generate various assignment types
             assignments_config = [

@@ -500,7 +500,7 @@ class TimeSeriesForecaster:
         # Create sequences
         X, y = [], []
         for i in range(sequence_length, len(scaled_data)):
-            X.append(scaled_data[i - sequence_length: i, 0])
+            X.append(scaled_data[i - sequence_length : i, 0])
             y.append(scaled_data[i, 0])
 
         X, y = np.array(X), np.array(y)
