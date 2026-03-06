@@ -567,7 +567,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run k6 Load Tests
-        uses: grafana/k6-action@v0.3.0
+        uses: grafana/k6-action@v0.3.1
         with:
           filename: tests/performance/load-test.js
           flags: --out influxdb=http://influxdb:8086/k6
