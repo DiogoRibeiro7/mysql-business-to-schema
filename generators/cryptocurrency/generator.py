@@ -26,7 +26,11 @@ class CryptocurrencyDataGenerator:
         self.fake = Faker("en_US")
 
         # Load configuration
-        config_file = Path(config_path) if Path(config_path).is_absolute() else Path(__file__).parent / config_path
+        config_file = (
+            Path(config_path)
+            if Path(config_path).is_absolute()
+            else Path(__file__).parent / config_path
+        )
         with open(config_file, "r") as f:
             self.config = json.load(f)
 
@@ -101,7 +105,9 @@ class CryptocurrencyDataGenerator:
                 "last_name": self.fake.last_name(),
                 "phone_number": self.fake.phone_number(),
                 "country": self.fake.country_code(),
-                "date_of_birth": self.fake.date_of_birth(minimum_age=18, maximum_age=80),
+                "date_of_birth": self.fake.date_of_birth(
+                    minimum_age=18, maximum_age=80
+                ),
                 "kyc_verified": random.choice([True, False]),
                 "two_factor_enabled": random.choice([True, False]),
                 "created_at": created_at,
@@ -126,13 +132,18 @@ class CryptocurrencyDataGenerator:
                     "user_id": user["user_id"],
                     "document_type": doc_type,
                     "document_number": self.fake.uuid4()[:20],
-                    "issue_date": self.fake.date_between(start_date="-10y", end_date="-1y"),
-                    "expiry_date": self.fake.date_between(start_date="+1y", end_date="+10y"),
+                    "issue_date": self.fake.date_between(
+                        start_date="-10y", end_date="-1y"
+                    ),
+                    "expiry_date": self.fake.date_between(
+                        start_date="+1y", end_date="+10y"
+                    ),
                     "country_of_issue": user["country"],
                     "verification_status": random.choice(
                         self.config["distributions"]["kyc_status"]
                     ),
-                    "verified_at": user["created_at"] + timedelta(days=random.randint(1, 7)),
+                    "verified_at": user["created_at"]
+                    + timedelta(days=random.randint(1, 7)),
                     "verified_by": f"admin_{random.randint(1, 10)}",
                     "document_hash": self.generate_api_key(),
                     "created_at": user["created_at"],
@@ -173,11 +184,18 @@ class CryptocurrencyDataGenerator:
                 "name": name,
                 "currency_type": currency_type,
                 "decimals": decimals,
-                "min_withdrawal": Decimal("0.001") if currency_type != "Fiat" else Decimal("10"),
-                "max_withdrawal": Decimal("1000") if currency_type != "Fiat" else Decimal("100000"),
-                "withdrawal_fee": Decimal("0.001") if currency_type != "Fiat" else Decimal("5"),
+                "min_withdrawal": (
+                    Decimal("0.001") if currency_type != "Fiat" else Decimal("10")
+                ),
+                "max_withdrawal": (
+                    Decimal("1000") if currency_type != "Fiat" else Decimal("100000")
+                ),
+                "withdrawal_fee": (
+                    Decimal("0.001") if currency_type != "Fiat" else Decimal("5")
+                ),
                 "is_active": True,
-                "created_at": datetime.now() - timedelta(days=random.randint(100, 1000)),
+                "created_at": datetime.now()
+                - timedelta(days=random.randint(100, 1000)),
             }
             self.currencies.append(currency)
             self.counters["currency_id"] += 1
@@ -203,7 +221,9 @@ class CryptocurrencyDataGenerator:
     def generate_trading_pairs(self) -> None:
         """Generate trading pairs."""
         # Get crypto currencies
-        cryptos = [c for c in self.currencies if c["currency_type"] in ["Crypto", "Stablecoin"]]
+        cryptos = [
+            c for c in self.currencies if c["currency_type"] in ["Crypto", "Stablecoin"]
+        ]
         fiats = [c for c in self.currencies if c["currency_type"] == "Fiat"]
 
         pairs_created = set()
@@ -214,12 +234,19 @@ class CryptocurrencyDataGenerator:
 
         for crypto in cryptos[:20]:  # Top cryptos paired with USD/USDT
             if crypto["symbol"] not in ["USD", "USDT"]:
-                if usd and (crypto["currency_id"], usd["currency_id"]) not in pairs_created:
+                if (
+                    usd
+                    and (crypto["currency_id"], usd["currency_id"]) not in pairs_created
+                ):
                     pair = self.create_trading_pair(crypto, usd)
                     self.trading_pairs.append(pair)
                     pairs_created.add((crypto["currency_id"], usd["currency_id"]))
 
-                if usdt and (crypto["currency_id"], usdt["currency_id"]) not in pairs_created:
+                if (
+                    usdt
+                    and (crypto["currency_id"], usdt["currency_id"])
+                    not in pairs_created
+                ):
                     pair = self.create_trading_pair(crypto, usdt)
                     self.trading_pairs.append(pair)
                     pairs_created.add((crypto["currency_id"], usdt["currency_id"]))
@@ -229,8 +256,10 @@ class CryptocurrencyDataGenerator:
             base = random.choice(cryptos)
             quote = random.choice(cryptos + fiats)
 
-            if base["currency_id"] != quote["currency_id"] and \
-               (base["currency_id"], quote["currency_id"]) not in pairs_created:
+            if (
+                base["currency_id"] != quote["currency_id"]
+                and (base["currency_id"], quote["currency_id"]) not in pairs_created
+            ):
                 pair = self.create_trading_pair(base, quote)
                 self.trading_pairs.append(pair)
                 pairs_created.add((base["currency_id"], quote["currency_id"]))
@@ -246,14 +275,22 @@ class CryptocurrencyDataGenerator:
             "max_order_size": Decimal(str(random.uniform(100, 10000))),
             "price_precision": random.choice([2, 4, 6, 8]),
             "quantity_precision": random.choice([2, 4, 6, 8]),
-            "maker_fee": Decimal(str(random.uniform(
-                self.config["fee_ranges"]["maker_fee_min"],
-                self.config["fee_ranges"]["maker_fee_max"]
-            ))),
-            "taker_fee": Decimal(str(random.uniform(
-                self.config["fee_ranges"]["taker_fee_min"],
-                self.config["fee_ranges"]["taker_fee_max"]
-            ))),
+            "maker_fee": Decimal(
+                str(
+                    random.uniform(
+                        self.config["fee_ranges"]["maker_fee_min"],
+                        self.config["fee_ranges"]["maker_fee_max"],
+                    )
+                )
+            ),
+            "taker_fee": Decimal(
+                str(
+                    random.uniform(
+                        self.config["fee_ranges"]["taker_fee_min"],
+                        self.config["fee_ranges"]["taker_fee_max"],
+                    )
+                )
+            ),
             "is_active": random.choice([True, True, True, False]),  # 75% active
             "created_at": datetime.now() - timedelta(days=random.randint(30, 500)),
         }
@@ -281,8 +318,11 @@ class CryptocurrencyDataGenerator:
                 "address": address,
                 "balance": Decimal(str(random.uniform(0, 10000))),
                 "locked_balance": Decimal(str(random.uniform(0, 100))),
-                "wallet_type": random.choice(self.config["distributions"]["wallet_types"]),
-                "created_at": user["created_at"] + timedelta(days=random.randint(0, 30)),
+                "wallet_type": random.choice(
+                    self.config["distributions"]["wallet_types"]
+                ),
+                "created_at": user["created_at"]
+                + timedelta(days=random.randint(0, 30)),
                 "updated_at": datetime.now() - timedelta(days=random.randint(0, 30)),
             }
             self.wallets.append(wallet)
@@ -305,25 +345,41 @@ class CryptocurrencyDataGenerator:
 
             # Generate price based on pair
             if "BTC" in pair["symbol"]:
-                price = Decimal(str(random.uniform(
-                    self.config["price_ranges"]["min_btc_price"],
-                    self.config["price_ranges"]["max_btc_price"]
-                )))
+                price = Decimal(
+                    str(
+                        random.uniform(
+                            self.config["price_ranges"]["min_btc_price"],
+                            self.config["price_ranges"]["max_btc_price"],
+                        )
+                    )
+                )
             elif "ETH" in pair["symbol"]:
-                price = Decimal(str(random.uniform(
-                    self.config["price_ranges"]["min_eth_price"],
-                    self.config["price_ranges"]["max_eth_price"]
-                )))
+                price = Decimal(
+                    str(
+                        random.uniform(
+                            self.config["price_ranges"]["min_eth_price"],
+                            self.config["price_ranges"]["max_eth_price"],
+                        )
+                    )
+                )
             else:
-                price = Decimal(str(random.uniform(
-                    self.config["price_ranges"]["min_alt_price"],
-                    self.config["price_ranges"]["max_alt_price"]
-                )))
+                price = Decimal(
+                    str(
+                        random.uniform(
+                            self.config["price_ranges"]["min_alt_price"],
+                            self.config["price_ranges"]["max_alt_price"],
+                        )
+                    )
+                )
 
-            quantity = Decimal(str(random.uniform(
-                self.config["volume_ranges"]["min_order_volume"],
-                self.config["volume_ranges"]["max_order_volume"]
-            )))
+            quantity = Decimal(
+                str(
+                    random.uniform(
+                        self.config["volume_ranges"]["min_order_volume"],
+                        self.config["volume_ranges"]["max_order_volume"],
+                    )
+                )
+            )
 
             order_type = random.choice(self.config["distributions"]["order_types"])
             status = random.choice(self.config["distributions"]["order_status"])
@@ -349,7 +405,9 @@ class CryptocurrencyDataGenerator:
                 "time_in_force": random.choice(["GTC", "IOC", "FOK"]),
                 "created_at": created_at,
                 "updated_at": created_at + timedelta(seconds=random.randint(0, 3600)),
-                "expires_at": created_at + timedelta(days=30) if random.random() > 0.5 else None,
+                "expires_at": (
+                    created_at + timedelta(days=30) if random.random() > 0.5 else None
+                ),
             }
             self.orders.append(order)
             self.counters["order_id"] += 1
@@ -357,23 +415,39 @@ class CryptocurrencyDataGenerator:
     def generate_trades(self) -> None:
         """Generate trades from filled orders."""
         # Get filled and partially filled orders
-        filled_orders = [o for o in self.orders
-                        if o["status"] in ["Filled", "Partially Filled"]]
+        filled_orders = [
+            o for o in self.orders if o["status"] in ["Filled", "Partially Filled"]
+        ]
 
         # Create trades for filled orders
-        for order in filled_orders[:self.config["counts"]["trades"]]:
-            pair = next(p for p in self.trading_pairs if p["pair_id"] == order["pair_id"])
+        for order in filled_orders[: self.config["counts"]["trades"]]:
+            pair = next(
+                p for p in self.trading_pairs if p["pair_id"] == order["pair_id"]
+            )
 
             trade = {
                 "trade_id": self.counters["trade_id"],
                 "pair_id": pair["pair_id"],
                 "maker_order_id": order["order_id"],
                 "taker_order_id": random.choice(self.orders)["order_id"],
-                "price": order["price"] if order["price"] else self.generate_market_price(pair),
+                "price": (
+                    order["price"]
+                    if order["price"]
+                    else self.generate_market_price(pair)
+                ),
                 "quantity": order["filled_quantity"],
-                "maker_fee": order["filled_quantity"] * order["price"] * pair["maker_fee"] if order["price"] else Decimal("0"),
-                "taker_fee": order["filled_quantity"] * order["price"] * pair["taker_fee"] if order["price"] else Decimal("0"),
-                "timestamp": order["created_at"] + timedelta(seconds=random.randint(1, 300)),
+                "maker_fee": (
+                    order["filled_quantity"] * order["price"] * pair["maker_fee"]
+                    if order["price"]
+                    else Decimal("0")
+                ),
+                "taker_fee": (
+                    order["filled_quantity"] * order["price"] * pair["taker_fee"]
+                    if order["price"]
+                    else Decimal("0")
+                ),
+                "timestamp": order["created_at"]
+                + timedelta(seconds=random.randint(1, 300)),
             }
             self.trades.append(trade)
             self.counters["trade_id"] += 1
@@ -381,20 +455,32 @@ class CryptocurrencyDataGenerator:
     def generate_market_price(self, pair: Dict) -> Decimal:
         """Generate a market price for a trading pair."""
         if "BTC" in pair["symbol"]:
-            return Decimal(str(random.uniform(
-                self.config["price_ranges"]["min_btc_price"],
-                self.config["price_ranges"]["max_btc_price"]
-            )))
+            return Decimal(
+                str(
+                    random.uniform(
+                        self.config["price_ranges"]["min_btc_price"],
+                        self.config["price_ranges"]["max_btc_price"],
+                    )
+                )
+            )
         elif "ETH" in pair["symbol"]:
-            return Decimal(str(random.uniform(
-                self.config["price_ranges"]["min_eth_price"],
-                self.config["price_ranges"]["max_eth_price"]
-            )))
+            return Decimal(
+                str(
+                    random.uniform(
+                        self.config["price_ranges"]["min_eth_price"],
+                        self.config["price_ranges"]["max_eth_price"],
+                    )
+                )
+            )
         else:
-            return Decimal(str(random.uniform(
-                self.config["price_ranges"]["min_alt_price"],
-                self.config["price_ranges"]["max_alt_price"]
-            )))
+            return Decimal(
+                str(
+                    random.uniform(
+                        self.config["price_ranges"]["min_alt_price"],
+                        self.config["price_ranges"]["max_alt_price"],
+                    )
+                )
+            )
 
     def generate_transactions(self) -> None:
         """Generate deposit/withdrawal transactions."""
@@ -409,7 +495,9 @@ class CryptocurrencyDataGenerator:
         for _ in range(count):
             wallet = random.choice(self.wallets)
             user = next(u for u in self.users if u["user_id"] == wallet["user_id"])
-            currency = next(c for c in self.currencies if c["currency_id"] == wallet["currency_id"])
+            currency = next(
+                c for c in self.currencies if c["currency_id"] == wallet["currency_id"]
+            )
 
             tx_type = random.choice(self.config["distributions"]["transaction_types"])
             amount = Decimal(str(random.uniform(0.01, 1000)))
@@ -420,12 +508,30 @@ class CryptocurrencyDataGenerator:
                 "wallet_id": wallet["wallet_id"],
                 "transaction_type": tx_type,
                 "amount": amount,
-                "fee": amount * Decimal("0.001") if tx_type == "Withdrawal" else Decimal("0"),
-                "status": random.choice(self.config["distributions"]["transaction_status"]),
-                "blockchain_hash": self.fake.sha256() if currency["currency_type"] == "Crypto" else None,
-                "confirmations": random.randint(0, 100) if currency["currency_type"] == "Crypto" else None,
-                "from_address": self.fake.sha256() if tx_type == "Deposit" else wallet["address"],
-                "to_address": self.fake.sha256() if tx_type == "Withdrawal" else wallet["address"],
+                "fee": (
+                    amount * Decimal("0.001")
+                    if tx_type == "Withdrawal"
+                    else Decimal("0")
+                ),
+                "status": random.choice(
+                    self.config["distributions"]["transaction_status"]
+                ),
+                "blockchain_hash": (
+                    self.fake.sha256()
+                    if currency["currency_type"] == "Crypto"
+                    else None
+                ),
+                "confirmations": (
+                    random.randint(0, 100)
+                    if currency["currency_type"] == "Crypto"
+                    else None
+                ),
+                "from_address": (
+                    self.fake.sha256() if tx_type == "Deposit" else wallet["address"]
+                ),
+                "to_address": (
+                    self.fake.sha256() if tx_type == "Withdrawal" else wallet["address"]
+                ),
                 "created_at": self.fake.date_time_between_dates(date_start, date_end),
                 "confirmed_at": self.fake.date_time_between_dates(date_start, date_end),
             }
@@ -475,14 +581,16 @@ class CryptocurrencyDataGenerator:
                 "key_name": self.fake.word() + "_api_key",
                 "api_key": self.generate_api_key(),
                 "api_secret": self.generate_api_key(),
-                "permissions": json.dumps(random.sample(
-                    ["read", "trade", "withdraw"],
-                    random.randint(1, 3)
-                )),
-                "ip_whitelist": json.dumps([self.fake.ipv4() for _ in range(random.randint(0, 3))]),
+                "permissions": json.dumps(
+                    random.sample(["read", "trade", "withdraw"], random.randint(1, 3))
+                ),
+                "ip_whitelist": json.dumps(
+                    [self.fake.ipv4() for _ in range(random.randint(0, 3))]
+                ),
                 "is_active": random.choice([True, True, False]),
                 "last_used": datetime.now() - timedelta(days=random.randint(0, 30)),
-                "created_at": user["created_at"] + timedelta(days=random.randint(1, 100)),
+                "created_at": user["created_at"]
+                + timedelta(days=random.randint(1, 100)),
                 "expires_at": datetime.now() + timedelta(days=random.randint(30, 365)),
             }
             self.api_keys.append(api_key_data)
@@ -610,7 +718,9 @@ class CryptocurrencyDataGenerator:
             self._write_sql_inserts(f, "price_history", self.price_history)
             self._write_sql_inserts(f, "api_keys", self.api_keys)
             self._write_sql_inserts(f, "user_fee_tiers", self.user_fee_tiers)
-            self._write_sql_inserts(f, "user_trading_volumes", self.user_trading_volumes)
+            self._write_sql_inserts(
+                f, "user_trading_volumes", self.user_trading_volumes
+            )
 
     def _write_sql_inserts(self, f, table_name: str, data: List[Dict]) -> None:
         """Write SQL insert statements for a table."""

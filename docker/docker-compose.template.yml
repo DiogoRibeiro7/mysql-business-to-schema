@@ -1,0 +1,459 @@
+version: '3.8'
+
+# ========================================================================
+# MySQL Business-to-Schema Docker Compose Template
+# ========================================================================
+#
+# This is a comprehensive template for Docker Compose configurations
+# across all example databases. It includes multiple services and profiles
+# for different use cases.
+#
+# Usage:
+#   # Development mode with all services
+#   docker-compose --profile dev up -d
+#
+#   # Production mode with minimal services
+#   docker-compose --profile prod up -d
+#
+#   # Testing mode with data generation
+#   docker-compose --profile test up -d
+#
+#   # With monitoring stack
+#   docker-compose --profile monitoring up -d
+#
+# ========================================================================
+
+x-mysql-common: &mysql-common
+  restart: unless-stopped
+  command:
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_unicode_ci
+    - --default-authentication-plugin=mysql_native_password
+    - --max_connections=1000
+    - --innodb_buffer_pool_size=256M
+    - --innodb_log_file_size=64M
+    - --slow_query_log=1
+    - --long_query_time=2
+    - --general_log=${MYSQL_GENERAL_LOG:-0}
+    - --general_log_file=/var/log/mysql/general.log
+    - --log_error=/var/log/mysql/error.log
+  healthcheck:
+    test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+    start_period: 30s
+
+services:
+  # ========================================================================
+  # PRIMARY DATABASE SERVICES
+  # ========================================================================
+
+  mysql8:
+    <<: *mysql-common
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_mysql8
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_pass}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - ./init:/docker-entrypoint-initdb.d/99-custom:ro
+      - mysql8_data:/var/lib/mysql
+      - mysql8_logs:/var/log/mysql
+    networks:
+      - app_network
+    profiles:
+      - dev
+      - test
+      - prod
+      - mysql8
+
+  mysql81:
+    <<: *mysql-common
+    image: mysql:8.1
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_mysql81
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_pass}
+    ports:
+      - "${MYSQL81_PORT:-3307}:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - ./init:/docker-entrypoint-initdb.d/99-custom:ro
+      - mysql81_data:/var/lib/mysql
+      - mysql81_logs:/var/log/mysql
+    networks:
+      - app_network
+    profiles:
+      - mysql81
+
+  # ========================================================================
+  # DATABASE MANAGEMENT TOOLS
+  # ========================================================================
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: ${PMA_HOST:-mysql8}
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 100M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - app_network
+    depends_on:
+      - mysql8
+    profiles:
+      - dev
+      - admin
+
+  adminer:
+    image: adminer:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: ${ADMINER_HOST:-mysql8}
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    networks:
+      - app_network
+    depends_on:
+      - mysql8
+    profiles:
+      - dev
+      - admin
+
+  # ========================================================================
+  # DATA GENERATION & MIGRATION
+  # ========================================================================
+
+  data_generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+      args:
+        PYTHON_VERSION: ${PYTHON_VERSION:-3.10}
+    image: ${COMPOSE_PROJECT_NAME:-example}_generator:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_generator
+    environment:
+      MYSQL_HOST: ${GENERATOR_DB_HOST:-mysql8}
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_pass}
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      GENERATOR_SEED: ${GENERATOR_SEED:-42}
+      GENERATOR_SCALE: ${GENERATOR_SCALE:-small}
+    volumes:
+      - ../generators/${EXAMPLE_NAME}:/app
+      - generator_output:/app/output
+      - ./data:/app/data:rw
+    networks:
+      - app_network
+    depends_on:
+      mysql8:
+        condition: service_healthy
+    profiles:
+      - test
+      - generate
+    command: >
+      sh -c "
+        echo 'Waiting for database to be ready...' &&
+        sleep 10 &&
+        echo 'Starting data generation for ${EXAMPLE_NAME}...' &&
+        if [ -f /app/generate.py ]; then
+          python /app/generate.py --verbose --seed ${GENERATOR_SEED:-42};
+        elif [ -f /app/generator.py ]; then
+          python /app/generator.py;
+        else
+          echo 'No generator found!';
+          exit 1;
+        fi &&
+        echo 'Data generation complete!'
+      "
+
+  migrator:
+    build:
+      context: ../tools
+      dockerfile: Dockerfile.migrator
+    image: ${COMPOSE_PROJECT_NAME:-example}_migrator:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_migrator
+    environment:
+      SOURCE_HOST: mysql8
+      SOURCE_PORT: 3306
+      SOURCE_DB: ${MYSQL_DATABASE:-example_db}
+      SOURCE_USER: root
+      SOURCE_PASS: ${MYSQL_ROOT_PASSWORD:-root}
+      TARGET_TYPE: ${MIGRATION_TARGET:-postgres}
+      TARGET_HOST: ${TARGET_HOST:-postgres}
+      TARGET_PORT: ${TARGET_PORT:-5432}
+      TARGET_DB: ${TARGET_DB:-example_db}
+      TARGET_USER: ${TARGET_USER:-postgres}
+      TARGET_PASS: ${TARGET_PASS:-postgres}
+    volumes:
+      - ./migrations:/app/migrations
+      - migration_logs:/app/logs
+    networks:
+      - app_network
+    depends_on:
+      mysql8:
+        condition: service_healthy
+    profiles:
+      - migrate
+
+  # ========================================================================
+  # CACHING & PERFORMANCE
+  # ========================================================================
+
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    profiles:
+      - dev
+      - cache
+      - prod
+
+  memcached:
+    image: memcached:alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_memcached
+    restart: unless-stopped
+    ports:
+      - "${MEMCACHED_PORT:-11211}:11211"
+    networks:
+      - app_network
+    profiles:
+      - cache
+
+  # ========================================================================
+  # MONITORING & OBSERVABILITY
+  # ========================================================================
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_prometheus
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    networks:
+      - app_network
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: percona-percona-app
+    volumes:
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    networks:
+      - app_network
+    depends_on:
+      - prometheus
+    profiles:
+      - monitoring
+
+  mysql_exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_mysql_exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "root:${MYSQL_ROOT_PASSWORD:-root}@(mysql8:3306)/"
+    ports:
+      - "${MYSQL_EXPORTER_PORT:-9104}:9104"
+    networks:
+      - app_network
+    depends_on:
+      - mysql8
+    profiles:
+      - monitoring
+
+  # ========================================================================
+  # BACKUP & RESTORE
+  # ========================================================================
+
+  backup:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_backup
+    environment:
+      MYSQL_HOST: mysql8
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh:ro
+    networks:
+      - app_network
+    depends_on:
+      mysql8:
+        condition: service_healthy
+    profiles:
+      - backup
+    command: >
+      sh -c "
+        echo 'Starting backup...' &&
+        mysqldump -h mysql8 -u root -p${MYSQL_ROOT_PASSWORD:-root} \
+          --single-transaction \
+          --routines \
+          --triggers \
+          --events \
+          ${MYSQL_DATABASE:-example_db} > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql &&
+        echo 'Backup complete!' &&
+        ls -la /backups/
+      "
+
+  # ========================================================================
+  # DEVELOPMENT TOOLS
+  # ========================================================================
+
+  mysql_client:
+    image: mysql:8.0
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_client
+    environment:
+      MYSQL_HOST: mysql8
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-example_db}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+    networks:
+      - app_network
+    depends_on:
+      - mysql8
+    profiles:
+      - cli
+    stdin_open: true
+    tty: true
+    command: >
+      sh -c "
+        echo 'MySQL Client Ready' &&
+        echo 'Connect with: mysql -h mysql8 -u root -p${MYSQL_ROOT_PASSWORD:-root} ${MYSQL_DATABASE:-example_db}' &&
+        /bin/bash
+      "
+
+  # ========================================================================
+  # ALTERNATIVE DATABASES (for migration testing)
+  # ========================================================================
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-example_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./schema_postgres:/docker-entrypoint-initdb.d:ro
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - postgres
+
+  mongodb:
+    image: mongo:6
+    container_name: ${COMPOSE_PROJECT_NAME:-example}_mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-mongo}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-example_db}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./schema_mongodb:/docker-entrypoint-initdb.d:ro
+    networks:
+      - app_network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - mongodb
+
+# ========================================================================
+# VOLUMES
+# ========================================================================
+
+volumes:
+  mysql8_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_mysql8_data
+  mysql8_logs:
+    name: ${COMPOSE_PROJECT_NAME:-example}_mysql8_logs
+  mysql81_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_mysql81_data
+  mysql81_logs:
+    name: ${COMPOSE_PROJECT_NAME:-example}_mysql81_logs
+  redis_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_redis_data
+  postgres_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_postgres_data
+  mongodb_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_mongodb_data
+  generator_output:
+    name: ${COMPOSE_PROJECT_NAME:-example}_generator_output
+  migration_logs:
+    name: ${COMPOSE_PROJECT_NAME:-example}_migration_logs
+  prometheus_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_prometheus_data
+  grafana_data:
+    name: ${COMPOSE_PROJECT_NAME:-example}_grafana_data
+
+# ========================================================================
+# NETWORKS
+# ========================================================================
+
+networks:
+  app_network:
+    name: ${COMPOSE_PROJECT_NAME:-example}_network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.20.0.0/16}

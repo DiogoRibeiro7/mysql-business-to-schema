@@ -792,9 +792,7 @@ class FinTechDataGenerator:
 
         with open(output_dir / filename, "w", newline="", encoding="utf-8") as f:
             if isinstance(data[0], dict):
-                dict_writer = csv.DictWriter(
-                    f, fieldnames=fieldnames or data[0].keys()
-                )
+                dict_writer = csv.DictWriter(f, fieldnames=fieldnames or data[0].keys())
                 dict_writer.writeheader()
                 dict_writer.writerows(data)
             else:

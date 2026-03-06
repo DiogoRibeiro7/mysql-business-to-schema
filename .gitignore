@@ -383,6 +383,7 @@ local.config.yml
 !**/config.yaml.template
 !**/config.yaml.example
 !**/.env.example
+!web-demo/backend/tsconfig.json
 
 # Keep generator configs
 !generators/*/config.yaml

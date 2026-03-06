@@ -656,7 +656,7 @@ class ClinicDataGenerator:
 
         # Clinics
         for clinic in self.clinics:
-            values: tuple[Any, ...] = (
+            clinic_values: tuple[Any, ...] = (
                 clinic["clinic_id"],
                 clinic["clinic_name"],
                 clinic["address"],
@@ -673,12 +673,12 @@ class ClinicDataGenerator:
             )
             sql = f"""INSERT INTO clinics (clinic_id, clinic_name, address, city, state, zip_code,
                      phone, email, website, established_date, license_number, tax_id, is_emergency_available)
-                     VALUES {values};"""
+                     VALUES {clinic_values};"""
             sql_statements.append(sql)
 
         # Departments
         for dept in self.departments:
-            values: tuple[Any, ...] = (
+            dept_values: tuple[Any, ...] = (
                 dept["department_id"],
                 dept["clinic_id"],
                 dept["department_name"],
@@ -690,12 +690,12 @@ class ClinicDataGenerator:
             )
             sql = f"""INSERT INTO departments (department_id, clinic_id, department_name, department_head,
                      phone_extension, floor, operating_hours, is_active)
-                     VALUES {values};"""
+                     VALUES {dept_values};"""
             sql_statements.append(sql)
 
         # Doctors
         for doctor in self.doctors:
-            values: tuple[Any, ...] = (
+            doctor_values: tuple[Any, ...] = (
                 doctor["doctor_id"],
                 doctor["employee_id"],
                 doctor["first_name"],
@@ -715,12 +715,12 @@ class ClinicDataGenerator:
             sql = f"""INSERT INTO doctors (doctor_id, employee_id, first_name, last_name, specialization,
                      license_number, phone, email, department_id, hire_date, consultation_fee,
                      is_available, years_of_experience, education, certifications)
-                     VALUES {values};"""
+                     VALUES {doctor_values};"""
             sql_statements.append(sql)
 
         # Patients
         for patient in self.patients:
-            values: tuple[Any, ...] = (
+            patient_values: tuple[Any, ...] = (
                 patient["patient_id"],
                 patient["medical_record_number"],
                 patient["first_name"],
@@ -745,7 +745,7 @@ class ClinicDataGenerator:
                      date_of_birth, gender, blood_type, phone, email, address, city, state, zip_code,
                      emergency_contact_name, emergency_contact_phone, insurance_provider,
                      insurance_policy_number, allergies, chronic_conditions)
-                     VALUES {values};"""
+                     VALUES {patient_values};"""
             sql_statements.append(sql)
 
         # Add more tables as needed...

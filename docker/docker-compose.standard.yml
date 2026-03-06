@@ -1,0 +1,205 @@
+version: '3.8'
+
+# ========================================================================
+# Standard Docker Compose Configuration for Examples
+# ========================================================================
+#
+# This is the standard configuration to be used for each example.
+# Copy this file to each example directory and customize as needed.
+#
+# Quick Start:
+#   docker-compose up -d
+#
+# With data generation:
+#   docker-compose --profile generate up
+#
+# Access:
+#   - MySQL: localhost:3306 (or configured port)
+#   - phpMyAdmin: http://localhost:8080
+#   - Adminer: http://localhost:8081
+#
+# ========================================================================
+
+services:
+  # Primary MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: ${EXAMPLE_NAME}_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-${EXAMPLE_NAME}_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_pass}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d:ro
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app_network
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max_connections=200
+      - --innodb_buffer_pool_size=128M
+
+  # phpMyAdmin for Database Management
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ${EXAMPLE_NAME}_phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      UPLOAD_LIMIT: 50M
+    ports:
+      - "${PHPMYADMIN_PORT:-8080}:80"
+    networks:
+      - app_network
+
+  # Adminer (lightweight alternative to phpMyAdmin)
+  adminer:
+    image: adminer:latest
+    container_name: ${EXAMPLE_NAME}_adminer
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+      ADMINER_DESIGN: pepa-linha
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    networks:
+      - app_network
+
+  # Data Generator Service
+  generator:
+    build:
+      context: ../generators
+      dockerfile: Dockerfile
+    container_name: ${EXAMPLE_NAME}_generator
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-${EXAMPLE_NAME}_db}
+      MYSQL_USER: ${MYSQL_USER:-app_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-app_pass}
+      GENERATOR_MODE: ${GENERATOR_MODE:-test}
+      EXAMPLE_NAME: ${EXAMPLE_NAME}
+    volumes:
+      - ../generators/${EXAMPLE_NAME}:/app
+      - ./data:/output
+    networks:
+      - app_network
+    profiles:
+      - generate
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 10 &&
+        echo 'Generating data for ${EXAMPLE_NAME}...' &&
+        cd /app &&
+        if [ -f generate.py ]; then
+          python generate.py --output-dir /output --verbose;
+        elif [ -f generator.py ]; then
+          python generator.py;
+        else
+          echo 'No generator found!';
+        fi &&
+        echo 'Data generation complete!'
+      "
+
+  # Redis Cache (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: ${EXAMPLE_NAME}_redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    profiles:
+      - cache
+
+  # Backup Service
+  backup:
+    image: mysql:8.0
+    container_name: ${EXAMPLE_NAME}_backup
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-${EXAMPLE_NAME}_db}
+    volumes:
+      - ./backups:/backups
+    networks:
+      - app_network
+    profiles:
+      - backup
+    command: >
+      sh -c "
+        echo 'Starting backup...' &&
+        DATE=$$(date +%Y%m%d_%H%M%S) &&
+        mysqldump -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-root} \
+          --single-transaction \
+          --routines \
+          --triggers \
+          --events \
+          ${MYSQL_DATABASE:-${EXAMPLE_NAME}_db} > /backups/backup_$$DATE.sql &&
+        echo 'Backup saved to: /backups/backup_'$$DATE'.sql' &&
+        ls -lh /backups/
+      "
+
+  # MySQL Client for CLI access
+  mysql-cli:
+    image: mysql:8.0
+    container_name: ${EXAMPLE_NAME}_mysql_cli
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+    profiles:
+      - cli
+    stdin_open: true
+    tty: true
+    entrypoint: >
+      sh -c "
+        echo 'MySQL CLI Ready' &&
+        echo 'Connect with: mysql -h mysql -u root -p${MYSQL_ROOT_PASSWORD:-root} ${MYSQL_DATABASE:-${EXAMPLE_NAME}_db}' &&
+        exec /bin/bash
+      "
+
+volumes:
+  mysql_data:
+    name: ${EXAMPLE_NAME}_mysql_data
+  redis_data:
+    name: ${EXAMPLE_NAME}_redis_data
+
+networks:
+  app_network:
+    name: ${EXAMPLE_NAME}_network
+    driver: bridge

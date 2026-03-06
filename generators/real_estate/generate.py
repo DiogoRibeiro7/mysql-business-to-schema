@@ -12,12 +12,9 @@ import json
 import random
 import sys
 from pathlib import Path
-from typing import Optional
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
-
-from real_estate.generator import RealEstateDataGenerator
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,8 +92,9 @@ def load_config(config_path: Path) -> dict:
 
 
 def main() -> int:
-    """Main entry point."""
+    """Run the CLI entry point."""
     args = parse_args()
+    from real_estate.generator import RealEstateDataGenerator
 
     try:
         # Load configuration
@@ -175,6 +173,7 @@ def main() -> int:
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1
 

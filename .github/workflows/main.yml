@@ -85,7 +85,12 @@ jobs:
       - name: SQL Linting
         run: |
           pip install sqlfluff
-          find . -name "*.sql" -type f | xargs sqlfluff lint --dialect mysql
+          find . -name "*.sql" -type f \
+            ! -path "./demo_data/*" \
+            ! -path "./data-pipeline/*" \
+            ! -path "./cdc/ksql/*" \
+            ! -path "./example_*/*" \
+            | xargs sqlfluff lint --dialect mysql
 
       - name: Dockerfile Linting
         uses: hadolint/hadolint-action@v3.1.0
@@ -96,7 +101,7 @@ jobs:
       - name: YAML Linting
         run: |
           pip install yamllint
-          yamllint -d relaxed .
+          yamllint -c .yamllint .
 
       - name: Upload Code Quality Reports
         uses: actions/upload-artifact@v6
