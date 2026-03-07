@@ -3,11 +3,11 @@
 <p align="center">
   <img src="https://github.com/diogoribeiro7/mysql-business-to-schema/actions/workflows/schema-testing.yml/badge.svg" alt="Schema Testing" />
   <img src="https://github.com/diogoribeiro7/mysql-business-to-schema/actions/workflows/code-quality.yml/badge.svg" alt="Code Quality" />
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/examples.json" alt="Examples" />
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/generators_foldered.json" alt="Generators (foldered)" />
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/generators_scripts.json" alt="Generators (scripts)" />
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/generators_coverage.json" alt="Generator coverage" />
-  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/tables.json" alt="Tables" />
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/examples.json" alt="Examples" />
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/generators_foldered.json" alt="Generators (foldered)" />
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/generators_scripts.json" alt="Generators (scripts)" />
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/generators_coverage.json" alt="Generator coverage" />
+  <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/tables.json" alt="Tables" />
   <img src="https://img.shields.io/badge/MySQL-8.0%2B-orange" alt="MySQL 8.0+" />
   <img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python 3.10+" />
   <img src="https://img.shields.io/badge/License-MIT-green" alt="License: MIT" />
@@ -150,10 +150,10 @@ Badge endpoints used in the header:
 Each badge is a Shields endpoint file committed to the repo and served via raw GitHub:
 
 ```
-https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/main/badges/<file>.json
+https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/diogoribeiro7/mysql-business-to-schema/develop/badges/<file>.json
 ```
 
-The workflow runs on every push to `main`, on a daily schedule, and via manual dispatch.
+The workflow currently runs on every push to `main`, on a daily schedule, and via manual dispatch.
 
 ## Repo Layout
 
@@ -173,6 +173,19 @@ mysql-business-to-schema/
 ## Contributing
 
 See `CONTRIBUTING.md`.
+
+Community and support files:
+- `.github/CODE_OF_CONDUCT.md`
+- `SECURITY.md`
+- `SUPPORT.md`
+
+Optional local quality gate:
+
+```bash
+pip install pre-commit
+pre-commit install
+pre-commit run --all-files
+```
 
 ## License
 
