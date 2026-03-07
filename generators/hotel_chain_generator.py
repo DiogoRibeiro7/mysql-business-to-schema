@@ -21,7 +21,7 @@ class HotelChainGenerator(BaseGenerator):
         host="localhost",
         port=3340,
         user="hotel_admin",
-        password="hotel_pass_2024",
+        password="change_me",
         database="hotel_chain",
     ):
         """Initialize the hotel chain generator."""

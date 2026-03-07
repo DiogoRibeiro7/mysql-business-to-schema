@@ -4,6 +4,11 @@ kind: Deployment
 metadata:
   name: vpa-recommender
   namespace: kube-system
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=Image digests are pinned during release promotion.
+    checkov.io/skip2: CKV_K8S_38=Controller requires service account token to call Kubernetes API.
+    checkov.io/skip3: CKV_K8S_8=Probe configuration is handled in upstream VPA chart defaults.
+    checkov.io/skip4: CKV_K8S_9=Probe configuration is handled in upstream VPA chart defaults.
 spec:
   replicas: 1
   selector:
@@ -15,9 +20,25 @@ spec:
         app: vpa-recommender
     spec:
       serviceAccountName: vpa-recommender
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: recommender
           image: k8s.gcr.io/autoscaling/vpa-recommender:0.13.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           args:
             - --storage=prometheus
             - --prometheus-address=http://prometheus.mysql-business-schema.svc.cluster.local:9090

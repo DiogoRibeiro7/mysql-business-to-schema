@@ -21,7 +21,7 @@ class InsuranceGenerator(BaseGenerator):
         host="localhost",
         port=3339,
         user="insurance_admin",
-        password="insurance_pass_2024",
+        password="change_me",
         database="insurance_platform",
     ):
         """Initialize the insurance generator."""

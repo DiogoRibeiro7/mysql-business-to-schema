@@ -36,8 +36,8 @@ Content-Type: application/json
 **Response:**
 ```json
 {
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
-  "refresh_token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+  "access_token": "<ACCESS_TOKEN_PLACEHOLDER>",
+  "refresh_token": "<REFRESH_TOKEN_PLACEHOLDER>",
   "token_type": "bearer",
   "expires_in": 3600,
   "user": {
@@ -760,17 +760,17 @@ const result = await client.ml.predict({
 ```bash
 # List schemas
 curl -X GET http://localhost:8000/api/schemas \
-  -H "Authorization: Bearer your_token"
+  -H "Authorization: Bearer <TOKEN_PLACEHOLDER>"
 
 # Generate data
 curl -X POST http://localhost:8000/api/data/generate \
-  -H "Authorization: Bearer your_token" \
+  -H "Authorization: Bearer <TOKEN_PLACEHOLDER>" \
   -H "Content-Type: application/json" \
   -d '{"schema":"clinic_db","table":"patients","count":100}'
 
 # Make prediction
 curl -X POST http://localhost:8000/api/ml/predict/patient-readmission \
-  -H "Authorization: Bearer your_token" \
+  -H "Authorization: Bearer <TOKEN_PLACEHOLDER>" \
   -H "Content-Type: application/json" \
   -d '{"patient_id":123,"age":65,...}'
 ```

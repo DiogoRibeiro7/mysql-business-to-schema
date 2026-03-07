@@ -8,6 +8,9 @@ metadata:
     app: web-demo
     component: frontend
     tier: presentation
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=Image digests are pinned by release automation per environment.
+    checkov.io/skip2: CKV_K8S_35=Application currently consumes DB credentials via environment variables.
 spec:
   replicas: 3
   strategy:
@@ -31,6 +34,14 @@ spec:
         prometheus.io/port: "3001"
         prometheus.io/path: "/metrics"
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -46,8 +57,16 @@ spec:
 
       containers:
         - name: web-demo
-          image: mysql-business-schema/web-demo:latest
+          image: mysql-business-schema/web-demo:v1.0.0
           imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: http
               containerPort: 3001

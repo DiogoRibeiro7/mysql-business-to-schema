@@ -8,6 +8,11 @@ metadata:
     app: mysql
     database: clinic
     component: database
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=Image digests are pinned during release promotion.
+    checkov.io/skip2: CKV_K8S_35=MySQL credentials are currently injected through Kubernetes secret environment variables.
+    checkov.io/skip3: CKV_K8S_22=MySQL and backup sidecars require writable filesystems.
+    checkov.io/skip4: CKV_K8S_40=MySQL runtime UID is constrained by upstream image filesystem ownership.
 spec:
   serviceName: mysql-clinic-headless
   replicas: 3
@@ -26,10 +31,23 @@ spec:
         prometheus.io/port: "9104"
         prometheus.io/path: "/metrics"
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
       initContainers:
         # Initialize MySQL configuration
         - name: init-mysql
           image: mysql:8.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           command:
             - bash
             - "-c"
@@ -51,10 +69,25 @@ spec:
               mountPath: /mnt/conf.d
             - name: config-map
               mountPath: /mnt/config-map
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "128Mi"
+              cpu: "200m"
 
         # Clone data from previous peer for new replicas
         - name: clone-mysql
           image: gcr.io/google-samples/xtrabackup:1.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           command:
             - bash
             - "-c"
@@ -73,11 +106,25 @@ spec:
               subPath: mysql
             - name: conf
               mountPath: /etc/mysql/conf.d
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "300m"
 
       containers:
         # Main MySQL container
         - name: mysql
           image: mysql:8.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
@@ -139,6 +186,14 @@ spec:
         # Xtrabackup sidecar for backups
         - name: xtrabackup
           image: gcr.io/google-samples/xtrabackup:1.0
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           ports:
             - name: xtrabackup
               containerPort: 3307
@@ -158,6 +213,16 @@ spec:
             limits:
               memory: "200Mi"
               cpu: "200m"
+          livenessProbe:
+            tcpSocket:
+              port: xtrabackup
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: xtrabackup
+            initialDelaySeconds: 10
+            periodSeconds: 5
           volumeMounts:
             - name: data
               mountPath: /var/lib/mysql
@@ -165,7 +230,16 @@ spec:
 
         # MySQL Exporter for Prometheus monitoring
         - name: mysqld-exporter
-          image: prom/mysqld-exporter:latest
+          image: prom/mysqld-exporter:v0.15.1
+          imagePullPolicy: Always
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           env:
             - name: DATA_SOURCE_NAME
               value: "exporter:exporter_password@(localhost:3306)/clinic_db"
@@ -179,6 +253,18 @@ spec:
             limits:
               memory: "100Mi"
               cpu: "100m"
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: metrics
+            initialDelaySeconds: 10
+            periodSeconds: 5
 
       volumes:
         - name: conf

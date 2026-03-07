@@ -1,0 +1,23 @@
+title = "Repository gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Known historical test/example values already identified in repo history"
+fingerprints = [
+  "40dc6cb91c69ebeafdf84313303e59f5a78973e1:generators/hotel_chain_generator.py:generic-api-key:30",
+  "40dc6cb91c69ebeafdf84313303e59f5a78973e1:generators/insurance_generator.py:generic-api-key:30",
+  "089e8870776cb33bb58ee8cd91367cd442972b32:docs/API_DOCUMENTATION.md:generic-api-key:39",
+  "089e8870776cb33bb58ee8cd91367cd442972b32:docs/API_DOCUMENTATION.md:generic-api-key:40",
+  "089e8870776cb33bb58ee8cd91367cd442972b32:docs/API_DOCUMENTATION.md:curl-auth-header:762",
+  "089e8870776cb33bb58ee8cd91367cd442972b32:docs/API_DOCUMENTATION.md:curl-auth-header:766",
+  "089e8870776cb33bb58ee8cd91367cd442972b32:docs/API_DOCUMENTATION.md:curl-auth-header:772",
+  "f11e940d39ded25405c200d4fe9ada24e4785285:ml-platform/docker-compose.yml:generic-api-key:275",
+  "f11e940d39ded25405c200d4fe9ada24e4785285:ml-platform/docker-compose.yml:generic-api-key:306",
+  "f11e940d39ded25405c200d4fe9ada24e4785285:ml-platform/docker-compose.yml:generic-api-key:330",
+  "ae007b7efde23c9fdd9ee34e992a3a8e480505e4:kubernetes/monitoring/prometheus-deployment.yaml:generic-api-key:369",
+  "ae007b7efde23c9fdd9ee34e992a3a8e480505e4:kubernetes/monitoring/prometheus-deployment.yaml:kubernetes-secret-yaml:363",
+  "dcb69f5a592b6689b7c701782e88ff89e5248cbc:generators/insurance_generator.py:generic-api-key:26",
+  "dcb69f5a592b6689b7c701782e88ff89e5248cbc:generators/hotel_chain_generator.py:generic-api-key:26",
+]
