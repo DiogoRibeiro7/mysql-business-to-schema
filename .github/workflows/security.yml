@@ -159,7 +159,7 @@ jobs:
           soft_fail: false
 
       - name: Checkov Scan (Terraform - GCP)
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: cloud/gcp
           framework: terraform
@@ -175,7 +175,7 @@ jobs:
           category: /checkov/terraform-gcp
 
       - name: Checkov Scan (Kubernetes)
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: kubernetes
           framework: kubernetes
@@ -191,7 +191,7 @@ jobs:
           category: /checkov/kubernetes
 
       - name: Checkov Scan (Docker, Helm, GitHub Actions)
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@v12
         with:
           directory: .
           framework: dockerfile,helm,github_actions
