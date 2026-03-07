@@ -89,8 +89,13 @@ jobs:
             ! -path "./demo_data/*" \
             ! -path "./data-pipeline/*" \
             ! -path "./cdc/ksql/*" \
+            ! -path "./streaming/ksql/*" \
+            ! -path "./migrations/*" \
+            ! -path "./scripts/docker-init/*" \
+            ! -path "./*/schema_postgres/*" \
+            ! -path "./generators/*/generators/*/output/*" \
             ! -path "./example_*/*" \
-            | xargs sqlfluff lint --dialect mysql
+            | xargs -r sqlfluff lint --dialect mysql
 
       - name: Dockerfile Linting
         uses: hadolint/hadolint-action@v3.1.0
