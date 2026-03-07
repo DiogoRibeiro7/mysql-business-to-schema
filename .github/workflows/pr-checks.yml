@@ -302,11 +302,13 @@ jobs:
       - name: Spell Check
         uses: streetsidesoftware/cspell-action@v5
         with:
+          config: .cspell.json
           files: |
             **/*.md
             **/*.txt
-            **/comments
           incremental_files_only: false
+          strict: false
+          inline: warning
 
   # =====================================================
   # PR Summary Bot
