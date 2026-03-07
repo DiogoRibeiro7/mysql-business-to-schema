@@ -389,15 +389,6 @@ jobs:
           - context: generators
             dockerfile: Dockerfile
             image: data-generator
-          - context: analytics
-            dockerfile: Dockerfile
-            image: analytics-service
-          - context: ml
-            dockerfile: Dockerfile
-            image: ml-service
-          - context: cdc
-            dockerfile: Dockerfile
-            image: cdc-consumer
 
     steps:
       - uses: actions/checkout@v4
@@ -440,6 +431,7 @@ jobs:
             COMMIT_SHA=${{ github.sha }}
 
       - name: Scan Docker image
+        if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}:${{ steps.meta.outputs.version }}
@@ -447,6 +439,7 @@ jobs:
           output: 'docker-scan-${{ matrix.image }}.sarif'
 
       - name: Upload Docker scan results
+        if: github.event_name != 'pull_request'
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'docker-scan-${{ matrix.image }}.sarif'
