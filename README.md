@@ -15,6 +15,8 @@
 
 Production-oriented MySQL schemas that map real business domains to concrete, runnable databases. This repo includes 21 examples, a web interface for browsing and analysis, data generators, normalization exercises, and CI workflows that validate schemas against MySQL 8.0 and 8.1.
 
+Security: See [SECURITY.md](SECURITY.md) for responsible vulnerability reporting.
+
 ## Repo Snapshot (Current State)
 
 - **21 examples** under `example_*/` (schemas, queries, and normalization exercises)
@@ -178,6 +180,8 @@ Community and support files:
 - `.github/CODE_OF_CONDUCT.md`
 - `SECURITY.md`
 - `SUPPORT.md`
+- `docs/BRANCH_PROTECTION_CHECKLIST.md`
+- `docs/ISSUE_LABELS_SYNC.md`
 
 Optional local quality gate:
 
@@ -190,3 +194,5 @@ pre-commit run --all-files
 ## License
 
 MIT. See `LICENSE`.
+
+Security disclosures: [SECURITY.md](SECURITY.md)
