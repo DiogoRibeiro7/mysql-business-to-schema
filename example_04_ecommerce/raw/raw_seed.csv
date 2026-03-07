@@ -1,0 +1,7 @@
+row_id,order_number,order_date,customer_email,customer_name,customer_phone,shipping_address,billing_address,product_sku,product_name,product_category,product_brand,unit_price,quantity,item_discount,order_status,payment_method,payment_status
+1,ORD-2001,2025-01-10 10:15:00,joana@example.com,"Joana Melo","+351-911-222-333","Rua E, 4, Lisbon","Rua E, 4, Lisbon",SKU-1001,"Noise Canceling Headphones",Electronics,SoundPro,199.99,1,0.00,shipped,card,paid
+2,ORD-2001,2025-01-10 10:15:00,joana@example.com,"Joana Melo","+351-911-222-333","Rua E, 4, Lisbon","Rua E, 4, Lisbon",SKU-2003,"USB-C Cable",Electronics,WireMax,9.99,2,0.00,shipped,card,paid
+3,ORD-2002,2025-01-11 12:40:00,ricardo@example.com,"Ricardo Pires","+351-912-444-555","Rua F, 8, Porto","Rua F, 8, Porto",SKU-3002,"Running Shoes",Sports,FastStep,89.50,1,10.00,processing,card,paid
+4,ORD-2003,2025-01-12 09:05:00,marta@example.com,"Marta Lopes","+351-913-777-888","Rua G, 12, Braga","Rua H, 20, Braga",SKU-4001,"Coffee Grinder",Home,GrindCo,49.90,1,0.00,delivered,paypal,paid
+5,ORD-2003,2025-01-12 09:05:00,marta@example.com,"Marta Lopes","+351-913-777-888","Rua G, 12, Braga","Rua H, 20, Braga",SKU-4002,"Espresso Beans 1kg",Food,RoastHouse,22.00,2,2.00,delivered,paypal,paid
+6,ORD-2004,2025-01-12 15:30:00,diogo@example.com,"Diogo Costa","+351-914-111-222","Rua I, 5, Coimbra","Rua I, 5, Coimbra",SKU-5007,"Office Chair",Home,SeatWell,129.00,1,0.00,cancelled,card,refunded

@@ -1,0 +1,7 @@
+intake_id,patient_full_name,patient_dob,patient_phone,patient_email,patient_address,patient_status,doctor_full_name,doctor_specialty,appointment_start,appointment_status,appointment_reason,invoice_number,invoice_total,invoice_status,payment_date,payment_method,payment_amount
+1,"Ana Silva",1988-04-12,"+351-911-111-111",ana.silva@example.com,"Rua A, 10, Lisbon","active","Dr. João Costa","Cardiology","2025-02-05 09:00:00","scheduled","Chest pain","INV-1001",120.00,"open",,,
+2,"Ana Silva",1988-04-12,"+351-911-111-111",ana.silva@example.com,"Rua A, 10, Lisbon","active","Dr. João Costa","Cardiology","2025-02-20 10:30:00","completed","Follow-up","INV-1002",90.00,"paid",2025-02-20,"card",90.00
+3,"Bruno Pereira",1975-11-03,"+351-922-222-222",bruno.p@example.com,"Rua B, 55, Porto","active","Dr. Ines Matos","Dermatology","2025-02-07 14:00:00","completed","Rash","INV-1003",70.00,"paid",2025-02-07,"cash",70.00
+4,"Carla Nunes",1992-08-22,"+351-933-333-333",carla.n@example.com,"Rua C, 8, Coimbra","inactive","Dr. Rita Alves","Pediatrics","2025-02-10 16:00:00","cancelled","Consultation","INV-1004",0.00,"void",,,
+5,"David Rocha",1981-01-19,"+351-944-444-444",d.rocha@example.com,"Rua D, 21, Braga","active","Dr. João Costa","Cardiology","2025-02-12 11:00:00","completed","Palpitations","INV-1005",140.00,"open",,,
+6,"David Rocha",1981-01-19,"+351-944-444-444",d.rocha@example.com,"Rua D, 21, Braga","active","Dr. Marta Lima","Neurology","2025-02-25 09:30:00","scheduled","Headache","INV-1006",110.00,"open",,,

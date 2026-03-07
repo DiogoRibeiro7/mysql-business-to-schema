@@ -1,0 +1,4 @@
+row_id,listing_id,address,city,state,price,beds,baths,agent_name,agency_name,listing_status
+1,L-1001,123 Main St,Lisbon,LI,320000,3,2,Carla Nunes,Prime Realty,active
+2,L-1002,55 River Rd,Porto,PO,450000,4,3,Pedro Reis,Prime Realty,active
+3,L-1003,9 Hill Ave,Braga,BR,210000,2,1,Sofia Lima,HomeFind,pending

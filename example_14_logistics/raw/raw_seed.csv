@@ -1,0 +1,4 @@
+row_id,shipment_number,origin_warehouse,destination_city,carrier_name,ship_date,delivery_date,status,total_weight_kg
+1,SHP-1001,WH-A,Lisbon,FastShip,2025-02-01,2025-02-03,in_transit,1200
+2,SHP-1002,WH-B,Porto,FastShip,2025-02-01,2025-02-02,delivered,600
+3,SHP-1003,WH-A,Braga,RoadGo,2025-02-02,2025-02-05,in_transit,800

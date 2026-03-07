@@ -1,0 +1,4 @@
+row_id,user_handle,event_time,event_type,target_handle,post_text,like_count,comment_count,device_type
+1,@marta,2025-02-01 12:00:00,post,,Hello world,10,2,mobile
+2,@joao,2025-02-01 12:05:00,like,@marta,,0,0,web
+3,@ana,2025-02-01 12:10:00,comment,@marta,Nice!,0,1,mobile

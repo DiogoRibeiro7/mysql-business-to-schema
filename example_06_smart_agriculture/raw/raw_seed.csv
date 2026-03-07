@@ -1,0 +1,4 @@
+row_id,farm_name,field_name,zone_code,sensor_type,reading_time,reading_value,unit,crop_type,irrigation_event
+1,Green Acres,Field 1,Z-01,soil_moisture,2025-02-01 06:00:00,42,percent,corn,0
+2,Green Acres,Field 1,Z-01,soil_temp,2025-02-01 06:00:00,19.5,c,corn,0
+3,Sunny Orchard,Field 2,Z-05,humidity,2025-02-01 06:10:00,58,percent,apples,1

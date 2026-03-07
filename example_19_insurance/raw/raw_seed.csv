@@ -1,0 +1,4 @@
+row_id,policy_number,customer_name,customer_email,product_name,coverage_amount,premium_amount,agent_name,policy_status
+1,POL-1001,Ana Silva,ana@example.com,Home Protect,250000,45.00,Joao Reis,active
+2,POL-1002,Bruno Costa,bruno@example.com,Auto Shield,15000,30.00,Rita Lima,active
+3,POL-1003,Carla Nunes,carla@example.com,Health Plus,100000,55.00,Joao Reis,lapsed

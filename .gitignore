@@ -374,6 +374,9 @@ local.config.yml
 # Keep stored procedures
 !**/procedures/*.sql
 
+# Keep normalization raw exercise CSV seeds
+!example_*/raw/raw_seed.csv
+
 # Keep documentation
 !**/README.md
 !**/README.txt

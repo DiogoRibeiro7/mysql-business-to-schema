@@ -101,9 +101,17 @@ jobs:
           # Test each schema file
           for schema_dir in example_*/schema; do
             echo "Testing $schema_dir..."
-            for sql_file in $schema_dir/*.sql; do
+            for sql_file in $(ls $schema_dir/*.sql | sort -V); do
+              base_file=$(basename "$sql_file")
+
+              # Skip generated data-load scripts; this job validates schema DDL only.
+              if [[ "$base_file" == *load* || "$base_file" == *seed* || "$base_file" == *generated* ]]; then
+                echo "  Skipping data script $sql_file"
+                continue
+              fi
+
               echo "  Validating $sql_file..."
-              mysql -h 127.0.0.1 -u root -proot test_db < $sql_file || exit 1
+              MYSQL_PWD=root mysql -h 127.0.0.1 -u root test_db < "$sql_file" || exit 1
             done
           done
 
@@ -150,9 +158,20 @@ jobs:
 
       - name: Run Coverage
         run: |
-          pytest --cov=. --cov-report=xml --cov-report=term-missing || true
+          pytest --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing || true
+
+      - name: Detect Coverage Data
+        id: coverage_data
+        run: |
+          if [ -f ".coverage" ]; then
+            echo "has_coverage=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_coverage=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Skipping coverage comment because no .coverage data file was generated."
+          fi
 
       - name: Coverage Comment
+        if: steps.coverage_data.outputs.has_coverage == 'true'
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -174,11 +193,11 @@ jobs:
         with:
           fail-on-severity: moderate
           allow-licenses: >
-            mit,
-            apache-2.0,
-            bsd-2-clause,
-            bsd-3-clause,
-            isc
+            MIT,
+            Apache-2.0,
+            BSD-2-Clause,
+            BSD-3-Clause,
+            ISC
 
       - name: Check for Outdated Dependencies
         run: |

@@ -1,0 +1,4 @@
+row_id,reservation_code,guest_name,guest_email,property_name,room_type,check_in,check_out,rate,status
+1,RES-1001,Ana Silva,ana@example.com,Hotel Central,Deluxe,2025-02-10,2025-02-12,180.00,confirmed
+2,RES-1002,Bruno Costa,bruno@example.com,Hotel Central,Standard,2025-02-11,2025-02-13,120.00,checked_in
+3,RES-1003,Carla Nunes,carla@example.com,Hotel Riverside,Suite,2025-02-15,2025-02-18,260.00,cancelled

@@ -1,0 +1,4 @@
+row_id,pair_symbol,trade_time,side,price,quantity,trader_email,fee_amount,order_type
+1,BTC/USDT,2025-02-01 12:00:00,buy,43000,0.01,ana@example.com,0.50,limit
+2,BTC/USDT,2025-02-01 12:00:05,sell,43020,0.02,bruno@example.com,1.00,market
+3,ETH/USDT,2025-02-01 12:01:00,buy,2300,0.5,carla@example.com,0.70,limit

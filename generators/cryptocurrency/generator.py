@@ -74,9 +74,8 @@ class CryptocurrencyDataGenerator:
 
     def generate_password_hash(self, password: Optional[str] = None) -> str:
         """Generate a password hash."""
-        if not password:
-            password = self.fake.password(length=12)
-        return hashlib.sha256(password.encode()).hexdigest()
+        password_value = password if password else self.fake.password(length=12)
+        return hashlib.sha256(password_value.encode()).hexdigest()
 
     def generate_api_key(self) -> str:
         """Generate an API key."""
