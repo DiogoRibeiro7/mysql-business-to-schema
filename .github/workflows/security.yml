@@ -171,6 +171,7 @@ jobs:
         if: always() && hashFiles('checkov-terraform-gcp.sarif') != ''
         with:
           sarif_file: checkov-terraform-gcp.sarif
+          category: /checkov/terraform-gcp
 
       - name: Checkov Scan (Kubernetes)
         uses: bridgecrewio/checkov-action@master
@@ -186,6 +187,7 @@ jobs:
         if: always() && hashFiles('checkov-kubernetes.sarif') != ''
         with:
           sarif_file: checkov-kubernetes.sarif
+          category: /checkov/kubernetes
 
       - name: Checkov Scan (Docker, Helm, GitHub Actions)
         uses: bridgecrewio/checkov-action@master
@@ -208,6 +210,7 @@ jobs:
         if: always() && hashFiles('checkov-platform.sarif') != ''
         with:
           sarif_file: checkov-platform.sarif
+          category: /checkov/platform
 
       - name: Kubernetes Security Scan
         run: |
