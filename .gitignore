@@ -17,6 +17,7 @@ generators/*/*/output/
 
 # Large data files
 *.json
+!.cspell.json
 !package.json
 !composer.json
 *.jsonl

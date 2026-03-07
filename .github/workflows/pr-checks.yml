@@ -63,9 +63,10 @@ jobs:
 
       - name: Check for Conflicts
         run: |
-          git fetch origin main
-          if ! git merge-base --is-ancestor origin/main HEAD; then
-            echo "::warning::This PR is not up to date with main branch"
+          BASE_BRANCH="${{ github.base_ref }}"
+          git fetch origin "$BASE_BRANCH"
+          if ! git merge-base --is-ancestor "origin/$BASE_BRANCH" HEAD; then
+            echo "::warning::This PR is not up to date with $BASE_BRANCH branch"
           fi
 
   # =====================================================

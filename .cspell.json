@@ -1,0 +1,33 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "allowCompoundWords": true,
+  "ignorePaths": [
+    ".git/**",
+    "**/node_modules/**",
+    "**/.mypy_cache/**",
+    "**/.pytest_cache/**",
+    "**/__pycache__/**",
+    "**/dist/**",
+    "**/build/**",
+    "checkov.json/**",
+    "benchmark_results/**",
+    "results/**",
+    "coverage/**",
+    "web-demo/frontend/build/**",
+    "web-demo/backend/dist/**",
+    "*.sarif",
+    "*.lock"
+  ],
+  "words": [
+    "Codecov",
+    "dockerfile",
+    "gitleaks",
+    "kubesec",
+    "mypy",
+    "mysql",
+    "sqlfluff",
+    "trivy",
+    "xtrabackup"
+  ]
+}
