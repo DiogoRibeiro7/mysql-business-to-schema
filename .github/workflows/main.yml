@@ -376,6 +376,7 @@ jobs:
     name: Build Docker Images
     runs-on: ubuntu-latest
     needs: [code-quality, test-python, test-javascript]
+    if: github.event_name == 'push'
     permissions:
       contents: read
       packages: write
