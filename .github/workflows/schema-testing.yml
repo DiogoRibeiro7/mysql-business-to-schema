@@ -118,6 +118,7 @@ jobs:
 
       - name: Upload schema report
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: schema-report-${{ matrix.example }}-mysql${{ matrix.mysql-version }}

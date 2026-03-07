@@ -1,0 +1,4 @@
+row_id,player_handle,game_title,match_time,score,kills,deaths,server_region,match_result
+1,ana123,BattleZone,2025-02-01 20:00:00,1500,12,4,EU,win
+2,bruno88,BattleZone,2025-02-01 20:00:00,1100,8,7,EU,loss
+3,carlaX,SkyRacers,2025-02-01 20:30:00,900,3,2,US,win

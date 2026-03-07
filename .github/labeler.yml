@@ -1,0 +1,38 @@
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**'
+      - any-glob-to-any-file: '.github/actions/**'
+      - any-glob-to-any-file: '.github/labeler.yml'
+      - any-glob-to-any-file: '.gitleaks.toml'
+
+docs:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: 'docs/**'
+
+python:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.py'
+
+sql:
+  - changed-files:
+      - any-glob-to-any-file: '**/*.sql'
+
+docker:
+  - changed-files:
+      - any-glob-to-any-file: '**/Dockerfile'
+      - any-glob-to-any-file: '**/docker-compose*.yml'
+      - any-glob-to-any-file: '**/docker-compose*.yaml'
+      - any-glob-to-any-file: 'docker/**'
+
+kubernetes:
+  - changed-files:
+      - any-glob-to-any-file: 'kubernetes/**'
+      - any-glob-to-any-file: 'helm/**'
+      - any-glob-to-any-file: 'istio/**'
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**'
+      - any-glob-to-any-file: '**/test_*.py'
+      - any-glob-to-any-file: '*test*.py'

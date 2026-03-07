@@ -272,7 +272,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://:@airflow-redis:6379/0
       - AIRFLOW__CELERY__BROKER_URL=redis://:@airflow-redis:6379/0
-      - AIRFLOW__CORE__FERNET_KEY=81HqDtbqAywKSOumSha3BhWNOdQ9V0YZnDpIUXiyA8=
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY:-REPLACE_WITH_VALID_32BYTE_BASE64_KEY}
       - AIRFLOW__WEBSERVER__SECRET_KEY=secret
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
       - _AIRFLOW_DB_UPGRADE=true
@@ -303,7 +303,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://:@airflow-redis:6379/0
       - AIRFLOW__CELERY__BROKER_URL=redis://:@airflow-redis:6379/0
-      - AIRFLOW__CORE__FERNET_KEY=81HqDtbqAywKSOumSha3BhWNOdQ9V0YZnDpIUXiyA8=
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY:-REPLACE_WITH_VALID_32BYTE_BASE64_KEY}
       - AIRFLOW__CORE__LOAD_EXAMPLES=false
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -327,7 +327,7 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@airflow-postgres/airflow
       - AIRFLOW__CELERY__RESULT_BACKEND=redis://:@airflow-redis:6379/0
       - AIRFLOW__CELERY__BROKER_URL=redis://:@airflow-redis:6379/0
-      - AIRFLOW__CORE__FERNET_KEY=81HqDtbqAywKSOumSha3BhWNOdQ9V0YZnDpIUXiyA8=
+      - AIRFLOW__CORE__FERNET_KEY=${AIRFLOW__CORE__FERNET_KEY:-REPLACE_WITH_VALID_32BYTE_BASE64_KEY}
       - DUMB_INIT_SETSID=0
     volumes:
       - ./airflow/dags:/opt/airflow/dags

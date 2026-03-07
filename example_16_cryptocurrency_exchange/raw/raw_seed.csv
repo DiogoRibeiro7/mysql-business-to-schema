@@ -1,0 +1,4 @@
+row_id,user_email,asset_symbol,wallet_balance,order_id,order_status,order_time,trade_price,trade_qty
+1,ana@example.com,BTC,0.05,ORD-1,open,2025-02-01 12:00:00,43000,0.01
+2,bruno@example.com,ETH,1.2,ORD-2,filled,2025-02-01 12:05:00,2300,0.5
+3,carla@example.com,USDT,1500,ORD-3,cancelled,2025-02-01 12:10:00,1,100

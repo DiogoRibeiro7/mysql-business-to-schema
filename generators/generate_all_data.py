@@ -8,6 +8,8 @@ import os
 import json
 import random
 import mysql.connector
+from mysql.connector.abstracts import MySQLConnectionAbstract
+from mysql.connector.pooling import PooledMySQLConnection
 from datetime import datetime
 from typing import Dict, List
 from faker import Faker
@@ -149,7 +151,11 @@ SCHEMA_CONFIGS = {
 class DataGenerator:
     """Base class for data generation."""
 
-    def __init__(self, schema_name: str, connection: mysql.connector.MySQLConnection):
+    def __init__(
+        self,
+        schema_name: str,
+        connection: MySQLConnectionAbstract | PooledMySQLConnection,
+    ):
         """Initialize the instance."""
         self.schema_name = schema_name
         self.connection = connection

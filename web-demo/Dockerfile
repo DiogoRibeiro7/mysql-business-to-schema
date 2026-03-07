@@ -28,7 +28,25 @@ RUN npm install --include=dev --no-audit --no-fund --legacy-peer-deps
 COPY backend/ .
 
 # Build backend
-RUN npx tsc -p tsconfig.json
+RUN if [ ! -f tsconfig.json ]; then \
+      printf '%s\n' \
+      '{' \
+      '  "compilerOptions": {' \
+      '    "target": "ES2020",' \
+      '    "module": "commonjs",' \
+      '    "moduleResolution": "node",' \
+      '    "outDir": "dist",' \
+      '    "rootDir": ".",' \
+      '    "esModuleInterop": true,' \
+      '    "forceConsistentCasingInFileNames": true,' \
+      '    "strict": false,' \
+      '    "skipLibCheck": true' \
+      '  },' \
+      '  "include": ["server.ts", "src/**/*.ts"],' \
+      '  "exclude": ["node_modules", "dist"]' \
+      '}' > tsconfig.json; \
+    fi && \
+    npx tsc -p tsconfig.json
 
 # Remove dev dependencies
 RUN npm prune --omit=dev

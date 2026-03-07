@@ -1,0 +1,4 @@
+row_id,order_number,order_time,customer_email,restaurant_name,item_name,quantity,item_price,driver_name,order_status
+1,FD-1001,2025-02-01 18:00:00,ana@example.com,Pasta House,Carbonara,1,12.5,Joao Reis,delivered
+2,FD-1001,2025-02-01 18:00:00,ana@example.com,Pasta House,Tiramisu,1,5.0,Joao Reis,delivered
+3,FD-1002,2025-02-01 18:15:00,bruno@example.com,Sushi Zen,Salmon Roll,2,8.0,Rita Lima,cancelled

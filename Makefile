@@ -1,6 +1,6 @@
 # Makefile for MySQL Business-to-Schema Testing
 
-.PHONY: help install test test-unit test-integration test-e2e test-performance test-chaos test-all coverage clean docker-up docker-down lint format security-scan
+.PHONY: help install test test-unit test-integration test-e2e test-performance test-chaos test-all coverage clean docker-up docker-down lint format security-scan lint-ci ci-local docker-web
 
 # Variables
 PYTHON := python3
@@ -26,6 +26,9 @@ help:
 	@echo "test-smoke      - Run smoke tests (quick)"
 	@echo "coverage        - Generate coverage report"
 	@echo "lint            - Run code linting"
+	@echo "lint-ci         - Run CI-aligned lint checks locally"
+	@echo "ci-local        - Run local CI script (lint + Docker web build)"
+	@echo "docker-web      - Build web-demo Docker image locally"
 	@echo "format          - Format code with black"
 	@echo "security-scan   - Run security scanning"
 	@echo "docker-up       - Start test containers"
@@ -208,3 +211,29 @@ dev-setup: install docker-up
 # Quick check before commit
 pre-commit: format lint test-unit
 	@echo "Pre-commit checks passed!"
+
+# CI-aligned checks from .github/workflows/main.yml
+lint-ci:
+	$(FLAKE8) . --count --select=E9,F63,F7,F82 --show-source --statistics
+	$(FLAKE8) . --count --exit-zero --max-complexity=25 --max-line-length=200 --statistics
+	$(BLACK) --check generators/ analytics/ cdc/ ml/
+	$(MYPY) generators/ --ignore-missing-imports
+	bandit -r generators/ analytics/ cdc/ ml/ -f json -o bandit-report.json || true
+	safety check --json > safety-report.json || true
+	sqlfluff lint --dialect mysql $$(find . -name "*.sql" -type f \
+		! -path "./demo_data/*" \
+		! -path "./data-pipeline/*" \
+		! -path "./cdc/ksql/*" \
+		! -path "./streaming/ksql/*" \
+		! -path "./migrations/*" \
+		! -path "./scripts/docker-init/*" \
+		! -path "./*/schema_postgres/*" \
+		! -path "./generators/*/output/*" \
+		! -path "./generators/*/generators/*/output/*" \
+		! -path "./example_*/*")
+
+docker-web:
+	docker build -t web-demo:local -f web-demo/Dockerfile web-demo
+
+ci-local:
+	./scripts/ci_local.sh

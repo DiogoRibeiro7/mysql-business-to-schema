@@ -12,6 +12,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   test-schemas:
@@ -76,6 +78,7 @@ jobs:
 
     - name: Upload test report
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: test-report-mysql-${{ matrix.mysql-version }}
@@ -144,6 +147,7 @@ jobs:
 
     - name: Upload validation reports
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: validation-reports
@@ -262,6 +266,7 @@ jobs:
 
     - name: Upload performance reports
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: performance-reports
@@ -271,6 +276,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: [test-schemas, validate-schemas, test-generators, performance-analysis]
     if: always()
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
 
     steps:
     - name: Download all artifacts
@@ -328,13 +337,14 @@ jobs:
         echo "Full reports available in artifacts" >> summary.md
 
     - name: Upload summary report
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: summary-report
         path: summary.md
 
     - name: Comment PR with results
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
       uses: actions/github-script@v8
       with:
         script: |

@@ -1,0 +1,4 @@
+row_id,patient_mrn,patient_name,device_serial,reading_time,heart_rate,systolic_bp,diastolic_bp,oxygen_sat,alert_flag
+1,MRN-1001,Ana Silva,DEV-9001,2025-02-01 08:00:00,78,120,78,98,0
+2,MRN-1001,Ana Silva,DEV-9001,2025-02-01 08:05:00,110,150,92,94,1
+3,MRN-2002,Bruno Costa,DEV-9010,2025-02-01 08:10:00,72,118,76,99,0

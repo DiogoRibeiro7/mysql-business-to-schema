@@ -1,0 +1,4 @@
+row_id,utility_name,building_name,meter_id,reading_time,kwh,kw_demand,rate_plan,solar_kw,outage_flag
+1,Metro Utility,Building A,MTR-1001,2025-02-01 00:00:00,12.4,3.2,time_of_use,0.0,0
+2,Metro Utility,Building A,MTR-1001,2025-02-01 00:15:00,11.9,3.0,time_of_use,0.2,0
+3,Metro Utility,Building B,MTR-2001,2025-02-01 00:00:00,45.0,9.8,commercial_standard,1.2,0

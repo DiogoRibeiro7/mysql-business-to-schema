@@ -1,0 +1,4 @@
+row_id,org_name,project_name,stream_name,event_time,event_type,feature_key,feature_value,model_name,prediction
+1,Acme AI,Churn,user_stream,2025-02-01 10:00:00,ingest,user_age,34,churn_v1,0.12
+2,Acme AI,Churn,user_stream,2025-02-01 10:00:05,ingest,user_tenure,12,churn_v1,0.12
+3,Acme AI,Reco,click_stream,2025-02-01 10:01:00,predict,item_score,0.87,reco_v2,0.87

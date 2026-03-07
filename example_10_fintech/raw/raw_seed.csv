@@ -1,0 +1,7 @@
+row_id,customer_email,customer_name,customer_type,account_number,account_type,currency,transaction_id,transaction_type,amount,transaction_date,merchant_name,merchant_category,risk_score,kyc_status,device_fingerprint
+1,laura@example.com,"Laura Mendes",individual,ACC-1001,checking,USD,TX-9001,card_purchase,54.20,2025-01-08 09:10:00,"Central Coffee",food,12,approved,dev-aaa
+2,laura@example.com,"Laura Mendes",individual,ACC-1001,checking,USD,TX-9002,card_purchase,18.75,2025-01-08 12:45:00,"Central Coffee",food,10,approved,dev-aaa
+3,paulo@example.com,"Paulo Neves",individual,ACC-1002,savings,EUR,TX-9003,transfer,250.00,2025-01-09 08:30:00,,,5,approved,dev-bbb
+4,bravo@corp.com,"Bravo SA",business,ACC-2001,checking,USD,TX-9004,wire,12000.00,2025-01-10 15:00:00,"Global Trade",wholesale,65,review,dev-ccc
+5,bravo@corp.com,"Bravo SA",business,ACC-2001,checking,USD,TX-9005,card_purchase,320.00,2025-01-12 10:20:00,"OfficeHub",office,22,review,dev-ccc
+6,rita@example.com,"Rita Sousa",individual,ACC-1003,checking,USD,TX-9006,card_purchase,7.50,2025-01-12 18:05:00,"City Metro",transport,8,approved,dev-ddd

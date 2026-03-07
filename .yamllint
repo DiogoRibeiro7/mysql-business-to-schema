@@ -1,0 +1,15 @@
+extends: relaxed
+
+ignore: |
+  .git/
+  node_modules/
+  **/node_modules/**
+  web-demo/node_modules/
+  helm/**/templates/*.yaml
+
+rules:
+  line-length: disable
+  new-lines: disable
+  new-line-at-end-of-file: disable
+  trailing-spaces: disable
+  indentation: disable

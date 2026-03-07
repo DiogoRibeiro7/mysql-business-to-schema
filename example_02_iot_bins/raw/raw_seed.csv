@@ -1,0 +1,4 @@
+row_id,device_id,bin_code,district_name,bin_type,installed_at,sensor_type,reading_time,reading_value,reading_unit,battery_level,gps_lat,gps_lon,alert_type
+1,dev-001,BIN-1001,Central,general,2023-01-10,fill_level,2025-02-01 08:00:00,82,percent,78,40.7128,-74.0060,fill_critical
+2,dev-002,BIN-1002,Central,recycling,2023-01-12,temperature,2025-02-01 08:05:00,24.5,c,90,40.7130,-74.0055,
+3,dev-003,BIN-2001,North,organic,2023-03-01,odor,2025-02-01 08:10:00,7.1,ppm,65,40.7300,-74.0200,odor_high

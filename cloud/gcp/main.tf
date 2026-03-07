@@ -151,6 +151,25 @@ resource "google_compute_network" "vpc" {
   depends_on = [google_project_service.required_apis]
 }
 
+resource "google_compute_firewall" "allow_internal" {
+  name    = "${local.name_prefix}-allow-internal"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+  }
+
+  allow {
+    protocol = "udp"
+  }
+
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = ["10.0.0.0/8"]
+}
+
 # ------------------------------------------------------------------
 # KMS for CMEK-protected services
 # ------------------------------------------------------------------
@@ -165,6 +184,10 @@ resource "google_kms_crypto_key" "app" {
   name            = "${local.name_prefix}-key"
   key_ring        = google_kms_key_ring.main.id
   rotation_period = "7776000s" # 90 days
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_compute_subnetwork" "private" {
@@ -251,8 +274,9 @@ resource "google_sql_database_instance" "mysql" {
     backup_configuration {
       enabled                        = true
       start_time                     = "03:00"
-      point_in_time_recovery_enabled = var.environment == "prod"
-      transaction_log_retention_days = var.environment == "prod" ? 7 : 1
+      binary_log_enabled             = true
+      point_in_time_recovery_enabled = true
+      transaction_log_retention_days = 7
 
       backup_retention_settings {
         retained_backups = var.environment == "prod" ? 7 : 3
@@ -301,7 +325,7 @@ resource "google_sql_user" "mysql_user" {
 # ------------------------------------------------------------------------------
 resource "google_sql_database_instance" "postgres" {
   name             = "${local.name_prefix}-postgres-${var.database_example}"
-  database_version = "POSTGRES_16"
+  database_version = "POSTGRES_17"
   region           = var.region
 
   settings {
@@ -330,7 +354,7 @@ resource "google_sql_database_instance" "postgres" {
 
     database_flags {
       name  = "log_statement"
-      value = "none"
+      value = "ddl"
     }
 
     database_flags {
@@ -518,6 +542,15 @@ resource "google_storage_bucket" "logs" {
   uniform_bucket_level_access = true
   public_access_prevention    = "enforced"
 
+  versioning {
+    enabled = true
+  }
+
+  logging {
+    log_bucket        = google_storage_bucket.logs.name
+    log_object_prefix = "logs-bucket-access"
+  }
+
   labels = local.common_labels
 
   depends_on = [google_project_service.required_apis]
@@ -585,6 +618,7 @@ resource "google_bigquery_dataset" "analytics" {
 # GKE Cluster for Applications
 # ------------------------------------------------------------------------------
 resource "google_container_cluster" "primary" {
+  #checkov:skip=CKV_GCP_69:Metadata server is enforced in google_container_node_pool.primary_nodes.
   name     = "${local.name_prefix}-gke"
   location = var.zone
 

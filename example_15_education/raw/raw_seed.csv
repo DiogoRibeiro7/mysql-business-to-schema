@@ -1,0 +1,4 @@
+row_id,student_email,student_name,course_code,course_name,instructor_name,activity_time,activity_type,score
+1,ana@example.com,Ana Silva,CS101,Intro CS,Dr. Costa,2025-02-01 10:00:00,quiz,85
+2,ana@example.com,Ana Silva,CS101,Intro CS,Dr. Costa,2025-02-01 10:30:00,assignment,92
+3,bruno@example.com,Bruno Reis,MATH201,Calculus,Dr. Lima,2025-02-01 11:00:00,quiz,78

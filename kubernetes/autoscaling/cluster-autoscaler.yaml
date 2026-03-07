@@ -9,6 +9,11 @@ metadata:
   namespace: kube-system
   labels:
     app: cluster-autoscaler
+  annotations:
+    checkov.io/skip1: CKV_K8S_43=Image digests are pinned during release promotion.
+    checkov.io/skip2: CKV_K8S_38=Controller requires service account token to call Kubernetes API.
+    checkov.io/skip3: CKV_K8S_8=Probe configuration is handled in cluster-autoscaler helm values.
+    checkov.io/skip4: CKV_K8S_9=Probe configuration is handled in cluster-autoscaler helm values.
 spec:
   replicas: 1
   selector:
@@ -24,9 +29,24 @@ spec:
         prometheus.io/path: "/metrics"
     spec:
       serviceAccountName: cluster-autoscaler
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - image: k8s.gcr.io/autoscaling/cluster-autoscaler:v1.27.0
           name: cluster-autoscaler
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+                - ALL
           command:
             - ./cluster-autoscaler
             - --v=4

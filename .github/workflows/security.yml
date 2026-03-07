@@ -107,6 +107,7 @@ jobs:
           output-file: '${{ matrix.image }}-sbom.spdx.json'
 
       - name: Upload SBOM
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: sbom-${{ matrix.image }}
@@ -134,6 +135,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
 
       - name: Detect Secrets
         run: |
@@ -155,18 +157,57 @@ jobs:
         with:
           soft_fail: false
 
-      - name: Checkov Scan
+      - name: Checkov Scan (Terraform - GCP)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: cloud/gcp
+          framework: terraform
+          output_format: sarif
+          output_file_path: checkov-terraform-gcp.sarif
+          soft_fail: false
+
+      - name: Upload Checkov Terraform results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('checkov-terraform-gcp.sarif') != ''
+        with:
+          sarif_file: checkov-terraform-gcp.sarif
+
+      - name: Checkov Scan (Kubernetes)
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: kubernetes
+          framework: kubernetes
+          output_format: sarif
+          output_file_path: checkov-kubernetes.sarif
+          soft_fail: false
+
+      - name: Upload Checkov Kubernetes results
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('checkov-kubernetes.sarif') != ''
+        with:
+          sarif_file: checkov-kubernetes.sarif
+
+      - name: Checkov Scan (Docker, Helm, GitHub Actions)
         uses: bridgecrewio/checkov-action@master
         with:
           directory: .
-          framework: all
+          framework: dockerfile,helm,github_actions
+          skip_path: |
+            **/node_modules/**
+            **/.mypy_cache/**
+            **/.pytest_cache/**
+            **/checkov.json/**
+            **/benchmark_results/**
+            **/results/**
           output_format: sarif
-          output_file_path: checkov.sarif
+          output_file_path: checkov-platform.sarif
+          soft_fail: false
 
-      - name: Upload Checkov results
+      - name: Upload Checkov Platform results
         uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('checkov-platform.sarif') != ''
         with:
-          sarif_file: checkov.sarif
+          sarif_file: checkov-platform.sarif
 
       - name: Kubernetes Security Scan
         run: |
@@ -235,6 +276,7 @@ jobs:
             ${{ secrets.NVD_API_KEY != '' && format('--nvdApiKey {0}', secrets.NVD_API_KEY) || '' }}
 
       - name: Upload Reports
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -377,6 +419,7 @@ jobs:
             --output security-report.html
 
       - name: Upload Security Report
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: security-report

@@ -1,0 +1,4 @@
+row_id,factory_name,line_name,machine_code,sensor_type,reading_time,reading_value,unit,operator_name,work_order_code
+1,Detroit Plant,Line 1,MC-1001,vibration,2025-02-01 08:00:00,3.2,mm/s,Ana Silva,WO-5001
+2,Detroit Plant,Line 1,MC-1001,temperature,2025-02-01 08:00:00,74.5,c,Ana Silva,WO-5001
+3,Phoenix Facility,Line 2,MC-2002,power,2025-02-01 08:05:00,18.0,kW,Bruno Costa,WO-6004

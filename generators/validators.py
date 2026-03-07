@@ -298,7 +298,7 @@ class DataValidator:
         Returns:
             True if all validations pass
         """
-        self.errors: List[Any] = []
+        self.errors = []
 
         for field, field_rules in rules.items():
             value = data.get(field)

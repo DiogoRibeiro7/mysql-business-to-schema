@@ -17,6 +17,7 @@ generators/*/*/output/
 
 # Large data files
 *.json
+!.cspell.json
 !package.json
 !composer.json
 *.jsonl
@@ -374,6 +375,9 @@ local.config.yml
 # Keep stored procedures
 !**/procedures/*.sql
 
+# Keep normalization raw exercise CSV seeds
+!example_*/raw/raw_seed.csv
+
 # Keep documentation
 !**/README.md
 !**/README.txt
@@ -383,6 +387,7 @@ local.config.yml
 !**/config.yaml.template
 !**/config.yaml.example
 !**/.env.example
+!web-demo/backend/tsconfig.json
 
 # Keep generator configs
 !generators/*/config.yaml

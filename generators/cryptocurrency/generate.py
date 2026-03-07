@@ -12,12 +12,9 @@ import json
 import random
 import sys
 from pathlib import Path
-from typing import Optional
 
 # Add parent directory to path for imports
 sys.path.append(str(Path(__file__).parent.parent))
-
-from cryptocurrency.generator import CryptocurrencyDataGenerator
 
 
 def parse_args() -> argparse.Namespace:
@@ -95,8 +92,9 @@ def load_config(config_path: Path) -> dict:
 
 
 def main() -> int:
-    """Main entry point."""
+    """Run the CLI entry point."""
     args = parse_args()
+    from cryptocurrency.generator import CryptocurrencyDataGenerator
 
     try:
         # Load configuration
@@ -123,7 +121,9 @@ def main() -> int:
 
         # Initialize generator
         if args.verbose:
-            print(f"Initializing Cryptocurrency Exchange Data Generator with seed {config['seed']}")
+            print(
+                f"Initializing Cryptocurrency Exchange Data Generator with seed {config['seed']}"
+            )
             print(f"Output directory: {config['output_dir']}")
 
         # Create generator instance with the config
@@ -176,6 +176,7 @@ def main() -> int:
     except Exception as e:
         print(f"Unexpected error: {e}", file=sys.stderr)
         import traceback
+
         traceback.print_exc()
         return 1
 
