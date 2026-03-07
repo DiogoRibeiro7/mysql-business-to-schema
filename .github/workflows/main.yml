@@ -139,6 +139,7 @@ jobs:
           yamllint -c .yamllint .
 
       - name: Upload Code Quality Reports
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -255,6 +256,7 @@ jobs:
           npm run test:ci || true
 
       - name: Upload Test Results
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -300,6 +302,7 @@ jobs:
           docker compose -f docker-compose.test.yml logs > docker-logs.txt
 
       - name: Upload Integration Test Artifacts
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         if: always()
         with:
@@ -346,6 +349,7 @@ jobs:
             --enableExperimental
 
       - name: Upload OWASP results
+        continue-on-error: true
         uses: actions/upload-artifact@v6
         with:
           name: owasp-dependency-check

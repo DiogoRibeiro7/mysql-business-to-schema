@@ -78,6 +78,7 @@ jobs:
 
     - name: Upload test report
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: test-report-mysql-${{ matrix.mysql-version }}
@@ -146,6 +147,7 @@ jobs:
 
     - name: Upload validation reports
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: validation-reports
@@ -264,6 +266,7 @@ jobs:
 
     - name: Upload performance reports
       if: always()
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: performance-reports
@@ -334,6 +337,7 @@ jobs:
         echo "Full reports available in artifacts" >> summary.md
 
     - name: Upload summary report
+      continue-on-error: true
       uses: actions/upload-artifact@v6
       with:
         name: summary-report

@@ -107,6 +107,7 @@ jobs:
           output-file: '${{ matrix.image }}-sbom.spdx.json'
 
       - name: Upload SBOM
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: sbom-${{ matrix.image }}
@@ -275,6 +276,7 @@ jobs:
             ${{ secrets.NVD_API_KEY != '' && format('--nvdApiKey {0}', secrets.NVD_API_KEY) || '' }}
 
       - name: Upload Reports
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -417,6 +419,7 @@ jobs:
             --output security-report.html
 
       - name: Upload Security Report
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: security-report
