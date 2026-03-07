@@ -1,0 +1,19 @@
+name: Question
+description: Ask a usage or design question
+title: "question: "
+labels: ["question"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: What do you need help with?
+      placeholder: Ask your question clearly and include context.
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Relevant files, commands, or previous attempts.
+      render: shell
