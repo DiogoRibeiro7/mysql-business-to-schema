@@ -391,3 +391,156 @@ To add new features or queries:
 ## License
 
 This educational example is provided as-is for learning purposes.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  districts {
+    INT district_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING district_code
+    DECIMAL area_km2
+    INT population
+  }
+  bins {
+    INT bin_id
+    INT district_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING bin_code
+    STRING bin_type
+  }
+  sensors {
+    INT sensor_id
+    INT bin_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING sensor_code
+    STRING sensor_type
+  }
+  collection_routes {
+    INT route_id
+    INT district_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING route_code
+    STRING route_name
+    STRING route_type
+  }
+  route_bin_assignments {
+    INT assignment_id
+    INT route_id
+    INT bin_id
+    DATETIME created_at
+    DATETIME updated_at
+    INT collection_order
+    DATETIME estimated_collection_time
+  }
+  trucks {
+    INT truck_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING truck_code
+    STRING license_plate
+    STRING manufacturer
+  }
+  drivers {
+    INT driver_id
+    STRING employee_id
+    STRING email
+    STRING phone
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  collection_schedules {
+    INT schedule_id
+    INT route_id
+    INT truck_id
+    INT driver_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  collection_events {
+    INT event_id
+    INT bin_id
+    INT schedule_id
+    INT truck_id
+    INT driver_id
+    DATETIME created_at
+    DATETIME collected_at
+  }
+  sensor_readings {
+    BIGINT reading_id
+    INT sensor_id
+    DATETIME created_at
+    DATETIME reading_time
+    DECIMAL reading_value
+    STRING unit
+    STRING quality
+  }
+  sensor_readings_hourly {
+    BIGINT aggregation_id
+    INT sensor_id
+    DATETIME created_at
+    DATETIME hour_start
+    DECIMAL min_value
+    DECIMAL max_value
+    DECIMAL avg_value
+  }
+  sensor_readings_daily {
+    BIGINT aggregation_id
+    INT sensor_id
+    DATETIME date
+    DATETIME created_at
+    DECIMAL min_value
+    DECIMAL max_value
+    DECIMAL avg_value
+  }
+  alert_thresholds {
+    INT threshold_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING bin_type
+    STRING sensor_type
+    DECIMAL warning_value
+  }
+  alerts {
+    BIGINT alert_id
+    INT bin_id
+    INT sensor_id
+    INT threshold_id
+    DATETIME created_at
+    STRING alert_type
+    STRING severity
+  }
+  fill_rate_predictions {
+    BIGINT prediction_id
+    INT bin_id
+    DATETIME created_at
+    DATETIME prediction_date
+    DATETIME prediction_hour
+    DECIMAL predicted_fill_rate
+    DECIMAL confidence_score
+  }
+
+  districts ||--o{ bins : references
+  bins ||--o{ sensors : references
+  districts ||--o{ collection_routes : references
+  collection_routes ||--o{ route_bin_assignments : references
+  collection_routes ||--o{ collection_schedules : references
+  bins ||--o{ collection_events : references
+  sensors ||--o{ sensor_readings : references
+  sensors ||--o{ sensor_readings_hourly : references
+  sensors ||--o{ sensor_readings_daily : references
+  bins ||--o{ alerts : references
+  bins ||--o{ fill_rate_predictions : references
+```

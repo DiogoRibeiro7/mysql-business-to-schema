@@ -520,3 +520,125 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  warehouses {
+    INT warehouse_id
+    STRING warehouse_code
+  }
+  warehouse_zones {
+    INT zone_id
+    INT warehouse_id
+    STRING zone_code
+  }
+  warehouse_bins {
+    INT bin_id
+    INT zone_id
+    STRING bin_code
+  }
+  docking_stations {
+    INT dock_id
+    INT warehouse_id
+    STRING dock_number
+  }
+  products {
+    INT product_id
+    STRING sku
+  }
+  inventory_levels {
+    INT inventory_id
+    INT warehouse_id
+    INT product_id
+    DECIMAL quantity_on_hand
+  }
+  product_batches {
+    INT batch_id
+    INT product_id
+    INT warehouse_id
+    STRING batch_number
+  }
+  inventory_movements {
+    INT movement_id
+    STRING movement_type
+  }
+  suppliers {
+    INT supplier_id
+    STRING supplier_code
+  }
+  customers {
+    INT customer_id
+    STRING customer_code
+  }
+  purchase_orders {
+    INT po_id
+    STRING po_number
+  }
+  purchase_order_items {
+    INT po_item_id
+    INT po_id
+    INT product_id
+    DECIMAL quantity_ordered
+  }
+  sales_orders {
+    INT so_id
+    STRING so_number
+  }
+  sales_order_items {
+    INT so_item_id
+    INT so_id
+    INT product_id
+    INT warehouse_id
+    DECIMAL quantity_ordered
+  }
+  carriers {
+    INT carrier_id
+    STRING carrier_code
+  }
+  carrier_services {
+    INT service_id
+    INT carrier_id
+    STRING service_code
+  }
+  shipments {
+    INT shipment_id
+    STRING shipment_number
+  }
+  shipment_tracking {
+    INT tracking_id
+    INT shipment_id
+    STRING status_code
+  }
+  vehicles {
+    INT vehicle_id
+    STRING vehicle_number
+  }
+  drivers {
+    INT driver_id
+    STRING employee_id
+  }
+  routes {
+    INT route_id
+    STRING route_code
+  }
+  delivery_runs {
+    INT run_id
+    INT route_id
+    INT vehicle_id
+    INT driver_id
+    DATETIME run_date
+    DATETIME planned_start_time
+    DATETIME actual_start_time
+  }
+  kpi_metrics {
+    INT metric_id
+    DATETIME metric_date
+    STRING metric_type
+  }
+  audit_log {
+    BIGINT audit_id
+    STRING table_name
+  }
+```

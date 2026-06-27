@@ -365,3 +365,174 @@ Typical ROI: 6-18 months
 5. **Blockchain**: Supply chain transparency
 
 This Industrial IoT system provides comprehensive manufacturing intelligence, enabling data-driven decisions for operational excellence.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  factories {
+    INT factory_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING factory_name
+    STRING factory_type
+    STRING location
+    STRING country
+  }
+  production_lines {
+    INT line_id
+    INT factory_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING line_name
+    STRING line_type
+  }
+  machines {
+    INT machine_id
+    INT line_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING machine_code
+    STRING machine_name
+  }
+  sensors {
+    INT sensor_id
+    INT machine_id
+    DATETIME created_at
+    STRING sensor_code
+    STRING sensor_type
+    STRING unit_of_measure
+    DECIMAL min_value
+  }
+  sensor_readings {
+    BIGINT reading_id
+    INT sensor_id
+    DATETIME timestamp
+    DECIMAL value
+    STRING quality
+  }
+  products {
+    INT product_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING product_code
+    STRING product_name
+    STRING product_category
+    STRING unit_of_measure
+  }
+  work_orders {
+    INT order_id
+    INT product_id
+    INT line_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING order_number
+  }
+  production_runs {
+    BIGINT run_id
+    INT order_id
+    INT machine_id
+    INT operator_id
+    DATETIME start_time
+    DATETIME end_time
+    INT quantity_produced
+  }
+  quality_inspections {
+    INT inspection_id
+    BIGINT run_id
+    INT product_id
+    INT inspector_id
+    DATETIME inspection_time
+    INT sample_size
+    INT defects_found
+  }
+  defects {
+    INT defect_id
+    INT inspection_id
+    DATETIME created_at
+    STRING defect_type
+    STRING severity
+    INT quantity
+    STRING root_cause
+  }
+  oee_metrics {
+    BIGINT oee_id
+    INT machine_id
+    INT line_id
+    DATETIME metric_timestamp
+    DATETIME hour_start
+    DATETIME hour_end
+    DECIMAL planned_production_time_min
+  }
+  maintenance_schedules {
+    INT schedule_id
+    INT machine_id
+    DATETIME created_at
+    STRING maintenance_type
+    INT frequency_days
+    DATETIME last_performed
+    DATETIME next_due
+  }
+  maintenance_records {
+    INT record_id
+    INT machine_id
+    INT schedule_id
+    DATETIME start_time
+    DATETIME end_time
+    INT technician_id
+    STRING status
+  }
+  alerts {
+    BIGINT alert_id
+    INT source_id
+    STRING source_type
+    STRING alert_type
+    STRING severity
+    STRING message
+    DECIMAL threshold_value
+  }
+  downtime_events {
+    INT event_id
+    INT machine_id
+    INT line_id
+    DATETIME start_time
+    DATETIME end_time
+    DATETIME created_at
+    DECIMAL duration_minutes
+  }
+  operators {
+    INT operator_id
+    STRING email
+    STRING phone
+    INT factory_id
+    DATETIME created_at
+    STRING employee_number
+    STRING first_name
+  }
+  shift_logs {
+    INT log_id
+    INT line_id
+    INT supervisor_id
+    DATETIME created_at
+    DATETIME shift_date
+    STRING shift_type
+    INT operators_count
+  }
+
+  factories ||--o{ production_lines : references
+  production_lines ||--o{ machines : references
+  machines ||--o{ sensors : references
+  products ||--o{ work_orders : references
+  work_orders ||--o{ production_runs : references
+  production_runs ||--o{ quality_inspections : references
+  quality_inspections ||--o{ defects : references
+  machines ||--o{ oee_metrics : references
+  machines ||--o{ maintenance_schedules : references
+  machines ||--o{ maintenance_records : references
+  machines ||--o{ downtime_events : references
+  factories ||--o{ operators : references
+  production_lines ||--o{ shift_logs : references
+```

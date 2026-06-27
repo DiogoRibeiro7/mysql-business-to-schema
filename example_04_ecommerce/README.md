@@ -531,3 +531,300 @@ ORDER BY stage_order;
 ## License
 
 This educational example is provided as-is for learning purposes.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  customers {
+    INT customer_id
+    STRING email
+    STRING phone
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING username
+  }
+  customer_addresses {
+    INT address_id
+    INT customer_id
+    STRING phone
+    DATETIME created_at
+    DATETIME updated_at
+    STRING address_type
+    BOOLEAN is_default
+  }
+  categories {
+    INT category_id
+    INT parent_category_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING category_name
+    STRING slug
+    STRING description
+  }
+  brands {
+    INT brand_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING brand_name
+    STRING slug
+    STRING logo_url
+    STRING website_url
+  }
+  products {
+    INT product_id
+    INT brand_id
+    INT category_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING sku
+  }
+  product_variants {
+    INT variant_id
+    INT product_id
+    DECIMAL price
+    DATETIME created_at
+    DATETIME updated_at
+    STRING variant_sku
+    STRING variant_name
+  }
+  product_images {
+    INT image_id
+    INT product_id
+    INT variant_id
+    DATETIME created_at
+    STRING image_url
+    STRING thumbnail_url
+    STRING alt_text
+  }
+  warehouses {
+    INT warehouse_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    DATETIME updated_at
+    STRING warehouse_code
+    STRING warehouse_name
+  }
+  inventory {
+    INT inventory_id
+    INT product_id
+    INT variant_id
+    INT warehouse_id
+    DATETIME created_at
+    DATETIME updated_at
+    INT quantity_available
+  }
+  inventory_movements {
+    BIGINT movement_id
+    INT inventory_id
+    INT reference_id
+    INT from_warehouse_id
+    INT to_warehouse_id
+    DATETIME created_at
+    STRING movement_type
+  }
+  cart_items {
+    INT cart_item_id
+    INT customer_id
+    INT product_id
+    INT variant_id
+    DATETIME updated_at
+    INT quantity
+    DECIMAL price_at_time
+  }
+  wishlist_items {
+    INT wishlist_item_id
+    INT customer_id
+    INT product_id
+    INT variant_id
+    INT priority
+    STRING notes
+    DECIMAL price_when_added
+  }
+  orders {
+    INT order_id
+    INT customer_id
+    STRING status
+    INT shipping_address_id
+    INT billing_address_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  order_items {
+    INT order_item_id
+    INT order_id
+    INT product_id
+    INT variant_id
+    INT warehouse_id
+    DATETIME created_at
+    STRING product_name
+  }
+  order_status_history {
+    INT history_id
+    INT order_id
+    STRING status
+    DATETIME created_at
+    STRING notes
+    INT changed_by
+  }
+  payment_methods {
+    INT payment_method_id
+    INT customer_id
+    STRING type
+    INT billing_address_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING provider
+  }
+  payment_transactions {
+    INT transaction_id
+    INT order_id
+    INT payment_method_id
+    DECIMAL amount
+    STRING status
+    STRING gateway_transaction_id
+    DATETIME created_at
+  }
+  shipping_methods {
+    INT shipping_method_id
+    STRING code
+    DATETIME created_at
+    DATETIME updated_at
+    STRING carrier_name
+    STRING service_name
+    INT delivery_days_min
+  }
+  shipments {
+    INT shipment_id
+    INT order_id
+    INT warehouse_id
+    INT shipping_method_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  product_reviews {
+    INT review_id
+    INT product_id
+    INT variant_id
+    INT customer_id
+    INT order_item_id
+    STRING title
+    STRING status
+  }
+  review_votes {
+    INT vote_id
+    INT review_id
+    INT customer_id
+    DATETIME created_at
+    BOOLEAN is_helpful
+  }
+  coupons {
+    INT coupon_id
+    STRING code
+    DATETIME created_at
+    DATETIME updated_at
+    STRING description
+    STRING discount_type
+    DECIMAL discount_value
+  }
+  coupon_usage {
+    INT usage_id
+    INT coupon_id
+    INT customer_id
+    INT order_id
+    DECIMAL discount_amount
+    DATETIME used_at
+  }
+  price_rules {
+    INT rule_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING rule_name
+    STRING rule_type
+    INT priority
+    JSON conditions
+  }
+  page_views {
+    BIGINT view_id
+    INT customer_id
+    STRING session_id
+    INT product_id
+    DATETIME created_at
+    STRING page_type
+    STRING page_url
+  }
+  search_queries {
+    INT search_id
+    INT customer_id
+    STRING session_id
+    INT clicked_product_id
+    DATETIME created_at
+    STRING query_text
+    INT results_count
+  }
+  recently_viewed {
+    INT view_id
+    INT customer_id
+    INT product_id
+    DATETIME viewed_at
+    INT view_count
+  }
+  product_recommendations {
+    INT recommendation_id
+    INT customer_id
+    INT product_id
+    DATETIME created_at
+    STRING recommendation_type
+    DECIMAL score
+    STRING reason
+  }
+  support_tickets {
+    INT ticket_id
+    INT customer_id
+    INT order_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING ticket_number
+  }
+  returns {
+    INT return_id
+    INT order_id
+    INT customer_id
+    STRING status
+    STRING return_number
+    STRING reason
+    STRING reason_details
+  }
+  return_items {
+    INT return_item_id
+    INT return_id
+    INT order_item_id
+    DATETIME created_at
+    INT quantity
+    STRING item_condition
+    DECIMAL refund_amount
+  }
+  email_templates {
+    INT template_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING template_code
+    STRING template_name
+    STRING subject
+    STRING html_content
+  }
+  email_queue {
+    INT queue_id
+    INT customer_id
+    INT template_id
+    STRING status
+    DATETIME created_at
+    STRING to_email
+    STRING subject
+  }
+```

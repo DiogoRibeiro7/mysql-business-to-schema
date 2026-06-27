@@ -489,3 +489,207 @@ ORDER BY t.start_time DESC;
 - **Driver Retention**: +30%
 
 This Fleet Management system provides comprehensive vehicle and driver monitoring for operational excellence.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  companies {
+    INT company_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    DATETIME updated_at
+    STRING company_name
+    STRING dot_number
+  }
+  depots {
+    INT depot_id
+    INT company_id
+    DATETIME created_at
+    STRING depot_name
+    STRING depot_code
+    STRING address
+    STRING city
+  }
+  vehicles {
+    INT vehicle_id
+    INT company_id
+    INT depot_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING vehicle_number
+  }
+  vehicle_specs {
+    INT spec_id
+    INT vehicle_id
+    INT gross_vehicle_weight_lbs
+    INT cargo_capacity_lbs
+    DECIMAL cargo_volume_cubic_ft
+    DECIMAL mpg_city
+    DECIMAL mpg_highway
+  }
+  drivers {
+    INT driver_id
+    INT company_id
+    STRING employee_id
+    STRING email
+    STRING phone
+    STRING status
+    DATETIME created_at
+  }
+  driver_certifications {
+    INT certification_id
+    INT driver_id
+    STRING certification_type
+    STRING certification_number
+    DATETIME issue_date
+    DATETIME expiry_date
+    STRING issuing_authority
+  }
+  gps_positions {
+    BIGINT position_id
+    INT vehicle_id
+    INT driver_id
+    DATETIME timestamp
+    DECIMAL latitude
+    DECIMAL longitude
+    DECIMAL speed_mph
+  }
+  trips {
+    INT trip_id
+    INT vehicle_id
+    INT driver_id
+    DATETIME start_time
+    DATETIME end_time
+    STRING status
+    DATETIME created_at
+  }
+  stops {
+    INT stop_id
+    INT trip_id
+    INT stop_sequence
+    DATETIME arrival_time
+    DATETIME departure_time
+    DECIMAL latitude
+    DECIMAL longitude
+  }
+  driver_events {
+    BIGINT event_id
+    INT vehicle_id
+    INT driver_id
+    INT trip_id
+    DATETIME created_at
+    STRING event_type
+    DATETIME timestamp
+  }
+  driver_scores {
+    INT score_id
+    INT driver_id
+    DATETIME created_at
+    DATETIME score_date
+    DECIMAL safety_score
+    DECIMAL fuel_efficiency_score
+    DECIMAL compliance_score
+  }
+  routes {
+    INT route_id
+    INT depot_id
+    DATETIME created_at
+    STRING route_name
+    STRING route_code
+    DECIMAL total_distance_miles
+    INT estimated_duration_minutes
+  }
+  geofences {
+    INT geofence_id
+    INT company_id
+    DATETIME created_at
+    STRING geofence_name
+    STRING geofence_type
+    DECIMAL center_latitude
+    DECIMAL center_longitude
+  }
+  geofence_events {
+    BIGINT event_id
+    INT geofence_id
+    INT vehicle_id
+    INT driver_id
+    STRING event_type
+    DATETIME timestamp
+    INT duration_minutes
+  }
+  fuel_transactions {
+    INT transaction_id
+    INT vehicle_id
+    INT driver_id
+    DATETIME created_at
+    DATETIME transaction_date
+    STRING station_name
+    STRING station_address
+  }
+  maintenance_records {
+    INT maintenance_id
+    INT vehicle_id
+    DATETIME created_at
+    STRING maintenance_type
+    DATETIME service_date
+    DECIMAL odometer_miles
+    DECIMAL engine_hours
+  }
+  vehicle_diagnostics {
+    BIGINT diagnostic_id
+    INT vehicle_id
+    DATETIME created_at
+    DATETIME timestamp
+    INT engine_rpm
+    DECIMAL engine_load_percent
+    INT coolant_temp_f
+  }
+  driver_logs {
+    BIGINT log_id
+    INT driver_id
+    DATETIME start_time
+    DATETIME end_time
+    INT vehicle_id
+    DATETIME created_at
+    DATETIME log_date
+  }
+  hos_violations {
+    INT violation_id
+    INT driver_id
+    DATETIME created_at
+    DATETIME violation_date
+    STRING violation_type
+    INT duration_minutes
+    STRING description
+  }
+  dvir_reports {
+    INT dvir_id
+    INT vehicle_id
+    INT driver_id
+    DATETIME created_at
+    DATETIME inspection_date
+    STRING inspection_type
+    DECIMAL odometer_miles
+  }
+  messages {
+    INT message_id
+    INT sender_id
+    INT recipient_id
+    STRING sender_type
+    STRING recipient_type
+    STRING message_text
+    STRING priority
+  }
+  vehicle_daily_summary {
+    INT summary_id
+    INT vehicle_id
+    DATETIME created_at
+    DATETIME summary_date
+    DECIMAL total_miles
+    DECIMAL total_hours
+    INT total_trips
+  }
+```

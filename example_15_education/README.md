@@ -1095,3 +1095,209 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  institutions {
+    INT institution_id
+    STRING institution_code
+  }
+  users {
+    INT user_id
+    INT institution_id
+    STRING username
+  }
+  user_profiles {
+    INT profile_id
+    INT user_id
+    STRING major
+  }
+  roles {
+    INT role_id
+    STRING role_name
+  }
+  user_roles {
+    INT user_role_id
+    INT user_id
+    INT role_id
+    DATETIME created_at
+    INT assigned_by
+    DATETIME valid_from
+    DATETIME valid_until
+  }
+  departments {
+    INT department_id
+    INT institution_id
+    STRING department_code
+  }
+  academic_terms {
+    INT term_id
+    INT institution_id
+    STRING term_code
+  }
+  courses {
+    INT course_id
+    INT institution_id
+    INT department_id
+    STRING course_code
+  }
+  course_sections {
+    INT section_id
+    INT course_id
+    INT term_id
+    STRING section_code
+  }
+  course_modules {
+    INT module_id
+    INT course_id
+    INT module_number
+    STRING module_name
+  }
+  lessons {
+    INT lesson_id
+    INT module_id
+    INT lesson_number
+    STRING lesson_name
+  }
+  learning_resources {
+    INT resource_id
+    STRING resource_type
+  }
+  lesson_resources {
+    INT lesson_resource_id
+    INT lesson_id
+    INT resource_id
+    DATETIME created_at
+    BOOLEAN is_required
+    INT sort_order
+  }
+  enrollments {
+    INT enrollment_id
+    INT section_id
+    INT user_id
+    STRING enrollment_type
+  }
+  prerequisite_overrides {
+    INT override_id
+    INT user_id
+    INT course_id
+    DATETIME created_at
+    INT overridden_by
+    STRING reason
+    DATETIME valid_until
+  }
+  lesson_progress {
+    INT progress_id
+    INT user_id
+    INT lesson_id
+    INT section_id
+    STRING status
+  }
+  learning_paths {
+    INT path_id
+    STRING path_name
+  }
+  user_learning_paths {
+    INT user_path_id
+    INT user_id
+    INT path_id
+    STRING status
+    DATETIME enrollment_date
+    DATETIME target_completion_date
+    DATETIME actual_completion_date
+  }
+  assignments {
+    INT assignment_id
+    INT section_id
+    STRING assignment_type
+  }
+  questions {
+    INT question_id
+    INT assignment_id
+    DECIMAL question_type
+  }
+  question_bank {
+    INT bank_question_id
+    INT created_by
+    STRING subject
+  }
+  rubrics {
+    INT rubric_id
+    STRING rubric_name
+  }
+  submissions {
+    INT submission_id
+    INT assignment_id
+    INT user_id
+    INT group_id
+    INT attempt_number
+    STRING submission_type
+  }
+  gradebook {
+    INT gradebook_id
+    INT section_id
+    INT user_id
+    DECIMAL homework_score
+  }
+  grade_history {
+    INT history_id
+    INT submission_id
+    INT changed_by
+    DECIMAL old_score
+  }
+  discussions {
+    INT discussion_id
+    INT section_id
+    STRING title
+  }
+  discussion_posts {
+    INT post_id
+    INT discussion_id
+    INT parent_post_id
+    INT user_id
+    DATETIME created_at
+    STRING post_content
+    BOOLEAN is_anonymous
+  }
+  messages {
+    INT message_id
+    INT sender_id
+    INT recipient_id
+    STRING subject
+  }
+  announcements {
+    INT announcement_id
+    INT section_id
+    INT institution_id
+    STRING title
+  }
+  attendance {
+    INT attendance_id
+    INT section_id
+    INT user_id
+    STRING status
+    DATETIME attendance_date
+  }
+  activity_logs {
+    BIGINT log_id
+    INT user_id
+    STRING activity_type
+  }
+  learning_analytics {
+    INT analytics_id
+    INT user_id
+    INT section_id
+    INT week_number
+    INT login_count
+    INT total_time_minutes
+    INT content_views
+  }
+  certificates {
+    INT certificate_id
+    INT user_id
+    INT course_id
+    STRING certificate_type
+  }
+```

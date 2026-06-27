@@ -534,3 +534,223 @@ Areas for improvement:
 ## 📝 License
 
 Part of the MySQL Business-to-Schema project, MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  properties {
+    INT property_id
+    STRING phone
+    STRING email
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING property_code
+  }
+  room_types {
+    INT room_type_id
+    INT property_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING type_code
+    STRING type_name
+    STRING description
+  }
+  rooms {
+    BIGINT room_id
+    INT property_id
+    INT room_type_id
+    STRING status
+    BIGINT connecting_room_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  guests {
+    BIGINT guest_id
+    STRING title
+    STRING email
+    STRING phone
+    STRING company_tax_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  reservations {
+    BIGINT reservation_id
+    INT property_id
+    BIGINT guest_id
+    INT room_type_id
+    BIGINT room_id
+    INT rate_plan_id
+    STRING status
+  }
+  stays {
+    BIGINT stay_id
+    BIGINT reservation_id
+    BIGINT guest_id
+    BIGINT room_id
+    DATETIME created_at
+    DATETIME updated_at
+    DATETIME actual_check_in
+  }
+  folios {
+    BIGINT folio_id
+    BIGINT reservation_id
+    STRING bill_to_tax_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING folio_number
+  }
+  folio_transactions {
+    BIGINT transaction_id
+    BIGINT folio_id
+    DECIMAL amount
+    INT department_id
+    INT outlet_id
+    DATETIME created_at
+    DATETIME transaction_date
+  }
+  housekeeping_tasks {
+    BIGINT task_id
+    INT property_id
+    BIGINT room_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING task_type
+  }
+  lost_and_found {
+    BIGINT item_id
+    INT property_id
+    BIGINT room_id
+    BIGINT guest_id
+    BIGINT reservation_id
+    STRING status
+    DATETIME created_at
+  }
+  staff {
+    BIGINT staff_id
+    INT property_id
+    STRING employee_id
+    STRING email
+    STRING phone
+    STRING status
+    DATETIME created_at
+  }
+  staff_schedules {
+    BIGINT schedule_id
+    BIGINT staff_id
+    INT property_id
+    DATETIME start_time
+    DATETIME end_time
+    STRING status
+    DATETIME created_at
+  }
+  outlets {
+    INT outlet_id
+    INT property_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING outlet_name
+    STRING outlet_type
+    DATETIME opens_at
+  }
+  event_spaces {
+    INT space_id
+    INT property_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING space_name
+    STRING space_type
+    INT max_capacity_theater
+  }
+  event_bookings {
+    BIGINT booking_id
+    INT property_id
+    INT space_id
+    DATETIME start_time
+    DATETIME end_time
+    STRING status
+    DATETIME created_at
+  }
+  maintenance_requests {
+    BIGINT request_id
+    INT property_id
+    BIGINT room_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING location_type
+  }
+  rate_plans {
+    INT rate_plan_id
+    INT property_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING plan_code
+    STRING plan_name
+    STRING description
+  }
+  dynamic_rates {
+    BIGINT rate_id
+    INT property_id
+    INT room_type_id
+    INT rate_plan_id
+    DATETIME created_at
+    DATETIME updated_at
+    DATETIME rate_date
+  }
+  loyalty_transactions {
+    BIGINT transaction_id
+    BIGINT guest_id
+    BIGINT reference_id
+    STRING status
+    DATETIME created_at
+    STRING transaction_type
+    INT points
+  }
+  daily_statistics {
+    BIGINT stat_id
+    INT property_id
+    DATETIME created_at
+    DATETIME stat_date
+    INT total_rooms
+    INT rooms_occupied
+    DECIMAL occupancy_rate
+  }
+
+  properties ||--o{ room_types : references
+  properties ||--o{ rooms : references
+  room_types ||--o{ rooms : references
+  properties ||--o{ reservations : references
+  guests ||--o{ reservations : references
+  room_types ||--o{ reservations : references
+  rooms ||--o{ reservations : references
+  reservations ||--o{ stays : references
+  guests ||--o{ stays : references
+  rooms ||--o{ stays : references
+  reservations ||--o{ folios : references
+  folios ||--o{ folio_transactions : references
+  properties ||--o{ housekeeping_tasks : references
+  rooms ||--o{ housekeeping_tasks : references
+  properties ||--o{ lost_and_found : references
+  rooms ||--o{ lost_and_found : references
+  guests ||--o{ lost_and_found : references
+  reservations ||--o{ lost_and_found : references
+  properties ||--o{ staff : references
+  staff ||--o{ staff_schedules : references
+  properties ||--o{ staff_schedules : references
+  properties ||--o{ outlets : references
+  properties ||--o{ event_spaces : references
+  properties ||--o{ event_bookings : references
+  event_spaces ||--o{ event_bookings : references
+  properties ||--o{ maintenance_requests : references
+  rooms ||--o{ maintenance_requests : references
+  properties ||--o{ rate_plans : references
+  properties ||--o{ dynamic_rates : references
+  room_types ||--o{ dynamic_rates : references
+  rate_plans ||--o{ dynamic_rates : references
+  guests ||--o{ loyalty_transactions : references
+  properties ||--o{ daily_statistics : references
+```

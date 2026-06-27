@@ -1033,3 +1033,257 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  users {
+    BIGINT user_id
+    STRING email
+    STRING status
+    DATETIME created_at
+    STRING username
+    BOOLEAN email_verified
+    STRING password_hash
+  }
+  user_profiles {
+    BIGINT profile_id
+    BIGINT user_id
+    DATETIME updated_at
+    STRING display_name
+    STRING bio
+    STRING profile_picture_url
+    STRING cover_picture_url
+  }
+  user_settings {
+    BIGINT setting_id
+    BIGINT user_id
+    DATETIME updated_at
+    BOOLEAN notification_email
+    BOOLEAN notification_push
+    BOOLEAN notification_sms
+    STRING privacy_profile_visibility
+  }
+  relationships {
+    BIGINT relationship_id
+    BIGINT from_user_id
+    BIGINT to_user_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING relationship_type
+  }
+  relationship_requests {
+    BIGINT request_id
+    BIGINT from_user_id
+    BIGINT to_user_id
+    STRING status
+    DATETIME created_at
+    STRING request_type
+    STRING message
+  }
+  posts {
+    BIGINT post_id
+    BIGINT user_id
+    BIGINT parent_post_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING content
+    STRING post_type
+  }
+  post_media {
+    BIGINT media_id
+    BIGINT post_id
+    DATETIME created_at
+    STRING media_type
+    STRING media_url
+    STRING thumbnail_url
+    JSON media_metadata
+  }
+  comments {
+    BIGINT comment_id
+    BIGINT post_id
+    BIGINT user_id
+    BIGINT parent_comment_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING content
+  }
+  reactions {
+    BIGINT reaction_id
+    BIGINT user_id
+    BIGINT target_id
+    DATETIME created_at
+    STRING target_type
+    STRING reaction_type
+    STRING UNIQUE
+  }
+  shares {
+    BIGINT share_id
+    BIGINT post_id
+    BIGINT user_id
+    DATETIME created_at
+    STRING share_type
+    STRING share_text
+    STRING platform
+  }
+  bookmarks {
+    BIGINT bookmark_id
+    BIGINT user_id
+    BIGINT post_id
+    DATETIME created_at
+    STRING collection_name
+    STRING UNIQUE
+  }
+  hashtags {
+    BIGINT hashtag_id
+    DATETIME created_at
+    STRING tag
+    STRING tag_normalized
+    INT post_count
+    INT weekly_count
+    INT daily_count
+  }
+  post_hashtags {
+    BIGINT post_hashtag_id
+    BIGINT post_id
+    BIGINT hashtag_id
+    DATETIME created_at
+    INT position
+    STRING UNIQUE
+  }
+  trending_topics {
+    BIGINT trend_id
+    DATETIME start_time
+    DATETIME end_time
+    STRING trend_type
+    STRING trend_value
+    STRING region
+    DECIMAL score
+  }
+  conversations {
+    BIGINT conversation_id
+    STRING title
+    BIGINT creator_user_id
+    DATETIME created_at
+    STRING conversation_type
+    STRING description
+    BOOLEAN is_archived
+  }
+  conversation_participants {
+    BIGINT participant_id
+    BIGINT conversation_id
+    BIGINT user_id
+    STRING role
+    DATETIME joined_at
+    DATETIME last_read_at
+    BOOLEAN is_muted
+  }
+  messages {
+    BIGINT message_id
+    BIGINT conversation_id
+    BIGINT sender_user_id
+    DATETIME created_at
+    STRING message_type
+    STRING content
+    STRING media_url
+  }
+  notifications {
+    BIGINT notification_id
+    BIGINT user_id
+    STRING type
+    BIGINT actor_user_id
+    BIGINT target_id
+    STRING title
+    DATETIME created_at
+  }
+  reports {
+    BIGINT report_id
+    BIGINT reporter_user_id
+    BIGINT reported_id
+    STRING status
+    BIGINT moderator_id
+    DATETIME created_at
+    STRING reported_type
+  }
+  banned_content {
+    BIGINT ban_id
+    DATETIME created_at
+    STRING content_type
+    STRING content_value
+    STRING severity
+    STRING reason
+    BIGINT added_by
+  }
+  user_activity_logs {
+    BIGINT log_id
+    BIGINT user_id
+    BIGINT target_id
+    STRING session_id
+    DATETIME created_at
+    STRING action_type
+    STRING target_type
+  }
+  engagement_metrics {
+    BIGINT metric_id
+    BIGINT entity_id
+    DATETIME created_at
+    DATETIME metric_date
+    INT metric_hour
+    STRING metric_type
+    INT impressions
+  }
+  viral_content_tracking {
+    BIGINT tracking_id
+    BIGINT post_id
+    DECIMAL view_velocity
+    DECIMAL share_velocity
+    DECIMAL engagement_velocity
+    INT total_reach
+    INT unique_sharers
+  }
+  user_lists {
+    BIGINT list_id
+    BIGINT user_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING description
+    BOOLEAN is_public
+  }
+  list_members {
+    BIGINT member_id
+    BIGINT list_id
+    BIGINT user_id
+    DATETIME added_at
+    STRING UNIQUE
+  }
+
+  users ||--o{ user_profiles : references
+  users ||--o{ user_settings : references
+  users ||--o{ relationships : references
+  users ||--o{ relationship_requests : references
+  users ||--o{ posts : references
+  posts ||--o{ post_media : references
+  posts ||--o{ comments : references
+  users ||--o{ comments : references
+  users ||--o{ reactions : references
+  posts ||--o{ shares : references
+  users ||--o{ shares : references
+  users ||--o{ bookmarks : references
+  posts ||--o{ bookmarks : references
+  posts ||--o{ post_hashtags : references
+  hashtags ||--o{ post_hashtags : references
+  users ||--o{ conversations : references
+  conversations ||--o{ conversation_participants : references
+  users ||--o{ conversation_participants : references
+  conversations ||--o{ messages : references
+  users ||--o{ messages : references
+  users ||--o{ notifications : references
+  users ||--o{ reports : references
+  posts ||--o{ viral_content_tracking : references
+  users ||--o{ user_lists : references
+  user_lists ||--o{ list_members : references
+  users ||--o{ list_members : references
+```

@@ -56,6 +56,34 @@ Generator coverage legend:
 | 19 | [Insurance](example_19_insurance/) | Insurance | 20 | 🟡 script (`generators/insurance_generator.py`) |
 | 20 | [Hotel Chain](example_20_hotel_chain/) | Hospitality | 20 | 🟡 script (`generators/hotel_chain_generator.py`) |
 
+## Example Architecture Index
+
+Each example README now includes a Mermaid ERD section.
+
+| Example | Domain | Architecture Diagram |
+|---|---|---|
+| [example_01_clinic](example_01_clinic/README.md#database-architecture-mermaid-er-diagram) | Clinic | [ERD](example_01_clinic/README.md#database-architecture-mermaid-er-diagram) |
+| [example_02_iot_bins](example_02_iot_bins/README.md#database-architecture-mermaid-er-diagram) | Iot Bins | [ERD](example_02_iot_bins/README.md#database-architecture-mermaid-er-diagram) |
+| [example_03_smart_energy](example_03_smart_energy/README.md#database-architecture-mermaid-er-diagram) | Smart Energy | [ERD](example_03_smart_energy/README.md#database-architecture-mermaid-er-diagram) |
+| [example_04_ecommerce](example_04_ecommerce/README.md#database-architecture-mermaid-er-diagram) | Ecommerce | [ERD](example_04_ecommerce/README.md#database-architecture-mermaid-er-diagram) |
+| [example_05_industrial_iot](example_05_industrial_iot/README.md#database-architecture-mermaid-er-diagram) | Industrial Iot | [ERD](example_05_industrial_iot/README.md#database-architecture-mermaid-er-diagram) |
+| [example_06_smart_agriculture](example_06_smart_agriculture/README.md#database-architecture-mermaid-er-diagram) | Smart Agriculture | [ERD](example_06_smart_agriculture/README.md#database-architecture-mermaid-er-diagram) |
+| [example_07_fleet_management](example_07_fleet_management/README.md#database-architecture-mermaid-er-diagram) | Fleet Management | [ERD](example_07_fleet_management/README.md#database-architecture-mermaid-er-diagram) |
+| [example_08_healthcare_iot](example_08_healthcare_iot/README.md#database-architecture-mermaid-er-diagram) | Healthcare Iot | [ERD](example_08_healthcare_iot/README.md#database-architecture-mermaid-er-diagram) |
+| [example_09_streaming_ml](example_09_streaming_ml/README.md#database-architecture-mermaid-er-diagram) | Streaming Ml | [ERD](example_09_streaming_ml/README.md#database-architecture-mermaid-er-diagram) |
+| [example_10_fintech](example_10_fintech/README.md#database-architecture-mermaid-er-diagram) | Fintech | [ERD](example_10_fintech/README.md#database-architecture-mermaid-er-diagram) |
+| [example_11_social_media](example_11_social_media/README.md#database-architecture-mermaid-er-diagram) | Social Media | [ERD](example_11_social_media/README.md#database-architecture-mermaid-er-diagram) |
+| [example_12_real_estate](example_12_real_estate/README.md#database-architecture-mermaid-er-diagram) | Real Estate | [ERD](example_12_real_estate/README.md#database-architecture-mermaid-er-diagram) |
+| [example_13_event_ticketing](example_13_event_ticketing/README.md#database-architecture-mermaid-er-diagram) | Event Ticketing | [ERD](example_13_event_ticketing/README.md#database-architecture-mermaid-er-diagram) |
+| [example_14_logistics](example_14_logistics/README.md#database-architecture-mermaid-er-diagram) | Logistics | [ERD](example_14_logistics/README.md#database-architecture-mermaid-er-diagram) |
+| [example_15_education](example_15_education/README.md#database-architecture-mermaid-er-diagram) | Education | [ERD](example_15_education/README.md#database-architecture-mermaid-er-diagram) |
+| [example_16_cryptocurrency](example_16_cryptocurrency/README.md#database-architecture-mermaid-er-diagram) | Cryptocurrency | [ERD](example_16_cryptocurrency/README.md#database-architecture-mermaid-er-diagram) |
+| [example_16_cryptocurrency_exchange](example_16_cryptocurrency_exchange/README.md#database-architecture-mermaid-er-diagram) | Cryptocurrency Exchange | [ERD](example_16_cryptocurrency_exchange/README.md#database-architecture-mermaid-er-diagram) |
+| [example_17_food_delivery](example_17_food_delivery/README.md#database-architecture-mermaid-er-diagram) | Food Delivery | [ERD](example_17_food_delivery/README.md#database-architecture-mermaid-er-diagram) |
+| [example_18_gaming_platform](example_18_gaming_platform/README.md#database-architecture-mermaid-er-diagram) | Gaming Platform | [ERD](example_18_gaming_platform/README.md#database-architecture-mermaid-er-diagram) |
+| [example_19_insurance](example_19_insurance/README.md#database-architecture-mermaid-er-diagram) | Insurance | [ERD](example_19_insurance/README.md#database-architecture-mermaid-er-diagram) |
+| [example_20_hotel_chain](example_20_hotel_chain/README.md#database-architecture-mermaid-er-diagram) | Hotel Chain | [ERD](example_20_hotel_chain/README.md#database-architecture-mermaid-er-diagram) |
+
 ## Normalization Exercises (Raw → Normalized)
 
 Every example includes a `raw/` package so students can normalize from denormalized inputs:
@@ -196,3 +224,7 @@ pre-commit run --all-files
 MIT. See `LICENSE`.
 
 Security disclosures: [SECURITY.md](SECURITY.md)
+
+
+
+

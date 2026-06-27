@@ -491,3 +491,209 @@ Areas for improvement:
 ## 📝 License
 
 Part of the MySQL Business-to-Schema project, MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  customers {
+    BIGINT customer_id
+    STRING email
+    STRING ssn_tax_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING customer_type
+  }
+  beneficiaries {
+    BIGINT beneficiary_id
+    BIGINT customer_id
+    STRING email
+    STRING phone
+    DATETIME created_at
+    DATETIME updated_at
+    STRING first_name
+  }
+  products {
+    INT product_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING product_code
+    STRING product_name
+    STRING product_type
+    STRING description
+  }
+  policies {
+    BIGINT policy_id
+    BIGINT customer_id
+    INT product_id
+    STRING status
+    BIGINT agent_id
+    BIGINT broker_id
+    BIGINT previous_policy_id
+  }
+  policy_beneficiaries {
+    BIGINT policy_beneficiary_id
+    BIGINT policy_id
+    BIGINT beneficiary_id
+    DATETIME created_at
+    DECIMAL percentage_allocation
+    STRING beneficiary_type
+  }
+  policy_items {
+    BIGINT item_id
+    BIGINT policy_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING item_type
+    STRING description
+    STRING vin
+  }
+  claims {
+    BIGINT claim_id
+    BIGINT policy_id
+    BIGINT customer_id
+    STRING status
+    BIGINT assigned_adjuster_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  claim_activities {
+    BIGINT activity_id
+    BIGINT claim_id
+    DATETIME created_at
+    STRING activity_type
+    STRING activity_description
+    BIGINT performed_by
+    STRING actor_type
+  }
+  billing_schedules {
+    BIGINT schedule_id
+    BIGINT policy_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING billing_frequency
+    INT billing_day
+    DECIMAL installment_amount
+  }
+  payments {
+    BIGINT payment_id
+    BIGINT policy_id
+    BIGINT claim_id
+    DECIMAL amount
+    STRING status
+    BIGINT payer_id
+    BIGINT payee_id
+  }
+  agents {
+    BIGINT agent_id
+    STRING email
+    STRING phone
+    BIGINT manager_id
+    BIGINT agency_id
+    STRING status
+    DATETIME created_at
+  }
+  agencies {
+    BIGINT agency_id
+    STRING phone
+    STRING email
+    STRING tax_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  brokers {
+    BIGINT broker_id
+    STRING email
+    STRING phone
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING broker_code
+  }
+  underwriting_applications {
+    BIGINT application_id
+    BIGINT policy_id
+    BIGINT customer_id
+    INT product_id
+    BIGINT underwriter_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  reinsurance_treaties {
+    BIGINT treaty_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING treaty_number
+    STRING treaty_type
+    STRING reinsurer_name
+  }
+  reinsurance_cessions {
+    BIGINT cession_id
+    BIGINT treaty_id
+    BIGINT policy_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL ceded_amount
+    DECIMAL ceded_premium
+  }
+  documents {
+    BIGINT document_id
+    BIGINT reference_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING reference_type
+    STRING document_type
+  }
+  communications {
+    BIGINT communication_id
+    BIGINT reference_id
+    STRING status
+    DATETIME created_at
+    STRING reference_type
+    STRING communication_type
+    STRING direction
+  }
+  regulatory_reports {
+    BIGINT report_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING report_type
+    DATETIME report_period_start
+    DATETIME report_period_end
+  }
+  commissions {
+    BIGINT commission_id
+    BIGINT policy_id
+    BIGINT agent_id
+    BIGINT broker_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  customers ||--o{ beneficiaries : references
+  customers ||--o{ policies : references
+  products ||--o{ policies : references
+  policies ||--o{ policy_beneficiaries : references
+  beneficiaries ||--o{ policy_beneficiaries : references
+  policies ||--o{ policy_items : references
+  policies ||--o{ claims : references
+  customers ||--o{ claims : references
+  claims ||--o{ claim_activities : references
+  policies ||--o{ billing_schedules : references
+  policies ||--o{ payments : references
+  claims ||--o{ payments : references
+  policies ||--o{ underwriting_applications : references
+  customers ||--o{ underwriting_applications : references
+  products ||--o{ underwriting_applications : references
+  reinsurance_treaties ||--o{ reinsurance_cessions : references
+  policies ||--o{ reinsurance_cessions : references
+  policies ||--o{ commissions : references
+  agents ||--o{ commissions : references
+  brokers ||--o{ commissions : references
+```

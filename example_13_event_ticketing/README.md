@@ -807,3 +807,278 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  venues {
+    INT venue_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    DATETIME updated_at
+    STRING venue_name
+    STRING venue_type
+  }
+  venue_sections {
+    INT section_id
+    INT venue_id
+    DATETIME created_at
+    STRING section_name
+    STRING section_type
+    INT capacity
+    INT rows_count
+  }
+  venue_rows {
+    INT row_id
+    INT section_id
+    DATETIME created_at
+    STRING row_label
+    INT seats_count
+    BOOLEAN is_accessible
+    STRING UNIQUE
+  }
+  venue_seats {
+    BIGINT seat_id
+    INT row_id
+    DATETIME created_at
+    STRING seat_number
+    STRING seat_type
+    INT x_coordinate
+    INT y_coordinate
+  }
+  event_categories {
+    INT category_id
+    INT parent_category_id
+    DATETIME created_at
+    STRING category_name
+    STRING description
+    STRING UNIQUE
+  }
+  performers {
+    INT performer_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING performer_name
+    STRING performer_type
+    STRING genre
+    STRING bio
+  }
+  events {
+    BIGINT event_id
+    INT category_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING event_name
+    STRING event_type
+    STRING description
+  }
+  performances {
+    BIGINT performance_id
+    BIGINT event_id
+    INT venue_id
+    DATETIME created_at
+    DATETIME updated_at
+    DATETIME performance_datetime
+    DATETIME doors_open_datetime
+  }
+  event_performers {
+    BIGINT event_performer_id
+    BIGINT event_id
+    INT performer_id
+    DATETIME created_at
+    INT billing_order
+    BOOLEAN is_headliner
+    DECIMAL performance_fee
+  }
+  customers {
+    BIGINT customer_id
+    STRING email
+    STRING phone
+    DATETIME created_at
+    DATETIME updated_at
+    STRING password_hash
+    STRING first_name
+  }
+  customer_preferences {
+    BIGINT preference_id
+    BIGINT customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    JSON favorite_venues
+    JSON favorite_performers
+    JSON preferred_categories
+  }
+  loyalty_members {
+    BIGINT member_id
+    BIGINT customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING membership_tier
+    INT points_balance
+    INT lifetime_points
+  }
+  price_tiers {
+    INT price_tier_id
+    BIGINT performance_id
+    DATETIME created_at
+    STRING tier_name
+    DECIMAL base_price
+    DECIMAL service_fee
+    DECIMAL facility_fee
+  }
+  section_pricing {
+    BIGINT section_price_id
+    BIGINT performance_id
+    INT section_id
+    INT price_tier_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL current_price
+  }
+  promotional_codes {
+    INT promo_id
+    DATETIME created_at
+    STRING promo_code
+    STRING description
+    STRING discount_type
+    DECIMAL discount_value
+    DECIMAL min_purchase_amount
+  }
+  bookings {
+    BIGINT booking_id
+    BIGINT customer_id
+    BIGINT performance_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING booking_reference
+    STRING booking_status
+  }
+  tickets {
+    BIGINT ticket_id
+    BIGINT booking_id
+    BIGINT seat_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING ticket_number
+    STRING ticket_status
+  }
+  ticket_holds {
+    BIGINT hold_id
+    STRING session_id
+    BIGINT customer_id
+    BIGINT performance_id
+    BIGINT seat_id
+    DATETIME created_at
+    DATETIME hold_expiry
+  }
+  shopping_carts {
+    BIGINT cart_id
+    STRING session_id
+    BIGINT customer_id
+    BIGINT performance_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING cart_status
+  }
+  cart_items {
+    BIGINT cart_item_id
+    BIGINT cart_id
+    BIGINT seat_id
+    INT price_tier_id
+    DATETIME created_at
+    INT quantity
+    DECIMAL unit_price
+  }
+  entry_scans {
+    BIGINT scan_id
+    BIGINT ticket_id
+    STRING scanner_device_id
+    DATETIME scan_datetime
+    STRING entry_gate
+    STRING scan_result
+    STRING notes
+  }
+  fraud_attempts {
+    BIGINT fraud_id
+    BIGINT customer_id
+    DATETIME created_at
+    STRING attempt_type
+    STRING ip_address
+    STRING user_agent
+    JSON details
+  }
+  resale_listings {
+    BIGINT listing_id
+    BIGINT ticket_id
+    BIGINT seller_customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL listing_price
+    DECIMAL min_price
+  }
+  resale_transactions {
+    BIGINT resale_id
+    BIGINT listing_id
+    BIGINT buyer_customer_id
+    DECIMAL sale_price
+    DECIMAL platform_fee
+    DECIMAL seller_payout
+    STRING transaction_status
+  }
+  sales_metrics {
+    BIGINT metric_id
+    BIGINT performance_id
+    DATETIME created_at
+    DATETIME metric_date
+    INT tickets_sold
+    DECIMAL gross_revenue
+    DECIMAL service_fees
+  }
+  venue_utilization {
+    BIGINT utilization_id
+    INT venue_id
+    BIGINT performance_id
+    DATETIME created_at
+    INT total_capacity
+    INT tickets_sold
+    DECIMAL utilization_percentage
+  }
+
+  venues ||--o{ venue_sections : references
+  venue_sections ||--o{ venue_rows : references
+  venue_rows ||--o{ venue_seats : references
+  event_categories ||--o{ events : references
+  events ||--o{ performances : references
+  venues ||--o{ performances : references
+  events ||--o{ event_performers : references
+  performers ||--o{ event_performers : references
+  customers ||--o{ customer_preferences : references
+  customers ||--o{ loyalty_members : references
+  performances ||--o{ price_tiers : references
+  performances ||--o{ section_pricing : references
+  venue_sections ||--o{ section_pricing : references
+  price_tiers ||--o{ section_pricing : references
+  customers ||--o{ bookings : references
+  performances ||--o{ bookings : references
+  bookings ||--o{ tickets : references
+  venue_seats ||--o{ tickets : references
+  customers ||--o{ ticket_holds : references
+  performances ||--o{ ticket_holds : references
+  venue_seats ||--o{ ticket_holds : references
+  customers ||--o{ shopping_carts : references
+  performances ||--o{ shopping_carts : references
+  shopping_carts ||--o{ cart_items : references
+  venue_seats ||--o{ cart_items : references
+  price_tiers ||--o{ cart_items : references
+  tickets ||--o{ entry_scans : references
+  customers ||--o{ fraud_attempts : references
+  tickets ||--o{ resale_listings : references
+  customers ||--o{ resale_listings : references
+  resale_listings ||--o{ resale_transactions : references
+  customers ||--o{ resale_transactions : references
+  performances ||--o{ sales_metrics : references
+  venues ||--o{ venue_utilization : references
+  performances ||--o{ venue_utilization : references
+```

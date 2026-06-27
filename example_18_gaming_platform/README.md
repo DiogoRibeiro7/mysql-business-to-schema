@@ -535,3 +535,273 @@ Areas for improvement:
 ## 📝 License
 
 Part of the MySQL Business-to-Schema project, MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  players {
+    BIGINT player_id
+    STRING email
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING username
+    STRING password_hash
+  }
+  player_sessions {
+    BIGINT session_id
+    BIGINT player_id
+    STRING device_id
+    DATETIME created_at
+    STRING session_token
+    STRING ip_address
+    STRING user_agent
+  }
+  games {
+    BIGINT game_id
+    STRING title
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING slug
+    STRING description
+  }
+  player_games {
+    BIGINT library_id
+    BIGINT player_id
+    BIGINT game_id
+    DATETIME acquired_at
+    STRING acquisition_type
+    DECIMAL purchase_price
+    INT total_playtime_minutes
+  }
+  game_servers {
+    BIGINT server_id
+    BIGINT game_id
+    STRING status
+    DATETIME created_at
+    STRING server_name
+    STRING server_region
+    STRING ip_address
+  }
+  match_sessions {
+    BIGINT match_id
+    BIGINT game_id
+    BIGINT server_id
+    STRING status
+    STRING match_type
+    STRING game_mode
+    STRING map_name
+  }
+  match_participants {
+    BIGINT participant_id
+    BIGINT match_id
+    BIGINT player_id
+    INT team_id
+    STRING team_name
+    INT score
+    INT kills
+  }
+  matchmaking_queue {
+    BIGINT queue_id
+    BIGINT player_id
+    BIGINT game_id
+    STRING party_id
+    STRING status
+    BIGINT match_id
+    STRING game_mode
+  }
+  friendships {
+    BIGINT friendship_id
+    BIGINT player_id
+    BIGINT friend_id
+    STRING status
+    STRING nickname
+    BOOLEAN is_favorite
+    BOOLEAN notifications_enabled
+  }
+  clans {
+    BIGINT clan_id
+    STRING name
+    BIGINT owner_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING tag
+  }
+  clan_members {
+    BIGINT member_id
+    BIGINT clan_id
+    BIGINT player_id
+    STRING role
+    INT contribution_points
+    INT donations
+    DATETIME joined_at
+  }
+  chat_messages {
+    BIGINT message_id
+    BIGINT sender_id
+    STRING channel_id
+    DATETIME created_at
+    STRING channel_type
+    STRING message_text
+    BOOLEAN is_edited
+  }
+  currencies {
+    INT currency_id
+    STRING code
+    STRING name
+    STRING currency_type
+    BOOLEAN is_purchasable
+    BOOLEAN is_earnable
+    BOOLEAN is_tradeable
+  }
+  player_wallets {
+    BIGINT wallet_id
+    BIGINT player_id
+    INT currency_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL balance
+    DECIMAL total_earned
+  }
+  store_items {
+    BIGINT item_id
+    BIGINT game_id
+    STRING name
+    DECIMAL price
+    INT currency_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  transactions {
+    BIGINT transaction_id
+    BIGINT player_id
+    DECIMAL amount
+    INT currency_id
+    BIGINT reference_id
+    DATETIME created_at
+    STRING transaction_type
+  }
+  achievements {
+    BIGINT achievement_id
+    BIGINT game_id
+    STRING name
+    DATETIME created_at
+    STRING description
+    STRING category
+    STRING requirement_type
+  }
+  player_achievements {
+    BIGINT earned_id
+    BIGINT player_id
+    BIGINT achievement_id
+    INT progress
+    BOOLEAN is_completed
+    DATETIME started_at
+    DATETIME completed_at
+  }
+  player_stats {
+    BIGINT stat_id
+    BIGINT player_id
+    BIGINT game_id
+    DATETIME updated_at
+    INT matches_played
+    INT matches_won
+    INT matches_lost
+  }
+  tournaments {
+    BIGINT tournament_id
+    BIGINT game_id
+    STRING name
+    INT entry_currency_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  tournament_participants {
+    BIGINT participant_id
+    BIGINT tournament_id
+    BIGINT player_id
+    BIGINT team_id
+    DATETIME registered_at
+    INT seed_number
+    INT current_round
+  }
+  leaderboards {
+    BIGINT leaderboard_id
+    BIGINT game_id
+    STRING name
+    DATETIME created_at
+    STRING leaderboard_type
+    STRING stat_tracked
+    STRING reset_frequency
+  }
+  leaderboard_entries {
+    BIGINT entry_id
+    BIGINT leaderboard_id
+    BIGINT player_id
+    DATETIME updated_at
+    BIGINT score
+    INT rank_position
+    JSON extra_data
+  }
+  player_reports {
+    BIGINT report_id
+    BIGINT reporter_id
+    BIGINT reported_id
+    BIGINT match_id
+    BIGINT game_id
+    STRING status
+    DATETIME created_at
+  }
+  ban_history {
+    BIGINT ban_id
+    BIGINT player_id
+    STRING ban_type
+    STRING reason
+    STRING evidence
+    DATETIME banned_at
+    DATETIME expires_at
+  }
+
+  players ||--o{ player_sessions : references
+  players ||--o{ player_games : references
+  games ||--o{ player_games : references
+  games ||--o{ game_servers : references
+  games ||--o{ match_sessions : references
+  game_servers ||--o{ match_sessions : references
+  match_sessions ||--o{ match_participants : references
+  players ||--o{ match_participants : references
+  players ||--o{ matchmaking_queue : references
+  games ||--o{ matchmaking_queue : references
+  match_sessions ||--o{ matchmaking_queue : references
+  players ||--o{ friendships : references
+  players ||--o{ clans : references
+  clans ||--o{ clan_members : references
+  players ||--o{ clan_members : references
+  players ||--o{ chat_messages : references
+  players ||--o{ player_wallets : references
+  currencies ||--o{ player_wallets : references
+  games ||--o{ store_items : references
+  currencies ||--o{ store_items : references
+  players ||--o{ transactions : references
+  currencies ||--o{ transactions : references
+  games ||--o{ achievements : references
+  players ||--o{ player_achievements : references
+  achievements ||--o{ player_achievements : references
+  players ||--o{ player_stats : references
+  games ||--o{ player_stats : references
+  games ||--o{ tournaments : references
+  currencies ||--o{ tournaments : references
+  tournaments ||--o{ tournament_participants : references
+  players ||--o{ tournament_participants : references
+  games ||--o{ leaderboards : references
+  leaderboards ||--o{ leaderboard_entries : references
+  players ||--o{ leaderboard_entries : references
+  players ||--o{ player_reports : references
+  match_sessions ||--o{ player_reports : references
+  games ||--o{ player_reports : references
+  players ||--o{ ban_history : references
+```

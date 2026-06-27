@@ -913,3 +913,309 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  countries {
+    INT country_id
+    DATETIME created_at
+    STRING country_code
+    STRING country_name
+    STRING UNIQUE
+  }
+  states_provinces {
+    INT state_id
+    INT country_id
+    DATETIME created_at
+    STRING state_code
+    STRING state_name
+    STRING UNIQUE
+  }
+  cities {
+    INT city_id
+    INT state_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING city_name
+    DECIMAL latitude
+    DECIMAL longitude
+  }
+  zip_codes {
+    STRING id
+    INT city_id
+    DATETIME created_at
+    STRING zip_code
+    DECIMAL latitude
+    DECIMAL longitude
+    STRING timezone
+  }
+  neighborhoods {
+    INT neighborhood_id
+    INT city_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING neighborhood_name
+    STRING boundary_polygon
+    STRING center_point
+  }
+  property_types {
+    INT type_id
+    INT parent_type_id
+    STRING type_name
+    STRING type_category
+    STRING description
+  }
+  properties {
+    BIGINT property_id
+    INT property_type_id
+    INT city_id
+    INT state_id
+    INT neighborhood_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  property_features {
+    BIGINT feature_id
+    BIGINT property_id
+    DATETIME created_at
+    STRING feature_category
+    STRING feature_name
+    STRING feature_value
+  }
+  property_rooms {
+    BIGINT room_id
+    BIGINT property_id
+    STRING room_type
+    STRING room_level
+    DECIMAL length_ft
+    DECIMAL width_ft
+    STRING description
+  }
+  brokerages {
+    INT brokerage_id
+    INT city_id
+    INT state_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  agents {
+    INT agent_id
+    INT brokerage_id
+    STRING email
+    STRING phone
+    INT license_state_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  users {
+    BIGINT user_id
+    STRING email
+    STRING phone
+    DATETIME created_at
+    DATETIME updated_at
+    STRING password_hash
+    STRING first_name
+  }
+  user_preferences {
+    BIGINT preference_id
+    BIGINT user_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL min_price
+    DECIMAL max_price
+    INT min_bedrooms
+  }
+  listings {
+    BIGINT listing_id
+    BIGINT property_id
+    INT listing_agent_id
+    INT co_listing_agent_id
+    STRING status
+    STRING title
+    DATETIME created_at
+  }
+  listing_status_history {
+    BIGINT history_id
+    BIGINT listing_id
+    STRING status
+    BIGINT changed_by_user_id
+    DATETIME changed_date
+    STRING notes
+  }
+  price_changes {
+    BIGINT change_id
+    BIGINT listing_id
+    DECIMAL old_price
+    DECIMAL new_price
+    DECIMAL change_amount
+    DECIMAL change_percentage
+    DATETIME change_date
+  }
+  property_photos {
+    BIGINT photo_id
+    BIGINT property_id
+    BIGINT uploaded_by_user_id
+    STRING photo_url
+    STRING thumbnail_url
+    STRING caption
+    STRING photo_type
+  }
+  virtual_tours {
+    BIGINT tour_id
+    BIGINT property_id
+    DATETIME created_at
+    STRING tour_type
+    STRING tour_url
+    STRING embed_code
+    STRING provider
+  }
+  saved_searches {
+    BIGINT search_id
+    BIGINT user_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING search_name
+    JSON search_criteria
+    STRING frequency
+  }
+  saved_properties {
+    BIGINT saved_id
+    BIGINT user_id
+    BIGINT property_id
+    BIGINT listing_id
+    STRING notes
+    INT rating
+    DATETIME saved_date
+  }
+  showing_requests {
+    BIGINT request_id
+    BIGINT listing_id
+    BIGINT user_id
+    INT agent_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  open_houses {
+    BIGINT open_house_id
+    BIGINT listing_id
+    INT host_agent_id
+    DATETIME created_at
+    DATETIME start_datetime
+    DATETIME end_datetime
+    BOOLEAN registration_required
+  }
+  offers {
+    BIGINT offer_id
+    BIGINT listing_id
+    BIGINT buyer_user_id
+    INT buyer_agent_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  transactions {
+    BIGINT transaction_id
+    BIGINT listing_id
+    BIGINT accepted_offer_id
+    DATETIME created_at
+    DATETIME updated_at
+    DECIMAL sale_price
+    DATETIME closing_date
+  }
+  market_trends {
+    BIGINT trend_id
+    INT neighborhood_id
+    INT city_id
+    INT state_id
+    DATETIME created_at
+    DATETIME trend_date
+    STRING property_type
+  }
+  comparable_sales {
+    BIGINT comp_id
+    BIGINT subject_property_id
+    BIGINT comp_property_id
+    DATETIME created_at
+    DATETIME sale_date
+    DECIMAL sale_price
+    DECIMAL price_per_sqft
+  }
+  school_districts {
+    INT district_id
+    INT state_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING district_name
+    STRING district_type
+    STRING boundary_polygon
+  }
+  schools {
+    INT school_id
+    INT district_id
+    INT city_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING school_name
+    STRING school_type
+  }
+  property_schools {
+    BIGINT property_school_id
+    BIGINT property_id
+    INT school_id
+    STRING school_type
+    DECIMAL distance_miles
+    STRING UNIQUE
+  }
+
+  countries ||--o{ states_provinces : references
+  states_provinces ||--o{ cities : references
+  cities ||--o{ zip_codes : references
+  cities ||--o{ neighborhoods : references
+  property_types ||--o{ properties : references
+  cities ||--o{ properties : references
+  states_provinces ||--o{ properties : references
+  neighborhoods ||--o{ properties : references
+  properties ||--o{ property_features : references
+  properties ||--o{ property_rooms : references
+  cities ||--o{ brokerages : references
+  states_provinces ||--o{ brokerages : references
+  brokerages ||--o{ agents : references
+  states_provinces ||--o{ agents : references
+  users ||--o{ user_preferences : references
+  properties ||--o{ listings : references
+  agents ||--o{ listings : references
+  listings ||--o{ listing_status_history : references
+  users ||--o{ listing_status_history : references
+  listings ||--o{ price_changes : references
+  properties ||--o{ property_photos : references
+  users ||--o{ property_photos : references
+  properties ||--o{ virtual_tours : references
+  users ||--o{ saved_searches : references
+  users ||--o{ saved_properties : references
+  properties ||--o{ saved_properties : references
+  listings ||--o{ saved_properties : references
+  listings ||--o{ showing_requests : references
+  users ||--o{ showing_requests : references
+  agents ||--o{ showing_requests : references
+  listings ||--o{ open_houses : references
+  agents ||--o{ open_houses : references
+  listings ||--o{ offers : references
+  users ||--o{ offers : references
+  agents ||--o{ offers : references
+  listings ||--o{ transactions : references
+  offers ||--o{ transactions : references
+  neighborhoods ||--o{ market_trends : references
+  cities ||--o{ market_trends : references
+  states_provinces ||--o{ market_trends : references
+  properties ||--o{ comparable_sales : references
+  states_provinces ||--o{ school_districts : references
+  school_districts ||--o{ schools : references
+  cities ||--o{ schools : references
+  properties ||--o{ property_schools : references
+  schools ||--o{ property_schools : references
+```

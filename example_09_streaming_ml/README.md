@@ -726,3 +726,267 @@ This database provides a complete playground for data scientists to practice:
 - NLP (sentiment, topics, summarization)
 - Reinforcement Learning (personalization, exploration)
 - Causal Inference (A/B tests, observational studies)
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  organizations {
+    INT org_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING org_name
+    STRING org_type
+    STRING contact_email
+    STRING api_key
+  }
+  projects {
+    INT project_id
+    INT org_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING project_name
+    STRING project_description
+  }
+  data_streams {
+    INT stream_id
+    INT project_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING stream_name
+    STRING stream_type
+    JSON connection_config
+  }
+  stream_pipelines {
+    INT pipeline_id
+    INT stream_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING pipeline_name
+    JSON pipeline_config
+    STRING processing_type
+  }
+  stream_events {
+    BIGINT event_id
+    INT stream_id
+    DATETIME created_at
+    DATETIME event_timestamp
+    JSON event_data
+    JSON event_metadata
+    STRING processing_status
+  }
+  feature_definitions {
+    INT feature_id
+    INT project_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING feature_name
+    STRING feature_group
+    STRING description
+  }
+  raw_features {
+    BIGINT raw_feature_id
+    INT feature_id
+    STRING entity_id
+    JSON feature_value
+    DATETIME event_timestamp
+    DATETIME ingestion_timestamp
+  }
+  feature_computations {
+    BIGINT computation_id
+    INT feature_id
+    STRING entity_id
+    DATETIME window_start
+    DATETIME window_end
+    JSON feature_value
+    JSON statistics
+  }
+  feature_sets {
+    INT feature_set_id
+    INT project_id
+    DATETIME created_at
+    STRING set_name
+    STRING description
+    JSON feature_ids
+    JSON label_definition
+  }
+  experiments {
+    INT experiment_id
+    INT project_id
+    STRING status
+    DATETIME start_time
+    DATETIME end_time
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  experiment_runs {
+    STRING id
+    STRING run_id
+    INT experiment_id
+    STRING status
+    DATETIME start_time
+    DATETIME end_time
+    DATETIME created_at
+  }
+  run_metrics {
+    BIGINT metric_id
+    STRING run_id
+    STRING metric_name
+    DECIMAL metric_value
+    INT step
+    DATETIME timestamp
+  }
+  models {
+    INT model_id
+    INT project_id
+    INT experiment_id
+    STRING run_id
+    INT feature_set_id
+    STRING status
+    DATETIME created_at
+  }
+  model_evaluations {
+    INT evaluation_id
+    INT model_id
+    DATETIME created_at
+    STRING evaluation_type
+    JSON dataset_info
+    JSON metrics
+    JSON confusion_matrix
+  }
+  model_comparisons {
+    INT comparison_id
+    INT project_id
+    INT winner_model_id
+    DATETIME created_at
+    STRING comparison_name
+    JSON model_ids
+    JSON comparison_metrics
+  }
+  model_deployments {
+    INT deployment_id
+    INT model_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING deployment_name
+    STRING environment
+  }
+  ab_tests {
+    INT ab_test_id
+    INT project_id
+    INT control_deployment_id
+    INT treatment_deployment_id
+    STRING status
+    DATETIME start_time
+    DATETIME end_time
+  }
+  predictions {
+    BIGINT prediction_id
+    INT deployment_id
+    STRING request_id
+    DATETIME created_at
+    JSON input_features
+    JSON prediction_result
+    DECIMAL prediction_probability
+  }
+  ground_truth {
+    BIGINT ground_truth_id
+    BIGINT prediction_id
+    JSON true_label
+    STRING feedback_type
+    STRING feedback_source
+    DATETIME received_at
+  }
+  drift_detection {
+    INT drift_id
+    INT deployment_id
+    STRING feature_name
+    STRING drift_type
+    DATETIME reference_window_start
+    DATETIME reference_window_end
+    DATETIME current_window_start
+  }
+  performance_metrics {
+    BIGINT metric_id
+    INT deployment_id
+    DATETIME created_at
+    DATETIME metric_window_start
+    DATETIME metric_window_end
+    INT prediction_count
+    DECIMAL avg_response_time_ms
+  }
+  model_alerts {
+    INT alert_id
+    INT deployment_id
+    DATETIME created_at
+    STRING alert_type
+    STRING severity
+    STRING alert_message
+    JSON alert_details
+  }
+  compute_resources {
+    INT resource_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING resource_name
+    STRING resource_type
+    STRING provider
+  }
+  resource_allocations {
+    INT allocation_id
+    INT resource_id
+    INT allocated_to_id
+    DATETIME created_at
+    STRING allocated_to_type
+    DECIMAL allocated_amount
+    DATETIME allocation_start
+  }
+  data_lineage {
+    INT lineage_id
+    INT source_id
+    INT target_id
+    DATETIME created_at
+    STRING source_type
+    STRING target_type
+    STRING transformation_type
+  }
+  data_quality_rules {
+    INT rule_id
+    INT applies_to_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING applies_to_type
+    STRING rule_name
+    STRING rule_type
+  }
+  data_quality_violations {
+    BIGINT violation_id
+    INT rule_id
+    DATETIME created_at
+    DATETIME violation_timestamp
+    INT affected_records
+    JSON violation_details
+    STRING severity
+  }
+  user_activity {
+    BIGINT activity_id
+    STRING user_id
+    INT org_id
+    INT resource_id
+    DATETIME created_at
+    STRING activity_type
+    JSON activity_details
+  }
+  api_usage {
+    BIGINT usage_id
+    INT org_id
+    DATETIME created_at
+    STRING api_key
+    STRING endpoint
+    STRING method
+    DATETIME request_timestamp
+  }
+```

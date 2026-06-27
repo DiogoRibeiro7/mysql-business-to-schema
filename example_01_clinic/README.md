@@ -340,3 +340,85 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  patients {
+    BIGINT patient_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    STRING status
+    STRING nif
+    STRING first_name
+  }
+  doctors {
+    BIGINT doctor_id
+    STRING email
+    STRING phone
+    STRING license_number
+    STRING first_name
+    STRING last_name
+    DATETIME active_from
+  }
+  specialties {
+    BIGINT specialty_id
+    STRING code
+    STRING name
+    STRING description
+  }
+  doctor_specialties {
+    BIGINT doctor_id
+    BIGINT specialty_id
+    DATETIME assigned_at
+  }
+  appointments {
+    BIGINT appointment_id
+    BIGINT patient_id
+    BIGINT doctor_id
+    DATETIME start_time
+    DATETIME end_time
+    STRING status
+    DATETIME created_at
+  }
+  invoices {
+    BIGINT invoice_id
+    BIGINT patient_id
+    DATETIME issued_at
+    STRING status
+    STRING invoice_number
+    DECIMAL total_amount
+  }
+  invoice_items {
+    BIGINT invoice_item_id
+    BIGINT invoice_id
+    BIGINT appointment_id
+    STRING description
+    INT quantity
+    DECIMAL unit_price
+    DECIMAL line_total
+  }
+  payments {
+    BIGINT payment_id
+    BIGINT patient_id
+    DECIMAL amount
+    DATETIME payment_date
+    STRING method
+    STRING reference
+  }
+  payment_allocations {
+    BIGINT payment_allocation_id
+    BIGINT payment_id
+    BIGINT invoice_id
+    DECIMAL amount_applied
+  }
+
+  doctors ||--o{ doctor_specialties : references
+  patients ||--o{ appointments : references
+  patients ||--o{ invoices : references
+  invoices ||--o{ invoice_items : references
+  patients ||--o{ payments : references
+  payments ||--o{ payment_allocations : references
+```

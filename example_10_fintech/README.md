@@ -796,3 +796,267 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for guidelines.
 ## 📝 License
 
 This example is part of the MySQL Business-to-Schema project, licensed under MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  customers {
+    BIGINT customer_id
+    STRING email
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING customer_type
+    STRING phone_number
+  }
+  individual_customers {
+    STRING id
+    BIGINT customer_id
+    STRING first_name
+    STRING last_name
+    STRING middle_name
+    DATETIME date_of_birth
+    STRING ssn_encrypted
+  }
+  business_customers {
+    STRING id
+    BIGINT customer_id
+    STRING business_name
+    STRING business_type
+    STRING registration_number
+    STRING tax_id_encrypted
+    DATETIME incorporation_date
+  }
+  kyc_documents {
+    BIGINT document_id
+    BIGINT customer_id
+    DATETIME created_at
+    STRING document_type
+    STRING document_number
+    DATETIME issue_date
+    DATETIME expiry_date
+  }
+  customer_addresses {
+    BIGINT address_id
+    BIGINT customer_id
+    DATETIME created_at
+    STRING address_type
+    STRING street_address_1
+    STRING street_address_2
+    STRING city
+  }
+  accounts {
+    BIGINT account_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING account_number
+    STRING account_type
+    STRING currency
+  }
+  account_holders {
+    BIGINT account_holder_id
+    BIGINT account_id
+    BIGINT customer_id
+    STRING relationship_type
+    DECIMAL ownership_percentage
+    DATETIME added_date
+    DATETIME removed_date
+  }
+  chart_of_accounts {
+    STRING id
+    DATETIME created_at
+    STRING account_code
+    STRING account_name
+    STRING account_type
+    STRING parent_account_code
+    BOOLEAN is_control_account
+  }
+  journal_entries {
+    BIGINT journal_id
+    BIGINT reference_id
+    STRING status
+    BIGINT reversed_by_journal_id
+    DATETIME created_at
+    DATETIME entry_date
+    DATETIME posting_date
+  }
+  journal_lines {
+    BIGINT line_id
+    BIGINT journal_id
+    STRING account_code
+    DECIMAL debit_amount
+    DECIMAL credit_amount
+    STRING currency
+    DECIMAL exchange_rate
+  }
+  transactions {
+    BIGINT transaction_id
+    BIGINT account_id
+    DECIMAL amount
+    STRING status
+    STRING device_id
+    DATETIME created_at
+    STRING transaction_uuid
+  }
+  transfers {
+    BIGINT transfer_id
+    BIGINT from_transaction_id
+    BIGINT to_transaction_id
+    DECIMAL amount
+    DATETIME created_at
+    STRING transfer_type
+    STRING from_currency
+  }
+  payment_methods {
+    BIGINT payment_method_id
+    BIGINT customer_id
+    DATETIME created_at
+    STRING method_type
+    BOOLEAN is_default
+    BOOLEAN is_active
+  }
+  cards {
+    BIGINT card_id
+    BIGINT payment_method_id
+    BIGINT billing_address_id
+    DATETIME created_at
+    STRING card_number_masked
+    STRING card_number_hash
+    STRING card_type
+  }
+  currencies {
+    STRING id
+    DATETIME created_at
+    STRING currency_code
+    STRING currency_name
+    STRING symbol
+    INT decimal_places
+    BOOLEAN is_active
+  }
+  exchange_rates {
+    BIGINT rate_id
+    DATETIME created_at
+    STRING from_currency
+    STRING to_currency
+    DATETIME rate_date
+    DECIMAL exchange_rate
+    STRING rate_source
+  }
+  risk_rules {
+    INT rule_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING rule_name
+    STRING rule_type
+    JSON rule_condition
+    INT risk_score
+  }
+  fraud_alerts {
+    BIGINT alert_id
+    BIGINT transaction_id
+    BIGINT customer_id
+    INT rule_id
+    STRING status
+    DATETIME created_at
+    STRING alert_type
+  }
+  device_fingerprints {
+    BIGINT fingerprint_id
+    BIGINT customer_id
+    STRING device_hash
+    STRING device_type
+    STRING operating_system
+    STRING browser
+    STRING ip_address
+  }
+  aml_checks {
+    STRING id
+    BIGINT customer_id
+    DATETIME created_at
+    STRING result
+    JSON match_details
+    STRING reviewed_by
+    DATETIME reviewed_at
+  }
+  sar_reports {
+    BIGINT report_id
+    BIGINT customer_id
+    DATETIME created_at
+    DATETIME filing_date
+    DATETIME reporting_period_start
+    DATETIME reporting_period_end
+    STRING suspicious_activity
+  }
+  audit_logs {
+    BIGINT audit_id
+    STRING user_id
+    BIGINT entity_id
+    STRING session_id
+    DATETIME created_at
+    STRING action_type
+    STRING entity_type
+  }
+  loan_applications {
+    BIGINT application_id
+    BIGINT customer_id
+    STRING status
+    STRING loan_type
+    DECIMAL requested_amount
+    STRING currency
+    STRING loan_purpose
+  }
+  loan_accounts {
+    BIGINT loan_account_id
+    BIGINT account_id
+    BIGINT application_id
+    STRING status
+    DECIMAL principal_amount
+    DECIMAL outstanding_principal
+    DECIMAL interest_rate
+  }
+  fee_schedule {
+    INT fee_id
+    DECIMAL amount
+    STRING fee_code
+    STRING fee_name
+    STRING fee_type
+    DECIMAL percentage
+    DECIMAL minimum_amount
+  }
+  notification_preferences {
+    BIGINT preference_id
+    BIGINT customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING notification_type
+    BOOLEAN email_enabled
+    BOOLEAN sms_enabled
+  }
+
+  transactions ||--o{ transfers : references
+  customers ||--o{ individual_customers : references
+  customers ||--o{ business_customers : references
+  customers ||--o{ kyc_documents : references
+  customers ||--o{ customer_addresses : references
+  accounts ||--o{ account_holders : references
+  customers ||--o{ account_holders : references
+  journal_entries ||--o{ journal_lines : references
+  chart_of_accounts ||--o{ journal_lines : references
+  accounts ||--o{ transactions : references
+  customers ||--o{ payment_methods : references
+  payment_methods ||--o{ cards : references
+  customer_addresses ||--o{ cards : references
+  currencies ||--o{ exchange_rates : references
+  transactions ||--o{ fraud_alerts : references
+  customers ||--o{ fraud_alerts : references
+  risk_rules ||--o{ fraud_alerts : references
+  customers ||--o{ device_fingerprints : references
+  customers ||--o{ aml_checks : references
+  customers ||--o{ sar_reports : references
+  customers ||--o{ loan_applications : references
+  accounts ||--o{ loan_accounts : references
+  loan_applications ||--o{ loan_accounts : references
+  customers ||--o{ notification_preferences : references
+```

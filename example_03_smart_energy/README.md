@@ -492,3 +492,263 @@ ORDER BY ABS(z_score) DESC;
 ## License
 
 This educational example is provided as-is for learning purposes.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  buildings {
+    INT building_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING building_code
+    STRING building_name
+    STRING address
+  }
+  floors {
+    INT floor_id
+    INT building_id
+    DATETIME created_at
+    DATETIME updated_at
+    INT floor_number
+    STRING floor_name
+    DECIMAL area_sqm
+  }
+  zones {
+    INT zone_id
+    INT floor_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING zone_code
+    STRING zone_name
+    STRING zone_type
+  }
+  tenants {
+    INT tenant_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING tenant_code
+    STRING company_name
+    STRING contact_name
+  }
+  tenant_zone_assignments {
+    INT assignment_id
+    INT tenant_id
+    INT zone_id
+    DATETIME created_at
+    DATETIME assignment_start_date
+    DATETIME assignment_end_date
+    BOOLEAN is_exclusive
+  }
+  meter_types {
+    INT meter_type_id
+    DATETIME created_at
+    STRING type_code
+    STRING type_name
+    STRING measurement_unit
+    INT reading_frequency_seconds
+    BOOLEAN is_utility_meter
+  }
+  energy_meters {
+    INT meter_id
+    INT meter_type_id
+    INT building_id
+    INT zone_id
+    STRING status
+    INT parent_meter_id
+    DATETIME created_at
+  }
+  solar_systems {
+    INT system_id
+    INT building_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING system_code
+    STRING system_name
+  }
+  battery_storage {
+    INT battery_id
+    INT building_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING battery_code
+    STRING system_name
+  }
+  hvac_units {
+    INT unit_id
+    INT building_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING unit_code
+    STRING unit_name
+  }
+  equipment_inventory {
+    INT equipment_id
+    INT zone_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING equipment_code
+    STRING equipment_type
+  }
+  energy_readings {
+    BIGINT reading_id
+    INT meter_id
+    DATETIME created_at
+    DATETIME reading_timestamp
+    DECIMAL energy_value
+    DECIMAL power_value
+    DECIMAL power_factor
+  }
+  energy_consumption_hourly {
+    BIGINT consumption_id
+    INT meter_id
+    DATETIME created_at
+    DATETIME hour_start
+    DECIMAL energy_consumed_kwh
+    DECIMAL avg_power_kw
+    DECIMAL max_power_kw
+  }
+  energy_consumption_daily {
+    BIGINT consumption_id
+    INT meter_id
+    DATETIME created_at
+    DATETIME consumption_date
+    DECIMAL total_energy_kwh
+    DECIMAL peak_power_kw
+    DATETIME peak_hour
+  }
+  solar_production {
+    BIGINT production_id
+    INT system_id
+    DATETIME created_at
+    DATETIME timestamp
+    DECIMAL power_kw
+    DECIMAL energy_kwh
+    DECIMAL irradiance_w_m2
+  }
+  battery_status {
+    BIGINT status_id
+    INT battery_id
+    DATETIME created_at
+    DATETIME timestamp
+    DECIMAL state_of_charge_pct
+    DECIMAL power_kw
+    DECIMAL energy_kwh
+  }
+  hvac_telemetry {
+    BIGINT telemetry_id
+    INT unit_id
+    DATETIME created_at
+    DATETIME timestamp
+    DECIMAL supply_temp_c
+    DECIMAL return_temp_c
+    DECIMAL setpoint_temp_c
+  }
+  demand_response_events {
+    INT event_id
+    DATETIME start_time
+    DATETIME end_time
+    DATETIME created_at
+    DATETIME updated_at
+    STRING event_code
+    STRING event_type
+  }
+  load_profiles {
+    INT profile_id
+    INT building_id
+    DATETIME created_at
+    STRING profile_type
+    STRING season
+    INT hour_of_day
+    DECIMAL typical_load_kw
+  }
+  energy_forecasts {
+    BIGINT forecast_id
+    INT building_id
+    DATETIME created_at
+    DATETIME forecast_timestamp
+    INT forecast_horizon_hours
+    DECIMAL predicted_load_kw
+    DECIMAL confidence_lower_kw
+  }
+  utility_rates {
+    INT rate_id
+    DATETIME created_at
+    STRING rate_name
+    STRING utility_company
+    STRING rate_type
+    DATETIME effective_date
+    DATETIME end_date
+  }
+  tenant_billing {
+    INT bill_id
+    INT tenant_id
+    DATETIME created_at
+    DATETIME updated_at
+    DATETIME billing_period_start
+    DATETIME billing_period_end
+    DECIMAL total_energy_kwh
+  }
+  alert_rules {
+    INT rule_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING rule_name
+    STRING rule_type
+    STRING entity_type
+    JSON condition_json
+  }
+  energy_alerts {
+    BIGINT alert_id
+    INT rule_id
+    INT entity_id
+    DATETIME created_at
+    STRING entity_type
+    STRING alert_type
+    STRING severity
+  }
+  maintenance_schedules {
+    INT schedule_id
+    INT equipment_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING equipment_type
+    STRING maintenance_type
+  }
+  performance_metrics {
+    INT metric_id
+    INT building_id
+    DATETIME created_at
+    DATETIME metric_date
+    DECIMAL energy_intensity_kwh_sqm
+    DECIMAL peak_demand_kw
+    DECIMAL load_factor
+  }
+
+  buildings ||--o{ floors : references
+  floors ||--o{ zones : references
+  tenants ||--o{ tenant_zone_assignments : references
+  meter_types ||--o{ energy_meters : references
+  buildings ||--o{ solar_systems : references
+  buildings ||--o{ battery_storage : references
+  buildings ||--o{ hvac_units : references
+  zones ||--o{ equipment_inventory : references
+  energy_meters ||--o{ energy_readings : references
+  energy_meters ||--o{ energy_consumption_hourly : references
+  energy_meters ||--o{ energy_consumption_daily : references
+  solar_systems ||--o{ solar_production : references
+  battery_storage ||--o{ battery_status : references
+  hvac_units ||--o{ hvac_telemetry : references
+  buildings ||--o{ load_profiles : references
+  buildings ||--o{ energy_forecasts : references
+  tenants ||--o{ tenant_billing : references
+  alert_rules ||--o{ energy_alerts : references
+  buildings ||--o{ performance_metrics : references
+```

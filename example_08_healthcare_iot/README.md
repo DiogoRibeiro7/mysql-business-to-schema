@@ -572,3 +572,207 @@ ORDER BY estimated_hba1c DESC;
 - Peace of mind for families
 
 This Healthcare IoT system enables proactive, personalized care management for improved patient outcomes.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  hospitals {
+    INT hospital_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    DATETIME updated_at
+    STRING hospital_name
+    STRING hospital_code
+  }
+  departments {
+    INT department_id
+    INT hospital_id
+    DATETIME created_at
+    STRING department_name
+    STRING department_code
+    STRING department_type
+    INT floor_number
+  }
+  rooms {
+    INT room_id
+    INT department_id
+    DATETIME created_at
+    STRING room_number
+    STRING room_type
+    INT bed_count
+    INT floor
+  }
+  staff {
+    INT staff_id
+    INT hospital_id
+    STRING employee_id
+    STRING title
+    INT department_id
+    STRING email
+    STRING phone
+  }
+  staff_schedules {
+    INT schedule_id
+    INT staff_id
+    INT department_id
+    DATETIME created_at
+    DATETIME shift_date
+    DATETIME shift_start
+    DATETIME shift_end
+  }
+  patients {
+    INT patient_id
+    STRING phone
+    STRING email
+    STRING insurance_id
+    INT primary_physician_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  admissions {
+    INT admission_id
+    INT patient_id
+    INT hospital_id
+    INT department_id
+    INT room_id
+    INT attending_physician_id
+    INT admitting_physician_id
+  }
+  devices {
+    INT device_id
+    INT hospital_id
+    INT department_id
+    INT room_id
+    INT current_patient_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  device_assignments {
+    INT assignment_id
+    INT device_id
+    INT patient_id
+    INT admission_id
+    DATETIME created_at
+    DATETIME assigned_at
+    DATETIME unassigned_at
+  }
+  vital_signs {
+    BIGINT reading_id
+    INT patient_id
+    INT admission_id
+    INT device_id
+    DATETIME created_at
+    DATETIME recorded_at
+    INT heart_rate
+  }
+  device_readings {
+    BIGINT reading_id
+    INT device_id
+    INT patient_id
+    DATETIME created_at
+    DATETIME timestamp
+    STRING metric_type
+    DECIMAL metric_value
+  }
+  alerts {
+    BIGINT alert_id
+    INT patient_id
+    INT admission_id
+    INT device_id
+    DATETIME created_at
+    STRING alert_type
+    STRING alert_category
+  }
+  alert_rules {
+    INT rule_id
+    INT department_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING rule_name
+    STRING rule_type
+    STRING metric_type
+  }
+  medications {
+    INT medication_id
+    DATETIME created_at
+    STRING medication_name
+    STRING generic_name
+    STRING drug_class
+    STRING ndc_code
+    STRING dosage_form
+  }
+  prescriptions {
+    INT prescription_id
+    INT patient_id
+    INT admission_id
+    INT medication_id
+    INT prescribing_physician_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  medication_administration {
+    BIGINT administration_id
+    INT prescription_id
+    INT patient_id
+    DATETIME created_at
+    DATETIME scheduled_time
+    DATETIME actual_time
+    INT administered_by
+  }
+  lab_tests {
+    INT test_id
+    DATETIME created_at
+    STRING test_code
+    STRING test_name
+    STRING test_category
+    STRING specimen_type
+    DECIMAL normal_range_low
+  }
+  lab_orders {
+    INT order_id
+    INT patient_id
+    INT admission_id
+    INT ordering_physician_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  lab_results {
+    INT result_id
+    INT order_id
+    INT test_id
+    INT patient_id
+    DATETIME created_at
+    DECIMAL result_value
+    STRING result_text
+  }
+  clinical_notes {
+    INT note_id
+    INT patient_id
+    INT admission_id
+    INT author_id
+    INT cosigner_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  emergency_events {
+    INT event_id
+    INT patient_id
+    INT admission_id
+    INT team_lead_id
+    DATETIME created_at
+    STRING event_type
+    STRING location
+  }
+  patient_daily_summary {
+    INT summary_id
+    INT patient_id
+    INT admission_id
+    DATETIME created_at
+    DATETIME summary_date
+    DECIMAL avg_heart_rate
+    DECIMAL avg_bp_systolic
+  }
+```

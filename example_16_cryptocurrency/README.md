@@ -408,3 +408,156 @@ Areas for improvement:
 ## 📝 License
 
 Part of the MySQL Business-to-Schema project, MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  users {
+    BIGINT user_id
+    STRING email
+    STRING status
+    BIGINT referred_by_user_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING username
+  }
+  kyc_documents {
+    BIGINT document_id
+    BIGINT user_id
+    BIGINT verified_by_user_id
+    STRING document_type
+    STRING document_number
+    STRING file_path
+    STRING file_hash
+  }
+  currencies {
+    INT currency_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING symbol
+    STRING currency_type
+    STRING blockchain
+  }
+  trading_pairs {
+    INT pair_id
+    INT base_currency_id
+    INT quote_currency_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING symbol
+    BOOLEAN is_active
+  }
+  wallets {
+    BIGINT wallet_id
+    BIGINT user_id
+    INT currency_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING deposit_address
+    STRING deposit_tag
+  }
+  orders {
+    BIGINT order_id
+    BIGINT user_id
+    INT pair_id
+    DECIMAL price
+    INT fee_currency_id
+    STRING status
+    DATETIME created_at
+  }
+  trades {
+    BIGINT trade_id
+    INT pair_id
+    BIGINT maker_order_id
+    BIGINT taker_order_id
+    BIGINT maker_user_id
+    BIGINT taker_user_id
+    DECIMAL price
+  }
+  transactions {
+    BIGINT transaction_id
+    BIGINT user_id
+    BIGINT wallet_id
+    INT currency_id
+    STRING type
+    DECIMAL amount
+    STRING status
+  }
+  price_history {
+    BIGINT candle_id
+    INT pair_id
+    STRING interval_type
+    DATETIME open_time
+    DATETIME close_time
+    DECIMAL open_price
+    DECIMAL high_price
+  }
+  api_keys {
+    BIGINT api_key_id
+    BIGINT user_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING api_key
+    STRING api_secret_hash
+    BOOLEAN can_read
+  }
+  user_sessions {
+    BIGINT session_id
+    BIGINT user_id
+    STRING device_id
+    DATETIME created_at
+    STRING session_token
+    STRING ip_address
+    STRING user_agent
+  }
+  audit_logs {
+    BIGINT audit_id
+    BIGINT user_id
+    BIGINT entity_id
+    STRING request_id
+    DATETIME created_at
+    STRING event_type
+    STRING event_subtype
+  }
+  user_fee_tiers {
+    INT tier_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING tier_name
+    DECIMAL min_volume
+    DECIMAL max_volume
+    DECIMAL maker_fee_rate
+  }
+  user_trading_volumes {
+    BIGINT volume_id
+    BIGINT user_id
+    INT fee_tier_id
+    DECIMAL volume_30d
+    DECIMAL volume_7d
+    DECIMAL volume_24h
+    DATETIME last_calculated_at
+  }
+
+  users ||--o{ kyc_documents : references
+  users ||--o{ transactions : references
+  currencies ||--o{ trading_pairs : references
+  users ||--o{ wallets : references
+  currencies ||--o{ wallets : references
+  users ||--o{ orders : references
+  trading_pairs ||--o{ orders : references
+  currencies ||--o{ orders : references
+  trading_pairs ||--o{ trades : references
+  orders ||--o{ trades : references
+  users ||--o{ trades : references
+  currencies ||--o{ trades : references
+  wallets ||--o{ transactions : references
+  currencies ||--o{ transactions : references
+  trading_pairs ||--o{ price_history : references
+  users ||--o{ api_keys : references
+  users ||--o{ user_sessions : references
+  users ||--o{ audit_logs : references
+  users ||--o{ user_trading_volumes : references
+  user_fee_tiers ||--o{ user_trading_volumes : references
+```

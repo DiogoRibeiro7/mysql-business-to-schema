@@ -479,3 +479,223 @@ Areas for improvement:
 ## 📝 License
 
 Part of the MySQL Business-to-Schema project, MIT License.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  customers {
+    BIGINT customer_id
+    STRING email
+    STRING status
+    BIGINT referred_by_customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING phone_number
+  }
+  customer_addresses {
+    BIGINT address_id
+    BIGINT customer_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING label
+    STRING address_line1
+    STRING address_line2
+  }
+  restaurants {
+    BIGINT restaurant_id
+    STRING name
+    STRING email
+    STRING tax_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  restaurant_hours {
+    BIGINT hours_id
+    BIGINT restaurant_id
+    STRING day_of_week
+    DATETIME open_time
+    DATETIME close_time
+    BOOLEAN is_closed
+    DATETIME special_hours_date
+  }
+  menu_categories {
+    BIGINT category_id
+    BIGINT restaurant_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING description
+    INT display_order
+  }
+  menu_items {
+    BIGINT item_id
+    BIGINT restaurant_id
+    BIGINT category_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING description
+  }
+  item_customizations {
+    BIGINT customization_id
+    BIGINT item_id
+    DATETIME created_at
+    STRING group_name
+    BOOLEAN is_required
+    INT min_selections
+    INT max_selections
+  }
+  customization_options {
+    BIGINT option_id
+    BIGINT customization_id
+    STRING name
+    DECIMAL price_adjustment
+    BOOLEAN is_default
+    BOOLEAN is_available
+  }
+  drivers {
+    BIGINT driver_id
+    STRING email
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+    STRING phone_number
+    STRING password_hash
+  }
+  driver_shifts {
+    BIGINT shift_id
+    BIGINT driver_id
+    STRING status
+    DATETIME created_at
+    DATETIME scheduled_start
+    DATETIME scheduled_end
+    DATETIME actual_start
+  }
+  orders {
+    BIGINT order_id
+    BIGINT customer_id
+    BIGINT restaurant_id
+    BIGINT driver_id
+    BIGINT delivery_address_id
+    STRING payment_intent_id
+    STRING status
+  }
+  order_items {
+    BIGINT order_item_id
+    BIGINT order_id
+    BIGINT item_id
+    DATETIME created_at
+    STRING item_name
+    DECIMAL item_price
+    INT quantity
+  }
+  order_item_customizations {
+    BIGINT customization_id
+    BIGINT order_item_id
+    STRING group_name
+    STRING option_name
+    DECIMAL price_adjustment
+  }
+  delivery_tracking {
+    BIGINT tracking_id
+    BIGINT order_id
+    BIGINT driver_id
+    STRING status
+    DECIMAL latitude
+    DECIMAL longitude
+    INT heading
+  }
+  delivery_zones {
+    BIGINT zone_id
+    STRING name
+    DATETIME created_at
+    DATETIME updated_at
+    STRING boundary
+    DECIMAL base_delivery_fee
+    DECIMAL min_order_amount
+  }
+  restaurant_reviews {
+    BIGINT review_id
+    BIGINT restaurant_id
+    BIGINT customer_id
+    BIGINT order_id
+    DATETIME created_at
+    DATETIME updated_at
+    INT food_rating
+  }
+  driver_ratings {
+    BIGINT rating_id
+    BIGINT driver_id
+    BIGINT customer_id
+    BIGINT order_id
+    DATETIME created_at
+    INT rating
+    BOOLEAN on_time
+  }
+  promotions {
+    BIGINT promotion_id
+    STRING name
+    STRING code
+    DATETIME created_at
+    DATETIME updated_at
+    STRING description
+    STRING discount_type
+  }
+  promotion_usage {
+    BIGINT usage_id
+    BIGINT promotion_id
+    BIGINT customer_id
+    BIGINT order_id
+    DECIMAL discount_amount
+    DATETIME used_at
+  }
+  notifications {
+    BIGINT notification_id
+    BIGINT recipient_id
+    STRING title
+    STRING status
+    BIGINT order_id
+    DATETIME created_at
+    STRING recipient_type
+  }
+  payment_methods {
+    BIGINT payment_method_id
+    BIGINT customer_id
+    STRING type
+    STRING stripe_payment_method_id
+    STRING paypal_account_id
+    DATETIME created_at
+    DATETIME updated_at
+  }
+
+  customers ||--o{ customer_addresses : references
+  restaurants ||--o{ restaurant_hours : references
+  restaurants ||--o{ menu_categories : references
+  restaurants ||--o{ menu_items : references
+  menu_categories ||--o{ menu_items : references
+  menu_items ||--o{ item_customizations : references
+  item_customizations ||--o{ customization_options : references
+  drivers ||--o{ driver_shifts : references
+  customers ||--o{ orders : references
+  restaurants ||--o{ orders : references
+  drivers ||--o{ orders : references
+  customer_addresses ||--o{ orders : references
+  orders ||--o{ order_items : references
+  menu_items ||--o{ order_items : references
+  order_items ||--o{ order_item_customizations : references
+  orders ||--o{ delivery_tracking : references
+  drivers ||--o{ delivery_tracking : references
+  restaurants ||--o{ restaurant_reviews : references
+  customers ||--o{ restaurant_reviews : references
+  orders ||--o{ restaurant_reviews : references
+  drivers ||--o{ driver_ratings : references
+  customers ||--o{ driver_ratings : references
+  orders ||--o{ driver_ratings : references
+  promotions ||--o{ promotion_usage : references
+  customers ||--o{ promotion_usage : references
+  orders ||--o{ promotion_usage : references
+  orders ||--o{ notifications : references
+  customers ||--o{ payment_methods : references
+```

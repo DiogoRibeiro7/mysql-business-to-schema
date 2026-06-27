@@ -395,3 +395,217 @@ ORDER BY health_status, hb.tag_number;
 - Water conservation
 
 This Smart Agriculture system enables data-driven farming decisions for improved yields and sustainability.
+
+## Database Architecture (Mermaid ERD)
+
+```mermaid
+erDiagram
+  farms {
+    INT farm_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING farm_name
+    STRING farm_type
+    STRING owner_name
+    STRING location
+  }
+  fields {
+    INT field_id
+    INT farm_id
+    DATETIME created_at
+    STRING field_name
+    DECIMAL area_hectares
+    STRING soil_type
+    DECIMAL slope_percentage
+  }
+  zones {
+    INT zone_id
+    INT field_id
+    DATETIME created_at
+    STRING zone_name
+    DECIMAL area_hectares
+    STRING management_zone_type
+    STRING characteristics
+  }
+  crops {
+    INT crop_id
+    DATETIME created_at
+    STRING crop_name
+    STRING scientific_name
+    STRING crop_family
+    STRING crop_type
+    INT growth_days
+  }
+  planting_records {
+    INT planting_id
+    INT field_id
+    INT zone_id
+    INT crop_id
+    STRING status
+    DATETIME created_at
+    DATETIME updated_at
+  }
+  growth_stages {
+    INT stage_id
+    INT planting_id
+    DATETIME created_at
+    STRING stage_name
+    STRING stage_code
+    DATETIME observation_date
+    DECIMAL gdd_accumulated
+  }
+  sensors {
+    INT sensor_id
+    INT zone_id
+    DATETIME created_at
+    STRING sensor_code
+    STRING sensor_type
+    STRING manufacturer
+    STRING model
+  }
+  sensor_readings {
+    BIGINT reading_id
+    INT sensor_id
+    DATETIME timestamp
+    DECIMAL value
+    STRING unit
+    STRING quality_flag
+    DECIMAL battery_voltage
+  }
+  weather_stations {
+    INT station_id
+    INT farm_id
+    STRING station_name
+    DECIMAL latitude
+    DECIMAL longitude
+    INT elevation_m
+    DATETIME installation_date
+  }
+  weather_data {
+    BIGINT weather_id
+    INT station_id
+    DATETIME observation_time
+    DECIMAL temperature_c
+    DECIMAL humidity_percent
+    DECIMAL pressure_hpa
+    DECIMAL rainfall_mm
+  }
+  irrigation_systems {
+    INT system_id
+    INT field_id
+    STRING system_type
+    DECIMAL flow_rate_lpm
+    DECIMAL coverage_area_hectares
+    DECIMAL efficiency_percentage
+    DATETIME installation_date
+  }
+  irrigation_events {
+    INT event_id
+    INT system_id
+    INT zone_id
+    DATETIME start_time
+    DATETIME end_time
+    DATETIME created_at
+    DECIMAL water_amount_liters
+  }
+  irrigation_schedules {
+    INT schedule_id
+    INT system_id
+    DATETIME start_time
+    DATETIME created_at
+    STRING schedule_name
+    STRING days_of_week
+    INT duration_minutes
+  }
+  fertilizer_applications {
+    INT application_id
+    INT field_id
+    INT zone_id
+    INT operator_id
+    DATETIME created_at
+    DATETIME application_date
+    STRING fertilizer_type
+  }
+  pesticide_applications {
+    INT application_id
+    INT field_id
+    INT zone_id
+    INT operator_id
+    DATETIME created_at
+    DATETIME application_date
+    STRING product_name
+  }
+  animals {
+    INT animal_id
+    INT farm_id
+    INT mother_id
+    INT father_id
+    DATETIME created_at
+    DATETIME updated_at
+    STRING tag_number
+  }
+  health_records {
+    INT record_id
+    INT animal_id
+    DATETIME created_at
+    DATETIME record_date
+    STRING record_type
+    STRING description
+    STRING medication
+  }
+  milk_production {
+    INT production_id
+    INT animal_id
+    DATETIME milking_date
+    STRING milking_time
+    DECIMAL quantity_liters
+    DECIMAL fat_percentage
+    DECIMAL protein_percentage
+  }
+  harvest_records {
+    INT harvest_id
+    INT planting_id
+    DATETIME created_at
+    DATETIME harvest_date
+    DECIMAL area_harvested_hectares
+    DECIMAL total_yield_kg
+    DECIMAL marketable_yield_kg
+  }
+  yield_predictions {
+    INT prediction_id
+    INT planting_id
+    DATETIME created_at
+    DATETIME prediction_date
+    DECIMAL predicted_yield_kg_per_hectare
+    DECIMAL confidence_level
+    STRING model_version
+  }
+  operators {
+    INT operator_id
+    INT farm_id
+    STRING phone
+    STRING email
+    DATETIME created_at
+    STRING first_name
+    STRING last_name
+  }
+
+  farms ||--o{ fields : references
+  fields ||--o{ zones : references
+  fields ||--o{ planting_records : references
+  planting_records ||--o{ growth_stages : references
+  zones ||--o{ sensors : references
+  farms ||--o{ weather_stations : references
+  weather_stations ||--o{ weather_data : references
+  fields ||--o{ irrigation_systems : references
+  irrigation_systems ||--o{ irrigation_events : references
+  irrigation_systems ||--o{ irrigation_schedules : references
+  fields ||--o{ fertilizer_applications : references
+  fields ||--o{ pesticide_applications : references
+  farms ||--o{ animals : references
+  animals ||--o{ health_records : references
+  animals ||--o{ milk_production : references
+  planting_records ||--o{ harvest_records : references
+  planting_records ||--o{ yield_predictions : references
+  farms ||--o{ operators : references
+```
