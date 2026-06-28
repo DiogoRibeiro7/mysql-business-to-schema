@@ -207,11 +207,12 @@ jobs:
           REDIS_HOST: localhost
           REDIS_PORT: 6379
         run: |
-          # Create test directory if it doesn't exist
-          mkdir -p tests
-
-          # Run tests with coverage
-          pytest tests/ \
+          # Run the infra-free unit tests as a real gate (no `|| true`).
+          # `-o addopts=""` clears pytest.ini's addopts so the run does not
+          # require optional plugins (pytest-timeout/asyncio) or trip the
+          # aspirational --cov-fail-under threshold.
+          pytest tests/unit/ -m unit \
+            -o addopts="" \
             --cov=generators \
             --cov=analytics \
             --cov=cdc \
@@ -219,7 +220,7 @@ jobs:
             --cov-report=xml \
             --cov-report=html \
             --junitxml=junit.xml \
-            -v || true
+            -v
 
       - name: Upload Coverage Reports
         uses: codecov/codecov-action@v3

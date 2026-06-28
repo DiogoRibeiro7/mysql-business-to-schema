@@ -159,7 +159,11 @@ jobs:
 
       - name: Run Coverage
         run: |
-          pytest --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing || true
+          # Gate on the infra-free unit tests (no `|| true`). `-o addopts=""`
+          # clears pytest.ini's addopts so the run does not require optional
+          # plugins or trip the aspirational --cov-fail-under threshold.
+          pytest tests/unit/ -m unit -o addopts="" \
+            --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing
 
       - name: Detect Coverage Data
         id: coverage_data

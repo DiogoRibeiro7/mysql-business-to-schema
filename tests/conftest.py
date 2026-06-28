@@ -3,21 +3,20 @@
 import os
 import pytest
 import asyncio
-import docker
 import mysql.connector
-import redis
 from pathlib import Path
 from typing import Dict, Any
 from unittest.mock import Mock
 import tempfile
 import yaml
 from datetime import datetime
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from testcontainers.mysql import MySqlContainer
-from testcontainers.kafka import KafkaContainer
-from testcontainers.redis import RedisContainer
 from faker import Faker
+
+# NOTE: Heavy infrastructure dependencies (docker, redis, sqlalchemy,
+# testcontainers) are imported lazily inside the fixtures that need them.
+# Importing them at module scope would make the entire test session fail to
+# collect on any environment where those optional packages are not installed
+# (e.g. unit-test-only CI), even though unit tests never use them.
 
 # Initialize Faker for test data generation
 fake = Faker()
@@ -30,6 +29,8 @@ CI_PIPELINE = os.getenv("CI", "false").lower() == "true"
 @pytest.fixture(scope="session")
 def docker_client():
     """Docker client for container management."""
+    import docker
+
     return docker.from_env()
 
 
@@ -54,6 +55,8 @@ def mysql_container():
             "database": "test_db",
         }
     else:
+        from testcontainers.mysql import MySqlContainer
+
         with MySqlContainer("mysql:8.0") as mysql:
             yield {
                 "host": mysql.get_container_host_ip(),
@@ -92,6 +95,8 @@ def kafka_container():
     if CI_PIPELINE:
         yield {"bootstrap_servers": "localhost:9092"}
     else:
+        from testcontainers.kafka import KafkaContainer
+
         with KafkaContainer() as kafka:
             yield {"bootstrap_servers": kafka.get_bootstrap_server()}
 
@@ -102,6 +107,8 @@ def redis_container():
     if CI_PIPELINE:
         yield {"host": "localhost", "port": 6379}
     else:
+        from testcontainers.redis import RedisContainer
+
         with RedisContainer() as redis_cont:
             yield {
                 "host": redis_cont.get_container_host_ip(),
@@ -112,6 +119,8 @@ def redis_container():
 @pytest.fixture(scope="function")
 def redis_client(redis_container):
     """Redis client for tests."""
+    import redis
+
     client = redis.StrictRedis(
         host=redis_container["host"],
         port=redis_container["port"],
@@ -124,6 +133,9 @@ def redis_client(redis_container):
 @pytest.fixture(scope="function")
 def sqlalchemy_session(mysql_container):
     """Provide a SQLAlchemy session for ORM tests."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
     engine = create_engine(
         f"mysql+mysqlconnector://{mysql_container['user']}:{mysql_container['password']}"
         f"@{mysql_container['host']}:{mysql_container['port']}/{mysql_container['database']}"
