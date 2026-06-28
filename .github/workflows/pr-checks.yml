@@ -163,7 +163,7 @@ jobs:
           # clears pytest.ini's addopts so the run does not require optional
           # plugins or trip the aspirational --cov-fail-under threshold.
           pytest tests/unit/ -m unit -o addopts="" \
-            --cov=. --cov-report=xml:coverage.xml --cov-report=term-missing
+            --cov=generators --cov-report=xml:coverage.xml --cov-report=term-missing
 
       - name: Detect Coverage Data
         id: coverage_data
@@ -176,6 +176,9 @@ jobs:
           fi
 
       - name: Coverage Comment
+        # Cosmetic PR comment only; the Run Coverage step above is the gate, so
+        # a comment-rendering hiccup must never fail the check.
+        continue-on-error: true
         if: steps.coverage_data.outputs.has_coverage == 'true'
         uses: py-cov-action/python-coverage-comment-action@v3
         with:
@@ -249,8 +252,18 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
-            const base = ${{ env.base_performance }};
-            const pr = ${{ env.pr_performance }};
+            const base = Number(process.env.base_performance);
+            const pr = Number(process.env.pr_performance);
+
+            if (!Number.isFinite(base) || base <= 0) {
+              core.setFailed('Performance baseline value is missing or invalid.');
+              return;
+            }
+            if (!Number.isFinite(pr)) {
+              core.setFailed('PR performance value is missing or invalid.');
+              return;
+            }
+
             const diff = ((pr - base) / base) * 100;
 
             let message = `### Performance Impact\n\n`;
