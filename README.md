@@ -45,11 +45,11 @@ Generator coverage legend:
 | 09 | [Streaming ML](example_09_streaming_ml/) | Analytics | 33 | ✅ foldered |
 | 10 | [FinTech](example_10_fintech/) | Financial | 26 | ✅ foldered |
 | 11 | [Social Media](example_11_social_media/) | Social | 25 | ✅ foldered |
-| 12 | [Real Estate](example_12_real_estate/) | Real Estate | 29 | ⚪ none |
-| 13 | [Event Ticketing](example_13_event_ticketing/) | Entertainment | 26 | ⚪ none |
+| 12 | [Real Estate](example_12_real_estate/) | Real Estate | 29 | ✅ foldered |
+| 13 | [Event Ticketing](example_13_event_ticketing/) | Entertainment | 26 | ✅ foldered |
 | 14 | [Logistics](example_14_logistics/) | Logistics | 24 | ✅ foldered |
 | 15 | [Education](example_15_education/) | Education | 33 | 🟡 script (`generators/education/generator.py`) |
-| 16 | [Cryptocurrency](example_16_cryptocurrency/) | Finance | 14 | ⚪ none |
+| 16 | [Cryptocurrency](example_16_cryptocurrency/) | Finance | 14 | ✅ foldered |
 | 16b | [Crypto Exchange](example_16_cryptocurrency_exchange/) | Finance | 17 | 🟡 script (`generators/cryptocurrency_exchange_generator.py`) |
 | 17 | [Food Delivery](example_17_food_delivery/) | Delivery | 21 | 🟡 script (`generators/food_delivery_generator.py`) |
 | 18 | [Gaming Platform](example_18_gaming_platform/) | Gaming | 25 | 🟡 script (`generators/gaming_platform_generator.py`) |
@@ -147,6 +147,22 @@ cd generators/iot_bins
 python generate.py --config config.yaml
 ```
 
+You can also drive any generator through the unified runner:
+
+```bash
+python generators/run_generators.py --list          # show available generators
+python generators/run_generators.py iot_bins --test # run one in reduced-volume test mode
+```
+
+### Run tests
+
+```bash
+poetry install --no-root --with dev
+poetry run pytest tests/unit/ -m unit
+```
+
+The unit tests are fast and require no database. The integration/e2e suites under `tests/` rely on Docker-based services (MySQL, Kafka, Redis) and are exercised separately in CI.
+
 ## CI/CD
 
 Workflows are split for faster feedback and smaller jobs:
@@ -163,8 +179,9 @@ Workflows are split for faster feedback and smaller jobs:
 - `test-suite.yml`
 - `normalization-check.yml`
 - `badges.yml`
+- `dependabot-auto-merge.yml` (auto-merges passing Dependabot PRs)
 
-Note: some examples still require MySQL 8.1 alignment. Check the latest `test_report_*.txt` in the repo root for current status.
+Schema tests run against MySQL 8.0 and 8.1 via `schema-testing.yml`.
 
 ## Live Badge Strategy
 
@@ -224,7 +241,3 @@ pre-commit run --all-files
 MIT. See `LICENSE`.
 
 Security disclosures: [SECURITY.md](SECURITY.md)
-
-
-
-
