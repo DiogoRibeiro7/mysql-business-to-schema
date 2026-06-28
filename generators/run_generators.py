@@ -9,8 +9,7 @@ import os
 import sys
 import time
 import argparse
-import importlib.util
-import traceback
+import subprocess
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
 
@@ -118,88 +117,103 @@ class GeneratorRunner:
         self.verbose = verbose
         self.results: Dict[str, Any] = {}
 
-    def load_generator(self, name: str, test_mode: bool = False):
-        """Dynamically load a generator module."""
-        generator_path = Path(__file__).parent / name
+    def resolve_script(self, name: str, test_mode: bool = False) -> Optional[Path]:
+        """Resolve the generator script to execute for ``name``.
+
+        In test mode a dedicated ``test_generator.py`` is preferred when it
+        exists, falling back to the full ``generator.py``. Returns ``None``
+        when no runnable script is found.
+        """
+        generator_dir = Path(__file__).parent / name
 
         if test_mode:
-            script_name = "test_generator.py"
-        else:
-            script_name = "generator.py"
+            test_script = generator_dir / "test_generator.py"
+            if test_script.exists():
+                return test_script
 
-        script_path = generator_path / script_name
-
-        if not script_path.exists():
-            if test_mode:
-                # Fall back to regular generator if no test version
-                script_path = generator_path / "generator.py"
-                if not script_path.exists():
-                    raise FileNotFoundError(f"Generator not found: {name}")
-            else:
-                raise FileNotFoundError(f"Generator not found: {name}")
-
-        # Load the module
-        spec = importlib.util.spec_from_file_location(f"{name}_generator", script_path)
-        if spec is None or spec.loader is None:
-            raise ImportError(f"Failed to load generator module for {name}")
-        module = importlib.util.module_from_spec(spec)
-        sys.modules[f"{name}_generator"] = module
-
-        return spec, module
+        full_script = generator_dir / "generator.py"
+        return full_script if full_script.exists() else None
 
     def run_generator(
         self, name: str, test_mode: bool = False
     ) -> Tuple[bool, float, str]:
-        """Run a single generator.
+        """Run a single generator as a subprocess.
+
+        The generators perform their work inside an ``if __name__ ==
+        "__main__"`` block, so they must be executed as scripts (not merely
+        imported) for anything to happen. Running them in a subprocess also
+        isolates their working directory and ``sys.path`` from this process
+        and yields a truthful success/failure based on the exit code.
 
         Returns: (success, duration, message)
         """
         start_time = time.time()
 
+        if self.verbose:
+            info = GENERATORS[name]
+            print(f"\n{'='*60}")
+            print(f"Running: {info['name']} ({name})")
+            print(f"Example: {info['example']}")
+            print(f"Tables: {info['tables']}")
+            print(f"Mode: {'TEST' if test_mode else 'FULL'}")
+            print(f"Description: {info['description']}")
+            print(f"{'='*60}")
+
+        script_path = self.resolve_script(name, test_mode)
+        if script_path is None:
+            duration = time.time() - start_time
+            return False, duration, f"Generator not found: {name}"
+
+        # Ensure the configured output directory exists for generators that
+        # write into it.
+        output_path = self.output_dir / name
+        output_path.mkdir(parents=True, exist_ok=True)
+
+        # Run from the generator's own directory (its OUTPUT_DIR is relative
+        # to the working directory) while exposing the repo root on
+        # PYTHONPATH so test generators that ``import generators.<name>...``
+        # resolve correctly.
+        repo_root = Path(__file__).resolve().parent.parent
+        env = os.environ.copy()
+        existing_pythonpath = env.get("PYTHONPATH", "")
+        env["PYTHONPATH"] = (
+            str(repo_root) + os.pathsep + existing_pythonpath
+            if existing_pythonpath
+            else str(repo_root)
+        )
+
         try:
-            if self.verbose:
-                info = GENERATORS[name]
-                print(f"\n{'='*60}")
-                print(f"Running: {info['name']} ({name})")
-                print(f"Example: {info['example']}")
-                print(f"Tables: {info['tables']}")
-                print(f"Mode: {'TEST' if test_mode else 'FULL'}")
-                print(f"Description: {info['description']}")
-                print(f"{'='*60}")
-
-            # Change to generator directory
-            generator_dir = Path(__file__).parent / name
-            original_dir = os.getcwd()
-            os.chdir(generator_dir)
-
-            # Redirect output to the configured output directory
-            output_path = self.output_dir / name
-            output_path.mkdir(parents=True, exist_ok=True)
-
-            # Save original sys.path
-            original_path = sys.path.copy()
-            sys.path.insert(0, str(generator_dir))
-
-            try:
-                # Load and execute the generator
-                spec, module = self.load_generator(name, test_mode)
-                spec.loader.exec_module(module)
-
-                duration = time.time() - start_time
-                return True, duration, "Success"
-
-            finally:
-                # Restore original state
-                sys.path = original_path
-                os.chdir(original_dir)
-
+            completed = subprocess.run(
+                [sys.executable, str(script_path)],
+                cwd=str(script_path.parent),
+                capture_output=True,
+                text=True,
+                env=env,
+            )
         except Exception as e:
             duration = time.time() - start_time
-            error_msg = f"Error: {str(e)}"
             if self.verbose:
-                print(f"\n[ERROR] Failed to run {name}:")
-                traceback.print_exc()
-            return False, duration, error_msg
+                print(f"\n[ERROR] Failed to launch {name}: {e}")
+            return False, duration, f"Error: {e}"
+
+        duration = time.time() - start_time
+
+        if self.verbose:
+            if completed.stdout:
+                print(completed.stdout, end="")
+            if completed.stderr:
+                print(completed.stderr, end="")
+
+        if completed.returncode == 0:
+            return True, duration, "Success"
+
+        # Surface the tail of the output so failures are actionable.
+        output = (completed.stderr or completed.stdout or "").strip()
+        last_line = output.splitlines()[-1] if output else ""
+        message = f"Failed (exit {completed.returncode})"
+        if last_line:
+            message += f": {last_line}"
+        return False, duration, message
 
     def run_all(self, test_mode: bool = False, parallel: bool = False) -> Dict:
         """Run all generators."""
