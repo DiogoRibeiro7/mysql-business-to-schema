@@ -99,35 +99,35 @@ jobs:
             | xargs -r sqlfluff lint --dialect mysql
 
       - name: Dockerfile Linting (admin backend)
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: admin_dashboard/backend/Dockerfile
           failure-threshold: warning
           ignore: DL3008,DL3009,DL3015,DL3059,DL3018
 
       - name: Dockerfile Linting (admin frontend)
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: admin_dashboard/frontend/Dockerfile
           failure-threshold: warning
           ignore: DL3008,DL3009,DL3015,DL3059,DL3018
 
       - name: Dockerfile Linting (generators)
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: generators/Dockerfile
           failure-threshold: warning
           ignore: DL3008,DL3009,DL3015,DL3059,DL3018
 
       - name: Dockerfile Linting (schema exporter)
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: observability/exporters/schema-exporter/Dockerfile
           failure-threshold: warning
           ignore: DL3008,DL3009,DL3015,DL3059,DL3018
 
       - name: Dockerfile Linting (web demo)
-        uses: hadolint/hadolint-action@v3.3.0
+        uses: hadolint/hadolint-action@v3.4.0
         with:
           dockerfile: web-demo/Dockerfile
           failure-threshold: warning
