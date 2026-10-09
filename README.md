@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/project-logo.png" alt="mysql-business-to-schema project logo" width="160" height="160">
+</p>
+
 # MySQL Business-to-Schema
 
 <p align="center">
